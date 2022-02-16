@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Budget from './pages/Budget';
 import Home from './pages/Home';
 import SmartHome from './pages/SmartHome';
@@ -8,11 +8,11 @@ import SmartHome from './pages/SmartHome';
 const App = () => {
   return (
     <Router>
-      <Switch>
-        <Route path="/budget" component={Budget} />
-        <Route path="/smarthome" component={SmartHome} />
-        <Route path="/" component={Home} />
-      </Switch>
+      <Routes>
+        <Route path="/budget" element={<Budget/>} />
+        <Route path="/smarthome" element={<SmartHome/>} />
+        <Route path="/" element={<Home/>} />
+      </Routes>
     </Router>
   );
 }
