@@ -3,9 +3,6 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 
-import 'dotenv/config';
-import express from 'express';
-
 import { initializeApp } from 'firebase/app';
 const firebaseConfig = {
   apiKey: "AIzaSyBEokTSCPR2Cw-o5pKAUwTK8vlmNaIAASk",
@@ -15,7 +12,6 @@ const firebaseConfig = {
   messagingSenderId: "613377018757",
   appId: "1:613377018757:web:ebbb3c902c79b01aabd2ec"
 };
-
 const app = initializeApp(firebaseConfig);
 
 ReactDOM.render(
