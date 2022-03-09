@@ -3,6 +3,8 @@ import { getAuth, onAuthStateChanged, signInWithRedirect, GoogleAuthProvider, si
 import Clock from 'react-live-clock';
 import { doc, getDoc, getFirestore } from 'firebase/firestore';
 import WeatherBox from '../components/WeatherBox';
+import { Link } from 'react-router-dom';
+import { ChipIcon, ClipboardCheckIcon, CogIcon, CreditCardIcon, DocumentTextIcon, HomeIcon, InformationCircleIcon } from '@heroicons/react/outline';
 
 const Home = () => {
   const provider = new GoogleAuthProvider();
@@ -63,19 +65,30 @@ const Home = () => {
 
     (
     <div>
-      <Clock format={'h:mm A'} ticking={true} />
-      {profile && <h3>Welcome back, {profile.firstName}</h3>}
-      {familyName && <h5>The {familyName} family</h5>}
-      <button onClick={handleSignOut}>Sign Out</button>
+      <Clock className='flex justify-center text-6xl' format={'h:mm A'} ticking={true} />
+      {profile && <h3 className='flex justify-center text-4xl font-bold'>Welcome back, {profile.firstName}!</h3>}
+      {familyName && <h5 className='flex justify-center text-xl'>The {familyName} family</h5>}
+      <button onClick={handleSignOut} className='flex justify-center'>Sign Out</button>
 
       {owmApiKey && familyLocation && <WeatherBox familyLocation={familyLocation} apiKey={owmApiKey} />}
 
-      <div>
-        Icons + Text = links to other pages
-        <div>Smarthome</div>
-        <div>Budget</div>
-        <div>Information</div>
-        <div>Maintenance</div>
+      <div className='flex flex-row justify-center'>
+        <Link to='/smarthome' className='flex flex-col items-center'>
+          <ChipIcon className='h-20 w-20' />
+          <h4 className='text-xl'>Smarthome</h4>
+        </Link>
+        <Link to='/budget' className='flex flex-col items-center'>
+          <CreditCardIcon className='h-20 w-20' />
+          <h4 className='text-xl'>Budget</h4>
+        </Link>
+        <Link to='/info' className='flex flex-col items-center'>
+          <DocumentTextIcon className='h-20 w-20' />
+          <h4 className='text-xl'>Information</h4>
+        </Link>
+        <Link to='/maintenance' className='flex flex-col items-center'>
+          <CogIcon className='h-20 w-20' />
+          <h4 className='text-xl'>Maintenance</h4>
+        </Link>
       </div>
     </div>)
   );

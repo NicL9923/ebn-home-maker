@@ -11,7 +11,6 @@ const WeatherBox = (props) => {
     const url = `https://api.openweathermap.org/data/2.5/onecall?lat=${props.familyLocation.lat}&lon=${props.familyLocation.long}&exclude=minutely&appid=${props.apiKey}&units=imperial`; // Exclude minutely forecast
     const weatherData = await axios.get(url).then(resp => {
       if (resp.data) {
-        console.log(resp.data);
         // Get current
         setCurrentWeather(resp.data.current);
 
@@ -76,7 +75,7 @@ const WeatherBox = (props) => {
     };
 
     return (
-      <div>
+      <div className='flex flex-col items-center'>
         <h3>{curWeatherInfo.condition}</h3>
         <img src={curWeatherInfo.iconLink} alt='Weather icon' />
         <h4>{curWeatherInfo.temp}°F</h4>
@@ -93,7 +92,7 @@ const WeatherBox = (props) => {
     let parsedAlerts = [];
 
     weatherAlerts.forEach(alert => {
-      if (alert.sender_name.contains('Environmental Protection Agency') || alert.sender_name.contains('Integrated Public Alerrt and Warning System') || alert.sender_name.contains('National Oceanic and Atmospheric Administration') || alert.sender_name.contains('U.S. Geological Survey')) {
+      if (alert.sender_name.includes('Environmental Protection Agency') || alert.sender_name.includes('Integrated Public Alert and Warning System') || alert.sender_name.includes('National Oceanic and Atmospheric Administration') || alert.sender_name.includes('U.S. Geological Survey')) {
         parsedAlerts.push({
           event: alert.event,
           reporter: alert.sender_name,
@@ -137,10 +136,10 @@ const WeatherBox = (props) => {
     });
 
     return (
-      <div>
+      <div className='flex flex-row'>
         {parsedHourlyReports.map(rpt => {
           return (
-            <div>
+            <div className='flex flex-col items-center'>
               <h3>{rpt.hour}</h3>
               <img src={rpt.iconLink} alt='Weather icon' />
               <h4>{rpt.condition}</h4>
@@ -169,10 +168,10 @@ const WeatherBox = (props) => {
     });
 
     return (
-      <div>
+      <div className='flex flex-row'>
         {parsedDailyReports.map(rpt => {
           return (
-            <div>
+            <div className='flex flex-col items-center'>
               <h3>{rpt.day}</h3>
               <img src={rpt.iconLink} alt='Weather icon' />
               <h4>{rpt.condition}</h4>
@@ -191,10 +190,10 @@ const WeatherBox = (props) => {
 
   return (
     <div>
-      <div>{parseCurrentWeather()}</div>
-      <div>{parseWeatherAlerts()}</div>
-      <div>{parseHourlyWeather()}</div>
-      <div>{parseDailyWeather()}</div>
+      <div className='flex justify-center'>{parseCurrentWeather()}</div>
+      <div className='flex justify-center'>{parseWeatherAlerts()}</div>
+      <div className='flex justify-center'>{parseHourlyWeather()}</div>
+      <div className='flex justify-center'>{parseDailyWeather()}</div>
     </div>
   );
 }
