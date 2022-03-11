@@ -107,7 +107,7 @@ const WeatherBox = (props) => {
       <div>
         {parsedAlerts.map(alert => {
           return (
-            <div>
+            <div key={alert.event}>
               <h3>{alert.event}</h3>
               <h5>{alert.reporter}</h5>
               <p>{alert.description}</p>
@@ -139,7 +139,7 @@ const WeatherBox = (props) => {
       <div className='flex flex-row'>
         {parsedHourlyReports.map(rpt => {
           return (
-            <div className='flex flex-col items-center'>
+            <div className='flex flex-col items-center' key={rpt.hour}>
               <h3 className='font-bold'>{rpt.hour}</h3>
               <img src={rpt.iconLink} alt='Weather icon' />
               <h4>{rpt.condition}</h4>
@@ -171,7 +171,7 @@ const WeatherBox = (props) => {
       <div className='flex flex-row'>
         {parsedDailyReports.map(rpt => {
           return (
-            <div className='flex flex-col items-center'>
+            <div className='flex flex-col items-center' key={rpt.day}>
               <h3 className='font-bold'>{rpt.day}</h3>
               <img src={rpt.iconLink} alt='Weather icon' />
               <h4>{rpt.condition}</h4>

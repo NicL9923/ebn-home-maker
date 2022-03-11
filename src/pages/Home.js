@@ -16,9 +16,7 @@ const Home = (props) => {
     (<div>
         <button onClick={googleSignIn}>Login</button>
     </div>)
-
     :
-
     (
     <div>
       {profile && <ProfileIcon imgLink={profile.imgLink} />}
