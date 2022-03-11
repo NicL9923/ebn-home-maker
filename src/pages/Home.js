@@ -1,60 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import { getAuth, onAuthStateChanged, signInWithRedirect, GoogleAuthProvider, signOut } from 'firebase/auth';
+import React from 'react';
+import { signInWithRedirect, GoogleAuthProvider } from 'firebase/auth';
 import Clock from 'react-live-clock';
-import { doc, getDoc, getFirestore } from 'firebase/firestore';
 import WeatherBox from '../components/WeatherBox';
 import { Link } from 'react-router-dom';
-import { ChipIcon, ClipboardCheckIcon, CogIcon, CreditCardIcon, DocumentTextIcon, HomeIcon, InformationCircleIcon } from '@heroicons/react/outline';
+import { ChipIcon, CogIcon, CreditCardIcon, DocumentTextIcon } from '@heroicons/react/outline';
+import ProfileIcon from '../components/ProfileIcon';
 
-const Home = () => {
+const Home = (props) => {
+  const { profile, family, user, auth } = props;
   const provider = new GoogleAuthProvider();
-  const auth = getAuth();
-  const db = getFirestore();
-  const [user, setUser] = useState(null);
-  const [profile, setProfile] = useState(null);
-  const [familyName, setFamilyName] = useState(null);
-  const [familyLocation, setFamilyLocation] = useState(null);
-  const [owmApiKey, setOwmApiKey] = useState(null);
 
   const googleSignIn = () => signInWithRedirect(auth, provider);
-  
-  const handleSignOut = () => signOut(auth).then(() => {
-    console.log("Successfully signed out");
-  }).catch(error => {
-    console.error("Error signing out: " + error);
-  });
-
-  const getProfile = async (userId) => {
-    const profileDoc = await getDoc(doc(db, 'profiles', userId));
-    if (profileDoc.exists()) {
-      const profileData = profileDoc.data();
-      setProfile(profileData);
-      getFamilyName(profileData.familyId);
-    } else {
-      // User doesn't have profile -> TODO: prompt them to set at least their name
-    }
-  };
-
-  const getFamilyName = async (familyId) => {
-    const familyDoc = await getDoc(doc(db, 'families', familyId));
-    if (familyDoc.exists()) {
-      const familyData = familyDoc.data();
-      setFamilyName(familyData.name);
-      setFamilyLocation(familyData.location);
-      setOwmApiKey(familyData.openweathermap_api_key);
-    } else {
-      // User doesn't have a family -> TODO: offer to create one, setting them as it's head and allowing them to send invite link
-    }
-  };
-
-  useEffect(() => {
-    onAuthStateChanged(auth, user => {
-      setUser(user);
-      if (user) {
-        getProfile(user.uid);
-      }
-    })
-  }, []);
 
   return (!user ? 
     (<div>
@@ -65,12 +21,13 @@ const Home = () => {
 
     (
     <div>
+      {profile && <ProfileIcon imgLink={profile.imgLink} />}
+
       <Clock className='flex justify-center text-6xl' format={'h:mm A'} ticking={true} />
       {profile && <h3 className='flex justify-center text-4xl font-bold'>Welcome back, {profile.firstName}!</h3>}
-      {familyName && <h5 className='flex justify-center text-xl'>The {familyName} family</h5>}
-      <button onClick={handleSignOut} className='flex justify-center'>Sign Out</button>
+      {family && <h5 className='flex justify-center text-xl'>The {family.name} family</h5>}
 
-      {owmApiKey && familyLocation && <WeatherBox familyLocation={familyLocation} apiKey={owmApiKey} />}
+      {family && <WeatherBox familyLocation={family.location} apiKey={family.openweathermap_api_key} />}
 
       <div className='flex flex-row justify-center'>
         <Link to='/smarthome' className='flex flex-col items-center'>

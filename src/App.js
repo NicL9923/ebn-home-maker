@@ -1,21 +1,63 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import { getFirestore, getDoc, doc } from 'firebase/firestore';
+
 import Home from './pages/Home';
 import SmartHome from './pages/SmartHome';
 import Budget from './pages/Budget';
 import Information from './pages/Information';
 import Maintenance from './pages/Maintenance';
+import Profile from './pages/Profile';
 
 
 const App = () => {
+  const auth = getAuth();
+  const db = getFirestore();
+
+  const [user, setUser] = useState(null);
+  const [profile, setProfile] = useState(null);
+  const [family, setFamily] = useState(null);
+
+  const getProfile = async (userId) => {
+    const profileDoc = await getDoc(doc(db, 'profiles', userId));
+    if (profileDoc.exists()) {
+      const profileData = profileDoc.data();
+      setProfile(profileData);
+      getFamily(profileData.familyId);
+    } else {
+      // User doesn't have profile -> TODO: prompt them to set at least their name
+    }
+  };
+
+  const getFamily = async (familyId) => {
+    const familyDoc = await getDoc(doc(db, 'families', familyId));
+    if (familyDoc.exists()) {
+      const familyData = familyDoc.data();
+      setFamily(familyData);
+    } else {
+      // User doesn't have a family -> TODO: offer to create one, setting them as it's head and allowing them to send invite link
+    }
+  };
+
+  useEffect(() => {
+    onAuthStateChanged(auth, user => {
+      setUser(user);
+      if (user) {
+        getProfile(user.uid);
+      }
+    })
+  }, []);
+
   return (
     <Router>
       <Routes>
-        <Route path="/smarthome" element={<SmartHome/>} />
-        <Route path="/budget" element={<Budget/>} />
-        <Route path="/info" element={<Information/>} />
-        <Route path="/maintenance" element={<Maintenance/>} />
-        <Route path="/" element={<Home/>} />
+        <Route path="/smarthome" element={<SmartHome />} />
+        <Route path="/budget" element={<Budget />} />
+        <Route path="/info" element={<Information />} />
+        <Route path="/maintenance" element={<Maintenance />} />
+        <Route path="/profile" element={<Profile profile={profile} setProfile={setProfile} family={family} setFamily={setFamily} user={user} />} />
+        <Route path="/" element={<Home profile={profile} family={family} user={user} auth={auth} />} />
       </Routes>
     </Router>
   );

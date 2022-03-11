@@ -140,7 +140,7 @@ const WeatherBox = (props) => {
         {parsedHourlyReports.map(rpt => {
           return (
             <div className='flex flex-col items-center'>
-              <h3>{rpt.hour}</h3>
+              <h3 className='font-bold'>{rpt.hour}</h3>
               <img src={rpt.iconLink} alt='Weather icon' />
               <h4>{rpt.condition}</h4>
               <h5>{rpt.temp}°F (Feels like {rpt.feelsLike}°)</h5>
@@ -172,7 +172,7 @@ const WeatherBox = (props) => {
         {parsedDailyReports.map(rpt => {
           return (
             <div className='flex flex-col items-center'>
-              <h3>{rpt.day}</h3>
+              <h3 className='font-bold'>{rpt.day}</h3>
               <img src={rpt.iconLink} alt='Weather icon' />
               <h4>{rpt.condition}</h4>
               <h4>High: {rpt.tempHigh}°F</h4>
