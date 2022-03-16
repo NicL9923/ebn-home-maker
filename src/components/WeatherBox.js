@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { Alert, AlertTitle, Container, Stack, Typography } from '@mui/material';
+import Image from 'material-ui-image';
 
 const WeatherBox = (props) => {
   const [currentWeather, setCurrentWeather] = useState(null);
@@ -20,10 +22,10 @@ const WeatherBox = (props) => {
         }
 
         // Get next 12 hours
-        setHourlyWeather(resp.data.hourly.slice(1, 12));
+        setHourlyWeather(resp.data.hourly.slice(1, 13));
 
-        // Get NEXT 5 days (daily[] - idx 1..5)
-        setDailyWeather(resp.data.daily.slice(1, 5));
+        // Get NEXT 5 days
+        setDailyWeather(resp.data.daily.slice(1, 6));
       } else {
         console.error("Error: weather data missing");
       }
@@ -75,14 +77,14 @@ const WeatherBox = (props) => {
     };
 
     return (
-      <div className='flex flex-col items-center'>
-        <h3>{curWeatherInfo.condition}</h3>
-        <img src={curWeatherInfo.iconLink} alt='Weather icon' />
-        <h4>{curWeatherInfo.temp}°F</h4>
-        <h5>Feels like {curWeatherInfo.feelsLike}°</h5>
-        <h6>Humidity: {curWeatherInfo.humidity}%</h6>
-        <h6>Wind: {curWeatherInfo.wind}mph</h6>
-      </div>
+      <Stack direction='column' justifyContent='center' alignItems='center' alignContent='center'>
+        <Typography variant='h5'>{curWeatherInfo.condition}</Typography>
+        <Image src={curWeatherInfo.iconLink} alt='Weather icon' />
+        <Typography variant='h6'>{curWeatherInfo.temp}°F</Typography>
+        <Typography variant='h6'>Feels like {curWeatherInfo.feelsLike}°</Typography>
+        <Typography variant='body1'>Humidity: {curWeatherInfo.humidity}%</Typography>
+        <Typography variant='body1'>Wind: {curWeatherInfo.wind}mph</Typography>
+      </Stack>
     );
   };
 
@@ -104,17 +106,17 @@ const WeatherBox = (props) => {
     if (!parsedAlerts) return;
 
     return (
-      <div>
+      <Stack direction='column' alignContent='center'>
         {parsedAlerts.map(alert => {
           return (
-            <div key={alert.event}>
-              <h3>{alert.event}</h3>
+            <Alert severity='error' key={alert.event}>
+              <AlertTitle>{alert.event}</AlertTitle>
               <h5>{alert.reporter}</h5>
               <p>{alert.description}</p>
-            </div>
+            </Alert>
           );
         })}
-      </div>
+      </Stack>
     );
   };
 
@@ -136,19 +138,19 @@ const WeatherBox = (props) => {
     });
 
     return (
-      <div className='flex flex-row'>
+      <Stack direction='row'>
         {parsedHourlyReports.map(rpt => {
           return (
-            <div className='flex flex-col items-center' key={rpt.hour}>
+            <Stack direction='column' alignContent='center' key={rpt.hour}>
               <h3 className='font-bold'>{rpt.hour}</h3>
               <img src={rpt.iconLink} alt='Weather icon' />
               <h4>{rpt.condition}</h4>
-              <h5>{rpt.temp}°F (Feels like {rpt.feelsLike}°)</h5>
-              <h6>Humidity: {rpt.humidity}%</h6>
-            </div>
+              <h5>{rpt.temp}°F (FL {rpt.feelsLike}°)</h5>
+              <h6>HUM: {rpt.humidity}%</h6>
+            </Stack>
           );
         })}
-      </div>
+      </Stack>
     );
   };
 
@@ -168,19 +170,19 @@ const WeatherBox = (props) => {
     });
 
     return (
-      <div className='flex flex-row'>
+      <Stack direction='row'>
         {parsedDailyReports.map(rpt => {
           return (
-            <div className='flex flex-col items-center' key={rpt.day}>
+            <Stack direction='column' alignContent='center' key={rpt.day}>
               <h3 className='font-bold'>{rpt.day}</h3>
               <img src={rpt.iconLink} alt='Weather icon' />
               <h4>{rpt.condition}</h4>
               <h4>High: {rpt.tempHigh}°F</h4>
               <h4>Low: {rpt.tempLow}°F</h4>
-            </div>
+            </Stack>
           );
         })}
-      </div>
+      </Stack>
     );
   };
 
@@ -190,10 +192,10 @@ const WeatherBox = (props) => {
 
   return (
     <div>
-      <div className='flex justify-center'>{parseCurrentWeather()}</div>
-      <div className='flex justify-center'>{parseWeatherAlerts()}</div>
-      <div className='flex justify-center'>{parseHourlyWeather()}</div>
-      <div className='flex justify-center'>{parseDailyWeather()}</div>
+      <Container>{parseCurrentWeather()}</Container>
+      <>{parseWeatherAlerts()}</>
+      <>{parseHourlyWeather()}</>
+      <>{parseDailyWeather()}</>
     </div>
   );
 }

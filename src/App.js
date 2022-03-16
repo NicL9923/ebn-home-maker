@@ -9,6 +9,7 @@ import Budget from './pages/Budget';
 import Information from './pages/Information';
 import Maintenance from './pages/Maintenance';
 import Profile from './pages/Profile';
+import Navbar from './components/Navbar';
 
 
 const App = () => {
@@ -51,6 +52,8 @@ const App = () => {
 
   return (
     <Router>
+      <Navbar user={user} profile={profile} auth={auth} />
+
       <Routes>
         <Route path="/smarthome" element={<SmartHome />} />
         <Route path="/budget" element={<Budget />} />
