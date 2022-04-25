@@ -1,0 +1,70 @@
+***Data Structs***
+Profiles
+    budgets
+    familyId
+    firstName
+    imgLink
+
+Families
+    headOfFamily
+    location
+        lat
+        long
+    members
+    name
+    openweathermap_api_key
+    pets
+        imgLink
+        name
+    events **TODO
+        date
+        repeatFrequency
+        name
+
+
+Budgets
+    monthlyNetIncome
+
+    categories
+    editors
+    savingsBlobs
+        currentAmt
+        goalAmt
+        name
+    transactions
+        amt
+        category
+        name
+        timestamp
+    investmentAccts **TODO
+        name
+        broker
+        type
+        value
+        prevValues
+            date
+            value
+
+Residences
+    img
+    name
+    yearBuilt
+    yearPurchased
+    MaintenanceMarkers
+
+Vehicles **TODO
+	img
+    Year
+	Make
+	Model
+	Trim
+	Engine
+
+	Miles
+	ServiceLogEntries
+		Date
+		Note
+	MaintenanceMarkers
+		Mileage
+		Note
+

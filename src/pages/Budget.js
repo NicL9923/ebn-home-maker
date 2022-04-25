@@ -1,9 +1,17 @@
+import { Typography } from '@mui/material';
 import React from 'react';
 
 const Budget = () => {
   return (
     <div>
-        Budget
+      <Typography variant='h4'>Budget</Typography>
+        <div>Month Year</div>
+
+      <Typography variant='h4'>Savings</Typography>
+
+      <Typography variant='h4'>Investments</Typography>
+
+      <Typography variant='h4'>Transactions</Typography>
     </div>
   );
 }

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Alert, AlertTitle, Container, Stack, Typography } from '@mui/material';
 import Image from 'material-ui-image';
+import { height } from '@mui/system';
 
 const WeatherBox = (props) => {
   const [currentWeather, setCurrentWeather] = useState(null);
@@ -77,9 +78,9 @@ const WeatherBox = (props) => {
     };
 
     return (
-      <Stack direction='column' justifyContent='center' alignItems='center' alignContent='center'>
+      <Stack direction='column' alignContent='center' textAlign='center' mb={4}>
         <Typography variant='h5'>{curWeatherInfo.condition}</Typography>
-        <Image src={curWeatherInfo.iconLink} alt='Weather icon' />
+        <Image src={curWeatherInfo.iconLink} alt='weather icon' />
         <Typography variant='h6'>{curWeatherInfo.temp}°F</Typography>
         <Typography variant='h6'>Feels like {curWeatherInfo.feelsLike}°</Typography>
         <Typography variant='body1'>Humidity: {curWeatherInfo.humidity}%</Typography>
@@ -106,7 +107,7 @@ const WeatherBox = (props) => {
     if (!parsedAlerts) return;
 
     return (
-      <Stack direction='column' alignContent='center'>
+      <Stack direction='column' alignContent='center' mb={4}>
         {parsedAlerts.map(alert => {
           return (
             <Alert severity='error' key={alert.event}>
@@ -138,14 +139,15 @@ const WeatherBox = (props) => {
     });
 
     return (
-      <Stack direction='row'>
+      <Stack direction='row' alignItems='center' justifyContent='center' spacing={4} mb={4}>
         {parsedHourlyReports.map(rpt => {
           return (
-            <Stack direction='column' alignContent='center' key={rpt.hour}>
-              <h3 className='font-bold'>{rpt.hour}</h3>
+            <Stack direction='column' alignContent='center' textAlign='center' key={rpt.hour} spacing={1}>
+              <h3 className='font-bold'>{(rpt.hour < 12) ? (`${rpt.hour} AM`) : (`${(rpt.hour === 12) ? rpt.hour : (rpt.hour - 12)} PM`)}</h3>
               <img src={rpt.iconLink} alt='Weather icon' />
               <h4>{rpt.condition}</h4>
-              <h5>{rpt.temp}°F (FL {rpt.feelsLike}°)</h5>
+              <h5>{rpt.temp}°F</h5>
+              <h5>(FL {rpt.feelsLike}°)</h5>
               <h6>HUM: {rpt.humidity}%</h6>
             </Stack>
           );
@@ -170,10 +172,10 @@ const WeatherBox = (props) => {
     });
 
     return (
-      <Stack direction='row'>
+      <Stack direction='row' alignItems='center' justifyContent='center' spacing={5}>
         {parsedDailyReports.map(rpt => {
           return (
-            <Stack direction='column' alignContent='center' key={rpt.day}>
+            <Stack direction='column' alignContent='center' textAlign='center' key={rpt.day} spacing={1}>
               <h3 className='font-bold'>{rpt.day}</h3>
               <img src={rpt.iconLink} alt='Weather icon' />
               <h4>{rpt.condition}</h4>
@@ -192,7 +194,7 @@ const WeatherBox = (props) => {
 
   return (
     <div>
-      <Container>{parseCurrentWeather()}</Container>
+      <Container maxWidth='xs'>{parseCurrentWeather()}</Container>
       <>{parseWeatherAlerts()}</>
       <>{parseHourlyWeather()}</>
       <>{parseDailyWeather()}</>

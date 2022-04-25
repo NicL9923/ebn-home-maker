@@ -9,7 +9,7 @@ const Home = (props) => {
 
   return (
     <Container>
-      <Stack direction='column' alignItems='center'>
+      <Stack direction='column' alignItems='center' mb={5}>
         <Box component={Typography} variant='h1'><Clock format={'h:mm A'} ticking={true} /></Box>
         {profile && 
           <Typography variant='h3'>Welcome back, {profile.firstName}!</Typography>

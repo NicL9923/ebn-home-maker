@@ -105,6 +105,8 @@ const Profile = (props) => {
               {user.uid === family.headOfFamily && <Button variant='outlined' startIcon={<Add />}>Add a pet</Button>}
             </div>
 
+            <div>Family events (hOF can add/remove/change events)</div>
+
             <div>Invite link to family (TODO: /joinFamily/*familyId*)</div>
             <div>
               <button>Leave Family</button>
