@@ -29,7 +29,7 @@ const ProfileIcon = (props) => {
         <Menu
           id='profile-menu'
           anchorEl={anchorEl}
-          open={anchorEl}
+          open={anchorEl ? anchorEl : false}
           onClose={() => setAnchorEl(null)}
           MenuListProps={{ 'aria-labelledby': 'profile-button' }}
         >

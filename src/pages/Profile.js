@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { getDoc, doc } from 'firebase/firestore';
-import { Avatar, Button, IconButton, Input } from '@mui/material';
+import { Avatar, Button, IconButton, Input, Stack } from '@mui/material';
 import { Add, Close, Edit, PhotoCamera } from '@mui/icons-material';
 import MapPicker from 'react-google-map-picker';
-
-// TODO: figure out if there's a map package that users can find their home address so we can get the lat/long from it to store in the family doc
 
 const Profile = (props) => {
   const { profile, setProfile, family, setFamily, user, db } = props;
@@ -76,7 +74,7 @@ const Profile = (props) => {
 
             <div>
               <p>Members</p>
-              <div className='flex flex-row'>
+              <Stack direction='row'>
                 {familyMemberProfiles && familyMemberProfiles.map(profile =>
                   <div key={profile.firstName}>
                     <p>{profile.firstName}</p>
@@ -84,11 +82,11 @@ const Profile = (props) => {
                     {user.uid === family.headOfFamily && <Button variant='outlined' startIcon={<Close />}>Remove</Button>}
                   </div>
                 )}
-              </div>
+              </Stack>
             </div>
             <div>
               <p>Pets</p>
-              <div className='flex flex-row'>
+              <Stack direction='row'>
                 {family.pets.map(pet =>
                   <div key={pet.name}>
                     <p>{pet.name}</p>
@@ -101,7 +99,7 @@ const Profile = (props) => {
                     }
                   </div>
                 )}
-              </div>
+              </Stack>
               {user.uid === family.headOfFamily && <Button variant='outlined' startIcon={<Add />}>Add a pet</Button>}
             </div>
 
@@ -123,11 +121,16 @@ const Profile = (props) => {
                     <p>Longitude: {family.location.long}</p>
                   </div>
                   <MapPicker
-                    defaultLocation={{ lat: 0, lng: 0 }}
+                    defaultLocation={{ lat: parseFloat(family.location.lat), lng: parseFloat(family.location.long) }}
                     style={{ height: '500px' }}
                     onChangeLocation={(newLat, newLong) => { console.log(newLat + ' ' + newLong) }}
-                    apiKey='AIzaSyD9p8IuoNFFFDy0-VisdwcX3mzIYNoeAHs'
+                    apiKey={family.gmaps_api_key}
                   />
+                </div>
+
+                <div>
+                  <p>Google Maps API Key</p>
+                  <p>{family.gmaps_api_key}</p>
                 </div>
                 
                 <div>

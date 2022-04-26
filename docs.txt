@@ -13,6 +13,7 @@ Families
     members
     name
     openweathermap_api_key
+    gmaps_api_key
     pets
         imgLink
         name
@@ -20,6 +21,7 @@ Families
         date
         repeatFrequency
         name
+    vehicles
 
 
 Budgets
@@ -66,5 +68,5 @@ Vehicles **TODO
 		Note
 	MaintenanceMarkers
 		Mileage
-		Note
+		maintenanceReq
 

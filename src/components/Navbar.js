@@ -35,7 +35,7 @@ const Navbar = (props) => {
             <Menu
                 id='menu-appbar'
                 anchorEl={anchorEl}
-                open={anchorEl}
+                open={anchorEl ? anchorEl : false}
                 onClose={() => setAnchorEl(null)}
             >
                 <MenuItem onClick={() => setAnchorEl(null)}>
