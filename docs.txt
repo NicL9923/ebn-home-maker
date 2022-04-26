@@ -1,6 +1,6 @@
 ***Data Structs***
 Profiles
-    budgets
+    budget
     familyId
     firstName
     imgLink
@@ -24,11 +24,19 @@ Families
     vehicles
     residences
 
-
 Budgets
+    name
+
     monthlyNetIncome
 
     categories
+        name
+        currentSpent
+        totalAllotted
+        subcategories
+            name
+            currentSpent
+            totalAllotted
     editors
     savingsBlobs
         currentAmt
@@ -74,4 +82,3 @@ Vehicles **TODO
 	maintenanceMarkers
 		mileage
 		maintenanceReq
-

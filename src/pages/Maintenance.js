@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { getDoc, doc } from 'firebase/firestore';
-import { Button, Card, CardActionArea, CardActions, CardContent, CardMedia, Stack, Typography } from '@mui/material';
+import { Button, Card, CardActions, CardContent, CardMedia, Stack, Typography } from '@mui/material';
 
 const Maintenance = (props) => {
   const { family, db } = props;
