@@ -58,7 +58,7 @@ const App = () => {
         <Route path="/smarthome" element={<SmartHome />} />
         <Route path="/budget" element={<Budget />} />
         <Route path="/info" element={<Information />} />
-        <Route path="/maintenance" element={<Maintenance />} />
+        <Route path="/maintenance" element={<Maintenance family={family} db={db} />} />
         <Route path="/profile" element={<Profile profile={profile} setProfile={setProfile} family={family} setFamily={setFamily} user={user} db={db} />} />
         <Route path="/" element={<Home profile={profile} family={family} user={user} auth={auth} />} />
       </Routes>

@@ -22,6 +22,7 @@ Families
         repeatFrequency
         name
     vehicles
+    residences
 
 
 Budgets
@@ -52,21 +53,25 @@ Residences
     name
     yearBuilt
     yearPurchased
-    MaintenanceMarkers
+    maintenanceMarkers
+        houseAgeYears
+        maintenanceReq
 
 Vehicles **TODO
 	img
-    Year
-	Make
-	Model
-	Trim
-	Engine
+    year
+	make
+	model
+	trim
+	engine
+    vin
+    licensePlate
 
-	Miles
-	ServiceLogEntries
-		Date
-		Note
-	MaintenanceMarkers
-		Mileage
+	miles
+	serviceLogEntries
+		date
+		note
+	maintenanceMarkers
+		mileage
 		maintenanceReq
 
