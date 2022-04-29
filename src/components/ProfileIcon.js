@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { getAuth, signOut } from 'firebase/auth';
 import { Link } from 'react-router-dom';
-import { Avatar, Divider, Menu, MenuItem } from '@mui/material';
+import { Avatar, Button, Divider, Menu, MenuItem } from '@mui/material';
 
 const ProfileIcon = (props) => {
   const auth = getAuth();
@@ -33,9 +33,9 @@ const ProfileIcon = (props) => {
           onClose={() => setAnchorEl(null)}
           MenuListProps={{ 'aria-labelledby': 'profile-button' }}
         >
-          <MenuItem onClick={() => setAnchorEl(null)}><Link to='/profile'>My Profile</Link></MenuItem>
+          <MenuItem onClick={() => setAnchorEl(null)}><Button component={Link} to='/profile'>My Profile</Button></MenuItem>
           <Divider />
-          <MenuItem onClick={() => { setAnchorEl(null); handleSignOut(); }}>Sign Out</MenuItem>
+          <MenuItem onClick={() => { setAnchorEl(null); handleSignOut(); }}><Button>Sign Out</Button></MenuItem>
         </Menu>
       </div>
     </div>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getDoc, doc } from 'firebase/firestore';
-import { Avatar, Button, IconButton, Input, Stack } from '@mui/material';
+import { Avatar, Button, IconButton, Input, Stack, Typography } from '@mui/material';
 import { Add, Close, Edit, PhotoCamera } from '@mui/icons-material';
 import MapPicker from 'react-google-map-picker';
 
@@ -31,17 +31,16 @@ const Profile = (props) => {
   }, [family]);
 
   return (
-    <div>
-      <h1 className='flex flex-row justify-center text-6xl font-bold'>Profile</h1>
+    <>
+      <Typography variant='h2'>My Profile</Typography>
 
-      <div className='flex flex-col items-center'>
+      <div>
         {!profile ? (
           <div>
             You don't have a profile!
           </div>
         ) : (
-          <div>
-            <h3 className='text-3xl font-bold'>My Profile</h3>
+          <Stack alignItems='center' justifyContent='center'>
             <div>
               <p>My Name</p>
               <div>{profile.firstName}</div>
@@ -55,7 +54,7 @@ const Profile = (props) => {
                 <IconButton aria-label='upload picture' component='span'><PhotoCamera /></IconButton>
               </label>
             </div>
-          </div>
+          </Stack>
         )}
         
         {!family ? (
@@ -64,7 +63,7 @@ const Profile = (props) => {
           </div>
         ) : (
           <div>
-            <h3 className='text-3xl font-bold'>My Family</h3>
+            <h3>My Family</h3>
 
             <div>
               <p>Family Name</p>
@@ -122,7 +121,7 @@ const Profile = (props) => {
                   </div>
                   <MapPicker
                     defaultLocation={{ lat: parseFloat(family.location.lat), lng: parseFloat(family.location.long) }}
-                    style={{ height: '500px' }}
+                    style={{ height: 500, width: 750 }}
                     onChangeLocation={(newLat, newLong) => { console.log(newLat + ' ' + newLong) }}
                     apiKey={family.gmaps_api_key}
                   />
@@ -142,7 +141,7 @@ const Profile = (props) => {
           </div>
         )}
       </div>
-    </div>
+    </>
   );
 }
 

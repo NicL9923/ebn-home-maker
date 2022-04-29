@@ -39,36 +39,36 @@ const Navbar = (props) => {
                 onClose={() => setAnchorEl(null)}
             >
                 <MenuItem onClick={() => setAnchorEl(null)}>
-                    <Link to='/smarthome'>
+                    <Button component={Link} to='/smarthome'>
                         <Stack direction='row' spacing={1}>
                             <MemoryOutlinedIcon />
                             <h4>Smarthome</h4>
                         </Stack>
-                    </Link>
+                    </Button>
                 </MenuItem>
                 <MenuItem onClick={() => setAnchorEl(null)}>
-                    <Link to='/budget'>
+                    <Button component={Link} to='/budget'>
                         <Stack direction='row' spacing={1}>
                             <PaymentsOutlinedIcon />
                             <h4>Budget</h4>
                         </Stack>
-                    </Link>
+                    </Button>
                 </MenuItem>
                 <MenuItem onClick={() => setAnchorEl(null)}>
-                    <Link to='/info'>
+                    <Button component={Link} to='/info'>
                         <Stack direction='row' spacing={1}>
                             <EventNoteOutlinedIcon />
                             <h4>Information</h4>
                         </Stack>
-                    </Link>
+                    </Button>
                 </MenuItem>
                 <MenuItem onClick={() => setAnchorEl(null)}>
-                    <Link to='/maintenance'>
+                    <Button component={Link} to='/maintenance'>
                         <Stack direction='row' spacing={1}>
                             <SettingsOutlinedIcon />
                             <h4>Maintenance</h4>
                         </Stack>
-                    </Link>
+                    </Button>
                 </MenuItem>
             </Menu>
 
@@ -76,7 +76,7 @@ const Navbar = (props) => {
             <Typography variant='h6' component='div' sx={{ flexGrow: 1 }}>Our Home</Typography>
 
             {user && profile && <ProfileIcon imgLink={profile.imgLink} />}
-            {!user && <Button onClick={googleSignIn}>Login</Button>}
+            {!user && <Button onClick={googleSignIn} variant='contained'>Login</Button>}
         </Toolbar>
     </AppBar>
   );
