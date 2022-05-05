@@ -50,10 +50,9 @@ Budgets
     investmentAccts **TODO
         name
         broker
-        type
-        value
+        curValue
         prevValues
-            date
+            monthYear
             value
 
 Residences
