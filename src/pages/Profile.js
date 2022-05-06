@@ -110,7 +110,7 @@ const Profile = (props) => {
 
               <DialogActions>
                 <Button onClick={() => setEditingProfile(false)}>Cancel</Button>
-                <Button onClick={saveEditedProfile}>Save</Button>
+                <Button variant='contained' onClick={saveEditedProfile}>Save</Button>
               </DialogActions>
             </Dialog>
           }
