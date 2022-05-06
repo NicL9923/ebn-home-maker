@@ -1,6 +1,7 @@
 import React, { useState, useRef } from "react";
 import Input from "@material-ui/core/Input";
 import InputLabel from "@material-ui/core/InputLabel";
+import { TextField, Typography } from "@mui/material";
 
 const ENTER_KEY_CODE = 13;
 
@@ -32,19 +33,20 @@ const EditableLabel = ({ onFocus = () => {}, onBlur = () => {}, ...props }) => {
     
   if (isEditing) {
     return (
-        <Input
+        <TextField
           inputProps={{ ref: inputRef, value }}
           onChange={handleChange}
           onBlur={handleFocus}
           onKeyDown={handleKeyDown}
           autoFocus
+          variant='standard'
         />
     );
   }
 
   const labelText = isTextValueValid() ? value : props.labelPlaceHolder;
 
-  return <InputLabel onClick={handleFocus}>{labelText}</InputLabel>;
+  return <Typography variant='h6' onClick={handleFocus}>{labelText}</Typography>;
 };
 
 export default EditableLabel;

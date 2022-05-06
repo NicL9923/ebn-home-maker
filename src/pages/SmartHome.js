@@ -7,6 +7,6 @@ const SmartHome = () => {
         in case I want to do any cool smarthome integration stuff in the future!
     </div>
   );
-}
+};
 
 export default SmartHome;

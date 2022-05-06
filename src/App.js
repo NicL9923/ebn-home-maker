@@ -10,6 +10,7 @@ import Information from './pages/Information';
 import Maintenance from './pages/Maintenance';
 import Profile from './pages/Profile';
 import Navbar from './components/Navbar';
+import JoinFamily from './pages/JoinFamily';
 
 
 const App = () => {
@@ -59,7 +60,8 @@ const App = () => {
         <Route path="/budget" element={<Budget db={db} profile={profile} />} />
         <Route path="/info" element={<Information />} />
         <Route path="/maintenance" element={<Maintenance family={family} db={db} />} />
-        <Route path="/profile" element={<Profile profile={profile} setProfile={setProfile} family={family} setFamily={setFamily} user={user} db={db} />} />
+        <Route path="/profile" element={<Profile profile={profile} getProfile={getProfile} family={family} getFamily={getFamily} user={user} db={db} />} />
+        <Route path='/joinFamily/:familyId' element={<JoinFamily profile={profile} getProfile={getProfile} user={user} family={family} getFamily={getFamily} db={db} />} />
         <Route path="/" element={<Home profile={profile} family={family} user={user} auth={auth} />} />
       </Routes>
     </Router>

@@ -95,13 +95,11 @@ const WeatherBox = (props) => {
     let parsedAlerts = [];
 
     weatherAlerts.forEach(alert => {
-      if (alert.sender_name.includes('Environmental Protection Agency') || alert.sender_name.includes('Integrated Public Alert and Warning System') || alert.sender_name.includes('National Oceanic and Atmospheric Administration') || alert.sender_name.includes('U.S. Geological Survey')) {
-        parsedAlerts.push({
-          event: alert.event,
-          reporter: alert.sender_name,
-          description: alert.description
-        });
-      }
+      parsedAlerts.push({
+        event: alert.event,
+        reporter: alert.sender_name,
+        description: alert.description
+      });
     });
 
     if (!parsedAlerts) return;

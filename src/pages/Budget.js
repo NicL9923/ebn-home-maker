@@ -80,7 +80,7 @@ const Budget = (props) => {
       <Typography variant='h3'>Budget - {new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</Typography>
       <Stack>
         {budget &&
-          <Stack key={budget.name}>
+          <Stack key={budget.name} width='50%'>
             <Typography variant='h5'>{budget.name}</Typography>
 
             <Typography variant='h6'>Net Income: ${budget.monthlyNetIncome}</Typography>
