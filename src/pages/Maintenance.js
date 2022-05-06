@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { getDoc, doc } from 'firebase/firestore';
 import { Button, Card, CardActions, CardContent, CardMedia, Stack, Typography } from '@mui/material';
+import { DataGrid } from '@mui/x-data-grid';
 
 const Maintenance = (props) => {
   const { family, db } = props;
@@ -15,6 +16,7 @@ const Maintenance = (props) => {
 
       if (residenceDoc.exists()) {
         const docData = residenceDoc.data();
+        docData.serviceLogEntries.forEach(entry => { entry.date = entry.date.toDate(); }); // Convert Firestore timestamp to JS date
         residencesArr.push(docData);
         setResidences(residencesArr);
       } else {
@@ -31,12 +33,37 @@ const Maintenance = (props) => {
 
       if (vehicleDoc.exists()) {
         const docData = vehicleDoc.data();
+        docData.serviceLogEntries.forEach(entry => { entry.date = entry.date.toDate(); }); // Convert Firestore timestamp to JS date
         vehiclesArr.push(docData);
         setVehicles(vehiclesArr);
       } else {
         // No vehicles found
       }
     });
+  };
+
+  const setResidenceLogVisibility = (resKey) => {
+    let residenceArr = residences;
+
+    residenceArr.forEach(res => {
+      if (res.name === resKey) {
+        res.logShown = !res.logShown
+      }
+    });
+
+    setResidences([...residenceArr]);
+  };
+
+  const setVehicleLogVisibility = (vehKey) => {
+    let vehicleArr = vehicles;
+
+    vehicleArr.forEach(veh => {
+      if (veh.vin === vehKey) {
+        veh.logShown = !veh.logShown
+      }
+    });
+
+    setVehicles([...vehicleArr]);
   };
 
   useEffect(() => {
@@ -60,9 +87,21 @@ const Maintenance = (props) => {
                 <Typography variant='h5'>{residence.name}</Typography>
                 <Typography variant='body1'>Built: {residence.yearBuilt}</Typography>
                 <Typography variant='body1'>Purchased: {residence.yearPurchased}</Typography>
+
+                {residence.logShown && 
+                  <Stack height={300}>
+                    <DataGrid
+                      columns={[{ field: 'date', headerName: 'Date' }, { field: 'note', headerName: 'Note' }]}
+                      rows={residence.serviceLogEntries}
+                      pageSize={5}
+                      rowsPerPageOptions={[5, 10, 20]}
+                      getRowId={row => row.date}
+                    />
+                  </Stack>
+                }
               </CardContent>
               <CardActions>
-                <Button size="small" color="primary">View log</Button>
+                <Button size="small" color="primary" onClick={() => setResidenceLogVisibility(residence.name)}>{residence.logShown ? 'Hide' : 'View'} log</Button>
               </CardActions>
             </Card>
           )}
@@ -76,12 +115,24 @@ const Maintenance = (props) => {
               <CardContent>
                 <Typography variant='h5'>{vehicle.year} {vehicle.make} {vehicle.model} {vehicle.trim}</Typography>
                 <Typography variant='body1'>Engine: {vehicle.engine}</Typography>
-                <Typography variant='body1'>Odometer: {vehicle.miles}</Typography>
+                <Typography variant='body1'>Odometer: {vehicle.miles} mi</Typography>
                 <Typography variant='body1'>VIN: {vehicle.vin}</Typography>
                 <Typography variant='body1'>License Plate: {vehicle.licensePlate}</Typography>
+                
+                {vehicle.logShown &&
+                  <Stack height={300}>
+                    <DataGrid
+                      columns={[{ field: 'date', headerName: 'Date' }, { field: 'note', headerName: 'Note' }]}
+                      rows={vehicle.serviceLogEntries}
+                      pageSize={5}
+                      rowsPerPageOptions={[5, 10, 20]}
+                      getRowId={row => row.date}
+                    />
+                  </Stack>
+                }
               </CardContent>
               <CardActions>
-                <Button size="small" color="primary">View log</Button>
+                <Button size="small" color="primary" onClick={() => setVehicleLogVisibility(vehicle.vin)}>{vehicle.logShown ? 'Hide' : 'View'} log</Button>
               </CardActions>
             </Card>
           )}

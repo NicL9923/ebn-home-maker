@@ -61,7 +61,9 @@ const Budget = (props) => {
     const budgetDoc = await getDoc(doc(db, 'budgets', profile.budget));
 
     if (budgetDoc.exists()) {
-      setBudget(budgetDoc.data());
+      const docData = budgetDoc.data();
+      docData.transactions.forEach(transaction => { transaction.timestamp = transaction.timestamp.toDate(); }); // Convert Firestore timestamp to JS date
+      setBudget(docData);
     } else {
       // Budget wasn't retrieved
     }
@@ -79,7 +81,6 @@ const Budget = (props) => {
       <Stack>
         {budget &&
           <Stack key={budget.name}>
-            {console.log(new Timestamp(budget.transactions[0].timestamp.seconds).toDate()) /* TODO: figuring out how to parse Firebase timestamps for transactions table */}
             <Typography variant='h5'>{budget.name}</Typography>
 
             <Typography variant='h6'>Net Income: ${budget.monthlyNetIncome}</Typography>
@@ -123,7 +124,7 @@ const Budget = (props) => {
         }
       </Stack>
 
-      <Typography variant='h4'>Investments</Typography>
+      <Typography variant='h4'>Investment Accounts</Typography>
       <Stack>
         {budget && budget.investmentAccts.map(acct =>
           <Stack>
