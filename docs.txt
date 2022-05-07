@@ -31,8 +31,6 @@ Budgets
 
     categories
         name
-        currentSpent
-        totalAllotted
         subcategories
             name
             currentSpent
@@ -81,3 +79,6 @@ Vehicles **TODO
 	maintenanceMarkers
 		mileage
 		maintenanceReq
+
+***Plans/TODOs***
+-Track loans (mortgage, auto loans, etc.)

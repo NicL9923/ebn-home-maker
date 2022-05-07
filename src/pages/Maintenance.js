@@ -16,7 +16,10 @@ const Maintenance = (props) => {
 
       if (residenceDoc.exists()) {
         const docData = residenceDoc.data();
-        docData.serviceLogEntries.forEach(entry => { entry.date = entry.date.toDate(); }); // Convert Firestore timestamp to JS date
+        docData.serviceLogEntries.forEach((entry, index) => {
+          entry.date = entry.date.toDate(); // Convert Firestore timestamp to JS date
+          entry.id = index;
+        });
         residencesArr.push(docData);
         setResidences(residencesArr);
       } else {
@@ -33,7 +36,10 @@ const Maintenance = (props) => {
 
       if (vehicleDoc.exists()) {
         const docData = vehicleDoc.data();
-        docData.serviceLogEntries.forEach(entry => { entry.date = entry.date.toDate(); }); // Convert Firestore timestamp to JS date
+        docData.serviceLogEntries.forEach((entry, index) => {
+          entry.date = entry.date.toDate(); // Convert Firestore timestamp to JS date
+          entry.id = index;
+        });
         vehiclesArr.push(docData);
         setVehicles(vehiclesArr);
       } else {
@@ -75,7 +81,7 @@ const Maintenance = (props) => {
 
   return (
     family ? (
-      <>
+      <Stack maxWidth='lg' mx='auto'>
         <Typography variant='h3'>Maintenance</Typography>
 
         <Typography variant='h4'>House</Typography>
@@ -95,7 +101,6 @@ const Maintenance = (props) => {
                       rows={residence.serviceLogEntries}
                       pageSize={5}
                       rowsPerPageOptions={[5, 10, 20]}
-                      getRowId={row => row.date}
                     />
                   </Stack>
                 }
@@ -137,7 +142,7 @@ const Maintenance = (props) => {
             </Card>
           )}
         </Stack>
-      </>
+      </Stack>
     ) : (
       <>You aren't part of a family yet!</>
     )

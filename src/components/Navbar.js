@@ -6,7 +6,7 @@ import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
 import PaymentsOutlinedIcon from '@mui/icons-material/PaymentsOutlined';
 import EventNoteOutlinedIcon from '@mui/icons-material/EventNoteOutlined';
 import ProfileIcon from '../components/ProfileIcon';
-import { AppBar, Button, IconButton, Menu, MenuItem, Stack, Toolbar, Typography } from '@mui/material';
+import { AppBar, Button, IconButton, ListItemIcon, ListItemText, Menu, MenuItem, Stack, Toolbar, Typography } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import { Home } from '@mui/icons-material';
 
@@ -38,37 +38,21 @@ const Navbar = (props) => {
                 open={anchorEl ? anchorEl : false}
                 onClose={() => setAnchorEl(null)}
             >
-                <MenuItem onClick={() => setAnchorEl(null)}>
-                    <Button component={Link} to='/smarthome'>
-                        <Stack direction='row' spacing={1}>
-                            <MemoryOutlinedIcon />
-                            <h4>Smarthome</h4>
-                        </Stack>
-                    </Button>
+                <MenuItem onClick={() => setAnchorEl(null)} component={Link} to='/smarthome'>
+                    <ListItemIcon><MemoryOutlinedIcon /></ListItemIcon>
+                    <ListItemText>Smarthome</ListItemText>
                 </MenuItem>
-                <MenuItem onClick={() => setAnchorEl(null)}>
-                    <Button component={Link} to='/budget'>
-                        <Stack direction='row' spacing={1}>
-                            <PaymentsOutlinedIcon />
-                            <h4>Budget</h4>
-                        </Stack>
-                    </Button>
+                <MenuItem onClick={() => setAnchorEl(null)} component={Link} to='/budget'>
+                    <ListItemIcon><PaymentsOutlinedIcon /></ListItemIcon>
+                    <ListItemText>Budget</ListItemText>
                 </MenuItem>
-                <MenuItem onClick={() => setAnchorEl(null)}>
-                    <Button component={Link} to='/info'>
-                        <Stack direction='row' spacing={1}>
-                            <EventNoteOutlinedIcon />
-                            <h4>Information</h4>
-                        </Stack>
-                    </Button>
+                <MenuItem onClick={() => setAnchorEl(null)} component={Link} to='/info'>
+                    <ListItemIcon><EventNoteOutlinedIcon /></ListItemIcon>
+                    <ListItemText>Information</ListItemText>
                 </MenuItem>
-                <MenuItem onClick={() => setAnchorEl(null)}>
-                    <Button component={Link} to='/maintenance'>
-                        <Stack direction='row' spacing={1}>
-                            <SettingsOutlinedIcon />
-                            <h4>Maintenance</h4>
-                        </Stack>
-                    </Button>
+                <MenuItem onClick={() => setAnchorEl(null)} component={Link} to='/maintenance'>
+                    <ListItemIcon><SettingsOutlinedIcon /></ListItemIcon>
+                    <ListItemText>Maintenance</ListItemText>
                 </MenuItem>
             </Menu>
 

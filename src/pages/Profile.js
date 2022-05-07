@@ -72,7 +72,7 @@ const Profile = (props) => {
   }, [family]);
 
   return (
-    <Stack width='50%' mx='auto'>
+    <Stack maxWidth='md' mx='auto'>
       <Typography variant='h2'>My Profile</Typography>
 
       {!profile ? (

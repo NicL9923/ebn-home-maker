@@ -1,4 +1,5 @@
-import { LinearProgress, Stack, Typography } from '@mui/material';
+import { Add, Clear } from '@mui/icons-material';
+import { Button, IconButton, LinearProgress, Stack, Typography } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import { doc, getDoc, Timestamp } from 'firebase/firestore';
 import React, { useEffect, useState } from 'react';
@@ -62,7 +63,26 @@ const Budget = (props) => {
 
     if (budgetDoc.exists()) {
       const docData = budgetDoc.data();
-      docData.transactions.forEach(transaction => { transaction.timestamp = transaction.timestamp.toDate(); }); // Convert Firestore timestamp to JS date
+
+      // Handle some calculations we do locally so we can reuse their values (efficiency!)
+      let totalSpent = 0;
+      let totalAllotted = 0;
+      docData.categories.forEach(cat => {
+        cat.currentSpent = cat.subcategories.reduce(((sum, { currentSpent }) => sum + currentSpent), 0);
+        totalSpent += cat.currentSpent;
+
+        cat.totalAllotted = cat.subcategories.reduce(((sum, { totalAllotted }) =>  sum + totalAllotted ), 0);
+        totalAllotted += cat.totalAllotted;
+      });
+      docData.totalSpent = totalSpent;
+      docData.totalAllotted = totalAllotted;
+
+      docData.transactions.forEach((transaction, index) => { 
+        transaction.timestamp = transaction.timestamp.toDate(); // Convert Firestore timestamp to JS date
+        transaction.id = index;
+      }); 
+
+
       setBudget(docData);
     } else {
       // Budget wasn't retrieved
@@ -76,7 +96,7 @@ const Budget = (props) => {
   }, [profile]);
 
   return (
-    <div>
+    <Stack maxWidth='lg' mx='auto'>
       <Typography variant='h3'>Budget - {new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</Typography>
       <Stack>
         {budget &&
@@ -84,19 +104,25 @@ const Budget = (props) => {
             <Typography variant='h5'>{budget.name}</Typography>
 
             <Typography variant='h6'>Net Income: ${budget.monthlyNetIncome}</Typography>
-            <Typography variant='h6'>Currently Allotted: ${`TODO - add up all categories totalAllotted in a fn`}</Typography>
-            <Typography variant='h6'>Currently Spent: ${`TODO - add up all categories currentSpent in a fn`}</Typography>
+            <Typography variant='h6'>Currently Allotted: ${budget.totalAllotted}</Typography>
+            <Typography variant='h6'>Currently Spent: ${budget.totalSpent}</Typography>
 
             {budget.categories.map(category => 
               <Stack key={category.name}>
-                <EditableLabel initialValue={category.name} />
+                <Stack direction='row'>
+                  <EditableLabel initialValue={category.name} />
+                  <>
+                    <IconButton><Add /></IconButton>
+                    <IconButton><Clear /></IconButton>
+                  </>
+                </Stack>
                 <Typography variant='body1'>${category.currentSpent} Spent / ${category.totalAllotted} Allotted</Typography>
-                <LinearProgress value={category.currentSpent / category.totalAllotted} variant='determinate' />
+                <LinearProgress value={(category.currentSpent / category.totalAllotted) * 100} variant='determinate' />
                   {category.subcategories.map(subcategory =>
-                    <Stack key={subcategory.name}>
+                    <Stack key={subcategory.name} ml={6}>
                       <EditableLabel initialValue={subcategory.name} />
                       <Typography variant='body1'>${subcategory.currentSpent} Spent / ${subcategory.totalAllotted} Allotted</Typography>
-                      <LinearProgress value={subcategory.currentSpent / subcategory.totalAllotted} variant='determinate' />
+                      <LinearProgress value={(subcategory.currentSpent / subcategory.totalAllotted) * 100} variant='determinate' />
                     </Stack>
                   )}
               </Stack>
@@ -108,16 +134,16 @@ const Budget = (props) => {
         
 
       <Typography variant='h4'>Savings</Typography>
-      <Stack>
+      <Stack height={400}>
         {budget &&
-          <PieChart width={400} height={350}>
+          <PieChart width={350} height={400}>
             <Pie 
               activeIndex={savingsChartIndex}
               activeShape={renderActiveShape}
               data={budget.savingsBlobs} 
               nameKey='name'
               dataKey='currentAmt'
-              innerRadius={60}
+              innerRadius={80}
               onMouseEnter={(_, index) => setSavingsChartIndex(index)}
             />
           </PieChart>
@@ -127,36 +153,35 @@ const Budget = (props) => {
       <Typography variant='h4'>Investment Accounts</Typography>
       <Stack>
         {budget && budget.investmentAccts.map(acct =>
-          <Stack>
+          <Stack key={acct.name}>
             <Typography variant='h5'>{acct.name}</Typography>
             <Typography variant='h6'>{acct.broker}</Typography>
-            <Typography variant='body1'>${acct.curValue}</Typography>
+            <Typography variant='body1'>Current Valuation: ${acct.curValue}</Typography>
 
-            <LineChart width={400} height={350} data={[...acct.prevValues, { monthYear: Date.now().toLocaleString(), value: acct.curValue }]}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="monthYear" />
+            <LineChart width={400} height={350} data={[...acct.prevValues, { monthYear: new Date().toLocaleDateString('en-US', { month: 'short', year: 'numeric' }), value: acct.curValue }]}>
+              <CartesianGrid strokeDasharray='3 3' />
+              <XAxis dataKey='monthYear' />
               <YAxis />
-              <Tooltip />
-              <Legend />
-              <Line type="monotone" dataKey="value" stroke="#82ca9d" activeDot={{ r: 8 }} />
+              <Tooltip formatter={(value) => `$${value}`} />
+              <Line type='monotone' dataKey='value' stroke='#82ca9d' activeDot={{ r: 6 }} name='Value' />
             </LineChart>
           </Stack>
         )}
       </Stack>
 
       <Typography variant='h4'>Transactions</Typography>
-      <Stack height={300}>
         {budget &&
-          <DataGrid
-            columns={[{ field: 'amt', headerName: 'Amount' }, { field: 'name', headerName: 'Name' }, { field: 'category', headerName: 'Category' }, { field: 'timestamp', headerName: 'Date', width: 200 }]}
-            rows={budget.transactions}
-            pageSize={10}
-            rowsPerPageOptions={[5, 10, 20, 50, 100]}
-            getRowId={row => row.timestamp}
-          />
+          <Stack height={300}>
+            <DataGrid
+              columns={[{ field: 'amt', headerName: 'Amount' }, { field: 'name', headerName: 'Name' }, { field: 'category', headerName: 'Category' }, { field: 'timestamp', headerName: 'Date', width: 200 }]}
+              rows={budget.transactions}
+              pageSize={10}
+              rowsPerPageOptions={[5, 10, 20, 50, 100]}
+            />
+            <Button startIcon={<Add />} variant='contained'>Add transaction</Button>
+          </Stack>
         }
-      </Stack>
-    </div>
+    </Stack>
   );
 }
 
