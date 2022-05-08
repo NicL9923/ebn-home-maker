@@ -1,9 +1,9 @@
-import { Add, Clear } from '@mui/icons-material';
+import { Add, Clear, Edit } from '@mui/icons-material';
 import { Button, IconButton, LinearProgress, Stack, Typography } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
-import { doc, getDoc, Timestamp } from 'firebase/firestore';
+import { doc, getDoc } from 'firebase/firestore';
 import React, { useEffect, useState } from 'react';
-import { CartesianGrid, Legend, Line, LineChart, Pie, PieChart, Sector, Tooltip, XAxis, YAxis } from 'recharts';
+import { CartesianGrid, Line, LineChart, Pie, PieChart, Sector, Tooltip, XAxis, YAxis } from 'recharts';
 import EditableLabel from '../components/EditableLabel';
 
 const renderActiveShape = (props) => {
@@ -103,70 +103,102 @@ const Budget = (props) => {
           <Stack key={budget.name} width='50%'>
             <Typography variant='h5'>{budget.name}</Typography>
 
-            <Typography variant='h6'>Net Income: ${budget.monthlyNetIncome}</Typography>
-            <Typography variant='h6'>Currently Allotted: ${budget.totalAllotted}</Typography>
+            <Stack direction='row'>
+              <Typography variant='h6'>Net Income: ${budget.monthlyNetIncome}</Typography>
+              <IconButton><Edit /></IconButton>
+            </Stack>
+            <Typography variant='h6'>Currently Allotted: ${budget.totalAllotted} (${budget.monthlyNetIncome - budget.totalAllotted} left)</Typography>
             <Typography variant='h6'>Currently Spent: ${budget.totalSpent}</Typography>
 
             {budget.categories.map(category => 
               <Stack key={category.name}>
                 <Stack direction='row'>
                   <EditableLabel initialValue={category.name} />
-                  <>
-                    <IconButton><Add /></IconButton>
-                    <IconButton><Clear /></IconButton>
-                  </>
+                  <IconButton><Add /></IconButton>
+                  <IconButton><Clear /></IconButton>
                 </Stack>
                 <Typography variant='body1'>${category.currentSpent} Spent / ${category.totalAllotted} Allotted</Typography>
                 <LinearProgress value={(category.currentSpent / category.totalAllotted) * 100} variant='determinate' />
                   {category.subcategories.map(subcategory =>
                     <Stack key={subcategory.name} ml={6}>
-                      <EditableLabel initialValue={subcategory.name} />
+                      <Stack direction='row'>
+                        <EditableLabel initialValue={subcategory.name} />
+                        <IconButton><Edit /></IconButton>
+                        <IconButton><Clear /></IconButton>
+                      </Stack>
                       <Typography variant='body1'>${subcategory.currentSpent} Spent / ${subcategory.totalAllotted} Allotted</Typography>
                       <LinearProgress value={(subcategory.currentSpent / subcategory.totalAllotted) * 100} variant='determinate' />
                     </Stack>
                   )}
               </Stack>
             )}
+
+            <Button variant='contained'>Add category</Button>
           </Stack>
         }
         
       </Stack>
-        
-
+      
       <Typography variant='h4'>Savings</Typography>
-      <Stack height={400}>
+      <Stack>
         {budget &&
+        <>
+          {budget.savingsBlobs.map(blob => 
+            <Stack key={blob.name}>
+              <Typography variant='h5'>{blob.name}</Typography>
+              <Typography variant='h6'>${blob.currentAmt}</Typography>
+              <Stack direction='row'>
+                <Button variant='contained'>Edit blob</Button>
+                <Button variant='outlined'>Delete blob</Button>
+              </Stack>
+            </Stack>
+          )}
+
           <PieChart width={350} height={400}>
-            <Pie 
-              activeIndex={savingsChartIndex}
-              activeShape={renderActiveShape}
-              data={budget.savingsBlobs} 
-              nameKey='name'
-              dataKey='currentAmt'
-              innerRadius={80}
-              onMouseEnter={(_, index) => setSavingsChartIndex(index)}
-            />
-          </PieChart>
+              <Pie 
+                activeIndex={savingsChartIndex}
+                activeShape={renderActiveShape}
+                data={budget.savingsBlobs} 
+                nameKey='name'
+                dataKey='currentAmt'
+                innerRadius={80}
+                onMouseEnter={(_, index) => setSavingsChartIndex(index)}
+              />
+            </PieChart>
+
+            <Button variant='contained'>Add savings blob</Button>
+        </>
         }
       </Stack>
 
       <Typography variant='h4'>Investment Accounts</Typography>
       <Stack>
-        {budget && budget.investmentAccts.map(acct =>
-          <Stack key={acct.name}>
-            <Typography variant='h5'>{acct.name}</Typography>
-            <Typography variant='h6'>{acct.broker}</Typography>
-            <Typography variant='body1'>Current Valuation: ${acct.curValue}</Typography>
+        {budget &&
+          <>
+            {budget.investmentAccts.map(acct =>
+              <Stack key={acct.name}>
+                <Typography variant='h5'>{acct.name}</Typography>
+                <Typography variant='h6'>{acct.broker}</Typography>
+                <Typography variant='body1'>Current Valuation: ${acct.curValue}</Typography>
 
-            <LineChart width={400} height={350} data={[...acct.prevValues, { monthYear: new Date().toLocaleDateString('en-US', { month: 'short', year: 'numeric' }), value: acct.curValue }]}>
-              <CartesianGrid strokeDasharray='3 3' />
-              <XAxis dataKey='monthYear' />
-              <YAxis />
-              <Tooltip formatter={(value) => `$${value}`} />
-              <Line type='monotone' dataKey='value' stroke='#82ca9d' activeDot={{ r: 6 }} name='Value' />
-            </LineChart>
-          </Stack>
-        )}
+                <LineChart width={400} height={350} data={[...acct.prevValues, { monthYear: new Date().toLocaleDateString('en-US', { month: 'short', year: 'numeric' }), value: acct.curValue }]}>
+                  <CartesianGrid strokeDasharray='3 3' />
+                  <XAxis dataKey='monthYear' />
+                  <YAxis />
+                  <Tooltip formatter={(value) => `$${value}`} />
+                  <Line type='monotone' dataKey='value' stroke='#82ca9d' activeDot={{ r: 6 }} name='Value' />
+                </LineChart>
+
+                <Stack direction='row'>
+                  <Button variant='contained'>Modify value points</Button>
+                  <Button variant='outlined'>Delete account</Button>
+                </Stack>
+              </Stack>
+            )}
+
+            <Button variant='contained'>Add investment account</Button>
+          </>
+        }
       </Stack>
 
       <Typography variant='h4'>Transactions</Typography>

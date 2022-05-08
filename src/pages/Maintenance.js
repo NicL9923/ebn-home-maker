@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { getDoc, doc } from 'firebase/firestore';
 import { Button, Card, CardActions, CardContent, CardMedia, Stack, Typography } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
+import { Add } from '@mui/icons-material';
 
 const Maintenance = (props) => {
   const { family, db } = props;
@@ -102,15 +103,20 @@ const Maintenance = (props) => {
                       pageSize={5}
                       rowsPerPageOptions={[5, 10, 20]}
                     />
+                    <Button variant='contained' startIcon={<Add />}>Add log item</Button>
                   </Stack>
                 }
               </CardContent>
               <CardActions>
-                <Button size="small" color="primary" onClick={() => setResidenceLogVisibility(residence.name)}>{residence.logShown ? 'Hide' : 'View'} log</Button>
+                <Button variant='contained' onClick={() => setResidenceLogVisibility(residence.name)}>{residence.logShown ? 'Hide' : 'View'} log</Button>
+                <Button variant='outlined'>Edit</Button>
+                <Button variant='text'>Delete</Button>
               </CardActions>
             </Card>
           )}
         </Stack>
+
+        <Button variant='contained'>Add residence</Button>
 
         <Typography variant='h4'>Vehicles</Typography>
         <Stack direction='row'>
@@ -133,15 +139,20 @@ const Maintenance = (props) => {
                       rowsPerPageOptions={[5, 10, 20]}
                       getRowId={row => row.date}
                     />
+                    <Button variant='contained' startIcon={Add}>Add log item</Button>
                   </Stack>
                 }
               </CardContent>
               <CardActions>
-                <Button size="small" color="primary" onClick={() => setVehicleLogVisibility(vehicle.vin)}>{vehicle.logShown ? 'Hide' : 'View'} log</Button>
+                <Button variant='contained' onClick={() => setVehicleLogVisibility(vehicle.vin)}>{vehicle.logShown ? 'Hide' : 'View'} log</Button>
+                <Button variant='outlined'>Edit</Button>
+                <Button variant='text'>Delete</Button>
               </CardActions>
             </Card>
           )}
         </Stack>
+
+        <Button variant='contained'>Add vehicle</Button>
       </Stack>
     ) : (
       <>You aren't part of a family yet!</>
