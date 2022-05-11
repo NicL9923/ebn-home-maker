@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { getFirestore, getDoc, doc } from 'firebase/firestore';
 
@@ -11,6 +11,7 @@ import Maintenance from './pages/Maintenance';
 import Profile from './pages/Profile';
 import Navbar from './components/Navbar';
 import JoinFamily from './pages/JoinFamily';
+import NotLoggedIn from './components/NotLoggedIn';
 
 
 const App = () => {
@@ -55,15 +56,29 @@ const App = () => {
     <Router>
       <Navbar user={user} profile={profile} auth={auth} />
 
-      <Routes>
-        <Route path="/smarthome" element={<SmartHome />} />
-        <Route path="/budget" element={<Budget db={db} profile={profile} />} />
-        <Route path="/info" element={<Information />} />
-        <Route path="/maintenance" element={<Maintenance family={family} db={db} />} />
-        <Route path="/profile" element={<Profile profile={profile} getProfile={getProfile} family={family} getFamily={getFamily} user={user} db={db} />} />
-        <Route path='/joinFamily/:familyId' element={<JoinFamily profile={profile} getProfile={getProfile} user={user} family={family} getFamily={getFamily} db={db} />} />
-        <Route path="/" element={<Home profile={profile} family={family} user={user} auth={auth} />} />
-      </Routes>
+      { user ? (
+        <Routes>
+          { profile && 
+            <>
+              <Route exact path='/profile' element={<Profile profile={profile} getProfile={getProfile} family={family} getFamily={getFamily} user={user} db={db} />} />
+              <Route exact path='/joinFamily/:familyId' element={<JoinFamily profile={profile} getProfile={getProfile} user={user} family={family} getFamily={getFamily} db={db} />} />
+              <Route exact path='/budget' element={<Budget db={db} profile={profile} />} />
+            </>
+          }
+          
+          { family && 
+            <>
+              <Route exact path='/smarthome' element={<SmartHome />} />
+              <Route exact path='/info' element={<Information />} />
+              <Route exact path='/maintenance' element={<Maintenance family={family} db={db} />} />
+            </>
+          }
+
+          <Route path='/' element={<Home profile={profile} family={family} user={user} auth={auth} db={db} getProfile={getProfile} getFamily={getFamily} />} />
+        </Routes>
+      ) : (
+        <NotLoggedIn auth={auth} />
+      )}
     </Router>
   );
 }

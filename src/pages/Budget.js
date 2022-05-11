@@ -58,7 +58,16 @@ const Budget = (props) => {
   const [budget, setBudget] = useState(null);
   const [savingsChartIndex, setSavingsChartIndex] = useState(0);
 
+  const createAndSaveDefaultBudget = () => {
+    // TODO: If profile doesn't have a budget (should only be in case of a new profile), automatically create and save one
+  };
+
   const getBudget = async () => {
+    if (!profile.budget) {
+      createAndSaveDefaultBudget();
+      return;
+    }
+
     const budgetDoc = await getDoc(doc(db, 'budgets', profile.budget));
 
     if (budgetDoc.exists()) {
@@ -85,7 +94,7 @@ const Budget = (props) => {
 
       setBudget(docData);
     } else {
-      // Budget wasn't retrieved
+      // Budget wasn't retrieved when it should've been
     }
   };
 
@@ -100,9 +109,7 @@ const Budget = (props) => {
       <Typography variant='h3'>Budget - {new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</Typography>
       <Stack>
         {budget &&
-          <Stack key={budget.name} width='50%'>
-            <Typography variant='h5'>{budget.name}</Typography>
-
+          <Stack key={budget.id} width='50%'>
             <Stack direction='row'>
               <Typography variant='h6'>Net Income: ${budget.monthlyNetIncome}</Typography>
               <IconButton><Edit /></IconButton>

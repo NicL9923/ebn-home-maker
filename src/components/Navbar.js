@@ -1,21 +1,17 @@
 import React, { useState } from 'react';
-import { signInWithRedirect, GoogleAuthProvider } from 'firebase/auth';
 import { Link } from 'react-router-dom';
 import MemoryOutlinedIcon from '@mui/icons-material/MemoryOutlined';
 import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
 import PaymentsOutlinedIcon from '@mui/icons-material/PaymentsOutlined';
 import EventNoteOutlinedIcon from '@mui/icons-material/EventNoteOutlined';
 import ProfileIcon from '../components/ProfileIcon';
-import { AppBar, Button, IconButton, ListItemIcon, ListItemText, Menu, MenuItem, Stack, Toolbar, Typography } from '@mui/material';
+import { AppBar, IconButton, ListItemIcon, ListItemText, Menu, MenuItem, Toolbar, Typography } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import { Home } from '@mui/icons-material';
 
 const Navbar = (props) => {
   const { profile, user, auth } = props;
   const [anchorEl, setAnchorEl] = useState(null);
-  const provider = new GoogleAuthProvider();
-
-  const googleSignIn = () => signInWithRedirect(auth, provider);
 
   return (
     <AppBar position='static'>
@@ -59,8 +55,9 @@ const Navbar = (props) => {
             <IconButton size='large' color='inherit' component={Link} to='/'><Home /></IconButton>
             <Typography variant='h6' component='div' sx={{ flexGrow: 1 }}>Our Home</Typography>
 
-            {user && profile && <ProfileIcon imgLink={profile.imgLink} />}
-            {!user && <Button onClick={googleSignIn} variant='contained'>Login</Button>}
+            {user && profile &&
+                <ProfileIcon profile={profile} auth={auth} />
+            }
         </Toolbar>
     </AppBar>
   );

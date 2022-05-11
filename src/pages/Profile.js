@@ -7,6 +7,7 @@ import MapPicker from 'react-google-map-picker';
 import { DropzoneArea } from 'mui-file-dropzone';
 import { v4 as uuidv4 } from 'uuid';
 import copy from 'clipboard-copy';
+import NoFamily from '../components/NoFamily';
 
 const Profile = (props) => {
   const { profile, getProfile, family, getFamily, user, db } = props;
@@ -17,6 +18,8 @@ const Profile = (props) => {
   const [profileEditedPhoto, setProfileEditedPhoto] = useState(null);
   
   const getFamilyMemberProfiles = () => {
+    if (!family.members) return;
+    
     let famMemProfs = [];
 
     family.members.forEach(async (member) => {
@@ -75,53 +78,44 @@ const Profile = (props) => {
     <Stack maxWidth='md' mx='auto'>
       <Typography variant='h2'>My Profile</Typography>
 
-      {!profile ? (
-        <div>
-          You don't have a profile!
-        </div>
-      ) : (
-        <Stack alignItems='center' justifyContent='center'>
-          <Avatar src={profile.imgLink} alt='profile' sx={{ width: 164, height: 164 }} />
-          
-          <Typography variant='h5'>{profile.firstName}</Typography>
-          
-          <Button variant='outlined' startIcon={<Edit />} onClick={() => setEditingProfile(true)}>Edit Profile</Button>
+      <Stack alignItems='center' justifyContent='center'>
+        <Avatar src={profile.imgLink ? profile.imgLink : null} alt='profile' sx={{ width: 164, height: 164 }}>{profile.imgLink ? null : profile.firstName[0].toUpperCase()}</Avatar>
+        
+        <Typography variant='h5'>{profile.firstName}</Typography>
+        
+        <Button variant='outlined' startIcon={<Edit />} onClick={() => setEditingProfile(true)}>Edit Profile</Button>
 
-          {editingProfile &&
-            <Dialog open={editingProfile} onClose={() => setEditingProfile(false)}>
-              <DialogTitle>Edit Profile</DialogTitle>
+        {editingProfile &&
+          <Dialog open={editingProfile} onClose={() => setEditingProfile(false)}>
+            <DialogTitle>Edit Profile</DialogTitle>
 
-              <DialogContent>
-                <TextField
-                  autoFocus
-                  variant='standard'
-                  label='First Name'
-                  value={profileEditedName}
-                  onChange={(event) => setProfileEditedName(event.target.value)}
-                />
+            <DialogContent>
+              <TextField
+                autoFocus
+                variant='standard'
+                label='First Name'
+                value={profileEditedName}
+                onChange={(event) => setProfileEditedName(event.target.value)}
+              />
 
-                <InputLabel>Upload Photo</InputLabel>
-                <DropzoneArea
-                  acceptedFiles={['image/jpeg', 'image/png']}
-                  filesLimit={1}
-                  onChange={(files) => setProfileEditedPhoto(files[0])}
-                />
-              </DialogContent>
+              <InputLabel>Upload Photo</InputLabel>
+              <DropzoneArea
+                acceptedFiles={['image/jpeg', 'image/png']}
+                filesLimit={1}
+                onChange={(files) => setProfileEditedPhoto(files[0])}
+              />
+              {/* TODO: add button/whatever to delete profile pic */}
+            </DialogContent>
 
-              <DialogActions>
-                <Button onClick={() => setEditingProfile(false)}>Cancel</Button>
-                <Button variant='contained' onClick={saveEditedProfile}>Save</Button>
-              </DialogActions>
-            </Dialog>
-          }
-        </Stack>
-      )}
+            <DialogActions>
+              <Button onClick={() => setEditingProfile(false)}>Cancel</Button>
+              <Button variant='contained' onClick={saveEditedProfile}>Save</Button>
+            </DialogActions>
+          </Dialog>
+        }
+      </Stack>
       
-      {!family ? (
-        <div>
-          You're not part of a family yet! Ask the head of a family you want to join for the invite link.
-        </div>
-      ) : (
+      {!family ? (<NoFamily profile={profile} db={db} user={user} getProfile={getProfile} getFamily={getFamily} />) : (
         <>
           <Typography variant='h3'>My Family</Typography>
 
@@ -138,10 +132,10 @@ const Profile = (props) => {
           <>
             <Typography variant='h5'>Members</Typography>
             <Stack direction='row'>
-              {familyMemberProfiles && familyMemberProfiles.map(profile =>
-                <Stack key={profile.firstName} alignItems='center' justifyContent='center'>
-                  <Typography variant='h6'>{profile.firstName}</Typography>
-                  <Avatar src={profile.imgLink} alt='family member' sx={{ width: 128, height: 128 }} />
+              {familyMemberProfiles && familyMemberProfiles.map(prof =>
+                <Stack key={prof.firstName} alignItems='center' justifyContent='center'>
+                  <Typography variant='h6'>{prof.firstName}</Typography>
+                  <Avatar src={prof.imgLink ? prof.imgLink : null} alt='family member' sx={{ width: 128, height: 128 }}>{prof.imgLink ? null : prof.firstName[0].toUpperCase()}</Avatar>
                   {user.uid === family.headOfFamily &&
                     <Button variant='outlined' startIcon={<Close />}>Remove</Button>
                   }
@@ -156,10 +150,10 @@ const Profile = (props) => {
           <>
             <Typography variant='h5'>Pets</Typography>
             <Stack direction='row'>
-              {family.pets.map(pet =>
+              {family.pets && family.pets.map(pet =>
                 <Stack key={pet.name} alignItems='center' justifyContent='center'>
                   <Typography variant='body1'>{pet.name}</Typography>
-                  <Avatar src={pet.imgLink} alt='pet' sx={{ width: 96, height: 96 }} />
+                  <Avatar src={pet.imgLink ? pet.imgLink : null} alt='pet' sx={{ width: 96, height: 96 }}>{pet.imgLink ? null : pet.name[0].toUpperCase()}</Avatar>
                   {user.uid === family.headOfFamily &&
                     <Stack>
                       <Button variant='outlined' startIcon={<Edit />}>Edit</Button>

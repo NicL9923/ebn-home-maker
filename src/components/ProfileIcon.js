@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { getAuth, signOut } from 'firebase/auth';
+import { signOut } from 'firebase/auth';
 import { Link } from 'react-router-dom';
-import { Avatar, Button, Divider, ListItemText, Menu, MenuItem } from '@mui/material';
+import { Avatar, Divider, ListItemText, Menu, MenuItem } from '@mui/material';
 
 const ProfileIcon = (props) => {
-  const auth = getAuth();
+  const { profile, auth } = props;
   const [anchorEl, setAnchorEl] = useState(null);
 
   const handleSignOut = () => signOut(auth).then(() => {
@@ -22,9 +22,9 @@ const ProfileIcon = (props) => {
           aria-haspopup='true'
           aria-expanded={anchorEl ? 'true' : undefined}
           aria-controls='profile-menu'
-          src={props.imgLink}
+          src={profile.imgLink ? profile.imgLink : null}
           alt='profile'
-        />
+        >{profile.imgLink ? null : profile.firstName[0].toUpperCase()}</Avatar>
 
         <Menu
           id='profile-menu'

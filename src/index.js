@@ -4,6 +4,7 @@ import './index.css';
 import App from './App';
 
 import { initializeApp } from 'firebase/app';
+import { createTheme, ThemeProvider } from '@mui/material';
 const firebaseConfig = {
   apiKey: "AIzaSyBEokTSCPR2Cw-o5pKAUwTK8vlmNaIAASk",
   authDomain: "our-home-239c1.firebaseapp.com",
@@ -15,9 +16,22 @@ const firebaseConfig = {
 
 initializeApp(firebaseConfig);
 
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: '#1b5e20'
+    },
+    secondary: {
+      main: '#43a047'
+    }
+  }
+});
+
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <ThemeProvider theme={theme}>
+      <App />
+    </ThemeProvider>
   </React.StrictMode>,
   document.getElementById('root')
 );
