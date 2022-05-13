@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { getDoc, doc, setDoc } from 'firebase/firestore';
+import { getDoc, doc, setDoc, deleteDoc } from 'firebase/firestore';
 import { deleteObject, getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
-import { Avatar, Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, InputLabel, Stack, TextField, Typography } from '@mui/material';
+import { Avatar, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, IconButton, InputLabel, Stack, TextField, Typography } from '@mui/material';
 import { Add, Close, ContentCopyOutlined, Edit } from '@mui/icons-material';
 import MapPicker from 'react-google-map-picker';
 import { DropzoneArea } from 'mui-file-dropzone';
@@ -16,6 +16,9 @@ const Profile = (props) => {
   const [editingProfile, setEditingProfile] = useState(false);
   const [profileEditedName, setProfileEditedName] = useState(null);
   const [profileEditedPhoto, setProfileEditedPhoto] = useState(null);
+
+  const [deletingFamily, setDeletingFamily] = useState(false);
+  const [leavingFamily, setLeavingFamily] = useState(false);
   
   const getFamilyMemberProfiles = () => {
     if (!family.members) return;
@@ -68,6 +71,46 @@ const Profile = (props) => {
     setProfileEditedName(null);
     setProfileEditedPhoto(null);
     setEditingProfile(false);
+  };
+
+  const deleteFamily = () => {
+    // Set each profile in family.members familyId property to ''
+    if (family.members) {
+      family.members.forEach(member => {
+        setDoc(doc(db, 'profiles', member), { familyId: '' }, { merge: true });
+      });
+    }
+
+    // Delete residences and vehicles
+    if (family.residences) {
+      family.residences.forEach(res => {
+        deleteDoc(doc(db, 'residences', res));
+      });
+    }
+
+    if (family.vehicles) {
+      family.vehicles.forEach(veh => {
+        deleteDoc(doc(db, 'vehicles', veh));
+      });
+    }
+
+    // Delete family doc
+    deleteDoc(doc(db, 'families', profile.familyId)).then(() => {
+      setDoc(doc(db, 'profiles', user.uid), { familyId: '' }, { merge: true }).then(() => {
+        getProfile(user.uid);
+      });
+    });
+  };
+
+  const leaveFamily = () => {
+    // Make first member in family new headOfFamily
+    if (family.members && family.members[0]) {
+      setDoc(doc(db, 'families', profile.familyId), { headOfFamily: family.members[0] }, { merge: true });
+    }
+    
+    setDoc(doc(db, 'profiles', user.uid), { familyId: '' }, { merge: true }).then(() => {
+      getProfile(user.uid);
+    });
   };
 
   useEffect(() => {
@@ -188,19 +231,21 @@ const Profile = (props) => {
                 </Stack>
               </Stack>
 
-              <Stack>
-                <Typography variant='h6'>Location</Typography>
+              <Typography variant='h6'>Location</Typography>
+              {family.location &&
                 <Stack>
-                  <Typography variant='body1'>Latitude: {family.location.lat}</Typography>
-                  <Typography variant='body1'>Longitude: {family.location.long}</Typography>
+                  <Stack>
+                    <Typography variant='body1'>Latitude: {family.location.lat}</Typography>
+                    <Typography variant='body1'>Longitude: {family.location.long}</Typography>
+                  </Stack>
+                  <MapPicker
+                    defaultLocation={{ lat: parseFloat(family.location.lat), lng: parseFloat(family.location.long) }}
+                    style={{ height: 500, width: 750 }}
+                    onChangeLocation={(newLat, newLong) => { console.log(newLat + ' ' + newLong) }}
+                    apiKey={family.gmaps_api_key}
+                  />
                 </Stack>
-                <MapPicker
-                  defaultLocation={{ lat: parseFloat(family.location.lat), lng: parseFloat(family.location.long) }}
-                  style={{ height: 500, width: 750 }}
-                  onChangeLocation={(newLat, newLong) => { console.log(newLat + ' ' + newLong) }}
-                  apiKey={family.gmaps_api_key}
-                />
-              </Stack>
+              }
 
               {user.uid === family.headOfFamily ? (
                 <Button variant='outlined' startIcon={<Close />}>Delete Family</Button>
@@ -208,6 +253,28 @@ const Profile = (props) => {
                   <Button variant='contained'>Leave Family</Button>
                 )
               }
+
+              <Dialog open={deletingFamily} onClose={() => setDeletingFamily(false)}>
+                <DialogTitle>Delete family?</DialogTitle>
+                <DialogContent>
+                  <DialogContentText>Are you sure you want to delete the {family.name} family?</DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                  <Button variant='text' onClick={() => setDeletingFamily(false)}>Cancel</Button>
+                  <Button variant='contained' onClick={deleteFamily}>Delete</Button>
+                </DialogActions>
+              </Dialog>
+
+              <Dialog open={leavingFamily} onClose={() => setLeavingFamily(false)}>
+                <DialogTitle>Leave family?</DialogTitle>
+                <DialogContent>
+                  <DialogContentText>Are you sure you want to leave the {family.name} family?</DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                  <Button variant='text' onClick={() => setLeavingFamily(false)}>Cancel</Button>
+                  <Button variant='contained' onClick={leaveFamily}>Leave</Button>
+                </DialogActions>
+              </Dialog>
             </Stack>
           }
         </>

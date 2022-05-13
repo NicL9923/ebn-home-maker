@@ -12,7 +12,7 @@ const NoFamily = (props) => {
     const createFamily = () => {
         const newFamId = uuidv4();
         
-        setDoc(doc(db, 'families', newFamId), { name: newName }).then(() => {
+        setDoc(doc(db, 'families', newFamId), { name: newName, headOfFamily: user.uid }).then(() => {
             getFamily(profile.familyId);
         });
 

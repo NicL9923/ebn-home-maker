@@ -146,7 +146,7 @@ const Budget = (props) => {
         
       </Stack>
       
-      <Typography variant='h4'>Savings</Typography>
+      <Typography variant='h4'>Savings Blobs</Typography>
       <Stack>
         {budget &&
         <>
