@@ -5,7 +5,7 @@ import { getFirestore, getDoc, doc } from 'firebase/firestore';
 
 import Home from './pages/Home';
 import SmartHome from './pages/SmartHome';
-import Budget from './pages/Budget';
+import Finances from './pages/Finances';
 import Information from './pages/Information';
 import Maintenance from './pages/Maintenance';
 import Profile from './pages/Profile';
@@ -62,7 +62,7 @@ const App = () => {
             <>
               <Route exact path='/profile' element={<Profile profile={profile} getProfile={getProfile} family={family} getFamily={getFamily} user={user} db={db} />} />
               <Route exact path='/joinFamily/:familyId' element={<JoinFamily profile={profile} getProfile={getProfile} user={user} family={family} getFamily={getFamily} db={db} />} />
-              <Route exact path='/budget' element={<Budget db={db} profile={profile} />} />
+              <Route exact path='/finances' element={<Finances db={db} profile={profile} />} />
             </>
           }
           

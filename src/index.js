@@ -4,7 +4,7 @@ import './index.css';
 import App from './App';
 
 import { initializeApp } from 'firebase/app';
-import { createTheme, ThemeProvider } from '@mui/material';
+import { createTheme, CssBaseline, ThemeProvider } from '@mui/material';
 const firebaseConfig = {
   apiKey: "AIzaSyBEokTSCPR2Cw-o5pKAUwTK8vlmNaIAASk",
   authDomain: "our-home-239c1.firebaseapp.com",
@@ -30,6 +30,7 @@ const theme = createTheme({
 ReactDOM.render(
   <React.StrictMode>
     <ThemeProvider theme={theme}>
+      <CssBaseline />
       <App />
     </ThemeProvider>
   </React.StrictMode>,

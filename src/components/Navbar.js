@@ -14,7 +14,7 @@ const Navbar = (props) => {
   const [anchorEl, setAnchorEl] = useState(null);
 
   return (
-    <AppBar position='static'>
+    <AppBar position='sticky' sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
         <Toolbar>
             <IconButton
                 size='large'
@@ -38,9 +38,9 @@ const Navbar = (props) => {
                     <ListItemIcon><MemoryOutlinedIcon /></ListItemIcon>
                     <ListItemText>Smarthome</ListItemText>
                 </MenuItem>
-                <MenuItem onClick={() => setAnchorEl(null)} component={Link} to='/budget'>
+                <MenuItem onClick={() => setAnchorEl(null)} component={Link} to='/finances'>
                     <ListItemIcon><PaymentsOutlinedIcon /></ListItemIcon>
-                    <ListItemText>Budget</ListItemText>
+                    <ListItemText>Finances</ListItemText>
                 </MenuItem>
                 <MenuItem onClick={() => setAnchorEl(null)} component={Link} to='/info'>
                     <ListItemIcon><EventNoteOutlinedIcon /></ListItemIcon>

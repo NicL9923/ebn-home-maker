@@ -85,7 +85,7 @@ const Maintenance = (props) => {
       <Stack maxWidth='lg' mx='auto'>
         <Typography variant='h3'>Maintenance</Typography>
 
-        <Typography variant='h4'>House</Typography>
+        <Typography variant='h4'>{'Residence' + (residences.length > 1 ? 's' : '')}</Typography>
         <Stack direction='row'>
           {residences && residences.map(residence =>
             <Card key={residence.name}>
