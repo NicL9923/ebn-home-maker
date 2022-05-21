@@ -1,10 +1,12 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import './index.css';
 import App from './App';
 
 import { initializeApp } from 'firebase/app';
 import { createTheme, CssBaseline, ThemeProvider } from '@mui/material';
+import { DndProvider } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
 const firebaseConfig = {
   apiKey: "AIzaSyBEokTSCPR2Cw-o5pKAUwTK8vlmNaIAASk",
   authDomain: "our-home-239c1.firebaseapp.com",
@@ -27,12 +29,14 @@ const theme = createTheme({
   }
 });
 
-ReactDOM.render(
-  <React.StrictMode>
+const rootContainer = document.getElementById('root');
+const root = createRoot(rootContainer);
+
+root.render(
+  <DndProvider backend={HTML5Backend}>
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <App />
     </ThemeProvider>
-  </React.StrictMode>,
-  document.getElementById('root')
+  </DndProvider>
 );
