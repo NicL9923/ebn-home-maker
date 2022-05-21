@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { getDoc, doc } from 'firebase/firestore';
-import { Button, Card, CardActions, CardContent, CardMedia, Stack, Typography } from '@mui/material';
+import { Button, Card, CardActions, CardContent, CardMedia, Container, Stack, Typography } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import { Add } from '@mui/icons-material';
 
@@ -82,7 +82,7 @@ const Maintenance = (props) => {
 
   return (
     family ? (
-      <Stack maxWidth='lg' mx='auto'>
+      <Container maxWidth='lg'>
         <Typography variant='h3'>Maintenance</Typography>
 
         <Typography variant='h4'>{'Residence' + (residences.length > 1 ? 's' : '')}</Typography>
@@ -153,7 +153,7 @@ const Maintenance = (props) => {
         </Stack>
 
         <Button variant='contained'>Add vehicle</Button>
-      </Stack>
+      </Container>
     ) : (
       <>You aren't part of a family yet!</>
     )

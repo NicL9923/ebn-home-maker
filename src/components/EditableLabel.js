@@ -1,20 +1,20 @@
 import React, { useState, useRef } from "react";
-import Input from "@material-ui/core/Input";
-import InputLabel from "@material-ui/core/InputLabel";
 import { TextField, Typography } from "@mui/material";
 
 const ENTER_KEY_CODE = 13;
 
 const EditableLabel = ({ onFocus = () => {}, onBlur = () => {}, ...props }) => {
   const [isEditing, setEditing] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
   const [value, setValue] = useState(props.initialValue);
   const inputRef = useRef(null);
   
-  const isTextValueValid = () => typeof value !== "undefined" && value.trim().length > 0;
+  const isTextValueValid = () => typeof value !== 'undefined' && value.trim().length > 0;
 
   const handleFocus = () => {
-    const fn = isEditing ? onBlur : onFocus;
-    fn(value);
+    const callback = isEditing ? onBlur : onFocus;
+    callback(value);
+
     handleEditState();
   };
 
@@ -46,7 +46,19 @@ const EditableLabel = ({ onFocus = () => {}, onBlur = () => {}, ...props }) => {
 
   const labelText = isTextValueValid() ? value : props.labelPlaceHolder;
 
-  return <Typography variant='h6' onClick={handleFocus}>{labelText}</Typography>;
+  return (
+    <Typography
+      variant={props.variant ? props.variant : 'h6'}
+      onClick={handleFocus}
+      onMouseOver={() => setIsHovered(true)}
+      onMouseOut={() => setIsHovered(false)}
+      sx={{
+        borderBottom: isHovered ? '2px solid green' : ''
+      }}
+    >
+      {props.prefix}{labelText}
+    </Typography>
+  );
 };
 
 export default EditableLabel;

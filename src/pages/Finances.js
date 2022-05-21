@@ -1,10 +1,12 @@
-import { AccountBalance, Add, AttachMoney, Clear, CreditCard, Edit, ShowChart } from '@mui/icons-material';
-import { Button, Drawer, IconButton, LinearProgress, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Paper, Stack, Toolbar, Typography } from '@mui/material';
+import { AccountBalance, Add, AttachMoney, Clear, CreditCard, Edit, ShowChart, SubdirectoryArrowRight } from '@mui/icons-material';
+import { Button, Container, Divider, Drawer, Grid, IconButton, LinearProgress, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Paper, Stack, Toolbar, Tooltip, Typography } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 import React, { useEffect, useState } from 'react';
-import { CartesianGrid, Line, LineChart, Pie, PieChart, Sector, Tooltip, XAxis, YAxis } from 'recharts';
+import { CartesianGrid, Line, LineChart, Pie, PieChart, Sector, Tooltip as ChartTooltip, XAxis, YAxis } from 'recharts';
 import EditableLabel from '../components/EditableLabel';
+
+// TODO: handle duplicate category names
 
 const renderActiveShape = (props) => {
   const RADIAN = Math.PI / 180;
@@ -99,53 +101,146 @@ const Finances = (props) => {
     }
   };
 
+  const setMonthlyNetIncome = (newValue) => {
+    setDoc(doc(db, 'budgets', profile.budget), { monthlyNetIncome: parseFloat(newValue) }, { merge: true }).then(() => getBudget());
+  };
+
+  const setCategoryName = (newValue, oldName) => {
+    const updArr = [...budget.categories];
+
+    // TODO: see if there's a better way to do this
+    updArr.forEach(cat => {
+      if (cat.name === oldName) {
+        cat.name = newValue;
+      }
+    });
+
+    setDoc(doc(db, 'budgets', profile.budget), { categories: updArr }, { merge: true }).then(() => getBudget());
+  };
+
+  const setSubCatName = (newValue, oldName, catName) => {
+    const updArr = [...budget.categories];
+
+    updArr.forEach(cat => {
+      if (cat.name === catName) {
+        cat.subcategories.forEach(subCat => {
+          if (subCat.name === oldName) {
+            subCat.name = newValue;
+          }
+        });
+      }
+    });
+    
+    setDoc(doc(db, 'budgets', profile.budget), { categories: updArr }, { merge: true }).then(() => getBudget());
+  };
+
+  const setSubCatAllotted = () => {};
+
   useEffect(() => {
     if (profile) {
       getBudget();
     }
   }, [profile]);
 
-  const showBudget = () => (<Paper>
-    <Typography variant='h3'>Budget - {new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</Typography>
-      <Stack>
-        {budget &&
-          <Stack key={budget.id} width='50%'>
-            <Stack direction='row'>
-              <Typography variant='h6'>Net Income: ${budget.monthlyNetIncome}</Typography>
-              <IconButton><Edit /></IconButton>
-            </Stack>
-            <Typography variant='h6'>Currently Allotted: ${budget.totalAllotted} (${Math.abs(budget.monthlyNetIncome - budget.totalAllotted)} {(budget.monthlyNetIncome - budget.totalAllotted) >= 0 ? 'remaining' : 'over-allotted'})</Typography>
-            <Typography variant='h6'>Currently Spent: ${budget.totalSpent}</Typography>
+  const showBudget = () => {
+    if (budget) {
+      return (<>
+        <Typography variant='h3' mb={4} mt={2}>Budget - {new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</Typography>
+        <Stack key={budget.id}>
+          <Grid container mb={4}>
+            <Grid item xs={4}>
+              <Paper component={Container} sx={{ height: 150, width: 250 }}>
+                <Typography variant='h6'>Net Income</Typography>
+                <EditableLabel variant='h4' prefix='$' initialValue={budget.monthlyNetIncome.toFixed(2)} onBlur={setMonthlyNetIncome} />
+              </Paper>
+            </Grid>
+
+            <Grid item xs={4}>
+              <Paper component={Container} sx={{ height: 150, width: 250 }}>
+                <Typography variant='h6'>Total Allotted</Typography>
+                <Typography variant='h4'>${budget.totalAllotted.toFixed(2)}</Typography>
+                <Typography variant='h6'>${Math.abs(budget.monthlyNetIncome - budget.totalAllotted).toFixed(2)} {(budget.monthlyNetIncome - budget.totalAllotted) >= 0 ? 'to allot' : 'over-allotted'}</Typography>
+              </Paper>
+            </Grid>
+            
+            <Grid item xs={4}>
+              <Paper component={Container} sx={{ height: 150, width: 250 }}>
+                <Typography variant='h6'>Total Spent</Typography>
+                <Typography variant='h4'>${budget.totalSpent.toFixed(2)}</Typography>
+                <Typography variant='h6'>${Math.abs(budget.totalAllotted - budget.totalSpent).toFixed(2)} {(budget.totalAllotted - budget.totalSpent) >= 0 ? 'remaining' : 'over-budget'}</Typography>
+              </Paper>
+            </Grid>
+          </Grid>
+
+          <Paper>
+            <Grid container alignItems='center'>
+              <Grid item xs={8}>
+                <Stack direction='row' alignItems='center'>
+                  <Tooltip title='Add category'><IconButton><Add /></IconButton></Tooltip>
+                
+                  <Stack>
+                    <Typography variant='body1'>Category</Typography>
+                    <Stack direction='row' alignItems='end'>
+                      <SubdirectoryArrowRight />
+                      <Typography variant='body2'>Sub-category</Typography>
+                    </Stack>
+                  </Stack>
+                </Stack>
+              </Grid>
+
+              <Grid item xs={2}><Typography variant='body1'>Allotted</Typography></Grid>
+              <Grid item xs={2}><Typography variant='body1'>Spent</Typography></Grid>
+            </Grid>
+
+            <Divider />
 
             {budget.categories.map(category => 
-              <Stack key={category.name}>
-                <Stack direction='row'>
-                  <EditableLabel initialValue={category.name} />
-                  <IconButton><Add /></IconButton>
-                  <IconButton><Clear /></IconButton>
-                </Stack>
-                <Typography variant='body1'>${category.currentSpent} Spent / ${category.totalAllotted} Allotted</Typography>
-                <LinearProgress value={(category.currentSpent / category.totalAllotted) * 100} variant='determinate' />
-                  {category.subcategories.map(subcategory =>
-                    <Stack key={subcategory.name} ml={6}>
-                      <Stack direction='row'>
-                        <EditableLabel initialValue={subcategory.name} />
-                        <IconButton><Edit /></IconButton>
-                        <IconButton><Clear /></IconButton>
-                      </Stack>
-                      <Typography variant='body1'>${subcategory.currentSpent} Spent / ${subcategory.totalAllotted} Allotted</Typography>
-                      <LinearProgress value={(subcategory.currentSpent / subcategory.totalAllotted) * 100} variant='determinate' />
+              <Stack key={category.name} mb={1}>
+                <Grid container alignItems='center'>
+                  <Grid item xs={8}>
+                    <Stack direction='row' alignItems='center'>
+                      <EditableLabel variant='h5' initialValue={category.name} onBlur={(newValue) => setCategoryName(newValue, category.name)} />
+                      <Tooltip title='Add sub-category'><IconButton><Add /></IconButton></Tooltip>
+                      <Tooltip title='Delete category'><IconButton><Clear /></IconButton></Tooltip>
                     </Stack>
-                  )}
+                  </Grid>
+                  <Grid item xs={2}>
+                    <Typography variant='body1'>${category.totalAllotted.toFixed(2)}</Typography>
+                  </Grid>
+                  <Grid item xs={2}>
+                    <Typography variant='body1'>${category.currentSpent.toFixed(2)}</Typography>
+                  </Grid>
+                </Grid>
+
+                {category.subcategories.map(subcategory =>
+                  <Stack key={subcategory.name} ml={6}>
+                    <Grid container alignItems='center'>
+                      <Grid item xs={8}>
+                        <Stack direction='row' alignItems='center'>
+                          <EditableLabel initialValue={subcategory.name} onBlur={(newValue) => setSubCatName(newValue, subcategory.name, category.name)} />
+                          <Tooltip title='Delete sub-category'><IconButton><Clear /></IconButton></Tooltip>
+                        </Stack>
+                        <LinearProgress value={(subcategory.currentSpent / subcategory.totalAllotted) * 100} variant='determinate' sx={{ width: '85%' }} />
+                      </Grid>
+
+                      <Grid item xs={2}>
+                        <EditableLabel variant='body1' initialValue={`$${subcategory.totalAllotted.toFixed(2)}`} />
+                      </Grid>
+                      <Grid item xs={2}>
+                        <Typography variant='body1'>${subcategory.currentSpent.toFixed(2)}</Typography>
+                      </Grid>
+                    </Grid>
+                  </Stack>
+                )}
               </Stack>
             )}
-
-            <Button variant='contained'>Add category</Button>
-          </Stack>
-        }
-        
-      </Stack>
-  </Paper>);
+          </Paper>
+        </Stack>
+      </>);
+    } else {
+      // TODO: handle no budget
+    }
+  };
 
   const showSavings = () => (<Paper>
     <Typography variant='h4' mt={8}>Savings Blobs</Typography>
@@ -196,7 +291,7 @@ const Finances = (props) => {
                   <CartesianGrid strokeDasharray='3 3' />
                   <XAxis dataKey='monthYear' />
                   <YAxis />
-                  <Tooltip formatter={(value) => `$${value}`} />
+                  <ChartTooltip formatter={(value) => `$${value}`} />
                   <Line type='monotone' dataKey='value' stroke='#82ca9d' activeDot={{ r: 6 }} name='Value' />
                 </LineChart>
 
@@ -244,23 +339,25 @@ const Finances = (props) => {
   };
 
   return (
-    <Stack maxWidth='lg' mx='auto'>
+    <Container maxWidth='lg'>
       <Drawer variant='permanent'>
         <Toolbar />
+        <Typography variant='h6' mt={2} mb={1} mx='auto'>Finance Dashboard</Typography>
+        <Divider />
         <List>
-          <ListItem><ListItemButton onClick={() => setShownComponent(0)}>
+          <ListItem><ListItemButton onClick={() => setShownComponent(0)} selected={shownComponent === 0}>
             <ListItemIcon><AttachMoney /></ListItemIcon>
             <ListItemText>Budget</ListItemText>
           </ListItemButton></ListItem>
-          <ListItem><ListItemButton onClick={() => setShownComponent(1)}>
+          <ListItem><ListItemButton onClick={() => setShownComponent(1)} selected={shownComponent === 1}>
             <ListItemIcon><AccountBalance /></ListItemIcon>
             <ListItemText>Savings</ListItemText>
           </ListItemButton></ListItem>
-          <ListItem><ListItemButton onClick={() => setShownComponent(2)}>
+          <ListItem><ListItemButton onClick={() => setShownComponent(2)} selected={shownComponent === 2}>
             <ListItemIcon><ShowChart /></ListItemIcon>
             <ListItemText>Investments</ListItemText>
           </ListItemButton></ListItem>
-          <ListItem><ListItemButton onClick={() => setShownComponent(3)}>
+          <ListItem><ListItemButton onClick={() => setShownComponent(3)} selected={shownComponent === 3}>
             <ListItemIcon><CreditCard /></ListItemIcon>
             <ListItemText>Transactions</ListItemText>
           </ListItemButton></ListItem>
@@ -268,7 +365,7 @@ const Finances = (props) => {
       </Drawer>
       
       {showComponent()}
-    </Stack>
+    </Container>
   );
 }
 

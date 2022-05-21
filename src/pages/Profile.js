@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getDoc, doc, setDoc, deleteDoc } from 'firebase/firestore';
 import { deleteObject, getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
-import { Avatar, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, IconButton, InputLabel, Stack, TextField, Typography } from '@mui/material';
+import { Avatar, Button, Container, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, IconButton, InputLabel, Stack, TextField, Typography } from '@mui/material';
 import { Add, Close, ContentCopyOutlined, Edit } from '@mui/icons-material';
 import MapPicker from 'react-google-map-picker';
 import { DropzoneArea } from 'mui-file-dropzone';
@@ -118,7 +118,7 @@ const Profile = (props) => {
   }, [family]);
 
   return (
-    <Stack maxWidth='md' mx='auto'>
+    <Container maxWidth='md'>
       <Typography variant='h2'>My Profile</Typography>
 
       <Stack alignItems='center' justifyContent='center'>
@@ -279,7 +279,7 @@ const Profile = (props) => {
           }
         </>
       )}
-    </Stack>
+    </Container>
   );
 }
 
