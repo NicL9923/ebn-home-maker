@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Alert, AlertTitle, Stack, Tab, Tabs, Typography } from '@mui/material';
+import { Alert, AlertTitle, Box, Container, Grid, Paper, Stack, Tab, Tabs, Typography } from '@mui/material';
 import { WiRain, WiThunderstorm, WiSnowflakeCold, WiFog, WiDaySunny, WiNightClear, WiDayCloudy, WiCloudy, WiNightCloudy } from 'weather-icons-react';
 
 const WeatherBox = (props) => {
@@ -78,14 +78,16 @@ const WeatherBox = (props) => {
     };
 
     return (
-      <Stack direction='column' alignItems='center' justifyContent='center' textAlign='center' mb={4}>
-        <Typography variant='h4'>{curWeatherInfo.condition}</Typography>
-        {getWeatherIcon(curWeatherInfo.iconCode, 108)}
-        <Typography variant='h4'>{curWeatherInfo.temp}°F</Typography>
-        <Typography variant='h6'>Feels like {curWeatherInfo.feelsLike}°</Typography>
-        <Typography variant='body1'>Humidity: {curWeatherInfo.humidity}%</Typography>
-        <Typography variant='body1'>Wind: {curWeatherInfo.wind}mph</Typography>
-      </Stack>
+      <Paper>
+        <Stack direction='column' alignItems='center' justifyContent='center' textAlign='center' mt={3} pl={5} pr={5} pt={2} pb={2}>
+          <Typography variant='h4'>{curWeatherInfo.condition}</Typography>
+          {getWeatherIcon(curWeatherInfo.iconCode, 108)}
+          <Typography variant='h4'>{curWeatherInfo.temp}°F</Typography>
+          <Typography variant='h6'>Feels like {curWeatherInfo.feelsLike}°</Typography>
+          <Typography variant='body1'>Humidity: {curWeatherInfo.humidity}%</Typography>
+          <Typography variant='body1'>Wind: {curWeatherInfo.wind}mph</Typography>
+        </Stack>
+      </Paper>
     );
   };
 
@@ -137,20 +139,24 @@ const WeatherBox = (props) => {
     });
 
     return (
-      <Stack direction='row' alignItems='center' justifyContent='center' spacing={4} mb={4}>
+      <Grid container spacing={2} mt={2}>
         {parsedHourlyReports.map(rpt => {
           return (
-            <Stack direction='column' alignItems='center' justifyContent='center' textAlign='center' width={75} key={rpt.hour} spacing={1}>
-              <Typography variant='h6'>{(rpt.hour < 12) ? (`${rpt.hour} AM`) : (`${(rpt.hour === 12) ? rpt.hour : (rpt.hour - 12)} PM`)}</Typography>
-              {getWeatherIcon(rpt.iconCode)}
-              <Typography variant='h6'>{rpt.condition}</Typography>
-              <Typography variant='h6'>{rpt.temp}°F</Typography>
-              <Typography variant='body2'>FL {rpt.feelsLike}°</Typography>
-              <Typography variant='body2'>HUM: {rpt.humidity}%</Typography>
-            </Stack>
+            <Grid container item xs={4} sm={3} md={2} justifyContent='space-evenly'>
+              <Paper>
+                <Stack direction='column' alignItems='center' justifyContent='center' textAlign='center' width={75} ml={4} mr={4} mt={1} mb={1} key={rpt.hour} spacing={1}>
+                  <Typography variant='h6'>{(rpt.hour < 12) ? (`${rpt.hour} AM`) : (`${(rpt.hour === 12) ? rpt.hour : (rpt.hour - 12)} PM`)}</Typography>
+                  {getWeatherIcon(rpt.iconCode)}
+                  <Typography variant='h6'>{rpt.condition}</Typography>
+                  <Typography variant='h6'>{rpt.temp}°F</Typography>
+                  <Typography variant='body2'>FL {rpt.feelsLike}°</Typography>
+                  <Typography variant='body2'>HUM: {rpt.humidity}%</Typography>
+                </Stack>
+              </Paper>
+            </Grid>
           );
         })}
-      </Stack>
+      </Grid>
     );
   };
 
@@ -170,19 +176,23 @@ const WeatherBox = (props) => {
     });
 
     return (
-      <Stack direction='row' alignItems='center' justifyContent='center' spacing={5}>
+      <Grid container justifyContent='space-evenly' alignItems='center' spacing={4} mt={1}>
         {parsedDailyReports.map(rpt => {
           return (
-            <Stack direction='column' alignItems='center' justifyContent='center' textAlign='center' key={rpt.day} spacing={1}>
-              <Typography variant='h5'>{rpt.day}</Typography>
-              {getWeatherIcon(rpt.iconCode)}
-              <Typography variant='h6'>{rpt.condition}</Typography>
-              <Typography variant='body1'>High: {rpt.tempHigh}°F</Typography>
-              <Typography variant='body1'>Low: {rpt.tempLow}°F</Typography>
-            </Stack>
+            <Grid container item xs={4} sm={3} md={2} justifyContent='space-evenly'>
+              <Paper>
+                <Stack direction='column' alignItems='center' justifyContent='center' textAlign='center' width={90} ml={4} mr={4} mt={1} mb={1} key={rpt.day} spacing={1}>
+                  <Typography variant='h5'>{rpt.day}</Typography>
+                  {getWeatherIcon(rpt.iconCode)}
+                  <Typography variant='h6'>{rpt.condition}</Typography>
+                  <Typography variant='body1'>High: {rpt.tempHigh}°F</Typography>
+                  <Typography variant='body1'>Low: {rpt.tempLow}°F</Typography>
+                </Stack>
+              </Paper>
+            </Grid>
           );
         })}
-      </Stack>
+      </Grid>
     );
   };
 
@@ -199,9 +209,11 @@ const WeatherBox = (props) => {
         <Tab label='Daily' />
       </Tabs>
 
-      {shownWeather === 0 && <>{parseCurrentWeather()}</>}
-      {shownWeather === 1 && <>{parseHourlyWeather()}</>}
-      {shownWeather === 2 && <>{parseDailyWeather()}</>}
+      <Box justifyContent='space-evenly' alignItems='center'>
+        {shownWeather === 0 && <>{parseCurrentWeather()}</>}
+        {shownWeather === 1 && <>{parseHourlyWeather()}</>}
+        {shownWeather === 2 && <>{parseDailyWeather()}</>}
+      </Box>
 
       <>{parseWeatherAlerts()}</>
     </Stack>
