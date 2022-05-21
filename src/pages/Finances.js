@@ -1,5 +1,5 @@
 import { AccountBalance, Add, AttachMoney, Clear, CreditCard, Edit, ShowChart, SubdirectoryArrowRight } from '@mui/icons-material';
-import { Button, Container, Divider, Drawer, Grid, IconButton, LinearProgress, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Paper, Stack, Toolbar, Tooltip, Typography } from '@mui/material';
+import { Box, Button, Container, Divider, Drawer, Grid, IconButton, LinearProgress, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Paper, Stack, Toolbar, Tooltip, Typography } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import React, { useEffect, useState } from 'react';
@@ -106,9 +106,11 @@ const Finances = (props) => {
   };
 
   const setCategoryName = (newValue, oldName) => {
+    if (newValue === oldName) return;
+    
     const updArr = [...budget.categories];
 
-    // TODO: see if there's a better way to do this
+    // TODO: Do this a better way (using proper JS array methods probably)
     updArr.forEach(cat => {
       if (cat.name === oldName) {
         cat.name = newValue;
@@ -118,14 +120,23 @@ const Finances = (props) => {
     setDoc(doc(db, 'budgets', profile.budget), { categories: updArr }, { merge: true }).then(() => getBudget());
   };
 
-  const setSubCatName = (newValue, oldName, catName) => {
+  const setSubCatProperty = (newValue, oldName, catName, propName) => {
+    if (newValue === oldName) return;
+    
     const updArr = [...budget.categories];
 
     updArr.forEach(cat => {
       if (cat.name === catName) {
         cat.subcategories.forEach(subCat => {
           if (subCat.name === oldName) {
-            subCat.name = newValue;
+            if (propName === 'name') {
+              subCat.name = newValue;
+            }
+            else if (propName === 'allotted') {
+              subCat.totalAllotted = parseFloat(newValue);
+            } else {
+              console.error('Invalid property to set for subcat');
+            }
           }
         });
       }
@@ -134,7 +145,41 @@ const Finances = (props) => {
     setDoc(doc(db, 'budgets', profile.budget), { categories: updArr }, { merge: true }).then(() => getBudget());
   };
 
-  const setSubCatAllotted = () => {};
+  const addNewCategory = () => {
+    setDoc(doc(db, 'budgets', profile.budget), { categories: [...budget.categories, { name: 'New Category', subcategories: [] }] }, { merge: true }).then(() => getBudget());
+  };
+
+  const removeCategory = (catName) => {
+    const updArr = [...budget.categories];
+
+    updArr.splice(updArr.findIndex((cat) => cat.name === catName), 1);
+
+    setDoc(doc(db, 'budgets', profile.budget), { categories: updArr }, { merge: true }).then(() => getBudget()); 
+  };
+
+  const addNewSubCategory = (catName) => {
+    const updArr = [...budget.categories];
+
+    updArr.forEach(cat => {
+      if (cat.name === catName) {
+        cat.subcategories.push({ name: 'New SubCategory', currentSpent: 0, totalAllotted: 0 });
+      }
+    });
+
+    setDoc(doc(db, 'budgets', profile.budget), { categories: updArr }, { merge: true }).then(() => getBudget());
+  };
+
+  const removeSubCategory = (catName, subCatName) => {
+    const updArr = [...budget.categories];
+
+    updArr.forEach(cat => {
+      if (cat.name === catName) {
+        cat.subcategories.splice(cat.subcategories.findIndex((subcat) => subcat.name === subCatName), 1);
+      }
+    });
+
+    setDoc(doc(db, 'budgets', profile.budget), { categories: updArr }, { merge: true }).then(() => getBudget());
+  };
 
   useEffect(() => {
     if (profile) {
@@ -176,7 +221,7 @@ const Finances = (props) => {
             <Grid container alignItems='center'>
               <Grid item xs={8}>
                 <Stack direction='row' alignItems='center'>
-                  <Tooltip title='Add category'><IconButton><Add /></IconButton></Tooltip>
+                  <Tooltip title='Add category'><IconButton onClick={addNewCategory}><Add /></IconButton></Tooltip>
                 
                   <Stack>
                     <Typography variant='body1'>Category</Typography>
@@ -194,46 +239,48 @@ const Finances = (props) => {
 
             <Divider />
 
-            {budget.categories.map(category => 
-              <Stack key={category.name} mb={1}>
-                <Grid container alignItems='center'>
-                  <Grid item xs={8}>
-                    <Stack direction='row' alignItems='center'>
-                      <EditableLabel variant='h5' initialValue={category.name} onBlur={(newValue) => setCategoryName(newValue, category.name)} />
-                      <Tooltip title='Add sub-category'><IconButton><Add /></IconButton></Tooltip>
-                      <Tooltip title='Delete category'><IconButton><Clear /></IconButton></Tooltip>
-                    </Stack>
-                  </Grid>
-                  <Grid item xs={2}>
-                    <Typography variant='body1'>${category.totalAllotted.toFixed(2)}</Typography>
-                  </Grid>
-                  <Grid item xs={2}>
-                    <Typography variant='body1'>${category.currentSpent.toFixed(2)}</Typography>
-                  </Grid>
-                </Grid>
-
-                {category.subcategories.map(subcategory =>
-                  <Stack key={subcategory.name} ml={6}>
-                    <Grid container alignItems='center'>
-                      <Grid item xs={8}>
-                        <Stack direction='row' alignItems='center'>
-                          <EditableLabel initialValue={subcategory.name} onBlur={(newValue) => setSubCatName(newValue, subcategory.name, category.name)} />
-                          <Tooltip title='Delete sub-category'><IconButton><Clear /></IconButton></Tooltip>
-                        </Stack>
-                        <LinearProgress value={(subcategory.currentSpent / subcategory.totalAllotted) * 100} variant='determinate' sx={{ width: '85%' }} />
-                      </Grid>
-
-                      <Grid item xs={2}>
-                        <EditableLabel variant='body1' initialValue={`$${subcategory.totalAllotted.toFixed(2)}`} />
-                      </Grid>
-                      <Grid item xs={2}>
-                        <Typography variant='body1'>${subcategory.currentSpent.toFixed(2)}</Typography>
-                      </Grid>
+            <Box p={2}>
+              {budget.categories.map(category => 
+                <Stack key={category.name} mb={1}>
+                  <Grid container alignItems='center'>
+                    <Grid item xs={8}>
+                      <Stack direction='row' alignItems='center'>
+                        <EditableLabel variant='h5' initialValue={category.name} onBlur={(newValue) => setCategoryName(newValue, category.name)} />
+                        <Tooltip title='Add sub-category'><IconButton onClick={() => addNewSubCategory(category.name)}><Add /></IconButton></Tooltip>
+                        <Tooltip title='Delete category'><IconButton onClick={() => removeCategory(category.name)}><Clear /></IconButton></Tooltip>
+                      </Stack>
                     </Grid>
-                  </Stack>
-                )}
-              </Stack>
-            )}
+                    <Grid item xs={2}>
+                      <Typography variant='body1'>${category.totalAllotted.toFixed(2)}</Typography>
+                    </Grid>
+                    <Grid item xs={2}>
+                      <Typography variant='body1'>${category.currentSpent.toFixed(2)}</Typography>
+                    </Grid>
+                  </Grid>
+
+                  {category.subcategories.map(subcategory =>
+                    <Stack key={subcategory.name} ml={6}>
+                      <Grid container alignItems='center'>
+                        <Grid item xs={8}>
+                          <Stack direction='row' alignItems='center'>
+                            <EditableLabel initialValue={subcategory.name} onBlur={(newValue) => setSubCatProperty(newValue, subcategory.name, category.name, 'name')} />
+                            <Tooltip title='Delete sub-category'><IconButton onClick={() => removeSubCategory(category.name, subcategory.name)}><Clear /></IconButton></Tooltip>
+                          </Stack>
+                          <LinearProgress value={(subcategory.currentSpent / subcategory.totalAllotted) * 100} variant='determinate' sx={{ width: '85%' }} />
+                        </Grid>
+
+                        <Grid item xs={2}>
+                          <EditableLabel variant='body1' prefix='$' initialValue={`${subcategory.totalAllotted.toFixed(2)}`} onBlur={(newValue) => setSubCatProperty(newValue, subcategory.name, category.name, 'allotted')} />
+                        </Grid>
+                        <Grid item xs={2}>
+                          <Typography variant='body1'>${subcategory.currentSpent.toFixed(2)}</Typography>
+                        </Grid>
+                      </Grid>
+                    </Stack>
+                  )}
+                </Stack>
+              )}
+            </Box>
           </Paper>
         </Stack>
       </>);

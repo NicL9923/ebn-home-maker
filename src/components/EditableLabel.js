@@ -12,8 +12,12 @@ const EditableLabel = ({ onFocus = () => {}, onBlur = () => {}, ...props }) => {
   const isTextValueValid = () => typeof value !== 'undefined' && value.trim().length > 0;
 
   const handleFocus = () => {
-    const callback = isEditing ? onBlur : onFocus;
-    callback(value);
+    if (isEditing) {
+      onBlur(value);
+      setIsHovered(false);
+    } else {
+      onFocus(value);
+    }
 
     handleEditState();
   };
