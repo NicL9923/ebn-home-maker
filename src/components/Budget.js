@@ -1,7 +1,7 @@
 import { Add, Clear, SubdirectoryArrowRight } from '@mui/icons-material';
 import { Box, Container, Divider, Grid, IconButton, LinearProgress, Paper, Stack, Tooltip, Typography } from '@mui/material';
 import { doc, setDoc } from 'firebase/firestore';
-import React from 'react';
+import React, { useRef } from 'react';
 import { useDrag, useDrop } from 'react-dnd';
 import EditableLabel from './EditableLabel';
 
@@ -9,26 +9,22 @@ import EditableLabel from './EditableLabel';
 // TODO: handle duplicate category names
 
 const BudgetCategories = (props) => {
-    const { budget, setCategoryName, addNewSubCategory, removeCategory, setSubCatProperty, removeSubCategory } = props;
-    const [{ isOver }, dropRef] = useDrop({
-        accept: 'category',
-        drop: (item) => {{}},
-        collect: (monitor) => ({
-            isOver: monitor.isOver()
-        })
-    });
-
+    const { budget, setCategoryName, addNewSubCategory, removeCategory, setSubCatProperty, removeSubCategory, moveCategory, moveSubCategory } = props;
+    
     return (
-        <Box p={2} ref={dropRef}>
-            {budget.categories.map(category => 
+        <Box p={2}>
+            {budget.categories.map((category, idx) => 
                 <Category
                     key={category.name}
+                    idx={idx}
                     category={category}
                     setCategoryName={setCategoryName}
                     addNewSubCategory={addNewSubCategory}
                     removeCategory={removeCategory}
                     setSubCatProperty={setSubCatProperty}
                     removeSubCategory={removeSubCategory}
+                    moveCategory={moveCategory}
+                    moveSubCategory={moveSubCategory}
                 />
             )}
         </Box>
@@ -36,24 +32,47 @@ const BudgetCategories = (props) => {
 };
 
 const Category = (props) => {
-    const { category, setCategoryName, addNewSubCategory, removeCategory, setSubCatProperty, removeSubCategory } = props;
+    const { idx, category, setCategoryName, addNewSubCategory, removeCategory, setSubCatProperty, removeSubCategory, moveCategory, moveSubCategory } = props;
+    const ref = useRef(null);
     const [{ isDragging }, dragRef] = useDrag({
         type: 'category',
-        item: category.name,
+        item: { id: category.name, idx },
         collect: (monitor) => ({
             isDragging: monitor.isDragging()
         })
     });
     const [{ isOver }, dropRef] = useDrop({
-        accept: 'subcategory',
-        drop: (item) => {{}},
+        accept: 'category',
+        // drop: (item) => {{}},
         collect: (monitor) => ({
             isOver: monitor.isOver()
-        })
+        }),
+        hover: (item, monitor) => {
+            if (!ref.current) return;
+
+            const dragIndex = item.index;
+            const hoverIndex = idx;
+
+            if (dragIndex === hoverIndex) return;
+
+            const hoverBoundingRect = ref.current?.getBoundingClientRect();
+            const hoverMiddleY = (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2;
+            const clientOffset = monitor.getClientOffset();
+            const hoverClientY = clientOffset.y - hoverBoundingRect.top;
+            
+            if (dragIndex < hoverIndex && hoverClientY < hoverMiddleY) return;
+            if (dragIndex > hoverIndex && hoverClientY > hoverMiddleY) return;
+            
+            moveCategory(category.name, dragIndex, hoverIndex);
+            
+            item.index = hoverIndex;
+        }
     });
 
+    dragRef(dropRef(ref));
+
     return (
-        <Stack mb={1} ref={dragRef}>
+        <Stack mb={1} ref={ref}>
             <Grid container alignItems='center'>
             <Grid item xs={8}>
                 <Stack direction='row' alignItems='center'>
@@ -63,40 +82,73 @@ const Category = (props) => {
                 </Stack>
             </Grid>
             <Grid item xs={2}>
-                <Typography variant='body1'>${category.totalAllotted.toFixed(2)}</Typography>
+                <Typography variant='body1' ml={2} sx={{ fontWeight: 'bold' }}>${category.totalAllotted.toFixed(2)}</Typography>
             </Grid>
             <Grid item xs={2}>
-                <Typography variant='body1'>${category.currentSpent.toFixed(2)}</Typography>
+                <Typography variant='body1' ml={1} sx={{ fontWeight: 'bold' }}>${category.currentSpent.toFixed(2)}</Typography>
             </Grid>
             </Grid>
 
-            <Stack ref={dropRef}>
-                {category.subcategories.map(subcategory =>
+            <Stack mb={2}>
+                {category.subcategories.map((subcategory, idx) =>
                     <SubCategory
                         key={subcategory.name}
+                        idx={idx}
                         category={category}
                         subcategory={subcategory}
                         setSubCatProperty={setSubCatProperty}
                         removeSubCategory={removeSubCategory}
+                        moveSubCategory={moveSubCategory}
                     />
                 )}
             </Stack>
+            <Divider />
         </Stack>
     );
 };
 
 const SubCategory = (props) => {
-    const { category, subcategory, setSubCatProperty, removeSubCategory } = props;
+    const { idx, category, subcategory, setSubCatProperty, removeSubCategory, moveSubCategory } = props;
+    const ref = useRef(null);
     const [{ isDragging }, dragRef] = useDrag({
         type: 'subcategory',
-        item: subcategory.name,
+        item: { id: subcategory.name, idx },
         collect: (monitor) => ({
             isDragging: monitor.isDragging()
         })
     });
+    const [{ isOver }, dropRef] = useDrop({
+        accept: 'subcategory',
+        // drop: (item) => {{}},
+        collect: (monitor) => ({
+            isOver: monitor.isOver()
+        }),
+        hover: (item, monitor) => {
+            if (!ref.current) return;
+
+            const dragIndex = item.index;
+            const hoverIndex = idx;
+
+            if (dragIndex === hoverIndex) return;
+
+            const hoverBoundingRect = ref.current?.getBoundingClientRect();
+            const hoverMiddleY = (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2;
+            const clientOffset = monitor.getClientOffset();
+            const hoverClientY = clientOffset.y - hoverBoundingRect.top;
+            
+            if (dragIndex < hoverIndex && hoverClientY < hoverMiddleY) return;
+            if (dragIndex > hoverIndex && hoverClientY > hoverMiddleY) return;
+            
+            moveSubCategory(category.name, subcategory.name, dragIndex, hoverIndex);
+            
+            item.index = hoverIndex;
+        }
+    });
+
+    dragRef(dropRef(ref));
 
     return (
-        <Stack ml={6} ref={dragRef}>
+        <Stack ml={6} ref={ref}>
             <Grid container alignItems='center'>
             <Grid item xs={8}>
                 <Stack direction='row' alignItems='center'>
@@ -200,6 +252,27 @@ const Budget = (props) => {
         setDoc(doc(db, 'budgets', profile.budget), { categories: updArr }, { merge: true }).then(() => getBudget());
     };
 
+    const moveCategory = (catName, dragIdx, hoverIdx) => {
+        const updArr = [...budget.categories];
+        const cat = updArr[dragIdx];
+
+        updArr.slice(dragIdx, 1);
+        updArr.slice(hoverIdx, 0, cat);
+
+        setDoc(doc(db, 'budgets', profile.budget), { categories: updArr }, { merge: true }).then(() => getBudget());
+    };
+
+    const moveSubCategory = (catName, subCatName, dragIdx, hoverIdx) => {
+        const updArr = [...budget.categories];
+        const catIdx = updArr.findIndex((cat) => cat.name = catName);
+        const subcat = updArr[catIdx].subcategories[dragIdx];
+
+        updArr[catIdx].subcategories.slice(dragIdx, 1);
+        updArr[catIdx].subcategories.slice(hoverIdx, 0, subcat);
+
+        setDoc(doc(db, 'budgets', profile.budget), { categories: updArr }, { merge: true }).then(() => getBudget());
+    };
+
     return (<>
         <Typography variant='h3' mb={4} mt={2}>Budget - {new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</Typography>
         <Stack key={budget.id}>
@@ -257,6 +330,8 @@ const Budget = (props) => {
                     removeCategory={removeCategory}
                     setSubCatProperty={setSubCatProperty}
                     removeSubCategory={removeSubCategory}
+                    moveCategory={moveCategory}
+                    moveSubCategory={moveSubCategory}
                 />
             </Paper>
         </Stack>

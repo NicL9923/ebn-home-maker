@@ -1,5 +1,5 @@
 import { AccountBalance, AttachMoney, CreditCard, ShowChart } from '@mui/icons-material';
-import { Container, Divider, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Toolbar, Typography } from '@mui/material';
+import { Button, Container, Divider, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Toolbar, Typography } from '@mui/material';
 import { doc, getDoc } from 'firebase/firestore';
 import React, { useEffect, useState } from 'react';
 import Budget from '../components/Budget';
@@ -12,7 +12,7 @@ const Finances = (props) => {
   const { profile, db } = props;
   const [shownComponent, setShownComponent] = useState(0);
   const [budget, setBudget] = useState(null);
-  
+  const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
 
   const createAndSaveDefaultBudget = () => {
     // TODO: If profile doesn't have a budget (should only be in case of a new profile), automatically create and save one
@@ -77,30 +77,45 @@ const Finances = (props) => {
     }
   };
 
+  const drawerContents = (<>
+    <Toolbar />
+      <Typography variant='h6' mt={2} mb={1} mx='auto'>Finance Dashboard</Typography>
+      <Divider />
+      <List>
+        <ListItem><ListItemButton onClick={() => setShownComponent(0)} selected={shownComponent === 0}>
+          <ListItemIcon><AttachMoney /></ListItemIcon>
+          <ListItemText>Budget</ListItemText>
+        </ListItemButton></ListItem>
+        <ListItem><ListItemButton onClick={() => setShownComponent(1)} selected={shownComponent === 1}>
+          <ListItemIcon><AccountBalance /></ListItemIcon>
+          <ListItemText>Savings</ListItemText>
+        </ListItemButton></ListItem>
+        <ListItem><ListItemButton onClick={() => setShownComponent(2)} selected={shownComponent === 2}>
+          <ListItemIcon><ShowChart /></ListItemIcon>
+          <ListItemText>Investments</ListItemText>
+        </ListItemButton></ListItem>
+        <ListItem><ListItemButton onClick={() => setShownComponent(3)} selected={shownComponent === 3}>
+          <ListItemIcon><CreditCard /></ListItemIcon>
+          <ListItemText>Transactions</ListItemText>
+        </ListItemButton></ListItem>
+      </List>
+  </>);
+
   return (
     <Container maxWidth='lg'>
-      <Drawer variant='permanent'>
-        <Toolbar />
-        <Typography variant='h6' mt={2} mb={1} mx='auto'>Finance Dashboard</Typography>
-        <Divider />
-        <List>
-          <ListItem><ListItemButton onClick={() => setShownComponent(0)} selected={shownComponent === 0}>
-            <ListItemIcon><AttachMoney /></ListItemIcon>
-            <ListItemText>Budget</ListItemText>
-          </ListItemButton></ListItem>
-          <ListItem><ListItemButton onClick={() => setShownComponent(1)} selected={shownComponent === 1}>
-            <ListItemIcon><AccountBalance /></ListItemIcon>
-            <ListItemText>Savings</ListItemText>
-          </ListItemButton></ListItem>
-          <ListItem><ListItemButton onClick={() => setShownComponent(2)} selected={shownComponent === 2}>
-            <ListItemIcon><ShowChart /></ListItemIcon>
-            <ListItemText>Investments</ListItemText>
-          </ListItemButton></ListItem>
-          <ListItem><ListItemButton onClick={() => setShownComponent(3)} selected={shownComponent === 3}>
-            <ListItemIcon><CreditCard /></ListItemIcon>
-            <ListItemText>Transactions</ListItemText>
-          </ListItemButton></ListItem>
-        </List>
+      <Button variant='contained' onClick={() => setMobileDrawerOpen(true)} sx={{ display: { xs: 'block', sm: 'none' }, position: 'fixed', zIndex: 3000, bottom: 5, right: 5 }}>Dashboard Menu</Button>
+
+      <Drawer variant='permanent' sx={{ display: { xs: 'none', sm: 'block' } }}>
+        {drawerContents}
+      </Drawer>
+      <Drawer
+        variant='temporary'
+        open={mobileDrawerOpen}
+        onClose={() => setMobileDrawerOpen(false)}
+        sx={{ display: { xs: 'block', sm: 'none' } }}
+        ModalProps={{ keepMounted: true }}
+      >
+        {drawerContents}
       </Drawer>
       
       {showDashboardComponent()}

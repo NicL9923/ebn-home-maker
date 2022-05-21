@@ -62,7 +62,7 @@ Residences
         houseAgeYears
         maintenanceReq
 
-Vehicles **TODO
+Vehicles
 	img
     year
 	make
