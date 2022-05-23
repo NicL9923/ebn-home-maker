@@ -9,6 +9,7 @@ import EditableLabel from './EditableLabel';
 
 
 // TODO: handle (i.e. prevent) duplicate category names
+// TODO: calculate currentSpents from transactions
 
 const BudgetCategories = (props) => {
     const { budget, setCategoryName, addNewSubCategory, removeCategory, setSubCatProperty, removeSubCategory, moveCategory, moveSubCategory } = props;
@@ -63,7 +64,7 @@ const Category = (props) => {
                 <div { ...provided.draggableProps } { ...provided.dragHandleProps } ref={provided.innerRef}>
                 <Stack mb={1}>
                     <Grid container alignItems='center'>
-                    <Grid item xs={8}>
+                    <Grid item xs={6}>
                         <Stack direction='row' alignItems='center'>
                         <EditableLabel variant='h5' initialValue={category.name} onBlur={(newValue) => setCategoryName(newValue, category.name)} />
                         <Tooltip title='Add sub-category'><IconButton onClick={() => addNewSubCategory(category.name)}><Add /></IconButton></Tooltip>
@@ -71,7 +72,7 @@ const Category = (props) => {
                         </Stack>
                     </Grid>
                     <Grid item xs={2}>
-                        <Typography variant='body1' ml={2} sx={{ fontWeight: 'bold' }}>${category.totalAllotted.toFixed(2)}</Typography>
+                        <Typography variant='body1' ml={1} sx={{ fontWeight: 'bold' }}>${category.totalAllotted.toFixed(2)}</Typography>
                     </Grid>
                     <Grid item xs={2}>
                         <Typography variant='body1' ml={1} sx={{ fontWeight: 'bold' }}>${category.currentSpent.toFixed(2)}</Typography>
@@ -110,9 +111,9 @@ const SubCategory = (props) => {
         <Draggable draggableId={subcategory.name} index={subidx}>
             {(provided) =>
                 <div { ...provided.draggableProps } { ...provided.dragHandleProps } ref={provided.innerRef}>
-                <Stack ml={6} mb={1}>
+                <Stack ml={4} mb={1}>
                     <Grid container alignItems='center'>
-                    <Grid item xs={8}>
+                    <Grid item xs={6}>
                         <Stack direction='row' alignItems='center'>
                         <EditableLabel initialValue={subcategory.name} onBlur={(newValue) => setSubCatProperty(newValue, subcategory.name, category.name, 'name')} />
                         <Tooltip title='Delete sub-category'><IconButton onClick={() => removeSubCategory(category.name, subcategory.name)}><Clear /></IconButton></Tooltip>
@@ -120,10 +121,10 @@ const SubCategory = (props) => {
                         <LinearProgress value={(subcategory.currentSpent / subcategory.totalAllotted) * 100} variant='determinate' sx={{ width: '85%' }} />
                     </Grid>
 
-                    <Grid item xs={2}>
+                    <Grid item xs={2} ml={-1}>
                         <EditableLabel variant='body1' prefix='$' initialValue={`${subcategory.totalAllotted.toFixed(2)}`} onBlur={(newValue) => setSubCatProperty(newValue, subcategory.name, category.name, 'allotted')} />
                     </Grid>
-                    <Grid item xs={2}>
+                    <Grid item xs={2} ml={1}>
                         <Typography variant='body1'>${subcategory.currentSpent.toFixed(2)}</Typography>
                     </Grid>
                     </Grid>
@@ -277,7 +278,7 @@ const Budget = (props) => {
 
             <Paper>
                 <Grid container alignItems='center'>
-                    <Grid item xs={8}>
+                    <Grid item xs={6}>
                     <Stack direction='row' alignItems='center'>
                         <Tooltip title='Add category'><IconButton onClick={addNewCategory}><Add /></IconButton></Tooltip>
                     

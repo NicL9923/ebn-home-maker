@@ -1,21 +1,77 @@
 import { AccountBalance, AttachMoney, CreditCard, ShowChart } from '@mui/icons-material';
-import { Button, Container, Divider, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Toolbar, Typography } from '@mui/material';
-import { doc, getDoc } from 'firebase/firestore';
+import { Box, Button, Container, Divider, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Paper, Toolbar, Typography } from '@mui/material';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 import React, { useEffect, useState } from 'react';
 import Budget from '../components/Budget';
 import Investments from '../components/Investments';
 import Savings from '../components/Savings';
 import Transactions from '../components/Transactions';
+import { v4 as uuidv4 } from 'uuid';
 
+const NoBudget = (props) => {
+  const { createAndSaveDefaultBudget } = props;
+
+  return (
+    <Paper>
+      <Box width='100%' textAlign='center' p={4} mt={8}>
+        <Typography variant='h6'>You don't have a budget yet!</Typography>
+        <Typography variant='subtitle1' mb={4}>Create one?</Typography>
+
+        <Button variant='contained' onClick={createAndSaveDefaultBudget}>Create Budget</Button>
+      </Box>
+    </Paper>
+  );
+};
 
 const Finances = (props) => {
-  const { profile, db } = props;
+  const { user, profile, getProfile, db } = props;
   const [shownComponent, setShownComponent] = useState(0);
   const [budget, setBudget] = useState(null);
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
 
   const createAndSaveDefaultBudget = () => {
-    // TODO: If profile doesn't have a budget (should only be in case of a new profile), automatically create and save one
+    const newBudgetUuid = uuidv4();
+    const newBudgetTemplate = {
+      id: newBudgetUuid,
+      editors: [user.uid],
+      monthlyNetIncome: 3000, 
+      categories: [
+        {
+          name: 'Essentials',
+          subcategories: [
+            {
+              name: 'Rent',
+              currentSpent: 0, // TEMP: until transactions are used
+              totalAllotted: 1250
+            },
+            {
+              name: 'Utilities',
+              currentSpent: 0, // TEMP: until transactions are used
+              totalAllotted: 300
+            }
+          ]
+        },
+        {
+          name: 'Lifestyle',
+          subcategories: [
+            {
+              name: 'Spending',
+              currentSpent: 0, // TEMP: until transactions are used
+              totalAllotted: 300
+            }
+          ]
+        }
+      ],
+      savingsBlobs: [{ name: 'Default', currentAmt: 1000 }],
+      investmentAccts: [{ name: 'Default', broker: 'Broker', curValue: 1000, prevValues: [{ monthYear: 'JAN 2000', value: 500 }] }],
+      transactions: [{ id: 0, name: 'Default transaction', amt: 10, category: 'Essentials', timestamp: Date.now() }]
+    };
+
+    setDoc(doc(db, 'profiles', user.uid), { budget: newBudgetUuid }, { merge: true }).then(
+      setDoc(doc(db, 'budgets', newBudgetUuid), newBudgetTemplate).then(() => {
+        getProfile(user.uid);
+      })
+    );
   };
 
   const getBudget = async () => {
@@ -43,7 +99,7 @@ const Finances = (props) => {
       docData.totalAllotted = totalAllotted;
 
       docData.transactions.forEach((transaction, index) => { 
-        transaction.timestamp = transaction.timestamp.toDate(); // Convert Firestore timestamp to JS date
+        transaction.timestamp = new Date(transaction.timestamp).toLocaleString();
         transaction.id = index;
       }); 
 
@@ -61,8 +117,6 @@ const Finances = (props) => {
   }, [profile]);
 
   const showDashboardComponent = () => {
-    if (!budget) return null;
-
     switch (shownComponent) {
       case 0:
         return <Budget budget={budget} setBudget={setBudget} getBudget={getBudget} profile={profile} db={db} />;
@@ -101,26 +155,28 @@ const Finances = (props) => {
       </List>
   </>);
 
-  return (
-    <Container maxWidth='lg'>
-      <Button variant='contained' onClick={() => setMobileDrawerOpen(true)} sx={{ display: { xs: 'block', sm: 'none' }, position: 'fixed', zIndex: 3000, bottom: 5, right: 5 }}>Dashboard Menu</Button>
+  return (<>
+    {!budget ? (<NoBudget createAndSaveDefaultBudget={createAndSaveDefaultBudget} />) : (
+      <Container maxWidth='lg'>
+        <Button variant='contained' onClick={() => setMobileDrawerOpen(true)} sx={{ display: { xs: 'block', sm: 'none' }, position: 'fixed', zIndex: 3000, bottom: 5, right: 5 }}>Dashboard Menu</Button>
 
-      <Drawer variant='permanent' sx={{ display: { xs: 'none', sm: 'block' } }}>
-        {drawerContents}
-      </Drawer>
-      <Drawer
-        variant='temporary'
-        open={mobileDrawerOpen}
-        onClose={() => setMobileDrawerOpen(false)}
-        sx={{ display: { xs: 'block', sm: 'none' } }}
-        ModalProps={{ keepMounted: true }}
-      >
-        {drawerContents}
-      </Drawer>
-      
-      {showDashboardComponent()}
-    </Container>
-  );
+        <Drawer variant='permanent' sx={{ display: { xs: 'none', sm: 'block' } }}>
+          {drawerContents}
+        </Drawer>
+        <Drawer
+          variant='temporary'
+          open={mobileDrawerOpen}
+          onClose={() => setMobileDrawerOpen(false)}
+          sx={{ display: { xs: 'block', sm: 'none' } }}
+          ModalProps={{ keepMounted: true }}
+        >
+          {drawerContents}
+        </Drawer>
+        
+        {showDashboardComponent()}
+      </Container>
+    )}
+  </>);
 }
 
 export default Finances;

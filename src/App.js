@@ -13,6 +13,10 @@ import Navbar from './components/Navbar';
 import JoinFamily from './pages/JoinFamily';
 import NotLoggedIn from './components/NotLoggedIn';
 
+// NOTE: Turns out this architecture of having top-level state and sending callbacks to children (pages),
+// isn't quite in-line with React's ideals...that sucks because this method saves me from re-fetching stuff
+// like the profile on each page load vs just getting all the necessary info on appFirstLoad, but we'll see
+// as the app progresses how I want to handle this
 
 const App = () => {
   const auth = getAuth();
@@ -28,8 +32,6 @@ const App = () => {
       const profileData = profileDoc.data();
       setProfile(profileData);
       getFamily(profileData.familyId);
-    } else {
-      // User doesn't have profile -> TODO: prompt them to set at least their name
     }
   };
 
@@ -38,8 +40,6 @@ const App = () => {
     if (familyDoc.exists()) {
       const familyData = familyDoc.data();
       setFamily(familyData);
-    } else {
-      // User doesn't have a family -> TODO: offer to create one, setting them as it's head and allowing them to send invite link
     }
   };
 
@@ -60,9 +60,9 @@ const App = () => {
         <Routes>
           { profile && 
             <>
-              <Route exact path='/profile' element={<Profile profile={profile} getProfile={getProfile} family={family} getFamily={getFamily} user={user} db={db} />} />
+              <Route exact path='/profile' element={<Profile key={profile} profile={profile} getProfile={getProfile} family={family} getFamily={getFamily} user={user} db={db} />} />
               <Route exact path='/joinFamily/:familyId' element={<JoinFamily profile={profile} getProfile={getProfile} user={user} family={family} getFamily={getFamily} db={db} />} />
-              <Route exact path='/finances' element={<Finances db={db} profile={profile} />} />
+              <Route exact path='/finances' element={<Finances user={user} db={db} profile={profile} getProfile={getProfile} />} />
             </>
           }
           
@@ -70,7 +70,7 @@ const App = () => {
             <>
               <Route exact path='/smarthome' element={<SmartHome />} />
               <Route exact path='/info' element={<Information />} />
-              <Route exact path='/maintenance' element={<Maintenance family={family} db={db} />} />
+              <Route exact path='/maintenance' element={<Maintenance key={family} family={family} db={db} />} />
             </>
           }
 
