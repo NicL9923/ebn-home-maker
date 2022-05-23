@@ -65,7 +65,7 @@ const Finances = (props) => {
 
     switch (shownComponent) {
       case 0:
-        return <Budget budget={budget} getBudget={getBudget} profile={profile} db={db} />;
+        return <Budget budget={budget} setBudget={setBudget} getBudget={getBudget} profile={profile} db={db} />;
       case 1:
         return <Savings budget={budget} getBudget={getBudget} profile={profile} db={db} />;
       case 2:
@@ -73,7 +73,7 @@ const Finances = (props) => {
       case 3:
         return <Transactions budget={budget} getBudget={getBudget} profile={profile} db={db} />;
       default:
-        return <Budget budget={budget} getBudget={getBudget} profile={profile} db={db} />;
+        return <Budget budget={budget} setBudget={setBudget} getBudget={getBudget} profile={profile} db={db} />;
     }
   };
 

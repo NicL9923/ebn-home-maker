@@ -1,176 +1,141 @@
 import { Add, Clear, SubdirectoryArrowRight } from '@mui/icons-material';
 import { Box, Container, Divider, Grid, IconButton, LinearProgress, Paper, Stack, Tooltip, Typography } from '@mui/material';
 import { doc, setDoc } from 'firebase/firestore';
-import React, { useRef } from 'react';
-import { useDrag, useDrop } from 'react-dnd';
+import React from 'react';
+import { Droppable } from 'react-beautiful-dnd';
+import { Draggable } from 'react-beautiful-dnd';
+import { DragDropContext } from 'react-beautiful-dnd';
 import EditableLabel from './EditableLabel';
 
 
-// TODO: handle duplicate category names
+// TODO: handle (i.e. prevent) duplicate category names
 
 const BudgetCategories = (props) => {
     const { budget, setCategoryName, addNewSubCategory, removeCategory, setSubCatProperty, removeSubCategory, moveCategory, moveSubCategory } = props;
+
+    const onDragEnd = ({ type, source, destination }) => {
+        if (!source || !destination || !type) return;
+
+        if (type === 'category') {
+            moveCategory(source.index, destination.index);
+        }
+        else if (type === 'subcategory') {
+            const srcCat = source.droppableId.replace('subcats-', '');
+            const destCat = destination.droppableId.replace('subcats-', '');
+
+            moveSubCategory(srcCat, destCat, source.index, destination.index);
+        }
+    };
     
     return (
         <Box p={2}>
-            {budget.categories.map((category, idx) => 
-                <Category
-                    key={category.name}
-                    idx={idx}
-                    category={category}
-                    setCategoryName={setCategoryName}
-                    addNewSubCategory={addNewSubCategory}
-                    removeCategory={removeCategory}
-                    setSubCatProperty={setSubCatProperty}
-                    removeSubCategory={removeSubCategory}
-                    moveCategory={moveCategory}
-                    moveSubCategory={moveSubCategory}
-                />
-            )}
+            <DragDropContext onDragEnd={onDragEnd}>
+                <Droppable droppableId='budgetCats' type='category'>
+                    {(provided) =>
+                        <div { ...provided.droppableProps } ref={provided.innerRef}>
+                            {budget.categories.map((category, idx) => 
+                                <Category
+                                    key={category.name}
+                                    idx={idx}
+                                    category={category}
+                                    setCategoryName={setCategoryName}
+                                    addNewSubCategory={addNewSubCategory}
+                                    removeCategory={removeCategory}
+                                    setSubCatProperty={setSubCatProperty}
+                                    removeSubCategory={removeSubCategory}
+                                />
+                            )}
+                            {provided.placeholder}
+                        </div>
+                    }
+                </Droppable>
+            </DragDropContext>
         </Box>
     );
 };
 
 const Category = (props) => {
-    const { idx, category, setCategoryName, addNewSubCategory, removeCategory, setSubCatProperty, removeSubCategory, moveCategory, moveSubCategory } = props;
-    const ref = useRef(null);
-    const [{ isDragging }, dragRef] = useDrag({
-        type: 'category',
-        item: { id: category.name, idx },
-        collect: (monitor) => ({
-            isDragging: monitor.isDragging()
-        })
-    });
-    const [{ isOver }, dropRef] = useDrop({
-        accept: 'category',
-        // drop: (item) => {{}},
-        collect: (monitor) => ({
-            isOver: monitor.isOver()
-        }),
-        hover: (item, monitor) => {
-            if (!ref.current) return;
-
-            const dragIndex = item.index;
-            const hoverIndex = idx;
-
-            if (dragIndex === hoverIndex) return;
-
-            const hoverBoundingRect = ref.current?.getBoundingClientRect();
-            const hoverMiddleY = (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2;
-            const clientOffset = monitor.getClientOffset();
-            const hoverClientY = clientOffset.y - hoverBoundingRect.top;
-            
-            if (dragIndex < hoverIndex && hoverClientY < hoverMiddleY) return;
-            if (dragIndex > hoverIndex && hoverClientY > hoverMiddleY) return;
-            
-            moveCategory(category.name, dragIndex, hoverIndex);
-            
-            item.index = hoverIndex;
-        }
-    });
-
-    dragRef(dropRef(ref));
+    const { idx, category, setCategoryName, addNewSubCategory, removeCategory, setSubCatProperty, removeSubCategory } = props;
 
     return (
-        <Stack mb={1} ref={ref}>
-            <Grid container alignItems='center'>
-            <Grid item xs={8}>
-                <Stack direction='row' alignItems='center'>
-                <EditableLabel variant='h5' initialValue={category.name} onBlur={(newValue) => setCategoryName(newValue, category.name)} />
-                <Tooltip title='Add sub-category'><IconButton onClick={() => addNewSubCategory(category.name)}><Add /></IconButton></Tooltip>
-                <Tooltip title='Delete category'><IconButton onClick={() => removeCategory(category.name)}><Clear /></IconButton></Tooltip>
-                </Stack>
-            </Grid>
-            <Grid item xs={2}>
-                <Typography variant='body1' ml={2} sx={{ fontWeight: 'bold' }}>${category.totalAllotted.toFixed(2)}</Typography>
-            </Grid>
-            <Grid item xs={2}>
-                <Typography variant='body1' ml={1} sx={{ fontWeight: 'bold' }}>${category.currentSpent.toFixed(2)}</Typography>
-            </Grid>
-            </Grid>
+        <Draggable draggableId={category.name} index={idx}>
+            {(provided) =>
+                <div { ...provided.draggableProps } { ...provided.dragHandleProps } ref={provided.innerRef}>
+                <Stack mb={1}>
+                    <Grid container alignItems='center'>
+                    <Grid item xs={8}>
+                        <Stack direction='row' alignItems='center'>
+                        <EditableLabel variant='h5' initialValue={category.name} onBlur={(newValue) => setCategoryName(newValue, category.name)} />
+                        <Tooltip title='Add sub-category'><IconButton onClick={() => addNewSubCategory(category.name)}><Add /></IconButton></Tooltip>
+                        <Tooltip title='Delete category'><IconButton onClick={() => removeCategory(category.name)}><Clear /></IconButton></Tooltip>
+                        </Stack>
+                    </Grid>
+                    <Grid item xs={2}>
+                        <Typography variant='body1' ml={2} sx={{ fontWeight: 'bold' }}>${category.totalAllotted.toFixed(2)}</Typography>
+                    </Grid>
+                    <Grid item xs={2}>
+                        <Typography variant='body1' ml={1} sx={{ fontWeight: 'bold' }}>${category.currentSpent.toFixed(2)}</Typography>
+                    </Grid>
+                    </Grid>
 
-            <Stack mb={2}>
-                {category.subcategories.map((subcategory, idx) =>
-                    <SubCategory
-                        key={subcategory.name}
-                        idx={idx}
-                        category={category}
-                        subcategory={subcategory}
-                        setSubCatProperty={setSubCatProperty}
-                        removeSubCategory={removeSubCategory}
-                        moveSubCategory={moveSubCategory}
-                    />
-                )}
-            </Stack>
-            <Divider />
-        </Stack>
+                    <Droppable droppableId={`subcats-${category.name}`} type='subcategory'>
+                        {(provided) =>
+                            <div { ...provided.droppableProps } ref={provided.innerRef}>
+                                {category.subcategories.map((subcategory, subidx) => 
+                                    <SubCategory
+                                        key={subcategory.name}
+                                        subidx={subidx}
+                                        category={category}
+                                        subcategory={subcategory}
+                                        setSubCatProperty={setSubCatProperty}
+                                        removeSubCategory={removeSubCategory}
+                                    />
+                                )}
+                                {provided.placeholder}
+                            </div>
+                        }
+                    </Droppable>
+                    <Divider />
+                </Stack>
+                </div>
+            }
+        </Draggable>
     );
 };
 
 const SubCategory = (props) => {
-    const { idx, category, subcategory, setSubCatProperty, removeSubCategory, moveSubCategory } = props;
-    const ref = useRef(null);
-    const [{ isDragging }, dragRef] = useDrag({
-        type: 'subcategory',
-        item: { id: subcategory.name, idx },
-        collect: (monitor) => ({
-            isDragging: monitor.isDragging()
-        })
-    });
-    const [{ isOver }, dropRef] = useDrop({
-        accept: 'subcategory',
-        // drop: (item) => {{}},
-        collect: (monitor) => ({
-            isOver: monitor.isOver()
-        }),
-        hover: (item, monitor) => {
-            if (!ref.current) return;
-
-            const dragIndex = item.index;
-            const hoverIndex = idx;
-
-            if (dragIndex === hoverIndex) return;
-
-            const hoverBoundingRect = ref.current?.getBoundingClientRect();
-            const hoverMiddleY = (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2;
-            const clientOffset = monitor.getClientOffset();
-            const hoverClientY = clientOffset.y - hoverBoundingRect.top;
-            
-            if (dragIndex < hoverIndex && hoverClientY < hoverMiddleY) return;
-            if (dragIndex > hoverIndex && hoverClientY > hoverMiddleY) return;
-            
-            moveSubCategory(category.name, subcategory.name, dragIndex, hoverIndex);
-            
-            item.index = hoverIndex;
-        }
-    });
-
-    dragRef(dropRef(ref));
+    const { subidx, category, subcategory, setSubCatProperty, removeSubCategory } = props;
 
     return (
-        <Stack ml={6} ref={ref}>
-            <Grid container alignItems='center'>
-            <Grid item xs={8}>
-                <Stack direction='row' alignItems='center'>
-                <EditableLabel initialValue={subcategory.name} onBlur={(newValue) => setSubCatProperty(newValue, subcategory.name, category.name, 'name')} />
-                <Tooltip title='Delete sub-category'><IconButton onClick={() => removeSubCategory(category.name, subcategory.name)}><Clear /></IconButton></Tooltip>
-                </Stack>
-                <LinearProgress value={(subcategory.currentSpent / subcategory.totalAllotted) * 100} variant='determinate' sx={{ width: '85%' }} />
-            </Grid>
+        <Draggable draggableId={subcategory.name} index={subidx}>
+            {(provided) =>
+                <div { ...provided.draggableProps } { ...provided.dragHandleProps } ref={provided.innerRef}>
+                <Stack ml={6} mb={1}>
+                    <Grid container alignItems='center'>
+                    <Grid item xs={8}>
+                        <Stack direction='row' alignItems='center'>
+                        <EditableLabel initialValue={subcategory.name} onBlur={(newValue) => setSubCatProperty(newValue, subcategory.name, category.name, 'name')} />
+                        <Tooltip title='Delete sub-category'><IconButton onClick={() => removeSubCategory(category.name, subcategory.name)}><Clear /></IconButton></Tooltip>
+                        </Stack>
+                        <LinearProgress value={(subcategory.currentSpent / subcategory.totalAllotted) * 100} variant='determinate' sx={{ width: '85%' }} />
+                    </Grid>
 
-            <Grid item xs={2}>
-                <EditableLabel variant='body1' prefix='$' initialValue={`${subcategory.totalAllotted.toFixed(2)}`} onBlur={(newValue) => setSubCatProperty(newValue, subcategory.name, category.name, 'allotted')} />
-            </Grid>
-            <Grid item xs={2}>
-                <Typography variant='body1'>${subcategory.currentSpent.toFixed(2)}</Typography>
-            </Grid>
-            </Grid>
-        </Stack>
+                    <Grid item xs={2}>
+                        <EditableLabel variant='body1' prefix='$' initialValue={`${subcategory.totalAllotted.toFixed(2)}`} onBlur={(newValue) => setSubCatProperty(newValue, subcategory.name, category.name, 'allotted')} />
+                    </Grid>
+                    <Grid item xs={2}>
+                        <Typography variant='body1'>${subcategory.currentSpent.toFixed(2)}</Typography>
+                    </Grid>
+                    </Grid>
+                </Stack>
+                </div>
+            }
+        </Draggable>
     );
 };
 
 const Budget = (props) => {
-    const { budget, getBudget, profile, db } = props;
+    const { budget, setBudget, getBudget, profile, db } = props;
 
     const setMonthlyNetIncome = (newValue) => {
         setDoc(doc(db, 'budgets', profile.budget), { monthlyNetIncome: parseFloat(newValue) }, { merge: true }).then(() => getBudget());
@@ -252,24 +217,33 @@ const Budget = (props) => {
         setDoc(doc(db, 'budgets', profile.budget), { categories: updArr }, { merge: true }).then(() => getBudget());
     };
 
-    const moveCategory = (catName, dragIdx, hoverIdx) => {
+    const moveCategory = (dragIdx, dropIdx) => {
         const updArr = [...budget.categories];
         const cat = updArr[dragIdx];
 
-        updArr.slice(dragIdx, 1);
-        updArr.slice(hoverIdx, 0, cat);
+        updArr.splice(dragIdx, 1);
+        updArr.splice(dropIdx, 0, cat);
 
+        const newBudget = { ...budget };
+        newBudget.categories = updArr;
+        setBudget(newBudget);
         setDoc(doc(db, 'budgets', profile.budget), { categories: updArr }, { merge: true }).then(() => getBudget());
     };
 
-    const moveSubCategory = (catName, subCatName, dragIdx, hoverIdx) => {
+    const moveSubCategory = (srcCatName, destCatName, dragIdx, dropIdx) => {
+        // Src & Dest cat is used to handle subcat being moved to a different cat=
+        
         const updArr = [...budget.categories];
-        const catIdx = updArr.findIndex((cat) => cat.name = catName);
-        const subcat = updArr[catIdx].subcategories[dragIdx];
+        const srcCatIdx = updArr.findIndex((cat) => cat.name === srcCatName);
+        const destCatIdx = updArr.findIndex((cat) => cat.name === destCatName);
+        const subcat = updArr[srcCatIdx].subcategories[dragIdx];
 
-        updArr[catIdx].subcategories.slice(dragIdx, 1);
-        updArr[catIdx].subcategories.slice(hoverIdx, 0, subcat);
+        updArr[srcCatIdx].subcategories.splice(dragIdx, 1);
+        updArr[destCatIdx].subcategories.splice(dropIdx, 0, subcat);
 
+        const newBudget = { ...budget };
+        newBudget.categories = updArr;
+        setBudget(newBudget);
         setDoc(doc(db, 'budgets', profile.budget), { categories: updArr }, { merge: true }).then(() => getBudget());
     };
 
