@@ -1,18 +1,24 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Alert, AlertTitle, Box, Container, Grid, Paper, Stack, Tab, Tabs, Typography } from '@mui/material';
+import { Alert, AlertTitle, Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, Grid, Paper, Stack, Tab, Tabs, TextField, Typography } from '@mui/material';
 import { WiRain, WiThunderstorm, WiSnowflakeCold, WiFog, WiDaySunny, WiNightClear, WiDayCloudy, WiCloudy, WiNightCloudy } from 'weather-icons-react';
+import { doc, setDoc } from 'firebase/firestore';
 
 const WeatherBox = (props) => {
+  const { familyLocation, apiKey, db, profile, getFamily } = props;
   const [currentWeather, setCurrentWeather] = useState(null);
   const [weatherAlerts, setWeatherAlerts] = useState(null);
   const [hourlyWeather, setHourlyWeather] = useState(null);
   const [dailyWeather, setDailyWeather] = useState(null);
   const [shownWeather, setShownWeather] = useState(0);
 
-  const getWeatherData = async () => {
-    const url = `https://api.openweathermap.org/data/2.5/onecall?lat=${props.familyLocation.lat}&lon=${props.familyLocation.long}&exclude=minutely&appid=${props.apiKey}&units=imperial`; // Exclude minutely forecast
-    const weatherData = await axios.get(url).then(resp => {
+  const [settingApiKey, setSettingApiKey] = useState(false);
+  const [newApiKey, setNewApiKey] = useState('');
+
+  const getWeatherData = () => {
+    const url = `https://api.openweathermap.org/data/2.5/onecall?lat=${familyLocation.lat}&lon=${familyLocation.long}&exclude=minutely&appid=${apiKey}&units=imperial`; // Exclude minute-ly forecast
+    
+    axios.get(url).then(resp => {
       if (resp.data) {
         // Get current
         setCurrentWeather(resp.data.current);
@@ -196,9 +202,50 @@ const WeatherBox = (props) => {
     );
   };
 
+  const saveApiKey = () => {
+    setDoc(doc(db, 'families', profile.familyId), { openweathermap_api_key: newApiKey, location: { lat: '39.83', long: '-98.58' } }, { merge: true }).then(() => {
+      getFamily(profile.familyId);
+    });
+  };
+
   useEffect(() => {
-    getWeatherData();
+    if (apiKey && familyLocation) {
+      getWeatherData();
+    }
   }, []);
+
+  if (!apiKey) {
+    return (
+      <Box textAlign='center' maxWidth='sm' mx='auto'>
+        <Typography variant='h5' mb={1}>Want to see the weather here?</Typography>
+        <Typography variant='subtitle1' mb={3}>
+          Obtain a free 'Current Weather' API key from OpenWeatherMap (https://openweathermap.org/price),
+          input it below, then set your family location on your profile page
+        </Typography>
+
+        <Button variant='contained' onClick={() => setSettingApiKey(true)}>Set API Key</Button>
+
+        <Dialog open={settingApiKey} onClose={() => setSettingApiKey(false)}>
+          <DialogTitle>Set Weather API Key</DialogTitle>
+
+          <DialogContent>
+            <TextField
+              autoFocus
+              variant='standard'
+              label='API Key'
+              value={newApiKey}
+              onChange={(event) => setNewApiKey(event.target.value)}
+            />
+          </DialogContent>
+
+          <DialogActions>
+            <Button onClick={() => setSettingApiKey(false)}>Cancel</Button>
+            <Button variant='contained' onClick={saveApiKey}>Save</Button>
+          </DialogActions>
+        </Dialog>
+      </Box>
+    );
+  }
 
   return (
     <Stack alignItems='center' justifyContent='center'>

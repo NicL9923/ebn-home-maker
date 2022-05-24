@@ -25,7 +25,7 @@ const Home = (props) => {
         }
       </Stack>
 
-      {family ? (<WeatherBox familyLocation={family.location} apiKey={family.openweathermap_api_key} />) :
+      {family ? (<WeatherBox familyLocation={family.location} apiKey={family.openweathermap_api_key} db={db} profile={profile} getFamily={getFamily} />) :
         (<NoFamily profile={profile} db={db} user={user} getProfile={getProfile} getFamily={getFamily} />)
       }
     </Container>
