@@ -1,13 +1,12 @@
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Stack, TextField, Typography } from '@mui/material';
+import { Box, Button, Divider, Paper, Stack, TextField, Typography } from '@mui/material';
 import React, { useState } from 'react';
 import { signInWithRedirect, GoogleAuthProvider, signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
+import { Google } from '@mui/icons-material';
 
 const NotLoggedIn = (props) => {
     const { auth } = props;
     const provider = new GoogleAuthProvider();
 
-    const [signingIn, setSigningIn] = useState(false);
-    const [creatingAcct, setCreatingAcct] = useState(false);
     const [email, setEmail] = useState(null);
     const [password, setPassword] = useState(null);
     
@@ -25,82 +24,41 @@ const NotLoggedIn = (props) => {
     };
 
     return (
-        <Stack width='md' mx='auto'>
-            <Typography variant='h5'>You aren't logged in!</Typography>
+        <Box maxWidth='sm' mx='auto' textAlign='center' mt={8}>
+            <Paper sx={{ p: 2 }}>
+                <Typography variant='h3' mb={3}>Login</Typography>
 
-            <Stack>
-                <Button variant='contained' onClick={() => setSigningIn(true)}>Sign in</Button>
-                <Dialog open={signingIn} onClose={() => setSigningIn(false)}>
-                    <DialogTitle>Sign In</DialogTitle>
+                <Stack width='75%' mx='auto'>
+                    <TextField
+                        autoFocus
+                        variant='standard'
+                        type='email'
+                        label='Email'
+                        value={email}
+                        onChange={(event) => setEmail(event.target.value)}
+                        required
+                    />
 
-                    <DialogContent>
-                        <Stack>
-                            <TextField
-                                autoFocus
-                                variant='standard'
-                                type='email'
-                                label='Email'
-                                value={email}
-                                onChange={(event) => setEmail(event.target.value)}
-                                required
-                            />
+                    <TextField
+                        variant='standard'
+                        type='password'
+                        label='Password'
+                        value={password}
+                        onChange={(event) => setPassword(event.target.value)}
+                        required
+                    />
 
-                            <TextField
-                                autoFocus
-                                variant='standard'
-                                type='password'
-                                label='Password'
-                                value={password}
-                                onChange={(event) => setPassword(event.target.value)}
-                                required
-                            />
-                        </Stack>
-                    </DialogContent>
+                    <Stack direction='row' justifyContent='center' spacing={2} mt={3}>
+                        <Button variant='contained' onClick={emailPassSignIn}>Sign in</Button>
+                        <Button variant='outlined' onClick={createEmailPassAccount}>Create account</Button>
+                    </Stack>
 
-                    <DialogActions>
-                        <Button onClick={() => setSigningIn(false)}>Cancel</Button>
-                        <Button variant='contained' onClick={emailPassSignIn}>Sign In</Button>
-                    </DialogActions>
-                </Dialog>
+                    <Divider sx={{ mt: 3, mb: 3 }}>OR</Divider>
 
-                <Button variant='outlined' onClick={() => setCreatingAcct(true)}>Create account</Button>
-                <Dialog open={creatingAcct} onClose={() => setCreatingAcct(false)}>
-                    <DialogTitle>Create Account</DialogTitle>
-
-                    <DialogContent>
-                        <Stack>
-                            <TextField
-                                autoFocus
-                                variant='standard'
-                                type='email'
-                                label='Email'
-                                value={email}
-                                onChange={(event) => setEmail(event.target.value)}
-                                required
-                            />
-
-                            <TextField
-                                autoFocus
-                                variant='standard'
-                                type='password'
-                                label='Password'
-                                value={password}
-                                onChange={(event) => setPassword(event.target.value)}
-                                required
-                            />
-                        </Stack>
-                    </DialogContent>
-
-                    <DialogActions>
-                        <Button onClick={() => setCreatingAcct(false)}>Cancel</Button>
-                        <Button variant='contained' onClick={createEmailPassAccount}>Create</Button>
-                    </DialogActions>
-                </Dialog>
-
-                <Typography variant='h6'>OR</Typography>
-                <Button variant='contained' onClick={googleSignIn}>Google Sign-In</Button>
-            </Stack>
-        </Stack>
+                    <Button variant='contained' startIcon={<Google />} onClick={googleSignIn}>Sign-In with Google</Button>
+                </Stack>
+            </Paper>
+        </Box>
     );
 };
 

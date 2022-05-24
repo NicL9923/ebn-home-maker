@@ -36,7 +36,7 @@ const Navbar = (props) => {
             >
                 <MenuItem onClick={() => setAnchorEl(null)} component={Link} to='/smarthome'>
                     <ListItemIcon><MemoryOutlinedIcon /></ListItemIcon>
-                    <ListItemText>Smarthome</ListItemText>
+                    <ListItemText>Smart Home</ListItemText>
                 </MenuItem>
                 <MenuItem onClick={() => setAnchorEl(null)} component={Link} to='/finances'>
                     <ListItemIcon><PaymentsOutlinedIcon /></ListItemIcon>
