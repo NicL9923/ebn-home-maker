@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { signOut } from 'firebase/auth';
 import { Link } from 'react-router-dom';
-import { Avatar, Divider, ListItemText, Menu, MenuItem } from '@mui/material';
+import { Avatar, Divider, ListItemText, Menu, MenuItem, Typography } from '@mui/material';
 
 const ProfileIcon = (props) => {
   const { profile, auth } = props;
@@ -24,7 +24,10 @@ const ProfileIcon = (props) => {
           aria-controls='profile-menu'
           src={profile.imgLink ? profile.imgLink : null}
           alt='profile'
-        >{profile.imgLink ? null : profile.firstName[0].toUpperCase()}</Avatar>
+          sx={{ cursor: 'pointer' }}
+        >
+          {profile.imgLink ? null : <Typography variant='h6'>{profile.firstName[0].toUpperCase()}</Typography>}
+        </Avatar>
 
         <Menu
           id='profile-menu'

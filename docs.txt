@@ -82,3 +82,6 @@ Vehicles
 
 ***Plans/TODOs***
 -Track loans (mortgage, auto loans, etc.)
+-Abstract Dialogs
+    -Are you sure? (title, text, callbackCancel, callbackYes)
+    -Setting a value (title, inputLabel, regexValidation, callbackCancel, callbackSave)

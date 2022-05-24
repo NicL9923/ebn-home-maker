@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { getDoc, doc, setDoc, deleteDoc } from 'firebase/firestore';
 import { deleteObject, getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
-import { Avatar, Button, Container, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, IconButton, InputLabel, Stack, TextField, Typography } from '@mui/material';
-import { Add, Close, ContentCopyOutlined, Edit } from '@mui/icons-material';
+import { Avatar, Button, Container, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, IconButton, InputLabel, Paper, Stack, TextField, Typography } from '@mui/material';
+import { Add, Close, ContentCopyOutlined, Edit, Logout } from '@mui/icons-material';
 import MapPicker from 'react-google-map-picker';
 import { DropzoneArea } from 'mui-file-dropzone';
 import { v4 as uuidv4 } from 'uuid';
@@ -119,60 +119,63 @@ const Profile = (props) => {
 
   return (
     <Container maxWidth='md'>
-      <Typography variant='h2'>My Profile</Typography>
+      <Paper sx={{ mb: 4, p: 3 }}>
+        <Typography variant='h2'>My Profile</Typography>
 
-      <Stack alignItems='center' justifyContent='center'>
-        <Avatar src={profile.imgLink ? profile.imgLink : null} alt='profile' sx={{ width: 164, height: 164 }}>{profile.imgLink ? null : profile.firstName[0].toUpperCase()}</Avatar>
-        
-        <Typography variant='h5'>{profile.firstName}</Typography>
-        
-        <Button variant='outlined' startIcon={<Edit />} onClick={() => setEditingProfile(true)}>Edit Profile</Button>
+        <Stack alignItems='center' justifyContent='center'>
+          <Avatar src={profile.imgLink ? profile.imgLink : null} alt='profile' sx={{ width: 164, height: 164 }}>{profile.imgLink ? null : <Typography variant='h1'>{profile.firstName[0].toUpperCase()}</Typography>}</Avatar>
+          
+          <Typography variant='h5' mt={1} mb={2}>{profile.firstName}</Typography>
+          
+          <Button variant='outlined' startIcon={<Edit />} onClick={() => setEditingProfile(true)}>Edit Profile</Button>
 
-        {editingProfile &&
-          <Dialog open={editingProfile} onClose={() => setEditingProfile(false)}>
-            <DialogTitle>Edit Profile</DialogTitle>
+          {editingProfile &&
+            <Dialog open={editingProfile} onClose={() => setEditingProfile(false)}>
+              <DialogTitle>Edit Profile</DialogTitle>
 
-            <DialogContent>
-              <TextField
-                autoFocus
-                variant='standard'
-                label='First Name'
-                value={profileEditedName}
-                onChange={(event) => setProfileEditedName(event.target.value)}
-              />
+              <DialogContent>
+                <TextField
+                  autoFocus
+                  variant='standard'
+                  label='First Name'
+                  value={profileEditedName}
+                  onChange={(event) => setProfileEditedName(event.target.value)}
+                />
 
-              <InputLabel>Upload Photo</InputLabel>
-              <DropzoneArea
-                acceptedFiles={['image/jpeg', 'image/png']}
-                filesLimit={1}
-                onChange={(files) => setProfileEditedPhoto(files[0])}
-              />
-              {/* TODO: add button/whatever to delete profile pic */}
-            </DialogContent>
+                <InputLabel>Upload Photo</InputLabel>
+                <DropzoneArea
+                  acceptedFiles={['image/jpeg', 'image/png']}
+                  filesLimit={1}
+                  onChange={(files) => setProfileEditedPhoto(files[0])}
+                />
+                {/* TODO: add button/whatever to delete profile pic */}
+              </DialogContent>
 
-            <DialogActions>
-              <Button onClick={() => setEditingProfile(false)}>Cancel</Button>
-              <Button variant='contained' onClick={saveEditedProfile}>Save</Button>
-            </DialogActions>
-          </Dialog>
-        }
-      </Stack>
+              <DialogActions>
+                <Button onClick={() => setEditingProfile(false)}>Cancel</Button>
+                <Button variant='contained' onClick={saveEditedProfile}>Save</Button>
+              </DialogActions>
+            </Dialog>
+          }
+        </Stack>
+      </Paper>
       
       {!family ? (<NoFamily profile={profile} db={db} user={user} getProfile={getProfile} getFamily={getFamily} />) : (
-        <>
+        <Paper sx={{ p: 3 }}>
           <Typography variant='h3'>My Family</Typography>
 
-          <>
-            <Typography variant='h5'>Family Name</Typography>
-            <Stack direction='row'>
-              <Typography variant='h6'>{family.name}</Typography>
+          <Stack mt={1} mb={4}>
+            <Stack direction='row' alignItems='center'>
+              <Typography variant='h5'>Family Name</Typography>
               {user.uid === family.headOfFamily && 
                 <IconButton><Edit /></IconButton>
               }
             </Stack>
-          </>
 
-          <>
+            <Typography variant='h6'>{family.name}</Typography>
+          </Stack>
+
+          <Stack mb={4}>
             <Typography variant='h5'>Members</Typography>
             <Stack direction='row'>
               {familyMemberProfiles && familyMemberProfiles.map(prof =>
@@ -186,11 +189,11 @@ const Profile = (props) => {
               )}
             </Stack>
             {user.uid === family.headOfFamily &&
-              <Button variant='contained' startIcon={<ContentCopyOutlined />} onClick={() => copy(`https://our-home-239c1.firebaseapp.com/joinFamily/${profile.familyId}`)}>Copy member invite link</Button>
+              <Button variant='contained' startIcon={<ContentCopyOutlined />} onClick={() => copy(`https://our-home-239c1.firebaseapp.com/joinFamily/${profile.familyId}`)}>Copy family invite link</Button>
             }
-          </>
+          </Stack>
 
-          <>
+          <Stack>
             <Typography variant='h5'>Pets</Typography>
             <Stack direction='row'>
               {family.pets && family.pets.map(pet =>
@@ -209,50 +212,71 @@ const Profile = (props) => {
             {user.uid === family.headOfFamily &&
               <Button variant='contained' startIcon={<Add />}>Add a pet</Button>
             }
-          </>
+          </Stack>
 
           {user.uid === family.headOfFamily && 
-            <Stack>
-              <Typography variant='h5'>Weather Applet Information</Typography>
+            <Stack mt={4}>
+              <Divider />
+              <Typography variant='h5' mt={2}>Weather Applet Information</Typography>
 
-              <Stack>
-                <Typography variant='h6'>Google Maps API Key</Typography>
-                <Stack direction='row'>
-                  <Typography variant='body1'>{family.gmaps_api_key}</Typography>
+              <Stack mt={1} mb={2}>
+                <Stack direction='row' alignItems='center'>
+                  <Typography variant='h6'>Google Maps API Key</Typography>
                   <IconButton><Edit /></IconButton>
                 </Stack>
+
+                <Typography variant='body1'>
+                  {family.gmaps_api_key ? family.gmaps_api_key : 
+                    `Obtain and input a Google Maps API key if you would like
+                    to use the built-in location picker, otherwise manually find/input
+                    your location's coordinates`
+                  }
+                </Typography>
               </Stack>
               
-              <Stack>
-                <Typography variant='h6'>OpenWeatherMap API Key</Typography>
-                <Stack direction='row'>
-                  <Typography variant='body1'>{family.openweathermap_api_key}</Typography>
+              <Stack mb={2}>
+                <Stack direction='row' alignItems='center'>
+                  <Typography variant='h6'>OpenWeatherMap API Key</Typography>
                   <IconButton><Edit /></IconButton>
                 </Stack>
+                
+                <Typography variant='body1'>
+                  {family.openweathermap_api_key ? family.openweathermap_api_key :
+                    `Obtain and input an OpenWeatherMap 'Current Weather' API key,
+                    and set your family's location below, if you would like to see
+                    your local weather forecast on the homepage`
+                  }
+                </Typography>
               </Stack>
 
-              <Typography variant='h6'>Location</Typography>
-              {family.location &&
-                <Stack>
-                  <Stack>
-                    <Typography variant='body1'>Latitude: {family.location.lat}</Typography>
-                    <Typography variant='body1'>Longitude: {family.location.long}</Typography>
-                  </Stack>
-                  <MapPicker
-                    defaultLocation={{ lat: parseFloat(family.location.lat), lng: parseFloat(family.location.long) }}
-                    style={{ height: 500, width: 750 }}
-                    onChangeLocation={(newLat, newLong) => { console.log(newLat + ' ' + newLong) }}
-                    apiKey={family.gmaps_api_key}
-                  />
+              <Stack mb={6}>
+                <Stack direction='row' alignItems='center'>
+                  <Typography variant='h6'>Location</Typography>
+                  <IconButton><Edit /></IconButton>
                 </Stack>
-              }
+                {family.location &&
+                  <Stack>
+                    <Stack>
+                      <Typography variant='body1'>Latitude: {family.location.lat}</Typography>
+                      <Typography variant='body1'>Longitude: {family.location.long}</Typography>
+                    </Stack>
+                    {family.gmaps_api_key && 
+                      <MapPicker
+                        defaultLocation={{ lat: parseFloat(family.location.lat), lng: parseFloat(family.location.long) }}
+                        style={{ height: 500, width: 750 }}
+                        onChangeLocation={(newLat, newLong) => { console.log(newLat + ' ' + newLong) }}
+                        apiKey={family.gmaps_api_key}
+                      />
+                    }
+                  </Stack>
+                }
+              </Stack>
 
               {user.uid === family.headOfFamily ? (
                 <Button variant='outlined' startIcon={<Close />}>Delete Family</Button>
-                ) : (
-                  <Button variant='contained'>Leave Family</Button>
-                )
-              }
+              ) : (
+                <Button variant='contained' startIcon={<Logout />}>Leave Family</Button>
+              )}
 
               <Dialog open={deletingFamily} onClose={() => setDeletingFamily(false)}>
                 <DialogTitle>Delete family?</DialogTitle>
@@ -277,7 +301,7 @@ const Profile = (props) => {
               </Dialog>
             </Stack>
           }
-        </>
+        </Paper>
       )}
     </Container>
   );
