@@ -26,9 +26,7 @@ const Home = () => {
         }
       </Stack>
 
-      {family ? (<WeatherBox />) :
-        (<NoFamily />)
-      }
+      { family ? (<WeatherBox />) : (profile && <NoFamily />) }
     </Container>
   );
 }

@@ -14,14 +14,14 @@ const NoBudget = (props) => {
   const { createAndSaveDefaultBudget } = props;
 
   return (
-    <Paper>
-      <Box width='100%' textAlign='center' p={4} mt={8}>
+    <Box maxWidth='sm' textAlign='center' mt={4} mx='auto'>
+      <Paper sx={{ p: 2 }}>
         <Typography variant='h6'>You don't have a budget yet!</Typography>
         <Typography variant='subtitle1' mb={4}>Create one?</Typography>
 
         <Button variant='contained' onClick={createAndSaveDefaultBudget}>Create Budget</Button>
-      </Box>
-    </Paper>
+      </Paper>
+    </Box>
   );
 };
 
@@ -44,12 +44,10 @@ const Finances = () => {
           subcategories: [
             {
               name: 'Rent',
-              currentSpent: 0, // TEMP: until transactions are used
               totalAllotted: 1250
             },
             {
               name: 'Utilities',
-              currentSpent: 0, // TEMP: until transactions are used
               totalAllotted: 300
             }
           ]
@@ -59,7 +57,6 @@ const Finances = () => {
           subcategories: [
             {
               name: 'Spending',
-              currentSpent: 0, // TEMP: until transactions are used
               totalAllotted: 300
             }
           ]
@@ -67,10 +64,10 @@ const Finances = () => {
       ],
       savingsBlobs: [{ name: 'Default', currentAmt: 1000 }],
       investmentAccts: [{ name: 'Default', broker: 'Broker', curValue: 1000, prevValues: [{ monthYear: 'JAN 2000', value: 500 }] }],
-      transactions: [{ id: 0, name: 'Default transaction', amt: 10, category: 'Essentials', timestamp: Date.now() }]
+      transactions: [{ id: 0, name: 'Default transaction', amt: 10, category: 'Essentials', subcategory: 'Rent', timestamp: Date.now() }]
     };
 
-    setDoc(doc(db, 'profiles', userId), { budget: newBudgetUuid }, { merge: true }).then(() => {
+    setDoc(doc(db, 'profiles', userId), { budgetId: newBudgetUuid }, { merge: true }).then(() => {
         setDoc(doc(db, 'budgets', newBudgetUuid), newBudgetTemplate).then(() => {
           getProfile();
         });
@@ -78,45 +75,50 @@ const Finances = () => {
     );
   };
 
-  const getBudget = async () => {
-    const budgetDoc = await getDoc(doc(db, 'budgets', profile.budgetId));
+  const getBudget = () => {
+    getDoc(doc(db, 'budgets', profile.budgetId)).then(doc => {
+      if (doc.exists()) {
+        const docData = doc.data();
 
-    if (budgetDoc.exists()) {
-      const docData = budgetDoc.data();
+        docData.categories.forEach(cat => {
+          cat.currentSpent = 0;
+          cat.subcategories.forEach(subcat => subcat.currentSpent = 0);
+        });
 
-      docData.categories.forEach(cat => cat.currentSpent = 0);
+        docData.transactions.forEach((transaction, index) => { 
+          transaction.timestamp = new Date(transaction.timestamp).toLocaleDateString();
+          transaction.id = index;
 
-      docData.transactions.forEach((transaction, index) => { 
-        transaction.timestamp = new Date(transaction.timestamp).toLocaleDateString();
-        transaction.id = index;
+          const tCatIdx = docData.categories.findIndex(x => x.name === transaction.category);
+          const tSubCatIdx = docData.categories[tCatIdx].subcategories.findIndex(x => x.name === transaction.subcategory);
+          docData.categories[tCatIdx].subcategories[tSubCatIdx].currentSpent += transaction.amt;
+        });
 
-        const tCatIdx = docData.categories.findIndex(x => x.name === transaction.category);
-        const tSubCatIdx = docData.categories[tCatIdx].subcategories.findIndex(x => x.name === transaction.subcategory);
-        docData.categories[tCatIdx].subcategories[tSubCatIdx].currentSpent += transaction.amt;
-      });
+        // Handle some calculations we do locally so we can reuse their values (efficiency!)
+        let totalSpent = 0;
+        let totalAllotted = 0;
+        docData.categories.forEach(cat => {
+          cat.totalAllotted = cat.subcategories.reduce(((sum, { totalAllotted }) =>  sum + totalAllotted ), 0);
+          totalAllotted += cat.totalAllotted;
 
-      // Handle some calculations we do locally so we can reuse their values (efficiency!)
-      let totalSpent = 0;
-      let totalAllotted = 0;
-      docData.categories.forEach(cat => {
-        cat.totalAllotted = cat.subcategories.reduce(((sum, { totalAllotted }) =>  sum + totalAllotted ), 0);
-        totalAllotted += cat.totalAllotted;
-
-        totalSpent += cat.currentSpent
-      });
-      docData.totalSpent = totalSpent;
-      docData.totalAllotted = totalAllotted;
+          totalSpent += cat.currentSpent
+        });
+        docData.totalSpent = totalSpent;
+        docData.totalAllotted = totalAllotted;
 
 
-      setBudget(docData);
-    } else {
-      // Budget wasn't retrieved when it should've been
-    }
+        setBudget(docData);
+      } else {
+        // Budget wasn't retrieved when it should've been
+      }
+    });
   };
 
   useEffect(() => {
-    if (profile) {
+    if (profile && profile.budgetId) {
       getBudget();
+    } else {
+      setBudget(null);
     }
   }, [profile]);
 

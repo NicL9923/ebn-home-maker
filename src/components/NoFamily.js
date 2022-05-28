@@ -1,4 +1,4 @@
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Stack, TextField, Typography } from '@mui/material';
+import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, Divider, Paper, Stack, TextField, Typography } from '@mui/material';
 import { doc, setDoc } from 'firebase/firestore';
 import React, { useContext, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
@@ -25,37 +25,39 @@ const NoFamily = () => {
     };
 
     return (
-    <Stack width='lg' mx='auto'>
-        <Typography variant='h5'>It looks like you aren't apart of a family yet!</Typography>
-        
-        <Stack>
-            <Typography variant='h6'>Ask your head-of-household for their invite link</Typography>
-            <Typography variant='h6'>OR</Typography>
-            <Button variant='contained' onClick={() => setCreatingFamily(true)}>Create a family</Button>
-        </Stack>
+    <Box maxWidth='sm' mx='auto' mt={3}>
+        <Paper sx={{ p: 2 }}>
+            <Typography variant='h5' mb={3}>We couldn't find a family for this profile!</Typography>
+            
+            <Typography variant='h6' textAlign='center'>Ask your head-of-household for their family invite link</Typography>
+            <Divider sx={{ width: 250, mx: 'auto', mt: 2, mb: 2 }}>OR</Divider>
+            <Stack direction='row' justifyContent='center'>
+                <Button variant='contained' onClick={() => setCreatingFamily(true)}>Create a family</Button>
+            </Stack>
 
-        <Dialog open={creatingFamily} onClose={() => setCreatingFamily(false)}>
-            <DialogTitle>Create Family</DialogTitle>
+            <Dialog open={creatingFamily} onClose={() => setCreatingFamily(false)}>
+                <DialogTitle>Create Family</DialogTitle>
 
-            <DialogContent>
-                <Stack>
-                    <TextField
-                        autoFocus
-                        variant='standard'
-                        label='Family (Last) Name'
-                        value={newName}
-                        onChange={(event) => setNewName(event.target.value)}
-                        required
-                    />
-                </Stack>
-            </DialogContent>
+                <DialogContent>
+                    <Stack>
+                        <TextField
+                            autoFocus
+                            variant='standard'
+                            label='Family (Last) Name'
+                            value={newName}
+                            onChange={(event) => setNewName(event.target.value)}
+                            required
+                        />
+                    </Stack>
+                </DialogContent>
 
-            <DialogActions>
-                <Button onClick={() => setCreatingFamily(false)}>Cancel</Button>
-                <Button variant='contained' onClick={createFamily}>Create</Button>
-            </DialogActions>
-        </Dialog>
-    </Stack>
+                <DialogActions>
+                    <Button onClick={() => setCreatingFamily(false)}>Cancel</Button>
+                    <Button variant='contained' onClick={createFamily}>Create</Button>
+                </DialogActions>
+            </Dialog>
+        </Paper>
+    </Box>
   );
 };
 

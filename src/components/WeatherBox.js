@@ -34,7 +34,7 @@ const WeatherBox = () => {
         // Get next 12 hours
         setHourlyWeather(resp.data.hourly.slice(1, 13));
 
-        // Get NEXT 5 days
+        // Get next 5 days
         setDailyWeather(resp.data.daily.slice(1, 6));
       } else {
         console.error("Error: weather data missing");
@@ -116,7 +116,7 @@ const WeatherBox = () => {
     if (!parsedAlerts) return;
 
     return (
-      <Stack direction='column' alignContent='center' mb={4}>
+      <Stack direction='column' alignContent='center' mb={4} mt={2}>
         {parsedAlerts.map(alert => {
           return (
             <Alert severity='error' key={alert.event}>
@@ -215,37 +215,39 @@ const WeatherBox = () => {
     if (family.openweathermap_api_key && family.location) {
       getWeatherData();
     }
-  }, []);
+  }, [family]);
 
   if (!family.openweathermap_api_key) {
     return (
       <Box textAlign='center' maxWidth='sm' mx='auto'>
-        <Typography variant='h5' mb={1}>Want to see the weather here?</Typography>
-        <Typography variant='subtitle1' mb={3}>
-          Obtain a free 'Current Weather' API key from OpenWeatherMap (https://openweathermap.org/price),
-          input it below, then set your family location on your profile page
-        </Typography>
+        <Paper sx={{ p: 2 }}>
+          <Typography variant='h5' mb={1}>Want to see the weather here?</Typography>
+          <Typography variant='subtitle1' mb={3}>
+            Obtain a free 'Current Weather' API key from OpenWeatherMap (https://openweathermap.org/price),
+            input it below, then set your family location on your profile page
+          </Typography>
 
-        <Button variant='contained' onClick={() => setSettingApiKey(true)}>Set API Key</Button>
+          <Button variant='contained' onClick={() => setSettingApiKey(true)}>Set API Key</Button>
 
-        <Dialog open={settingApiKey} onClose={() => setSettingApiKey(false)}>
-          <DialogTitle>Set Weather API Key</DialogTitle>
+          <Dialog open={settingApiKey} onClose={() => setSettingApiKey(false)}>
+            <DialogTitle>Set Weather API Key</DialogTitle>
 
-          <DialogContent>
-            <TextField
-              autoFocus
-              variant='standard'
-              label='API Key'
-              value={newApiKey}
-              onChange={(event) => setNewApiKey(event.target.value)}
-            />
-          </DialogContent>
+            <DialogContent>
+              <TextField
+                autoFocus
+                variant='standard'
+                label='API Key'
+                value={newApiKey}
+                onChange={(event) => setNewApiKey(event.target.value)}
+              />
+            </DialogContent>
 
-          <DialogActions>
-            <Button onClick={() => setSettingApiKey(false)}>Cancel</Button>
-            <Button variant='contained' onClick={saveApiKey}>Save</Button>
-          </DialogActions>
-        </Dialog>
+            <DialogActions>
+              <Button onClick={() => setSettingApiKey(false)}>Cancel</Button>
+              <Button variant='contained' onClick={saveApiKey}>Save</Button>
+            </DialogActions>
+          </Dialog>
+        </Paper>
       </Box>
     );
   }

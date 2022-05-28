@@ -38,11 +38,19 @@ const App = () => {
   }, []);
 
   useEffect(() => {
-    if (userId) getProfile();
+    if (userId) {
+      getProfile();
+    } else {
+      setProfile(null);
+    }
   }, [userId]);
 
   useEffect(() => {
-    if (profile) getFamily();
+    if (profile && profile.familyId) {
+      getFamily();
+    } else {
+      setFamily(null);
+    }
   }, [profile]);
 
   return (
