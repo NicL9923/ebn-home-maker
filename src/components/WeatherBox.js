@@ -1,11 +1,14 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import axios from 'axios';
 import { Alert, AlertTitle, Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, Grid, Paper, Stack, Tab, Tabs, TextField, Typography } from '@mui/material';
 import { WiRain, WiThunderstorm, WiSnowflakeCold, WiFog, WiDaySunny, WiNightClear, WiDayCloudy, WiCloudy, WiNightCloudy } from 'weather-icons-react';
 import { doc, setDoc } from 'firebase/firestore';
+import { UserContext } from '../App';
+import { FirebaseContext } from '..';
 
-const WeatherBox = (props) => {
-  const { familyLocation, apiKey, db, profile, getFamily } = props;
+const WeatherBox = () => {
+  const { db } = useContext(FirebaseContext);
+  const { profile, family, getFamily } = useContext(UserContext);
   const [currentWeather, setCurrentWeather] = useState(null);
   const [weatherAlerts, setWeatherAlerts] = useState(null);
   const [hourlyWeather, setHourlyWeather] = useState(null);
@@ -16,7 +19,7 @@ const WeatherBox = (props) => {
   const [newApiKey, setNewApiKey] = useState('');
 
   const getWeatherData = () => {
-    const url = `https://api.openweathermap.org/data/2.5/onecall?lat=${familyLocation.lat}&lon=${familyLocation.long}&exclude=minutely&appid=${apiKey}&units=imperial`; // Exclude minute-ly forecast
+    const url = `https://api.openweathermap.org/data/2.5/onecall?lat=${family.location.lat}&lon=${family.location.long}&exclude=minutely&appid=${family.openweathermap_api_key}&units=imperial`; // Exclude minute-ly forecast
     
     axios.get(url).then(resp => {
       if (resp.data) {
@@ -204,17 +207,17 @@ const WeatherBox = (props) => {
 
   const saveApiKey = () => {
     setDoc(doc(db, 'families', profile.familyId), { openweathermap_api_key: newApiKey, location: { lat: '39.83', long: '-98.58' } }, { merge: true }).then(() => {
-      getFamily(profile.familyId);
+      getFamily();
     });
   };
 
   useEffect(() => {
-    if (apiKey && familyLocation) {
+    if (family.openweathermap_api_key && family.location) {
       getWeatherData();
     }
   }, []);
 
-  if (!apiKey) {
+  if (!family.openweathermap_api_key) {
     return (
       <Box textAlign='center' maxWidth='sm' mx='auto'>
         <Typography variant='h5' mb={1}>Want to see the weather here?</Typography>

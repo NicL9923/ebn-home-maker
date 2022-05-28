@@ -11,7 +11,7 @@ const dgColumns = [
 ];
 
 const Transactions = (props) => {
-    const { budget, getBudget, profile, db } = props;
+    const { budget, getBudget } = props;
     const [addingTransaction, setAddingTransaction] = useState(false);
     const [newTransactionName, setNewTransactionName] = useState('');
     const [newTransactionAmt, setNewTransactionAmt] = useState('');
@@ -20,7 +20,7 @@ const Transactions = (props) => {
         // TODO
     };
 
-    if (budget) return (
+    return (
         <Box mt={3}>
             <Paper sx={{ p: 2 }}>
                 <Typography variant='h3' mb={2}>Transactions</Typography>

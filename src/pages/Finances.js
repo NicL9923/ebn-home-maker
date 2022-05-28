@@ -1,12 +1,14 @@
 import { AccountBalance, AttachMoney, CreditCard, ShowChart } from '@mui/icons-material';
 import { Box, Button, Container, Divider, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Paper, Toolbar, Typography } from '@mui/material';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import Budget from '../components/Budget';
 import Investments from '../components/Investments';
 import Savings from '../components/Savings';
 import Transactions from '../components/Transactions';
 import { v4 as uuidv4 } from 'uuid';
+import { FirebaseContext } from '..';
+import { UserContext } from '../App';
 
 const NoBudget = (props) => {
   const { createAndSaveDefaultBudget } = props;
@@ -23,8 +25,9 @@ const NoBudget = (props) => {
   );
 };
 
-const Finances = (props) => {
-  const { user, profile, getProfile, db } = props;
+const Finances = () => {
+  const { db } = useContext(FirebaseContext);
+  const { userId, profile, getProfile } = useContext(UserContext);
   const [shownComponent, setShownComponent] = useState(0);
   const [budget, setBudget] = useState(null);
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
@@ -33,7 +36,7 @@ const Finances = (props) => {
     const newBudgetUuid = uuidv4();
     const newBudgetTemplate = {
       id: newBudgetUuid,
-      editors: [user.uid],
+      editors: [userId],
       monthlyNetIncome: 3000, 
       categories: [
         {
@@ -67,16 +70,16 @@ const Finances = (props) => {
       transactions: [{ id: 0, name: 'Default transaction', amt: 10, category: 'Essentials', timestamp: Date.now() }]
     };
 
-    setDoc(doc(db, 'profiles', user.uid), { budget: newBudgetUuid }, { merge: true }).then(() => {
+    setDoc(doc(db, 'profiles', userId), { budget: newBudgetUuid }, { merge: true }).then(() => {
         setDoc(doc(db, 'budgets', newBudgetUuid), newBudgetTemplate).then(() => {
-          getProfile(user.uid);
+          getProfile();
         });
       }
     );
   };
 
   const getBudget = async () => {
-    const budgetDoc = await getDoc(doc(db, 'budgets', profile.budget));
+    const budgetDoc = await getDoc(doc(db, 'budgets', profile.budgetId));
 
     if (budgetDoc.exists()) {
       const docData = budgetDoc.data();
@@ -118,17 +121,19 @@ const Finances = (props) => {
   }, [profile]);
 
   const showDashboardComponent = () => {
+    const budgetComponent = (<Budget budget={budget} setBudget={setBudget} getBudget={getBudget} />);
+    
     switch (shownComponent) {
       case 0:
-        return <Budget budget={budget} setBudget={setBudget} getBudget={getBudget} profile={profile} db={db} />;
+        return budgetComponent;
       case 1:
-        return <Savings budget={budget} getBudget={getBudget} profile={profile} db={db} />;
+        return <Savings budget={budget} getBudget={getBudget} />;
       case 2:
-        return <Investments budget={budget} getBudget={getBudget} profile={profile} db={db} />;
+        return <Investments budget={budget} getBudget={getBudget} />;
       case 3:
-        return <Transactions budget={budget} getBudget={getBudget} profile={profile} db={db} />;
+        return <Transactions budget={budget} getBudget={getBudget} />;
       default:
-        return <Budget budget={budget} setBudget={setBudget} getBudget={getBudget} profile={profile} db={db} />;
+        return budgetComponent;
     }
   };
 

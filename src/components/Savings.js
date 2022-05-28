@@ -1,7 +1,9 @@
 import { Add, Clear, Edit } from '@mui/icons-material';
 import { Box, Button, Grid, IconButton, Paper, Stack, Typography } from '@mui/material';
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { Pie, PieChart, Sector } from 'recharts';
+import { FirebaseContext } from '..';
+import { UserContext } from '../App';
 
 
 const renderActiveShape = (props) => {
@@ -51,10 +53,12 @@ const renderActiveShape = (props) => {
 };
 
 const Savings = (props) => {
-    const { budget, getBudget, profile, db } = props;
+    const { db } = useContext(FirebaseContext);
+    const { profile } = useContext(UserContext);
+    const { budget, getBudget } = props;
     const [savingsChartIndex, setSavingsChartIndex] = useState(0);
 
-    if (budget) return (
+    return (
       <Box mt={2}>
         <Typography variant='h3' mb={2}>Savings Blobs</Typography>
         <Paper sx={{ p: 2, width: 400, mb: 4 }}>

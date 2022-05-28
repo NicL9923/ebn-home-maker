@@ -2,11 +2,14 @@ import { Button, Dialog, DialogActions, DialogContent, DialogTitle, InputLabel, 
 import { doc, setDoc } from 'firebase/firestore';
 import { getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
 import { DropzoneArea } from 'mui-file-dropzone';
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
+import { FirebaseContext } from '..';
+import { UserContext } from '../App';
 
-const NoProfile = (props) => {
-  const { db, user, getProfile } = props;
+const NoProfile = () => {
+  const { db } = useContext(FirebaseContext);
+  const { user, getProfile } = useContext(UserContext);
   
   const [newName, setNewName] = useState(null);
   const [nameError, setNameError] = useState(null);

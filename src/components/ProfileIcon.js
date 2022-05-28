@@ -1,10 +1,13 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { signOut } from 'firebase/auth';
 import { Link } from 'react-router-dom';
 import { Avatar, Divider, ListItemText, Menu, MenuItem, Typography } from '@mui/material';
+import { FirebaseContext } from '..';
+import { UserContext } from '../App';
 
-const ProfileIcon = (props) => {
-  const { profile, auth } = props;
+const ProfileIcon = () => {
+  const { auth } = useContext(FirebaseContext);
+  const { profile } = useContext(UserContext);
   const [anchorEl, setAnchorEl] = useState(null);
 
   const handleSignOut = () => signOut(auth).then(() => {

@@ -1,11 +1,14 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { getDoc, doc } from 'firebase/firestore';
 import { Box, Button, Card, CardActions, CardContent, CardMedia, Paper, Stack, Typography } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import { Add } from '@mui/icons-material';
+import { FirebaseContext } from '..';
+import { UserContext } from '../App';
 
-const Maintenance = (props) => {
-  const { family, db } = props;
+const Maintenance = () => {
+  const { db } = useContext(FirebaseContext);
+  const { family } = useContext(UserContext);
   const [residences, setResidences] = useState(null);
   const [vehicles, setVehicles] = useState(null);
 

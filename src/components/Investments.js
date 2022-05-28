@@ -4,9 +4,9 @@ import React from 'react';
 import { CartesianGrid, Line, LineChart, Tooltip as ChartTooltip, XAxis, YAxis } from 'recharts';
 
 const Investments = (props) => {
-    const { budget, getBudget, profile, db } = props;
+    const { budget, getBudget } = props;
 
-    if (budget) return (
+    return (
         <Box mt={2}>
             <Typography variant='h3' mb={2}>Investment Accounts</Typography>
             <Grid container mb={3}>

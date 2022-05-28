@@ -1,10 +1,13 @@
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Stack, TextField, Typography } from '@mui/material';
 import { doc, setDoc } from 'firebase/firestore';
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
+import { FirebaseContext } from '..';
+import { UserContext } from '../App';
 
-const NoFamily = (props) => {
-    const { getFamily, getProfile, profile, db, user } = props;
+const NoFamily = () => {
+    const { db } = useContext(FirebaseContext);
+    const { userId, getProfile, getFamily } = useContext(UserContext);
     
     const [creatingFamily, setCreatingFamily] = useState(false);
     const [newName, setNewName] = useState(null);
@@ -12,12 +15,12 @@ const NoFamily = (props) => {
     const createFamily = () => {
         const newFamId = uuidv4();
         
-        setDoc(doc(db, 'families', newFamId), { name: newName, headOfFamily: user.uid }).then(() => {
-            getFamily(profile.familyId);
+        setDoc(doc(db, 'families', newFamId), { name: newName, headOfFamily: userId }).then(() => {
+            getFamily();
         });
 
-        setDoc(doc(db, 'profiles', user.uid), { familyId: newFamId }, { merge: true }).then(() => {
-            getProfile(user.uid);
+        setDoc(doc(db, 'profiles', userId), { familyId: newFamId }, { merge: true }).then(() => {
+            getProfile();
         });
     };
 

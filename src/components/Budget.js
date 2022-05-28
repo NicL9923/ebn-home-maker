@@ -1,10 +1,12 @@
 import { Add, Clear, SubdirectoryArrowRight } from '@mui/icons-material';
 import { Box, Container, Divider, Grid, IconButton, LinearProgress, Paper, Stack, Tooltip, Typography } from '@mui/material';
 import { doc, setDoc } from 'firebase/firestore';
-import React from 'react';
+import React, { useContext } from 'react';
 import { Droppable } from 'react-beautiful-dnd';
 import { Draggable } from 'react-beautiful-dnd';
 import { DragDropContext } from 'react-beautiful-dnd';
+import { FirebaseContext } from '..';
+import { UserContext } from '../App';
 import EditableLabel from './EditableLabel';
 
 
@@ -136,7 +138,9 @@ const SubCategory = (props) => {
 };
 
 const Budget = (props) => {
-    const { budget, setBudget, getBudget, profile, db } = props;
+    const { db } = useContext(FirebaseContext);
+    const { profile } = useContext(UserContext);
+    const { budget, setBudget, getBudget } = props;
 
     const setMonthlyNetIncome = (newValue) => {
         setDoc(doc(db, 'budgets', profile.budget), { monthlyNetIncome: parseFloat(newValue) }, { merge: true }).then(() => getBudget());

@@ -1,13 +1,14 @@
 import { Container, Stack, Typography } from '@mui/material';
 import { Box } from '@mui/system';
-import React from 'react';
+import React, { useContext } from 'react';
 import Clock from 'react-live-clock';
+import { UserContext } from '../App';
 import NoFamily from '../components/NoFamily';
 import NoProfile from '../components/NoProfile';
 import WeatherBox from '../components/WeatherBox';
 
-const Home = (props) => {
-  const { profile, family, db, getProfile, getFamily, user } = props;
+const Home = () => {
+  const { profile, family } = useContext(UserContext);
 
   return (
     <Container>
@@ -17,7 +18,7 @@ const Home = (props) => {
         {profile ?
           (<Typography variant='h3'>Welcome back, {profile.firstName}!</Typography>)
           :
-          (<NoProfile db={db} getProfile={getProfile} user={user} />)
+          (<NoProfile />)
         }
 
         {family && 
@@ -25,8 +26,8 @@ const Home = (props) => {
         }
       </Stack>
 
-      {family ? (<WeatherBox familyLocation={family.location} apiKey={family.openweathermap_api_key} db={db} profile={profile} getFamily={getFamily} />) :
-        (<NoFamily profile={profile} db={db} user={user} getProfile={getProfile} getFamily={getFamily} />)
+      {family ? (<WeatherBox />) :
+        (<NoFamily />)
       }
     </Container>
   );

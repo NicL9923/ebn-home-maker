@@ -1,10 +1,11 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import './index.css';
-import App from './App';
-
 import { initializeApp } from 'firebase/app';
 import { createTheme, CssBaseline, ThemeProvider } from '@mui/material';
+import App from './App';
+import { getAuth } from 'firebase/auth';
+import { getFirestore } from 'firebase/firestore';
+
 const firebaseConfig = {
   apiKey: "AIzaSyBEokTSCPR2Cw-o5pKAUwTK8vlmNaIAASk",
   authDomain: "our-home-239c1.firebaseapp.com",
@@ -13,8 +14,8 @@ const firebaseConfig = {
   messagingSenderId: "613377018757",
   appId: "1:613377018757:web:ebbb3c902c79b01aabd2ec"
 };
-
 initializeApp(firebaseConfig);
+export const FirebaseContext = React.createContext(null);
 
 const theme = createTheme({
   palette: {
@@ -32,7 +33,9 @@ const root = createRoot(rootContainer);
 
 root.render(
   <ThemeProvider theme={theme}>
-    <CssBaseline />
-    <App />
+    <FirebaseContext.Provider value={{ auth: getAuth(), db: getFirestore() }}>
+      <CssBaseline />
+      <App />
+    </FirebaseContext.Provider>
   </ThemeProvider>
 );

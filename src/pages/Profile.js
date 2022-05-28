@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { getDoc, doc, setDoc, deleteDoc } from 'firebase/firestore';
 import { deleteObject, getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
 import { Avatar, Button, Container, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, IconButton, InputLabel, Paper, Stack, TextField, Typography } from '@mui/material';
@@ -8,9 +8,12 @@ import { DropzoneArea } from 'mui-file-dropzone';
 import { v4 as uuidv4 } from 'uuid';
 import copy from 'clipboard-copy';
 import NoFamily from '../components/NoFamily';
+import { UserContext } from '../App';
+import { FirebaseContext } from '..';
 
-const Profile = (props) => {
-  const { profile, getProfile, family, getFamily, user, db } = props;
+const Profile = () => {
+  const { db } = useContext(FirebaseContext);
+  const { userId, profile, family, getProfile } = useContext(UserContext);
   const [familyMemberProfiles, setFamilyMemberProfiles] = useState([]);
   // Profile edit
   const [editingProfile, setEditingProfile] = useState(false);
@@ -20,23 +23,29 @@ const Profile = (props) => {
   const [deletingFamily, setDeletingFamily] = useState(false);
   const [leavingFamily, setLeavingFamily] = useState(false);
   
+  const mergeProfileProperty = (profObjToMerge, profileId = userId, refreshProfile = true) => {
+    setDoc(doc(db, 'profiles', profileId), profObjToMerge, { merge: true }).then(() => {
+      if (refreshProfile) getProfile();
+    });
+  };
+
   const getFamilyMemberProfiles = () => {
     if (!family.members) return;
     
     let famMemProfs = [];
 
-    family.members.forEach(async (member) => {
-      if (member === user.uid) return;
+    family.members.forEach(member => {
+      if (member === userId) return;
 
-      const profileDoc = await getDoc(doc(db, 'profiles', member));
-
-      if (profileDoc.exists()) {
-        const profileData = profileDoc.data();
-        famMemProfs.push(profileData);
-        setFamilyMemberProfiles(famMemProfs);
-      } else {
-        // Specified family member doesn't exist
-      }
+      getDoc(doc(db, 'profiles', member)).then(doc => {
+        if (doc.exists()) {
+          const profileData = doc.data();
+          famMemProfs.push(profileData);
+          setFamilyMemberProfiles(famMemProfs);
+        } else {
+          // Specified family member doesn't exist
+        }
+      });
     });
   };
 
@@ -54,18 +63,14 @@ const Profile = (props) => {
       const imgRef = ref(storage, uuidv4());
       uploadBytes(imgRef, profileEditedPhoto).then(snapshot => {
         getDownloadURL(snapshot.ref).then(url => { 
-          setDoc(doc(db, 'profiles', user.uid), { imgLink: url }, { merge: true }).then(() => {
-            getProfile(user.uid);
-          });
+          mergeProfileProperty({ imgLink: url });
         });
       });
     }
     
     // Submit new profile name
     if (profileEditedName) {
-      setDoc(doc(db, 'profiles', user.uid), { firstName: profileEditedName }, { merge: true }).then(() => {
-        getProfile(user.uid);
-      });
+      mergeProfileProperty({ firstName: profileEditedName });
     }
 
     setProfileEditedName(null);
@@ -77,7 +82,7 @@ const Profile = (props) => {
     // Set each profile in family.members familyId property to ''
     if (family.members) {
       family.members.forEach(member => {
-        setDoc(doc(db, 'profiles', member), { familyId: '' }, { merge: true });
+        mergeProfileProperty({ familyId: '' }, member, false);
       });
     }
 
@@ -96,9 +101,7 @@ const Profile = (props) => {
 
     // Delete family doc
     deleteDoc(doc(db, 'families', profile.familyId)).then(() => {
-      setDoc(doc(db, 'profiles', user.uid), { familyId: '' }, { merge: true }).then(() => {
-        getProfile(user.uid);
-      });
+      mergeProfileProperty({ familyId: '' });
     });
   };
 
@@ -108,9 +111,7 @@ const Profile = (props) => {
       setDoc(doc(db, 'families', profile.familyId), { headOfFamily: family.members[0] }, { merge: true });
     }
     
-    setDoc(doc(db, 'profiles', user.uid), { familyId: '' }, { merge: true }).then(() => {
-      getProfile(user.uid);
-    });
+    mergeProfileProperty({ familyId: '' });
   };
 
   useEffect(() => {
@@ -160,14 +161,14 @@ const Profile = (props) => {
         </Stack>
       </Paper>
       
-      {!family ? (<NoFamily profile={profile} db={db} user={user} getProfile={getProfile} getFamily={getFamily} />) : (
+      {!family ? (<NoFamily />) : (
         <Paper sx={{ p: 3 }}>
           <Typography variant='h3'>My Family</Typography>
 
           <Stack mt={1} mb={4}>
             <Stack direction='row' alignItems='center'>
               <Typography variant='h5'>Family Name</Typography>
-              {user.uid === family.headOfFamily && 
+              {userId === family.headOfFamily && 
                 <IconButton><Edit /></IconButton>
               }
             </Stack>
@@ -182,13 +183,13 @@ const Profile = (props) => {
                 <Stack key={prof.firstName} alignItems='center' justifyContent='center'>
                   <Typography variant='h6'>{prof.firstName}</Typography>
                   <Avatar src={prof.imgLink ? prof.imgLink : null} alt='family member' sx={{ width: 128, height: 128 }}>{prof.imgLink ? null : prof.firstName[0].toUpperCase()}</Avatar>
-                  {user.uid === family.headOfFamily &&
+                  {userId === family.headOfFamily &&
                     <Button variant='outlined' startIcon={<Close />}>Remove</Button>
                   }
                 </Stack>
               )}
             </Stack>
-            {user.uid === family.headOfFamily &&
+            {userId === family.headOfFamily &&
               <Button variant='contained' startIcon={<ContentCopyOutlined />} onClick={() => copy(`https://our-home-239c1.firebaseapp.com/joinFamily/${profile.familyId}`)}>Copy family invite link</Button>
             }
           </Stack>
@@ -200,7 +201,7 @@ const Profile = (props) => {
                 <Stack key={pet.name} alignItems='center' justifyContent='center'>
                   <Typography variant='body1'>{pet.name}</Typography>
                   <Avatar src={pet.imgLink ? pet.imgLink : null} alt='pet' sx={{ width: 96, height: 96 }}>{pet.imgLink ? null : pet.name[0].toUpperCase()}</Avatar>
-                  {user.uid === family.headOfFamily &&
+                  {userId === family.headOfFamily &&
                     <Stack>
                       <Button variant='outlined' startIcon={<Edit />}>Edit</Button>
                       <Button variant='outlined' startIcon={<Close />}>Remove</Button>
@@ -209,12 +210,12 @@ const Profile = (props) => {
                 </Stack>
               )}
             </Stack>
-            {user.uid === family.headOfFamily &&
+            {userId === family.headOfFamily &&
               <Button variant='contained' startIcon={<Add />}>Add a pet</Button>
             }
           </Stack>
 
-          {user.uid === family.headOfFamily && 
+          {userId === family.headOfFamily && 
             <Stack mt={4}>
               <Divider />
               <Typography variant='h5' mt={2}>Weather Applet Information</Typography>
@@ -272,7 +273,7 @@ const Profile = (props) => {
                 }
               </Stack>
 
-              {user.uid === family.headOfFamily ? (
+              {userId === family.headOfFamily ? (
                 <Button variant='outlined' startIcon={<Close />}>Delete Family</Button>
               ) : (
                 <Button variant='contained' startIcon={<Logout />}>Leave Family</Button>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { Link } from 'react-router-dom';
 import MemoryOutlinedIcon from '@mui/icons-material/MemoryOutlined';
 import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
@@ -8,9 +8,10 @@ import ProfileIcon from '../components/ProfileIcon';
 import { AppBar, IconButton, ListItemIcon, ListItemText, Menu, MenuItem, Toolbar, Typography } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import { Home } from '@mui/icons-material';
+import { UserContext } from '../App';
 
-const Navbar = (props) => {
-  const { profile, user, auth } = props;
+const Navbar = () => {
+  const { userId, profile } = useContext(UserContext);
   const [anchorEl, setAnchorEl] = useState(null);
 
   return (
@@ -55,8 +56,8 @@ const Navbar = (props) => {
             <IconButton size='large' color='inherit' component={Link} to='/'><Home /></IconButton>
             <Typography variant='h6' component='div' sx={{ flexGrow: 1 }}>Our Home</Typography>
 
-            {user && profile &&
-                <ProfileIcon profile={profile} auth={auth} />
+            {userId && profile &&
+                <ProfileIcon />
             }
         </Toolbar>
     </AppBar>

@@ -1,6 +1,6 @@
 ***Data Structs***
 Profiles
-    budget
+    budgetId
     familyId
     firstName
     imgLink
@@ -81,8 +81,9 @@ Vehicles
 		maintenanceReq
 
 ***Plans/TODOs***
--Utilize Context(s)
--Move login to '/login' and use onEnter on Routes to pass through that to verify auth first
+-Move login to '/login' and use onEnter on Routes to pass through that to verify auth first?
+    https://stackoverflow.com/questions/40055439/check-if-logged-in-react-router-app-es6
+-Clean up entry user experience (creating profile, creating/joining family; add spinners when stuff loading)
 
 -FS Functions -> generate report at end of month with different data (budget
 data - income, allotted, spent; transactions; savings/investment account
@@ -92,7 +93,6 @@ checkpoints), clear budget.transactions
 -Abstract Dialogs
     -Are you sure? (title, text, callbackCancel, callbackYes)
     -Setting a value (title, inputLabel, regexValidation, callbackCancel, callbackSave)
--Do some code cleanup
 
 
 
