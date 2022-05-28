@@ -67,41 +67,42 @@ const Finances = (props) => {
       transactions: [{ id: 0, name: 'Default transaction', amt: 10, category: 'Essentials', timestamp: Date.now() }]
     };
 
-    setDoc(doc(db, 'profiles', user.uid), { budget: newBudgetUuid }, { merge: true }).then(
-      setDoc(doc(db, 'budgets', newBudgetUuid), newBudgetTemplate).then(() => {
-        getProfile(user.uid);
-      })
+    setDoc(doc(db, 'profiles', user.uid), { budget: newBudgetUuid }, { merge: true }).then(() => {
+        setDoc(doc(db, 'budgets', newBudgetUuid), newBudgetTemplate).then(() => {
+          getProfile(user.uid);
+        });
+      }
     );
   };
 
   const getBudget = async () => {
-    if (!profile.budget) {
-      createAndSaveDefaultBudget();
-      return;
-    }
-
     const budgetDoc = await getDoc(doc(db, 'budgets', profile.budget));
 
     if (budgetDoc.exists()) {
       const docData = budgetDoc.data();
 
+      docData.categories.forEach(cat => cat.currentSpent = 0);
+
+      docData.transactions.forEach((transaction, index) => { 
+        transaction.timestamp = new Date(transaction.timestamp).toLocaleDateString();
+        transaction.id = index;
+
+        const tCatIdx = docData.categories.findIndex(x => x.name === transaction.category);
+        const tSubCatIdx = docData.categories[tCatIdx].subcategories.findIndex(x => x.name === transaction.subcategory);
+        docData.categories[tCatIdx].subcategories[tSubCatIdx].currentSpent += transaction.amt;
+      });
+
       // Handle some calculations we do locally so we can reuse their values (efficiency!)
       let totalSpent = 0;
       let totalAllotted = 0;
       docData.categories.forEach(cat => {
-        cat.currentSpent = cat.subcategories.reduce(((sum, { currentSpent }) => sum + currentSpent), 0);
-        totalSpent += cat.currentSpent;
-
         cat.totalAllotted = cat.subcategories.reduce(((sum, { totalAllotted }) =>  sum + totalAllotted ), 0);
         totalAllotted += cat.totalAllotted;
+
+        totalSpent += cat.currentSpent
       });
       docData.totalSpent = totalSpent;
       docData.totalAllotted = totalAllotted;
-
-      docData.transactions.forEach((transaction, index) => { 
-        transaction.timestamp = new Date(transaction.timestamp).toLocaleString();
-        transaction.id = index;
-      }); 
 
 
       setBudget(docData);

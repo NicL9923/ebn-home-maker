@@ -81,7 +81,16 @@ Vehicles
 		maintenanceReq
 
 ***Plans/TODOs***
+-FS Functions -> generate report at end of month with different data (budget
+data - income, allotted, spent; transactions; savings/investment account
+checkpoints), clear budget.transactions
+
 -Track loans (mortgage, auto loans, etc.)
 -Abstract Dialogs
     -Are you sure? (title, text, callbackCancel, callbackYes)
     -Setting a value (title, inputLabel, regexValidation, callbackCancel, callbackSave)
+-Refactor Finances page (budgeting logic)
+
+
+
+-Transfer to TypeScript if insane
