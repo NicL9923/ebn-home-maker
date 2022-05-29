@@ -81,8 +81,6 @@ Vehicles
 		maintenanceReq
 
 ***Plans/TODOs***
--Move login to '/login' and use onEnter on Routes to pass through that to verify auth first?
-    https://stackoverflow.com/questions/40055439/check-if-logged-in-react-router-app-es6
 -Add spinners when stuff is being fetched/loaded
 
 -FS Functions -> generate report at end of month with different data (budget
