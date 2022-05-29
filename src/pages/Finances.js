@@ -63,7 +63,7 @@ const Finances = () => {
         }
       ],
       savingsBlobs: [{ name: 'Default', currentAmt: 1000 }],
-      investmentAccts: [{ name: 'Default', broker: 'Broker', curValue: 1000, prevValues: [{ monthYear: 'JAN 2000', value: 500 }] }],
+      investmentAccts: [{ name: 'Default', broker: 'Broker', curValue: 1000, prevValues: [{ monthYear: '01/01/2020', value: 500 }] }],
       transactions: [{ id: 0, name: 'Default transaction', amt: 10, category: 'Essentials', subcategory: 'Rent', timestamp: Date.now() }]
     };
 

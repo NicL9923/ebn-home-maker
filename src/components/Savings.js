@@ -1,96 +1,112 @@
-import { Add, Clear, Edit } from '@mui/icons-material';
+import { Add, Clear } from '@mui/icons-material';
 import { Box, Button, Grid, IconButton, Paper, Stack, Typography } from '@mui/material';
+import { doc, setDoc } from 'firebase/firestore';
 import React, { useContext, useState } from 'react';
-import { Pie, PieChart, Sector } from 'recharts';
+import { Cell, Pie, PieChart, ResponsiveContainer } from 'recharts';
 import { FirebaseContext } from '..';
 import { UserContext } from '../App';
+import EditableLabel from './EditableLabel';
 
+// TODO: handle duplicate name stuff here too
 
-const renderActiveShape = (props) => {
-    const RADIAN = Math.PI / 180;
-    const { cx, cy, midAngle, innerRadius, outerRadius, startAngle, endAngle, fill, payload, percent, value } = props;
-    const sin = Math.sin(-RADIAN * midAngle);
-    const cos = Math.cos(-RADIAN * midAngle);
-    const sx = cx + (outerRadius + 10) * cos;
-    const sy = cy + (outerRadius + 10) * sin;
-    const mx = cx + (outerRadius + 30) * cos;
-    const my = cy + (outerRadius + 30) * sin;
-    const ex = mx + (cos >= 0 ? 1 : -1) * 22;
-    const ey = my;
-    const textAnchor = cos >= 0 ? 'start' : 'end';
-  
-    return (
-      <g>
-        <text x={cx} y={cy} dy={8} textAnchor="middle" fill={fill}>
-          Savings Blobs
-        </text>
-        <Sector
-          cx={cx}
-          cy={cy}
-          innerRadius={innerRadius}
-          outerRadius={outerRadius}
-          startAngle={startAngle}
-          endAngle={endAngle}
-          fill={fill}
-        />
-        <Sector
-          cx={cx}
-          cy={cy}
-          startAngle={startAngle}
-          endAngle={endAngle}
-          innerRadius={outerRadius + 6}
-          outerRadius={outerRadius + 10}
-          fill={fill}
-        />
-        <path d={`M${sx},${sy}L${mx},${my}L${ex},${ey}`} stroke={fill} fill="none" />
-        <circle cx={ex} cy={ey} r={2} fill={fill} stroke="none" />
-        <text x={ex + (cos >= 0 ? 1 : -1) * 12} y={ey} textAnchor={textAnchor} fill="#333">{payload.name}</text>
-        <text x={ex + (cos >= 0 ? 1 : -1) * 12} y={ey} dy={18} textAnchor={textAnchor} fill="#999">
-          {`$${value} (${Math.trunc(percent * 100)}%)`}
-        </text>
-      </g>
-    );
+const renderCustomizedLabel = (props) => {
+  const RADIAN = Math.PI / 180;
+  const { cx, cy, midAngle, innerRadius, outerRadius, payload, value, percent } = props;
+  const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+  const x = cx + radius * Math.cos(-midAngle * RADIAN);
+  const y = cy + radius * Math.sin(-midAngle * RADIAN);
+
+  return (<>
+    <text x={x} y={y} fill='white' textAnchor='middle' dominantBaseline='central'>
+      {`${payload.name} (${(percent * 100).toFixed(0)}%)`}
+    </text>
+    <text x={x} y={y + 20} fill='white' textAnchor='middle' dominantBaseline='central'>
+      ${parseFloat(value).toFixed(2)}
+    </text>
+  </>);
 };
 
 const Savings = (props) => {
     const { db } = useContext(FirebaseContext);
     const { profile } = useContext(UserContext);
     const { budget, getBudget } = props;
+    const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
     const [savingsChartIndex, setSavingsChartIndex] = useState(0);
+
+    const saveUpdBlobsArr = (newArr) => {
+      setDoc(doc(db, 'budgets', profile.budgetId), { savingsBlobs: newArr }, { merge: true }).then(() => getBudget());
+    };
+
+    const createSavingsBlob = () => {
+      const updBlobsArr = [...budget.savingsBlobs];
+      updBlobsArr.push({ name: 'New Blob', currentAmt: 0 });
+
+      saveUpdBlobsArr(updBlobsArr);
+    };
+    
+    const updateSavingsBlobName = (oldName, newName) => {
+      const updBlobsArr = [...budget.savingsBlobs];
+      updBlobsArr[updBlobsArr.findIndex(blob => blob.name === oldName)].name = newName;
+
+      saveUpdBlobsArr(updBlobsArr);
+    };
+
+    const updateSavingsBlobAmt = (blobName, newAmt) => {
+      const updBlobsArr = [...budget.savingsBlobs];
+      updBlobsArr[updBlobsArr.findIndex(blob => blob.name === blobName)].currentAmt = parseFloat(newAmt);
+
+      saveUpdBlobsArr(updBlobsArr);
+    };
+
+    const deleteSavingsBlob = (blobName) => {
+      const updBlobsArr = [...budget.savingsBlobs];
+      updBlobsArr.splice(updBlobsArr.findIndex(blob => blob.name === blobName), 1);
+
+      saveUpdBlobsArr(updBlobsArr);
+    };
 
     return (
       <Box mt={2}>
         <Typography variant='h3' mb={2}>Savings Blobs</Typography>
-        <Paper sx={{ p: 2, width: 400, mb: 4 }}>
-          <PieChart width={525} height={250}>
-            <Pie 
-              activeIndex={savingsChartIndex}
-              activeShape={renderActiveShape}
-              data={budget.savingsBlobs} 
-              nameKey='name'
-              dataKey='currentAmt'
-              innerRadius={80}
-              onMouseEnter={(_, index) => setSavingsChartIndex(index)}
-            />
-          </PieChart>
-        </Paper>
 
-        <Grid container mb={4}>
+        <Grid container mb={4} spacing={2}>
           {budget.savingsBlobs.map(blob =>
-            <Grid container item xs={4} key={blob.name}>
+            <Grid container item xs={6} md={3} key={blob.name}>
               <Paper sx={{ p: 2 }}>
-                <Stack direction='row' alignItems='center'>
-                  <Typography variant='h5'>{blob.name} </Typography>
-                    <IconButton><Edit /></IconButton>
-                    <IconButton><Clear /></IconButton>
+                <Stack direction='row' alignItems='center' justifyContent='space-between'>
+                  <EditableLabel initialValue={blob.name} variant='h4' onBlur={(newValue) => updateSavingsBlobName(blob.name, newValue)} />
+                  <IconButton sx={{ ml: 4 }} onClick={() => deleteSavingsBlob(blob.name)}><Clear /></IconButton>
                 </Stack>
-                <Typography variant='h6' ml={1}>${blob.currentAmt}</Typography>
+                <EditableLabel variant='h5' initialValue={parseFloat(blob.currentAmt).toFixed(2)} prefix='$' onBlur={(newValue) => updateSavingsBlobAmt(blob.name, newValue)} />
               </Paper>
             </Grid>
           )}
         </Grid>
 
-        <Button variant='contained' startIcon={<Add />}>Add savings blob</Button>
+        <Box maxWidth='md'>
+          <Paper sx={{ p: 2, mb: 4 }}>
+            <Typography variant='h4'>Total Saved: ${parseFloat(budget.savingsBlobs.reduce(((sum, { currentAmt }) =>  sum + currentAmt ), 0)).toFixed(2)}</Typography>
+            <ResponsiveContainer width='100%' height={400}>
+              <PieChart>
+                <Pie 
+                  activeIndex={savingsChartIndex}
+                  label={renderCustomizedLabel}
+                  labelLine={false}
+                  data={budget.savingsBlobs} 
+                  nameKey='name'
+                  dataKey='currentAmt'
+                  onMouseEnter={(_, index) => setSavingsChartIndex(index)}
+                >
+                  {budget.savingsBlobs.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+              </PieChart>
+            </ResponsiveContainer>
+          </Paper>
+        </Box>
+
+        <Button variant='contained' startIcon={<Add />} onClick={createSavingsBlob}>Create New Blob</Button>
       </Box>
     );
 };

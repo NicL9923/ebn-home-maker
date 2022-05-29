@@ -124,7 +124,7 @@ const SubCategory = (props) => {
                     </Grid>
 
                     <Grid item xs={2} ml={-1}>
-                        <EditableLabel variant='body1' prefix='$' initialValue={`${subcategory.totalAllotted.toFixed(2)}`} onBlur={(newValue) => setSubCatProperty(newValue, subcategory.name, category.name, 'allotted')} />
+                        <EditableLabel variant='body1' prefix='$' initialValue={subcategory.totalAllotted.toFixed(2)} onBlur={(newValue) => setSubCatProperty(newValue, subcategory.name, category.name, 'allotted')} />
                     </Grid>
                     <Grid item xs={2} ml={1}>
                         <Typography variant='body1'>${subcategory.currentSpent.toFixed(2)}</Typography>
