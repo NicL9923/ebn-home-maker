@@ -143,7 +143,7 @@ const Budget = (props) => {
     const { budget, setBudget, getBudget } = props;
 
     const setMonthlyNetIncome = (newValue) => {
-        setDoc(doc(db, 'budgets', profile.budget), { monthlyNetIncome: parseFloat(newValue) }, { merge: true }).then(() => getBudget());
+        setDoc(doc(db, 'budgets', profile.budgetId), { monthlyNetIncome: parseFloat(newValue) }, { merge: true }).then(() => getBudget());
     };
     
     const setCategoryName = (newValue, oldName) => {
@@ -158,7 +158,7 @@ const Budget = (props) => {
           }
         });
     
-        setDoc(doc(db, 'budgets', profile.budget), { categories: updArr }, { merge: true }).then(() => getBudget());
+        setDoc(doc(db, 'budgets', profile.budgetId), { categories: updArr }, { merge: true }).then(() => getBudget());
     };
     
     const setSubCatProperty = (newValue, oldName, catName, propName) => {
@@ -183,11 +183,11 @@ const Budget = (props) => {
           }
         });
         
-        setDoc(doc(db, 'budgets', profile.budget), { categories: updArr }, { merge: true }).then(() => getBudget());
+        setDoc(doc(db, 'budgets', profile.budgetId), { categories: updArr }, { merge: true }).then(() => getBudget());
     };
     
     const addNewCategory = () => {
-        setDoc(doc(db, 'budgets', profile.budget), { categories: [...budget.categories, { name: 'New Category', subcategories: [] }] }, { merge: true }).then(() => getBudget());
+        setDoc(doc(db, 'budgets', profile.budgetId), { categories: [...budget.categories, { name: 'New Category', subcategories: [] }] }, { merge: true }).then(() => getBudget());
     };
     
     const removeCategory = (catName) => {
@@ -195,7 +195,7 @@ const Budget = (props) => {
     
         updArr.splice(updArr.findIndex((cat) => cat.name === catName), 1);
     
-        setDoc(doc(db, 'budgets', profile.budget), { categories: updArr }, { merge: true }).then(() => getBudget()); 
+        setDoc(doc(db, 'budgets', profile.budgetId), { categories: updArr }, { merge: true }).then(() => getBudget()); 
     };
     
     const addNewSubCategory = (catName) => {
@@ -207,7 +207,7 @@ const Budget = (props) => {
           }
         });
     
-        setDoc(doc(db, 'budgets', profile.budget), { categories: updArr }, { merge: true }).then(() => getBudget());
+        setDoc(doc(db, 'budgets', profile.budgetId), { categories: updArr }, { merge: true }).then(() => getBudget());
     };
 
     const removeSubCategory = (catName, subCatName) => {
@@ -219,7 +219,7 @@ const Budget = (props) => {
           }
         });
     
-        setDoc(doc(db, 'budgets', profile.budget), { categories: updArr }, { merge: true }).then(() => getBudget());
+        setDoc(doc(db, 'budgets', profile.budgetId), { categories: updArr }, { merge: true }).then(() => getBudget());
     };
 
     const moveCategory = (dragIdx, dropIdx) => {
@@ -232,7 +232,7 @@ const Budget = (props) => {
         const newBudget = { ...budget };
         newBudget.categories = updArr;
         setBudget(newBudget);
-        setDoc(doc(db, 'budgets', profile.budget), { categories: updArr }, { merge: true }).then(() => getBudget());
+        setDoc(doc(db, 'budgets', profile.budgetId), { categories: updArr }, { merge: true }).then(() => getBudget());
     };
 
     const moveSubCategory = (srcCatName, destCatName, dragIdx, dropIdx) => {
@@ -249,7 +249,7 @@ const Budget = (props) => {
         const newBudget = { ...budget };
         newBudget.categories = updArr;
         setBudget(newBudget);
-        setDoc(doc(db, 'budgets', profile.budget), { categories: updArr }, { merge: true }).then(() => getBudget());
+        setDoc(doc(db, 'budgets', profile.budgetId), { categories: updArr }, { merge: true }).then(() => getBudget());
     };
 
     return (<>
