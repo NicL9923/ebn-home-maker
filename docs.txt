@@ -21,14 +21,13 @@ Families
         date
         repeatFrequency
         name
+    boardMarkdown
     vehicles
     residences
 
 Budgets
     id (same as docID)
-
     monthlyNetIncome
-
     categories
         name
         subcategories
@@ -71,7 +70,6 @@ Vehicles
 	engine
     vin
     licensePlate
-
 	miles
 	serviceLogEntries
 		date
@@ -81,17 +79,35 @@ Vehicles
 		maintenanceReq
 
 ***Plans/TODOs***
--Add spinners when stuff is being fetched/loaded
+General TODOs-----------------------------
+-Add spinners when stuff is being fetched/loaded  ***PRIORITY***
+-Input validation (Simple regex should cover most or all cases)
+
+-Light/dark mode?
+
+Finance TODOs-----------------------------
+-Finish implementing transaction management  ***PRIORITY***
+-Implement investment account management
 
 -FS Functions -> generate report at end of month with different data (budget
 data - income, allotted, spent; transactions; savings/investment account
 checkpoints), clear budget.transactions
 
+Maintenance TODOs------------------------  ***PRIORITY***
+-Implement CRUD ops
+-Log management
+-Adding/displaying maintenance markers
+
+Information TODOs-------------------------
+-Upcoming events notifications
+-Rest is markdown that HoH can edit?
+-Family calendar (manage/CRUD events here too)
+
+Ideas-----------------------
 -Track loans (mortgage, auto loans, etc.)?
--Abstract Dialogs
+-Make separate dialog components?
     -Are you sure? (title, text, callbackCancel, callbackYes)
     -Setting a value (title, inputLabel, regexValidation, callbackCancel, callbackSave)
 
-
-
 -Transfer to TypeScript if insane
+-Add secondary editors in addition to head of household?
