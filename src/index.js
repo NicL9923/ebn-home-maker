@@ -5,6 +5,7 @@ import { createTheme, CssBaseline, ThemeProvider } from '@mui/material';
 import App from './App';
 import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
+import 'react-big-calendar/lib/css/react-big-calendar.css';
 
 const firebaseConfig = {
   apiKey: "AIzaSyBEokTSCPR2Cw-o5pKAUwTK8vlmNaIAASk",

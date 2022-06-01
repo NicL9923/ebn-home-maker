@@ -14,8 +14,19 @@ const NoFamily = () => {
 
     const createFamily = () => {
         const newFamId = uuidv4();
+        const newFamObj = {
+            name: newName,
+            headOfFamily: userId,
+            boardMarkdown: 'This is the family board!',
+            events: {
+                title: 'Created family on Our Home!',
+                start: Date.now(),
+                end: Date.now(),
+                allDay: true
+            }
+        };
         
-        setDoc(doc(db, 'families', newFamId), { name: newName, headOfFamily: userId, boardMarkdown: 'This is the family board!' }).then(() => {
+        setDoc(doc(db, 'families', newFamId), newFamObj).then(() => {
             getFamily();
         });
 

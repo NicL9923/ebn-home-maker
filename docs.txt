@@ -17,10 +17,12 @@ Families
     pets
         imgLink
         name
-    events **TODO
-        date
-        repeatFrequency
-        name
+    events
+        title
+        start: Date
+        end: Date
+        repeatFrequency?
+        allDay?
     boardMarkdown
     vehicles
     residences
@@ -98,10 +100,10 @@ Maintenance TODOs------------------------  ***PRIORITY***
 -Log management
 -Adding/displaying maintenance markers
 
-Information TODOs-------------------------
--Upcoming events notifications
--Rest is markdown that HoH can edit?
+Information TODOs-------------------------  ***PRIORITY***
+-Upcoming events
 -Family calendar (manage/CRUD events here too)
+    -Adding/removing/editing events
 
 Ideas-----------------------
 -Track loans (mortgage, auto loans, etc.)?
@@ -111,3 +113,5 @@ Ideas-----------------------
 
 -Transfer to TypeScript if insane
 -Add secondary editors in addition to head of household?
+
+-Implement localization
