@@ -82,6 +82,8 @@ Vehicles
 
 ***Plans/TODOs***
 General TODOs-----------------------------
+-Figure out how to reduce package size...likely culprits are recharts and ...? -> see if any way to use only specific packages needed
+
 -Add spinners when stuff is being fetched/loaded
 -Input validation (Simple regex should cover most or all cases)
     -Handle forms better (don't allow submit with validation errors, etc.)
