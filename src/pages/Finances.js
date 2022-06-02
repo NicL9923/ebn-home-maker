@@ -10,6 +10,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { FirebaseContext } from '..';
 import { UserContext } from '../App';
 
+// TODO: anytime we change/remove a category, update any transactions set to those
+
 const NoBudget = (props) => {
   const { createAndSaveDefaultBudget } = props;
 
@@ -62,8 +64,8 @@ const Finances = () => {
           ]
         }
       ],
-      savingsBlobs: [{ name: 'Default', currentAmt: 1000 }],
-      investmentAccts: [{ name: 'Default', broker: 'Broker', curValue: 1000, prevValues: [{ monthYear: '01/01/2020', value: 500 }] }],
+      savingsBlobs: [{ name: 'Default Blob', currentAmt: 1000 }],
+      investmentAccts: [{ name: 'Default Account', broker: 'Broker', curValue: 1000, prevValues: [{ monthYear: '01/01/2020', value: 500 }] }],
       transactions: [{ id: 0, name: 'Default transaction', amt: 10, category: 'Essentials', subcategory: 'Rent', timestamp: Date.now() }]
     };
 
@@ -98,10 +100,11 @@ const Finances = () => {
         let totalSpent = 0;
         let totalAllotted = 0;
         docData.categories.forEach(cat => {
-          cat.totalAllotted = cat.subcategories.reduce(((sum, { totalAllotted }) =>  sum + totalAllotted ), 0);
+          cat.totalAllotted = cat.subcategories.reduce(((sum, subcat) =>  sum + subcat.totalAllotted ), 0);
           totalAllotted += cat.totalAllotted;
 
-          totalSpent += cat.currentSpent
+          cat.currentSpent = cat.subcategories.reduce(((sum, subcat) =>  sum + subcat.currentSpent ), 0);
+          totalSpent += cat.currentSpent;
         });
         docData.totalSpent = totalSpent;
         docData.totalAllotted = totalAllotted;

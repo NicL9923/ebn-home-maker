@@ -82,14 +82,17 @@ Vehicles
 
 ***Plans/TODOs***
 General TODOs-----------------------------
--Add spinners when stuff is being fetched/loaded  ***PRIORITY***
+-Add spinners when stuff is being fetched/loaded
 -Input validation (Simple regex should cover most or all cases)
+    -Handle forms better (don't allow submit with validation errors, etc.)
+-Fix dialog maxWidths (?)
+-'Are you sure?' dialogs for deleting stuff
 
--Light/dark mode?
+-Light/dark mode? *VERY low priority*
 
 Finance TODOs-----------------------------
--Finish implementing transaction management  ***PRIORITY***
--Implement investment account management
+-Edit investment account value points (incl. current)
+-Ability to edit existing transactions (https://mui.com/x/react-data-grid/editing/)
 
 -FS Functions -> generate report at end of month with different data (budget
 data - income, allotted, spent; transactions; savings/investment account
