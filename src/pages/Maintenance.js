@@ -17,20 +17,20 @@ const Maintenance = () => {
 
     let residencesArr = [];
 
-    family.residences.forEach(async (residence) => {
-      const residenceDoc = await getDoc(doc(db, 'residences', residence));
-
-      if (residenceDoc.exists()) {
-        const docData = residenceDoc.data();
-        docData.serviceLogEntries.forEach((entry, index) => {
-          entry.date = entry.date.toDate(); // Convert Firestore timestamp to JS date
-          entry.id = index;
-        });
-        residencesArr.push(docData);
-        setResidences(residencesArr);
-      } else {
-        // No residences found
-      }
+    family.residences.forEach(residence => {
+      getDoc(doc(db, 'residences', residence)).then(resDoc => {
+        if (resDoc.exists()) {
+          const docData = resDoc.data();
+          docData.serviceLogEntries.forEach((entry, index) => {
+            entry.date = new Date(entry.date).toLocaleDateString();
+            entry.id = index;
+          });
+          residencesArr.push(docData);
+          setResidences(residencesArr);
+        } else {
+          // No residences found
+        }
+      });
     });
   };
 
@@ -39,43 +39,37 @@ const Maintenance = () => {
 
     let vehiclesArr = [];
 
-    family.vehicles.forEach(async (vehicle) => {
-      const vehicleDoc = await getDoc(doc(db, 'vehicles', vehicle));
-
-      if (vehicleDoc.exists()) {
-        const docData = vehicleDoc.data();
-        docData.serviceLogEntries.forEach((entry, index) => {
-          entry.date = entry.date.toDate(); // Convert Firestore timestamp to JS date
-          entry.id = index;
-        });
-        vehiclesArr.push(docData);
-        setVehicles(vehiclesArr);
-      } else {
-        // No vehicles found
-      }
+    family.vehicles.forEach(vehicle => {
+      getDoc(doc(db, 'vehicles', vehicle)).then(vehDoc => {
+        if (vehDoc.exists()) {
+          const docData = vehDoc.data();
+          docData.serviceLogEntries.forEach((entry, index) => {
+            entry.date = new Date(entry.date).toLocaleDateString();
+            entry.id = index;
+          });
+          vehiclesArr.push(docData);
+          setVehicles(vehiclesArr);
+        } else {
+          // No vehicles found
+        }
+      });
     });
   };
 
   const setResidenceLogVisibility = (resKey) => {
     let residenceArr = residences;
+    const resIdx = residenceArr.findIndex(res => res.name === resKey);
 
-    residenceArr.forEach(res => {
-      if (res.name === resKey) {
-        res.logShown = !res.logShown
-      }
-    });
+    residenceArr[resIdx].logShown = !residenceArr[resIdx].logShown;
 
     setResidences([...residenceArr]);
   };
 
   const setVehicleLogVisibility = (vehKey) => {
     let vehicleArr = vehicles;
+    const vehIdx = vehicleArr.findIndex(veh => veh.vin === vehKey);
 
-    vehicleArr.forEach(veh => {
-      if (veh.vin === vehKey) {
-        veh.logShown = !veh.logShown
-      }
-    });
+    vehicleArr[vehIdx].logShown = !vehicleArr[vehIdx].logShown;
 
     setVehicles([...vehicleArr]);
   };
