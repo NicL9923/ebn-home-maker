@@ -168,10 +168,10 @@ const Finances = () => {
 
   return (<>
     {!budget ? (<NoBudget createAndSaveDefaultBudget={createAndSaveDefaultBudget} />) : (
-      <Container maxWidth='lg'>
+      <Box display='flex'>
         <Button variant='contained' onClick={() => setMobileDrawerOpen(true)} sx={{ display: { xs: 'block', sm: 'none' }, position: 'fixed', zIndex: 3000, bottom: 5, right: 5 }}>Dashboard Menu</Button>
 
-        <Drawer variant='permanent' sx={{ display: { xs: 'none', sm: 'block' } }}>
+        <Drawer variant='permanent' sx={{ display: { xs: 'none', sm: 'block' }, flexShrink: 0, width: 250 }}>
           {drawerContents}
         </Drawer>
         <Drawer
@@ -184,8 +184,10 @@ const Finances = () => {
           {drawerContents}
         </Drawer>
         
-        {showDashboardComponent()}
-      </Container>
+        <Box flexGrow={1}>
+          {showDashboardComponent()}
+        </Box>
+      </Box>
     )}
   </>);
 }
