@@ -130,34 +130,32 @@ const Profile = () => {
           
           <Button variant='outlined' startIcon={<Edit />} onClick={() => setEditingProfile(true)}>Edit Profile</Button>
 
-          {editingProfile &&
-            <Dialog open={editingProfile} onClose={() => setEditingProfile(false)}>
-              <DialogTitle>Edit Profile</DialogTitle>
+          <Dialog open={editingProfile} onClose={() => setEditingProfile(false)}>
+            <DialogTitle>Edit Profile</DialogTitle>
 
-              <DialogContent>
-                <TextField
-                  autoFocus
-                  variant='standard'
-                  label='First Name'
-                  value={profileEditedName}
-                  onChange={(event) => setProfileEditedName(event.target.value)}
-                />
+            <DialogContent>
+              <TextField
+                autoFocus
+                variant='standard'
+                label='First Name'
+                value={profileEditedName}
+                onChange={(event) => setProfileEditedName(event.target.value)}
+              />
 
-                <InputLabel>Upload Photo</InputLabel>
-                <DropzoneArea
-                  acceptedFiles={['image/jpeg', 'image/png']}
-                  filesLimit={1}
-                  onChange={(files) => setProfileEditedPhoto(files[0])}
-                />
-                {/* TODO: add button/whatever to delete profile pic */}
-              </DialogContent>
+              <InputLabel>Upload Photo</InputLabel>
+              <DropzoneArea
+                acceptedFiles={['image/jpeg', 'image/png']}
+                filesLimit={1}
+                onChange={(files) => setProfileEditedPhoto(files[0])}
+              />
+              {/* TODO: add button/whatever to delete profile pic */}
+            </DialogContent>
 
-              <DialogActions>
-                <Button onClick={() => setEditingProfile(false)}>Cancel</Button>
-                <Button variant='contained' onClick={saveEditedProfile}>Save</Button>
-              </DialogActions>
-            </Dialog>
-          }
+            <DialogActions>
+              <Button onClick={() => setEditingProfile(false)}>Cancel</Button>
+              <Button variant='contained' onClick={saveEditedProfile}>Save</Button>
+            </DialogActions>
+          </Dialog>
         </Stack>
       </Paper>
       

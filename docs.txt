@@ -1,5 +1,5 @@
 ***Data Structs***
-Profiles
+Profiles (ID: user.uid)
     budgetId
     familyId
     firstName
@@ -55,6 +55,7 @@ Budgets
             value
 
 Residences
+    id
     img
     name
     yearBuilt
@@ -64,6 +65,7 @@ Residences
         maintenanceReq
 
 Vehicles
+    id
 	img
     year
 	make
@@ -101,9 +103,11 @@ data - income, allotted, spent; transactions; savings/investment account
 checkpoints), clear budget.transactions
 
 Maintenance TODOs------------------------  ***PRIORITY***
--Implement CRUD ops
+-Implement editing
 -Log management
 -Adding/displaying maintenance markers
+
+-Integrate some level of stuff like KBB trade values, etc?
 
 Information TODOs-------------------------  ***PRIORITY***
 -Upcoming events
