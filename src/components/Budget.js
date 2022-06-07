@@ -67,16 +67,16 @@ const Category = (props) => {
                 <Stack mb={1}>
                     <Grid container alignItems='center'>
                     <Grid item xs={6}>
-                        <Stack direction='row' alignItems='center'>
-                        <EditableLabel variant='h5' initialValue={category.name} onBlur={(newValue) => setCategoryName(newValue, category.name)} />
-                        <Tooltip title='Add sub-category'><IconButton onClick={() => addNewSubCategory(category.name)}><Add /></IconButton></Tooltip>
-                        <Tooltip title='Delete category'><IconButton onClick={() => removeCategory(category.name)}><Clear /></IconButton></Tooltip>
+                        <Stack direction='row' alignItems='center' overflow='hidden'>
+                            <EditableLabel variant='h5' initialValue={category.name} onBlur={(newValue) => setCategoryName(newValue, category.name)} />
+                            <Tooltip title='Add sub-category'><IconButton onClick={() => addNewSubCategory(category.name)}><Add /></IconButton></Tooltip>
+                            <Tooltip title='Delete category'><IconButton onClick={() => removeCategory(category.name)}><Clear /></IconButton></Tooltip>
                         </Stack>
                     </Grid>
-                    <Grid item xs={2}>
+                    <Grid item xs={3}>
                         <Typography variant='body1' ml={1} sx={{ fontWeight: 'bold' }}>${category.totalAllotted.toFixed(2)}</Typography>
                     </Grid>
-                    <Grid item xs={2}>
+                    <Grid item xs={3}>
                         <Typography variant='body1' ml={1} sx={{ fontWeight: 'bold' }}>${category.currentSpent.toFixed(2)}</Typography>
                     </Grid>
                     </Grid>
@@ -123,10 +123,10 @@ const SubCategory = (props) => {
                         <LinearProgress value={(subcategory.currentSpent / subcategory.totalAllotted) * 100} variant='determinate' sx={{ width: '85%' }} />
                     </Grid>
 
-                    <Grid item xs={2} ml={-1}>
+                    <Grid item xs={3} ml={-1}>
                         <EditableLabel variant='body1' prefix='$' initialValue={subcategory.totalAllotted.toFixed(2)} onBlur={(newValue) => setSubCatProperty(newValue, subcategory.name, category.name, 'allotted')} />
                     </Grid>
-                    <Grid item xs={2} ml={1}>
+                    <Grid item xs={3} ml={1}>
                         <Typography variant='body1'>${subcategory.currentSpent.toFixed(2)}</Typography>
                     </Grid>
                     </Grid>
@@ -255,15 +255,15 @@ const Budget = (props) => {
     return (<>
         <Typography variant='h3' mb={4} mt={2}>Budget - {new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</Typography>
         <Stack key={budget.id}>
-            <Grid container mb={4}>
-                <Grid item xs={4}>
+            <Grid container mb={4} rowGap={2}>
+                <Grid item xs={12} md={4}>
                     <Paper component={Container} sx={{ height: 150, width: 250 }}>
                     <Typography variant='h6'>Net Income</Typography>
                     <EditableLabel variant='h4' prefix='$' initialValue={budget.monthlyNetIncome.toFixed(2)} onBlur={setMonthlyNetIncome} />
                     </Paper>
                 </Grid>
 
-                <Grid item xs={4}>
+                <Grid item xs={12} md={4}>
                     <Paper component={Container} sx={{ height: 150, width: 250 }}>
                     <Typography variant='h6'>Total Allotted</Typography>
                     <Typography variant='h4'>${budget.totalAllotted.toFixed(2)}</Typography>
@@ -271,7 +271,7 @@ const Budget = (props) => {
                     </Paper>
                 </Grid>
                 
-                <Grid item xs={4}>
+                <Grid item xs={12} md={4}>
                     <Paper component={Container} sx={{ height: 150, width: 250 }}>
                     <Typography variant='h6'>Total Spent</Typography>
                     <Typography variant='h4'>${budget.totalSpent.toFixed(2)}</Typography>
@@ -296,8 +296,8 @@ const Budget = (props) => {
                     </Stack>
                     </Grid>
 
-                    <Grid item xs={2}><Typography variant='body1'>Allotted</Typography></Grid>
-                    <Grid item xs={2}><Typography variant='body1'>Spent</Typography></Grid>
+                    <Grid item xs={3} ml={1}><Typography variant='body1'>Allotted</Typography></Grid>
+                    <Grid item xs={2} ml={-1}><Typography variant='body1'>Spent</Typography></Grid>
                 </Grid>
 
                 <Divider />

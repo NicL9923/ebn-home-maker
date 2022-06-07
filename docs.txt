@@ -92,10 +92,12 @@ General TODOs-----------------------------
 -Fix dialog maxWidths (?)
 -'Are you sure?' dialogs for deleting stuff
 
+-Button (on My Profile?) to back-up data (budget, family info, maintenance items?, etc)
 -Light/dark mode? *VERY low priority*
 
 Finance TODOs-----------------------------
 -Edit investment account value points (incl. current)
+    -Appropriate spacing between date points
 -Ability to edit existing transactions (https://mui.com/x/react-data-grid/editing/)
 
 -FS Functions -> generate report at end of month with different data (budget
@@ -106,8 +108,6 @@ Maintenance TODOs------------------------  ***PRIORITY***
 -Implement editing
 -Log management
 -Adding/displaying maintenance markers
-
--Integrate some level of stuff like KBB trade values, etc?
 
 Information TODOs-------------------------  ***PRIORITY***
 -Upcoming events
@@ -123,4 +123,4 @@ Ideas-----------------------
 -Transfer to TypeScript if insane
 -Add secondary editors in addition to head of household?
 
--Implement localization
+-Implement localization *VERY low priority*
