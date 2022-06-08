@@ -85,12 +85,11 @@ Vehicles
 ***Plans/TODOs***
 General TODOs-----------------------------
 -Input validation (Simple regex should cover most or all cases)
-    -Handle forms better (don't allow submit with validation errors, etc.)
--Fix dialog maxWidths (?)
--'Are you sure?' dialogs for deleting stuff
+    -Handle forms better (don't allow submit with validation errors, displaying input/validation errors + required fields, etc.)
+-Fix dialog maxWidths
 
--Button (on My Profile?) to back-up data (budget, family info, maintenance items?, etc)
--Light/dark mode? *VERY low priority*
+-Button (on /profile) to back-up data (mass dump of: budget, family info, maintenance items, etc)
+
 
 Finance TODOs-----------------------------
 -Edit investment account value points (incl. current)
@@ -99,7 +98,7 @@ Finance TODOs-----------------------------
 
 -FS Functions -> generate report at end of month with different data (budget
 data - income, allotted, spent; transactions; savings/investment account
-checkpoints), clear budget.transactions
+checkpoints), clear budget.transactions     ***Spreadsheet or just PDF?...both???
 
 Maintenance TODOs------------------------  ***PRIORITY***
 -Implement editing
@@ -111,13 +110,12 @@ Information TODOs-------------------------  ***PRIORITY***
 -Family calendar (manage/CRUD events here too)
     -Adding/removing/editing events
 
+
 Ideas-----------------------
 -Track loans (mortgage, auto loans, etc.)?
--Make separate dialog components?
-    -Are you sure? (title, text, callbackCancel, callbackYes)
-    -Setting a value (title, inputLabel, regexValidation, callbackCancel, callbackSave)
 
 -Transfer to TypeScript if insane
 -Add secondary editors in addition to head of household?
 
 -Implement localization *VERY low priority*
+-Light/dark mode? *VERY low priority*

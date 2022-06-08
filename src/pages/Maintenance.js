@@ -1,8 +1,9 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { getDoc, doc, setDoc, deleteDoc } from 'firebase/firestore';
-import { Box, Button, Card, CardActions, CardContent, CardMedia, CircularProgress, Container, Dialog, DialogActions, DialogContent, DialogTitle, InputLabel, Stack, TextField, Typography } from '@mui/material';
+import { Box, Button, CircularProgress, Container, Dialog, DialogActions, DialogContent, DialogTitle, InputLabel, Paper, Stack, TextField, Typography } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import { Add, DirectionsCar, House } from '@mui/icons-material';
+import Image from 'material-ui-image';
 import { FirebaseContext } from '..';
 import { UserContext } from '../App';
 import { DropzoneArea } from 'mui-file-dropzone';
@@ -210,13 +211,14 @@ const Maintenance = () => {
         { !residences ? (isFetchingResidences && (<Box mx='auto' textAlign='center' mt={20}><CircularProgress /></Box>)) : (
           <Stack direction='row'>
             { residences.map(residence =>
-              <Card key={residence.name}>
-                { residence.img ?
-                  <CardMedia component='img' height='250' src={residence.img} />
-                  :
-                  <Container><House sx={{ fontSize: 200 }} /></Container>
-                }
-                <CardContent>
+              <Box key={residence.name}>
+                <Paper sx={{ p: 2 }}>
+                  { residence.img ?
+                    <Image height='250' src={residence.img} />
+                    :
+                    <Container><House sx={{ fontSize: 200 }} /></Container>
+                  }
+
                   <Typography variant='h5'>{residence.name}</Typography>
                   <Typography variant='body1'>Built: {residence.yearBuilt}</Typography>
                   <Typography variant='body1'>Purchased: {residence.yearPurchased}</Typography>
@@ -232,13 +234,12 @@ const Maintenance = () => {
                       <Button variant='contained' startIcon={<Add />}>Add log item</Button>
                     </Stack>
                   }
-                </CardContent>
-                <CardActions>
+
                   <Button variant='contained' onClick={() => setResidenceLogVisibility(residence.name)}>{residence.logShown ? 'Hide' : 'View'} log</Button>
                   <Button variant='outlined'>Edit</Button>
                   <Button variant='text' onClick={() => deleteResidence(residence.id)}>Delete</Button>
-                </CardActions>
-              </Card>
+                </Paper>
+              </Box>
             )}
           </Stack>
         )}
@@ -291,13 +292,14 @@ const Maintenance = () => {
         { !vehicles ? (isFetchingVehicles && (<Box mx='auto' textAlign='center' mt={20}><CircularProgress /></Box>)) : (
           <Stack direction='row'>
             { vehicles.map(vehicle =>
-              <Card key={vehicle.vin}>
-                { vehicle.img ?
-                  <CardMedia component='img' height='250' src={vehicle.img} />
-                  :
-                  <Container><DirectionsCar sx={{ fontSize: 200 }} /></Container>
-                }
-                <CardContent>
+              <Box key={vehicle.vin}>
+                <Paper sx={{ p: 2 }}>
+                  { vehicle.img ?
+                    <Image height='250' src={vehicle.img} />
+                    :
+                    <Container><DirectionsCar sx={{ fontSize: 200 }} /></Container>
+                  }
+
                   <Typography variant='h5'>{vehicle.year} {vehicle.make} {vehicle.model} {vehicle.trim}</Typography>
                   <Typography variant='body1'>Engine: {vehicle.engine}</Typography>
                   <Typography variant='body1'>Odometer: {vehicle.miles} mi</Typography>
@@ -316,13 +318,12 @@ const Maintenance = () => {
                       <Button variant='contained' startIcon={Add}>Add log item</Button>
                     </Stack>
                   }
-                </CardContent>
-                <CardActions>
+
                   <Button variant='contained' onClick={() => setVehicleLogVisibility(vehicle.vin)}>{vehicle.logShown ? 'Hide' : 'View'} log</Button>
                   <Button variant='outlined'>Edit</Button>
                   <Button variant='text' onClick={() => deleteVehicle(vehicle.id)}>Delete</Button>
-                </CardActions>
-              </Card>
+                </Paper>
+              </Box>
             )}
           </Stack>
         )}
