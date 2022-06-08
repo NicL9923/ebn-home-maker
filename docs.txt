@@ -110,6 +110,10 @@ Information TODOs-------------------------  ***PRIORITY***
 -Family calendar (manage/CRUD events here too)
     -Adding/removing/editing events
 
+Profile TODOs------------------------------
+-Add pets, remove members
+-Edit family data
+
 
 Ideas-----------------------
 -Track loans (mortgage, auto loans, etc.)?

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { getDoc, doc, setDoc, deleteDoc } from 'firebase/firestore';
 import { deleteObject, getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
-import { Avatar, Button, Container, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, IconButton, InputLabel, Paper, Stack, TextField, Typography } from '@mui/material';
+import { Avatar, Box, Button, Container, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, IconButton, InputLabel, Paper, Snackbar, Stack, TextField, Typography } from '@mui/material';
 import { Add, Close, ContentCopyOutlined, Edit, Logout } from '@mui/icons-material';
 import MapPicker from 'react-google-map-picker';
 import { DropzoneArea } from 'mui-file-dropzone';
@@ -15,6 +15,7 @@ const Profile = () => {
   const { db } = useContext(FirebaseContext);
   const { userId, profile, family, getProfile } = useContext(UserContext);
   const [familyMemberProfiles, setFamilyMemberProfiles] = useState([]);
+  const [copiedInviteLink, setCopiedInviteLink] = useState(false);
   // Profile edit
   const [editingProfile, setEditingProfile] = useState(false);
   const [profileEditedName, setProfileEditedName] = useState(null);
@@ -114,6 +115,11 @@ const Profile = () => {
     mergeProfileProperty({ familyId: '' });
   };
 
+  const copyInviteLink = () => {
+    copy(`https://our-home-239c1.firebaseapp.com/joinFamily/${profile.familyId}`);
+    setCopiedInviteLink(true);
+  };
+
   useEffect(() => {
     if (family) getFamilyMemberProfiles();
   }, [family]);
@@ -163,7 +169,7 @@ const Profile = () => {
         <Paper sx={{ p: 3 }}>
           <Typography variant='h3'>My Family</Typography>
 
-          <Stack mt={1} mb={4}>
+          <Box mt={1} mb={4}>
             <Stack direction='row' alignItems='center'>
               <Typography variant='h5'>Family Name</Typography>
               {userId === family.headOfFamily && 
@@ -172,9 +178,9 @@ const Profile = () => {
             </Stack>
 
             <Typography variant='h6'>{family.name}</Typography>
-          </Stack>
+          </Box>
 
-          <Stack mb={4}>
+          <Box mb={4}>
             <Typography variant='h5'>Members</Typography>
             <Stack direction='row'>
               {familyMemberProfiles && familyMemberProfiles.map(prof =>
@@ -188,11 +194,14 @@ const Profile = () => {
               )}
             </Stack>
             {userId === family.headOfFamily &&
-              <Button variant='contained' startIcon={<ContentCopyOutlined />} onClick={() => copy(`https://our-home-239c1.firebaseapp.com/joinFamily/${profile.familyId}`)}>Copy family invite link</Button>
+              <>
+                <Button variant='contained' startIcon={<ContentCopyOutlined />} onClick={copyInviteLink}>Copy family invite link</Button>
+                <Snackbar open={copiedInviteLink} autoHideDuration={2000} onClose={() => setCopiedInviteLink(false)} message='Copied invite link' />
+              </>
             }
-          </Stack>
+          </Box>
 
-          <Stack>
+          <Box>
             <Typography variant='h5'>Pets</Typography>
             <Stack direction='row'>
               {family.pets && family.pets.map(pet =>
@@ -200,10 +209,10 @@ const Profile = () => {
                   <Typography variant='body1'>{pet.name}</Typography>
                   <Avatar src={pet.imgLink ? pet.imgLink : null} alt='pet' sx={{ width: 96, height: 96 }}>{pet.imgLink ? null : pet.name[0].toUpperCase()}</Avatar>
                   {userId === family.headOfFamily &&
-                    <Stack>
+                    <Box>
                       <Button variant='outlined' startIcon={<Edit />}>Edit</Button>
                       <Button variant='outlined' startIcon={<Close />}>Remove</Button>
-                    </Stack>
+                    </Box>
                   }
                 </Stack>
               )}
@@ -211,10 +220,10 @@ const Profile = () => {
             {userId === family.headOfFamily &&
               <Button variant='contained' startIcon={<Add />}>Add a pet</Button>
             }
-          </Stack>
+          </Box>
 
           {userId === family.headOfFamily && 
-            <Stack mt={4}>
+            <Box mt={4}>
               <Divider />
               <Typography variant='h5' mt={2}>Weather Applet Information</Typography>
 
@@ -233,7 +242,7 @@ const Profile = () => {
                 </Typography>
               </Stack>
               
-              <Stack mb={2}>
+              <Box mb={2}>
                 <Stack direction='row' alignItems='center'>
                   <Typography variant='h6'>OpenWeatherMap API Key</Typography>
                   <IconButton><Edit /></IconButton>
@@ -246,19 +255,19 @@ const Profile = () => {
                     your local weather forecast on the homepage`
                   }
                 </Typography>
-              </Stack>
+              </Box>
 
-              <Stack mb={6}>
+              <Box mb={6}>
                 <Stack direction='row' alignItems='center'>
                   <Typography variant='h6'>Location</Typography>
                   <IconButton><Edit /></IconButton>
                 </Stack>
                 {family.location &&
-                  <Stack>
-                    <Stack>
+                  <Box>
+                    <Box>
                       <Typography variant='body1'>Latitude: {family.location.lat}</Typography>
                       <Typography variant='body1'>Longitude: {family.location.long}</Typography>
-                    </Stack>
+                    </Box>
                     {family.gmaps_api_key && 
                       <MapPicker
                         defaultLocation={{ lat: parseFloat(family.location.lat), lng: parseFloat(family.location.long) }}
@@ -267,9 +276,9 @@ const Profile = () => {
                         apiKey={family.gmaps_api_key}
                       />
                     }
-                  </Stack>
+                  </Box>
                 }
-              </Stack>
+              </Box>
 
               {userId === family.headOfFamily ? (
                 <Button variant='outlined' startIcon={<Close />}>Delete Family</Button>
@@ -298,7 +307,7 @@ const Profile = () => {
                   <Button variant='contained' onClick={leaveFamily}>Leave</Button>
                 </DialogActions>
               </Dialog>
-            </Stack>
+            </Box>
           }
         </Paper>
       )}
