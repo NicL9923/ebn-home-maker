@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { getDoc, doc, setDoc, deleteDoc } from 'firebase/firestore';
-import { Box, Button, Card, CardActions, CardContent, CardMedia, Container, Dialog, DialogActions, DialogContent, DialogTitle, InputLabel, Paper, Stack, TextField, Typography } from '@mui/material';
+import { Box, Button, Card, CardActions, CardContent, CardMedia, CircularProgress, Container, Dialog, DialogActions, DialogContent, DialogTitle, InputLabel, Stack, TextField, Typography } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import { Add, DirectionsCar, House } from '@mui/icons-material';
 import { FirebaseContext } from '..';
@@ -36,6 +36,9 @@ const Maintenance = () => {
   const { profile, family, getFamily } = useContext(UserContext);
   const [residences, setResidences] = useState(null);
   const [vehicles, setVehicles] = useState(null);
+  const [isFetchingResidences, setIsFetchingResidences] = useState(false);
+  const [isFetchingVehicles, setIsFetchingVehicles] = useState(false);
+
   const [addingResidence, setAddingResidence] = useState(false);
   const [addingVehicle, setAddingVehicle] = useState(false);
   const [newResidence, setNewResidence] = useState(defNewRes);
@@ -46,6 +49,7 @@ const Maintenance = () => {
   const getResidences = () => {
     if (!family.residences) return;
 
+    setIsFetchingResidences(true);
     let residencesArr = [];
 
     family.residences.forEach(residence => {
@@ -63,11 +67,14 @@ const Maintenance = () => {
         }
       });
     });
+
+    setIsFetchingResidences(false);
   };
 
   const getVehicles = () => {
     if (!family.vehicles) return;
 
+    setIsFetchingVehicles(true);
     let vehiclesArr = [];
 
     family.vehicles.forEach(vehicle => {
@@ -85,6 +92,8 @@ const Maintenance = () => {
         }
       });
     });
+
+    setIsFetchingVehicles(false);
   };
 
   const setResidenceLogVisibility = (resKey) => {
@@ -198,7 +207,7 @@ const Maintenance = () => {
 
       <Box mt={2}>
         <Typography variant='h4'>Residences</Typography>
-        { residences && 
+        { !residences ? (isFetchingResidences && (<Box mx='auto' textAlign='center' mt={20}><CircularProgress /></Box>)) : (
           <Stack direction='row'>
             { residences.map(residence =>
               <Card key={residence.name}>
@@ -232,7 +241,7 @@ const Maintenance = () => {
               </Card>
             )}
           </Stack>
-        }
+        )}
         <Button variant='contained' onClick={() => setAddingResidence(true)}>Add residence</Button>
       </Box>
 
@@ -279,7 +288,7 @@ const Maintenance = () => {
 
       <Box mt={4}>
         <Typography variant='h4'>Vehicles</Typography>
-        { vehicles &&
+        { !vehicles ? (isFetchingVehicles && (<Box mx='auto' textAlign='center' mt={20}><CircularProgress /></Box>)) : (
           <Stack direction='row'>
             { vehicles.map(vehicle =>
               <Card key={vehicle.vin}>
@@ -316,7 +325,7 @@ const Maintenance = () => {
               </Card>
             )}
           </Stack>
-        }
+        )}
         <Button variant='contained' onClick={() => setAddingVehicle(true)}>Add vehicle</Button>
       </Box>
 

@@ -1,5 +1,5 @@
 import { AccountBalance, AttachMoney, CreditCard, ShowChart } from '@mui/icons-material';
-import { Box, Button, Container, Divider, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Paper, Toolbar, Typography } from '@mui/material';
+import { Box, Button, CircularProgress, Container, Divider, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Paper, Toolbar, Typography } from '@mui/material';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import React, { useContext, useEffect, useState } from 'react';
 import Budget from '../components/Budget';
@@ -33,6 +33,7 @@ const Finances = () => {
   const [shownComponent, setShownComponent] = useState(0);
   const [budget, setBudget] = useState(null);
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
+  const [isFetchingBudget, setIsFetchingBudget] = useState(false);
 
   const createAndSaveDefaultBudget = () => {
     const newBudgetUuid = uuidv4();
@@ -78,7 +79,9 @@ const Finances = () => {
   };
 
   const getBudget = () => {
+    setIsFetchingBudget(true);
     getDoc(doc(db, 'budgets', profile.budgetId)).then(doc => {
+      setIsFetchingBudget(false);
       if (doc.exists()) {
         const docData = doc.data();
 
@@ -167,7 +170,7 @@ const Finances = () => {
   </>);
 
   return (<>
-    {!budget ? (<NoBudget createAndSaveDefaultBudget={createAndSaveDefaultBudget} />) : (
+    { !budget ? (isFetchingBudget ? (<Box mx='auto' textAlign='center' mt={20}><CircularProgress size={60} /></Box>) : (<NoBudget createAndSaveDefaultBudget={createAndSaveDefaultBudget} />)) : (
       <Box display='flex'>
         <Button variant='contained' onClick={() => setMobileDrawerOpen(true)} sx={{ display: { xs: 'block', sm: 'none' }, position: 'fixed', zIndex: 3000, bottom: 5, right: 5 }}>Dashboard Menu</Button>
 

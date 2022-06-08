@@ -12,6 +12,7 @@ import Navbar from './components/Navbar';
 import JoinFamily from './pages/JoinFamily';
 import NotLoggedIn from './components/NotLoggedIn';
 import { FirebaseContext } from '.';
+import { Box, CircularProgress } from '@mui/material';
 
 export const UserContext = React.createContext(null);
 
@@ -20,21 +21,31 @@ const App = () => {
   const [userId, setUserId] = useState(null);
   const [profile, setProfile] = useState(null);
   const [family, setFamily] = useState(null);
+  const [isFetchingUser, setIsFetchingUser] = useState(true);
+  const [isFetchingProfile, setIsFetchingProfile] = useState(true);
+  const [isFetchingFamily, setIsFetchingFamily] = useState(true);
 
   const getProfile = () => {
+    setIsFetchingProfile(true);
     getDoc(doc(db, 'profiles', userId)).then(doc => {
+      setIsFetchingProfile(false);
       if (doc.exists()) setProfile(doc.data());
     });
   };
 
   const getFamily = () => {
+    setIsFetchingFamily(true);
     getDoc(doc(db, 'families', profile.familyId)).then(doc => {
+      setIsFetchingFamily(false);
       if (doc.exists()) setFamily(doc.data());
     });
   };
 
   useEffect(() => {
-    onAuthStateChanged(auth, user => setUserId(user ? user.uid : null))
+    onAuthStateChanged(auth, user => {
+      setUserId(user ? user.uid : null);
+      setIsFetchingUser(false);
+    });
   }, []);
 
   useEffect(() => {
@@ -59,6 +70,8 @@ const App = () => {
         userId,
         profile,
         family,
+        isFetchingProfile,
+        isFetchingFamily,
         getProfile,
         getFamily
       }}
@@ -88,7 +101,7 @@ const App = () => {
             <Route element={<Home />} />
           </Routes>
         ) : (
-          <NotLoggedIn auth={auth} />
+          isFetchingUser ? (<Box mx='auto' textAlign='center' mt={20}><CircularProgress size={80} /></Box>) : (<NotLoggedIn auth={auth} />)
         )}
       </Router>
     </UserContext.Provider>

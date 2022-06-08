@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import axios from 'axios';
-import { Alert, AlertTitle, Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, Grid, Paper, Stack, Tab, Tabs, TextField, Typography } from '@mui/material';
+import { Alert, AlertTitle, Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, Grid, Paper, Stack, Tab, Tabs, TextField, Typography, CircularProgress } from '@mui/material';
 import { WiRain, WiThunderstorm, WiSnowflakeCold, WiFog, WiDaySunny, WiNightClear, WiDayCloudy, WiCloudy, WiNightCloudy } from 'weather-icons-react';
 import { doc, setDoc } from 'firebase/firestore';
 import { UserContext } from '../App';
@@ -14,14 +14,17 @@ const WeatherBox = () => {
   const [hourlyWeather, setHourlyWeather] = useState(null);
   const [dailyWeather, setDailyWeather] = useState(null);
   const [shownWeather, setShownWeather] = useState(0);
+  const [isFetchingWeather, setIsFetchingWeather] = useState(true);
 
   const [settingApiKey, setSettingApiKey] = useState(false);
   const [newApiKey, setNewApiKey] = useState('');
 
   const getWeatherData = () => {
+    setIsFetchingWeather(true);
     const url = `https://api.openweathermap.org/data/2.5/onecall?lat=${family.location.lat}&lon=${family.location.long}&exclude=minutely&appid=${family.openweathermap_api_key}&units=imperial`; // Exclude minute-ly forecast
     
     axios.get(url).then(resp => {
+      setIsFetchingWeather(false);
       if (resp.data) {
         // Get current
         setCurrentWeather(resp.data.current);
@@ -261,13 +264,17 @@ const WeatherBox = () => {
         <Tab label='Daily' />
       </Tabs>
 
-      <Box justifyContent='space-evenly' alignItems='center'>
-        {shownWeather === 0 && <>{parseCurrentWeather()}</>}
-        {shownWeather === 1 && <>{parseHourlyWeather()}</>}
-        {shownWeather === 2 && <>{parseDailyWeather()}</>}
-      </Box>
+      { isFetchingWeather ? (<Box mx='auto' textAlign='center' mt={20}><CircularProgress /></Box>)
+      :
+      (
+        <Box>
+          {shownWeather === 0 && <>{parseCurrentWeather()}</>}
+          {shownWeather === 1 && <>{parseHourlyWeather()}</>}
+          {shownWeather === 2 && <>{parseDailyWeather()}</>}
 
-      <>{parseWeatherAlerts()}</>
+          {parseWeatherAlerts()}
+        </Box>
+      )}
     </Stack>
   );
 }
