@@ -28,6 +28,7 @@ Families
     residences
 
 Budgets
+    name
     id (same as docID)
     monthlyNetIncome
     categories

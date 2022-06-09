@@ -1,7 +1,7 @@
 import { Add, Clear } from '@mui/icons-material';
 import { Box, Button, Grid, IconButton, Paper, Stack, Typography } from '@mui/material';
 import { doc, setDoc } from 'firebase/firestore';
-import React, { useContext, useState } from 'react';
+import React, { useContext } from 'react';
 import { Cell, Pie, PieChart, ResponsiveContainer } from 'recharts';
 import { FirebaseContext } from '..';
 import { UserContext } from '../App';
@@ -31,7 +31,6 @@ const Savings = (props) => {
     const { profile } = useContext(UserContext);
     const { budget, getBudget } = props;
     const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
-    const [savingsChartIndex, setSavingsChartIndex] = useState(0);
 
     const saveUpdBlobsArr = (newArr) => {
       setDoc(doc(db, 'budgets', profile.budgetId), { savingsBlobs: newArr }, { merge: true }).then(() => getBudget());
@@ -88,14 +87,12 @@ const Savings = (props) => {
             <Typography variant='h4'>Total Saved: ${parseFloat(budget.savingsBlobs.reduce(((sum, { currentAmt }) =>  sum + currentAmt ), 0)).toFixed(2)}</Typography>
             <ResponsiveContainer width='100%' height={400}>
               <PieChart>
-                <Pie 
-                  activeIndex={savingsChartIndex}
+                <Pie
                   label={renderCustomizedLabel}
                   labelLine={false}
                   data={budget.savingsBlobs} 
                   nameKey='name'
                   dataKey='currentAmt'
-                  onMouseEnter={(_, index) => setSavingsChartIndex(index)}
                 >
                   {budget.savingsBlobs.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
