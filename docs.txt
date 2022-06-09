@@ -96,6 +96,7 @@ Finance TODOs-----------------------------
 -Edit investment account value points (incl. current)
     -Appropriate spacing between date points
 -Ability to edit existing transactions (https://mui.com/x/react-data-grid/editing/)
+-Track assets & loans (mortgage, auto loans, etc.)
 
 -FS Functions -> generate report at end of month with different data (budget
 data - income, allotted, spent; transactions; savings/investment account
@@ -117,9 +118,7 @@ Profile TODOs------------------------------
 
 
 Ideas-----------------------
--Track loans (mortgage, auto loans, etc.)?
-
--Transfer to TypeScript if insane
+-Refactor to TypeScript if insane
 -Add secondary editors in addition to head of household?
 
 -Implement localization *VERY low priority*
