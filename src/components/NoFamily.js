@@ -17,6 +17,7 @@ const NoFamily = () => {
         const newFamObj = {
             name: newName,
             headOfFamily: userId,
+            members: [userId],
             boardMarkdown: 'This is the family board!',
             events: {
                 title: 'Created family on Our Home!',

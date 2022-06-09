@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { getDoc, doc, setDoc, deleteDoc } from 'firebase/firestore';
 import { deleteObject, getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
-import { Avatar, Box, Button, Container, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, IconButton, InputLabel, Paper, Snackbar, Stack, TextField, Typography } from '@mui/material';
+import { Avatar, Box, Button, Checkbox, Container, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, FormControlLabel, IconButton, InputLabel, Paper, Snackbar, Stack, TextField, Typography } from '@mui/material';
 import { Add, Close, ContentCopyOutlined, Edit, Logout } from '@mui/icons-material';
 import MapPicker from 'react-google-map-picker';
 import { DropzoneArea } from 'mui-file-dropzone';
@@ -18,8 +18,9 @@ const Profile = () => {
   const [copiedInviteLink, setCopiedInviteLink] = useState(false);
   // Profile edit
   const [editingProfile, setEditingProfile] = useState(false);
-  const [profileEditedName, setProfileEditedName] = useState(null);
+  const [profileEditedName, setProfileEditedName] = useState(profile.firstName);
   const [profileEditedPhoto, setProfileEditedPhoto] = useState(null);
+  const [deleteExistingPhoto, setDeleteExistingPhoto] = useState(false);
 
   const [deletingFamily, setDeletingFamily] = useState(false);
   const [leavingFamily, setLeavingFamily] = useState(false);
@@ -51,22 +52,25 @@ const Profile = () => {
   };
 
   const saveEditedProfile = () => {
-    if (profileEditedPhoto) {
-      // Submit new profile picture to Storage and get/save link, and remove old one
+    if (deleteExistingPhoto || profileEditedPhoto) {
       const storage = getStorage();
-      const oldImgRef = ref(storage, profile.imgLink);
-      deleteObject(oldImgRef).then(() => {
-        // File deleted successfully - TODO: Snackbars for successfully deleting/updating things?
-      }).catch((error) => {
-        console.error(error);
-      });
 
-      const imgRef = ref(storage, uuidv4());
-      uploadBytes(imgRef, profileEditedPhoto).then(snapshot => {
-        getDownloadURL(snapshot.ref).then(url => { 
-          mergeProfileProperty({ imgLink: url });
+      // Submit new profile picture to Storage and get/save link, and remove old one
+      if (profile.imgLink) {
+        const oldImgRef = ref(storage, profile.imgLink);
+        deleteObject(oldImgRef);
+      }
+      
+      if (profileEditedPhoto) {
+        const imgRef = ref(storage, uuidv4());
+        uploadBytes(imgRef, profileEditedPhoto).then(snapshot => {
+          getDownloadURL(snapshot.ref).then(url => { 
+            mergeProfileProperty({ imgLink: url });
+          });
         });
-      });
+      } else {
+        mergeProfileProperty({ imgLink: '' });
+      }
     }
     
     // Submit new profile name
@@ -74,9 +78,10 @@ const Profile = () => {
       mergeProfileProperty({ firstName: profileEditedName });
     }
 
-    setProfileEditedName(null);
+    setProfileEditedName(profile.firstName);
     setProfileEditedPhoto(null);
     setEditingProfile(false);
+    setDeleteExistingPhoto(false);
   };
 
   const deleteFamily = () => {
@@ -107,11 +112,17 @@ const Profile = () => {
   };
 
   const leaveFamily = () => {
-    // Make first member in family new headOfFamily
-    if (family.members && family.members[0]) {
-      setDoc(doc(db, 'families', profile.familyId), { headOfFamily: family.members[0] }, { merge: true });
+    const newMembers = [...family.members];
+    const curUserIdx = newMembers.findIndex(mem => mem === userId);
+    newMembers.splice(curUserIdx, 1);
+
+    // Make first member in family new headOfFamily (if curUser is hoF)
+    const mergeFam = { members: newMembers };
+    if (family.headOfFamily === userId) {
+      mergeFam.headOfFamily = newMembers[0];
     }
-    
+
+    setDoc(doc(db, 'families', profile.familyId), mergeFam, { merge: true });
     mergeProfileProperty({ familyId: '' });
   };
 
@@ -130,13 +141,15 @@ const Profile = () => {
         <Typography variant='h2'>My Profile</Typography>
 
         <Stack alignItems='center' justifyContent='center'>
-          <Avatar src={profile.imgLink ? profile.imgLink : null} alt='profile' sx={{ width: 164, height: 164 }}>{profile.imgLink ? null : <Typography variant='h1'>{profile.firstName[0].toUpperCase()}</Typography>}</Avatar>
+          <Avatar src={profile.imgLink ? profile.imgLink : null} alt='profile' sx={{ width: 164, height: 164 }}>
+            {profile.imgLink ? null : <Typography variant='h1'>{profile.firstName[0].toUpperCase()}</Typography>}
+          </Avatar>
           
           <Typography variant='h5' mt={1} mb={2}>{profile.firstName}</Typography>
           
           <Button variant='outlined' startIcon={<Edit />} onClick={() => setEditingProfile(true)}>Edit Profile</Button>
 
-          <Dialog open={editingProfile} onClose={() => setEditingProfile(false)}>
+          <Dialog open={editingProfile} onClose={() => setEditingProfile(false)} fullWidth>
             <DialogTitle>Edit Profile</DialogTitle>
 
             <DialogContent>
@@ -148,13 +161,16 @@ const Profile = () => {
                 onChange={(event) => setProfileEditedName(event.target.value)}
               />
 
-              <InputLabel>Upload Photo</InputLabel>
-              <DropzoneArea
-                acceptedFiles={['image/jpeg', 'image/png']}
-                filesLimit={1}
-                onChange={(files) => setProfileEditedPhoto(files[0])}
-              />
-              {/* TODO: add button/whatever to delete profile pic */}
+              <InputLabel sx={{ mt: 4, mb: 1 }}>Profile Photo</InputLabel>
+              { !deleteExistingPhoto && 
+                <DropzoneArea
+                  acceptedFiles={['image/jpeg', 'image/png']}
+                  filesLimit={1}
+                  onChange={(files) => setProfileEditedPhoto(files[0])}
+                  
+                />
+              }
+              { profile.imgLink && <FormControlLabel control={<Checkbox checked={deleteExistingPhoto} onChange={() => setDeleteExistingPhoto(!deleteExistingPhoto)} />} label='Delete existing photo' /> }
             </DialogContent>
 
             <DialogActions>
@@ -182,7 +198,7 @@ const Profile = () => {
 
           <Box mb={4}>
             <Typography variant='h5'>Members</Typography>
-            <Stack direction='row'>
+            <Stack direction='row' mb={3}>
               {familyMemberProfiles && familyMemberProfiles.map(prof =>
                 <Stack key={prof.firstName} alignItems='center' justifyContent='center'>
                   <Typography variant='h6'>{prof.firstName}</Typography>
@@ -194,16 +210,16 @@ const Profile = () => {
               )}
             </Stack>
             {userId === family.headOfFamily &&
-              <>
+              <Box width='100%' mx='auto'>
                 <Button variant='contained' startIcon={<ContentCopyOutlined />} onClick={copyInviteLink}>Copy family invite link</Button>
                 <Snackbar open={copiedInviteLink} autoHideDuration={2000} onClose={() => setCopiedInviteLink(false)} message='Copied invite link' />
-              </>
+              </Box>
             }
           </Box>
 
           <Box>
             <Typography variant='h5'>Pets</Typography>
-            <Stack direction='row'>
+            <Stack direction='row' mb={3}>
               {family.pets && family.pets.map(pet =>
                 <Stack key={pet.name} alignItems='center' justifyContent='center'>
                   <Typography variant='body1'>{pet.name}</Typography>
@@ -279,36 +295,36 @@ const Profile = () => {
                   </Box>
                 }
               </Box>
-
-              {userId === family.headOfFamily ? (
-                <Button variant='outlined' startIcon={<Close />}>Delete Family</Button>
-              ) : (
-                <Button variant='contained' startIcon={<Logout />}>Leave Family</Button>
-              )}
-
-              <Dialog open={deletingFamily} onClose={() => setDeletingFamily(false)}>
-                <DialogTitle>Delete family?</DialogTitle>
-                <DialogContent>
-                  <DialogContentText>Are you sure you want to delete the {family.name} family?</DialogContentText>
-                </DialogContent>
-                <DialogActions>
-                  <Button variant='text' onClick={() => setDeletingFamily(false)}>Cancel</Button>
-                  <Button variant='contained' onClick={deleteFamily}>Delete</Button>
-                </DialogActions>
-              </Dialog>
-
-              <Dialog open={leavingFamily} onClose={() => setLeavingFamily(false)}>
-                <DialogTitle>Leave family?</DialogTitle>
-                <DialogContent>
-                  <DialogContentText>Are you sure you want to leave the {family.name} family?</DialogContentText>
-                </DialogContent>
-                <DialogActions>
-                  <Button variant='text' onClick={() => setLeavingFamily(false)}>Cancel</Button>
-                  <Button variant='contained' onClick={leaveFamily}>Leave</Button>
-                </DialogActions>
-              </Dialog>
             </Box>
           }
+
+          {userId === family.headOfFamily ? (
+            <Button variant='contained' color='error' startIcon={<Close />} onClick={() => setDeletingFamily(true)}>Delete Family</Button>
+          ) : (
+            <Button variant='contained' color='error' startIcon={<Logout />} onClick={() => setLeavingFamily(true)}>Leave Family</Button>
+          )}
+
+          <Dialog open={deletingFamily} onClose={() => setDeletingFamily(false)}>
+            <DialogTitle>Delete family?</DialogTitle>
+            <DialogContent>
+              <DialogContentText>Are you sure you want to delete the {family.name} family?</DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Button variant='text' onClick={() => setDeletingFamily(false)}>Cancel</Button>
+              <Button variant='contained' onClick={deleteFamily}>Delete</Button>
+            </DialogActions>
+          </Dialog>
+
+          <Dialog open={leavingFamily} onClose={() => setLeavingFamily(false)}>
+            <DialogTitle>Leave family?</DialogTitle>
+            <DialogContent>
+              <DialogContentText>Are you sure you want to leave the {family.name} family?</DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Button variant='text' onClick={() => setLeavingFamily(false)}>Cancel</Button>
+              <Button variant='contained' onClick={leaveFamily}>Leave</Button>
+            </DialogActions>
+          </Dialog>
         </Paper>
       )}
     </Container>

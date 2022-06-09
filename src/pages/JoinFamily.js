@@ -1,7 +1,7 @@
 import React, { useContext, useEffect } from 'react';
-import { CircularProgress, Stack } from '@mui/material';
+import { Alert, Box, CircularProgress, Stack } from '@mui/material';
 import { useParams } from 'react-router-dom';
-import { doc, setDoc } from 'firebase/firestore';
+import { arrayUnion, doc, setDoc } from 'firebase/firestore';
 import { FirebaseContext } from '..';
 import { UserContext } from '../App';
 
@@ -16,6 +16,8 @@ const JoinFamily = () => {
         if (!profile || profile.familyId === familyId) return;
 
         // Add familyId to profile(user.uid).familyId, getFamily, and show success message
+        setDoc(doc(db, 'families', familyId), { members: arrayUnion(userId) }, { merge: true });
+
         setDoc(doc(db, 'profiles', userId), { familyId }, { merge: true }).then(() => {
             getProfile();
             getFamily();
@@ -27,15 +29,14 @@ const JoinFamily = () => {
     }, []);
   
     return (
-        <>
+        <Box maxWidth='md' mt={6} mx='auto'>
             { family ? (
-                <Stack>
-                    You have joined the {family.name} family! ({familyId})
-                </Stack>
-            ) : (
-                <CircularProgress />
-            )}
-        </>
+                <Alert severity='success'>
+                    You've successfully joined the {family.name} family! ({familyId})
+                </Alert>
+            ) : (<CircularProgress />)
+            }
+        </Box>
     );
 };
 
