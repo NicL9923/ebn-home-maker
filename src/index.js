@@ -6,7 +6,7 @@ import App from './App';
 import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
-import * as serviceWorker from './serviceWorker';
+import * as serviceWorkerRegistration from './serviceWorkerRegistration';
 
 const firebaseConfig = {
   apiKey: "AIzaSyBEokTSCPR2Cw-o5pKAUwTK8vlmNaIAASk",
@@ -42,4 +42,4 @@ root.render(
   </ThemeProvider>
 );
 
-serviceWorker.register();
+serviceWorkerRegistration.register();
