@@ -90,6 +90,8 @@ General TODOs-----------------------------
 -Fix dialog maxWidths
 
 -Button (on /profile) to back-up data (mass dump of: budget, family info, maintenance items, etc)
+-Replace all merge-true setDoc calls with updateDoc *derp*
+-Handle recurring events for /info
 
 
 Finance TODOs-----------------------------
@@ -110,11 +112,6 @@ Maintenance TODOs------------------------  ***PRIORITY***
 
 -Probably a good idea to just show simple list of items on main page, then
 click an item to pull up a new page with just that item
-
-Information TODOs-------------------------  ***PRIORITY***
--Upcoming events
--Family calendar (manage/CRUD events here too)
-    -Adding/removing/editing events
 
 Profile TODOs------------------------------
 -Add pets, remove members
