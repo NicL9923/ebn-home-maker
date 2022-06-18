@@ -96,16 +96,20 @@ Finance TODOs-----------------------------
 -Edit investment account value points (incl. current)
     -Appropriate spacing between date points
 -Ability to edit existing transactions (https://mui.com/x/react-data-grid/editing/)
--Track assets & loans (mortgage, auto loans, etc.)
 
 -FS Functions -> generate report at end of month with different data (budget
 data - income, allotted, spent; transactions; savings/investment account
 checkpoints), clear budget.transactions     ***Spreadsheet or just PDF?...both???
 
+-Track assets & loans (mortgage, auto loans, etc.)
+
 Maintenance TODOs------------------------  ***PRIORITY***
 -Implement editing
 -Log management
 -Adding/displaying maintenance markers
+
+-Probably a good idea to just show simple list of items on main page, then
+click an item to pull up a new page with just that item
 
 Information TODOs-------------------------  ***PRIORITY***
 -Upcoming events

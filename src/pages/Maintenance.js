@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { getDoc, doc, setDoc, deleteDoc } from 'firebase/firestore';
-import { Box, Button, CircularProgress, Container, Dialog, DialogActions, DialogContent, DialogTitle, InputLabel, Paper, Stack, TextField, Typography } from '@mui/material';
+import { Box, Button, CircularProgress, Container, Dialog, DialogActions, DialogContent, DialogTitle, Grid, InputLabel, Paper, Stack, TextField, Typography } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import { Add, DirectionsCar, House } from '@mui/icons-material';
 import Image from 'material-ui-image';
@@ -97,24 +97,6 @@ const Maintenance = () => {
     setIsFetchingVehicles(false);
   };
 
-  const setResidenceLogVisibility = (resKey) => {
-    let residenceArr = residences;
-    const resIdx = residenceArr.findIndex(res => res.name === resKey);
-
-    residenceArr[resIdx].logShown = !residenceArr[resIdx].logShown;
-
-    setResidences([...residenceArr]);
-  };
-
-  const setVehicleLogVisibility = (vehKey) => {
-    let vehicleArr = vehicles;
-    const vehIdx = vehicleArr.findIndex(veh => veh.vin === vehKey);
-
-    vehicleArr[vehIdx].logShown = !vehicleArr[vehIdx].logShown;
-
-    setVehicles([...vehicleArr]);
-  };
-
   const addNewResidence = () => {
     const newResId = uuidv4();
 
@@ -195,6 +177,10 @@ const Maintenance = () => {
     });
   };
 
+  const addLogEntry = () => {
+
+  };
+
   useEffect(() => {
     if (family) {
       getResidences();
@@ -209,9 +195,9 @@ const Maintenance = () => {
       <Box mt={2}>
         <Typography variant='h4'>Residences</Typography>
         { !residences ? (isFetchingResidences && (<Box mx='auto' textAlign='center' mt={20}><CircularProgress /></Box>)) : (
-          <Stack direction='row'>
+          <Grid container mt={2} mb={2} gap={2}>
             { residences.map(residence =>
-              <Box key={residence.name}>
+              <Grid container item xs={12} md={6} lg={4} key={residence.name}>
                 <Paper sx={{ p: 2 }}>
                   { residence.img ?
                     <Image height='250' src={residence.img} />
@@ -223,25 +209,28 @@ const Maintenance = () => {
                   <Typography variant='body1'>Built: {residence.yearBuilt}</Typography>
                   <Typography variant='body1'>Purchased: {residence.yearPurchased}</Typography>
 
-                  { residence.logShown && 
-                    <Stack height={300}>
-                      <DataGrid
-                        columns={[{ field: 'date', headerName: 'Date' }, { field: 'note', headerName: 'Note' }]}
-                        rows={residence.serviceLogEntries}
-                        pageSize={5}
-                        rowsPerPageOptions={[5, 10, 20]}
-                      />
-                      <Button variant='contained' startIcon={<Add />}>Add log item</Button>
-                    </Stack>
-                  }
+                  <Typography variant='h6' mt={2}>Service Log</Typography>
+                  <Box height={300}>
+                    <DataGrid
+                      columns={[{ field: 'date', headerName: 'Date' }, { field: 'note', headerName: 'Note', flex: 1 }]}
+                      rows={residence.serviceLogEntries}
+                      pageSize={5}
+                      rowsPerPageOptions={[5, 10, 20]}
+                    />
+                  </Box>
+                  <Button variant='contained' startIcon={<Add />} sx={{ mt: 1 }}>Add to log</Button>
 
-                  <Button variant='contained' onClick={() => setResidenceLogVisibility(residence.name)}>{residence.logShown ? 'Hide' : 'View'} log</Button>
-                  <Button variant='outlined'>Edit</Button>
-                  <Button variant='text' onClick={() => deleteResidence(residence.id)}>Delete</Button>
+                  <Typography variant='h6' mt={2}>Maintenance</Typography>
+                  <Button variant='contained' startIcon={<Add />} sx={{ mt: 1 }}>Edit maintenance schedule</Button>
+
+                  <Stack direction='row' justifyContent='right' spacing={1} mt={3}>
+                    <Button variant='outlined'>Edit</Button>
+                    <Button variant='text' onClick={() => deleteResidence(residence.id)}>Delete</Button>
+                  </Stack>
                 </Paper>
-              </Box>
+              </Grid>
             )}
-          </Stack>
+          </Grid>
         )}
         <Button variant='contained' onClick={() => setAddingResidence(true)}>Add residence</Button>
       </Box>
@@ -290,9 +279,9 @@ const Maintenance = () => {
       <Box mt={4}>
         <Typography variant='h4'>Vehicles</Typography>
         { !vehicles ? (isFetchingVehicles && (<Box mx='auto' textAlign='center' mt={20}><CircularProgress /></Box>)) : (
-          <Stack direction='row'>
+          <Grid container mt={2} mb={2} gap={2}>
             { vehicles.map(vehicle =>
-              <Box key={vehicle.vin}>
+              <Grid container item xs={12} md={6} lg={4} key={vehicle.vin}>
                 <Paper sx={{ p: 2 }}>
                   { vehicle.img ?
                     <Image height='250' src={vehicle.img} />
@@ -306,26 +295,29 @@ const Maintenance = () => {
                   <Typography variant='body1'>VIN: {vehicle.vin}</Typography>
                   <Typography variant='body1'>License Plate: {vehicle.licensePlate}</Typography>
                   
-                  { vehicle.logShown &&
-                    <Stack height={300}>
-                      <DataGrid
-                        columns={[{ field: 'date', headerName: 'Date' }, { field: 'note', headerName: 'Note' }]}
-                        rows={vehicle.serviceLogEntries}
-                        pageSize={5}
-                        rowsPerPageOptions={[5, 10, 20]}
-                        getRowId={row => row.date}
-                      />
-                      <Button variant='contained' startIcon={Add}>Add log item</Button>
-                    </Stack>
-                  }
+                  <Typography variant='h6' mt={2}>Service Log</Typography>
+                  <Box height={300}>
+                    <DataGrid
+                      columns={[{ field: 'date', headerName: 'Date' }, { field: 'note', headerName: 'Note' }]}
+                      rows={vehicle.serviceLogEntries}
+                      pageSize={5}
+                      rowsPerPageOptions={[5, 10, 20]}
+                      getRowId={row => row.date}
+                    />
+                  </Box>
+                  <Button variant='contained' startIcon={<Add />} sx={{ mt: 1 }}>Add to log</Button>
 
-                  <Button variant='contained' onClick={() => setVehicleLogVisibility(vehicle.vin)}>{vehicle.logShown ? 'Hide' : 'View'} log</Button>
-                  <Button variant='outlined'>Edit</Button>
-                  <Button variant='text' onClick={() => deleteVehicle(vehicle.id)}>Delete</Button>
+                  <Typography variant='h6' mt={2}>Maintenance</Typography>
+                  <Button variant='contained' startIcon={<Add />} sx={{ mt: 1 }}>Edit maintenance schedule</Button>
+
+                  <Stack direction='row' justifyContent='right' spacing={1} mt={3}>
+                    <Button variant='outlined'>Edit</Button>
+                    <Button variant='text' onClick={() => deleteVehicle(vehicle.id)}>Delete</Button>
+                  </Stack>
                 </Paper>
-              </Box>
+              </Grid>
             )}
-          </Stack>
+          </Grid>
         )}
         <Button variant='contained' onClick={() => setAddingVehicle(true)}>Add vehicle</Button>
       </Box>
