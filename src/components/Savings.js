@@ -38,13 +38,29 @@ const Savings = (props) => {
 
     const createSavingsBlob = () => {
       const updBlobsArr = [...budget.savingsBlobs];
-      updBlobsArr.push({ name: 'New Blob', currentAmt: 0 });
+
+      let newBlobName = 'New Blob';
+      let nameIterator = 1;
+
+      while (updBlobsArr.some(blob => blob.name === newBlobName)) {
+        newBlobName = `New Blob${nameIterator}`;
+        nameIterator++;
+      };
+
+      updBlobsArr.push({ name: newBlobName, currentAmt: 0 });
 
       saveUpdBlobsArr(updBlobsArr);
     };
     
     const updateSavingsBlobName = (oldName, newName) => {
       const updBlobsArr = [...budget.savingsBlobs];
+
+      if (updBlobsArr.some(blob => blob.name === newName)) {
+        alert('This name is already in use!');
+        getBudget();
+        return; // TODO: fix editable label not updating (same solution works for budget...)
+      }
+
       updBlobsArr[updBlobsArr.findIndex(blob => blob.name === oldName)].name = newName;
 
       saveUpdBlobsArr(updBlobsArr);
@@ -69,7 +85,7 @@ const Savings = (props) => {
         <Typography variant='h3' mb={2}>Savings Blobs</Typography>
 
         <Grid container mb={4} spacing={2}>
-          {budget.savingsBlobs.map(blob =>
+          { budget.savingsBlobs.map(blob =>
             <Grid container item xs={6} md={3} key={blob.name}>
               <Paper sx={{ p: 2 }}>
                 <Stack direction='row' alignItems='center' justifyContent='space-between'>
@@ -94,7 +110,7 @@ const Savings = (props) => {
                   nameKey='name'
                   dataKey='currentAmt'
                 >
-                  {budget.savingsBlobs.map((entry, index) => (
+                  { budget.savingsBlobs.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>

@@ -1,5 +1,5 @@
 import { Add, Clear, KeyboardArrowDown, SubdirectoryArrowRight } from '@mui/icons-material';
-import { Box, Container, Divider, Grid, IconButton, LinearProgress, Menu, MenuItem, Paper, Stack, Tooltip, Typography, useTheme } from '@mui/material';
+import { Box, Divider, Grid, IconButton, LinearProgress, Menu, MenuItem, Paper, Stack, Tooltip, Typography, useTheme } from '@mui/material';
 import { doc, setDoc } from 'firebase/firestore';
 import React, { useContext, useState } from 'react';
 import { Droppable } from 'react-beautiful-dnd';
@@ -155,6 +155,12 @@ const Budget = (props) => {
     
     const setCategoryName = (newValue, oldName) => {
         if (newValue === oldName) return;
+
+        if (budget.categories.some(cat => cat.name === newValue)) {
+            alert('This name is already in use!');
+            getBudget(); // Have to do this to get EditableLabels to refresh their values
+            return;
+        }
         
         const updArr = [...budget.categories];
         updArr[updArr.findIndex(cat => cat.name === oldName)].name = newValue;
@@ -172,12 +178,17 @@ const Budget = (props) => {
             cat.subcategories.forEach(subCat => {
               if (subCat.name === oldName) {
                 if (propName === 'name') {
-                  subCat.name = newValue;
+                    if (cat.subcategories.some(scat => scat.name === subCat.name)) {
+                        alert('This name is already in use!');
+                        getBudget();
+                        return;
+                    }
+                    subCat.name = newValue;
                 }
                 else if (propName === 'allotted') {
-                  subCat.totalAllotted = parseFloat(newValue);
+                    subCat.totalAllotted = parseFloat(newValue);
                 } else {
-                  console.error('Invalid property to set for subcat');
+                    console.error('Invalid property to set for subcat');
                 }
               }
             });
@@ -188,7 +199,15 @@ const Budget = (props) => {
     };
     
     const addNewCategory = () => {
-        setDoc(doc(db, 'budgets', profile.budgetId), { categories: [...budget.categories, { name: 'New Category', subcategories: [] }] }, { merge: true }).then(() => getBudget());
+        let newCatName = 'New Category';
+        let nameIterator = 1;
+
+        while (budget.categories.some(cat => cat.name === newCatName)) {
+            newCatName = `New Category${nameIterator}`;
+            nameIterator++;
+        };
+
+        setDoc(doc(db, 'budgets', profile.budgetId), { categories: [...budget.categories, { name: newCatName, subcategories: [] }] }, { merge: true }).then(() => getBudget());
     };
     
     const removeCategory = (catName) => {
@@ -204,7 +223,15 @@ const Budget = (props) => {
     
         updArr.forEach(cat => {
           if (cat.name === catName) {
-            cat.subcategories.push({ name: 'New SubCategory', currentSpent: 0, totalAllotted: 0 });
+            let newSubCatName = 'New SubCategory';
+            let nameIterator = 1;
+
+            while (cat.subcategories.some(subcat => subcat.name === newSubCatName)) {
+                newSubCatName = `New SubCategory${nameIterator}`;
+                nameIterator++;
+            };
+
+            cat.subcategories.push({ name: newSubCatName, currentSpent: 0, totalAllotted: 0 });
           }
         });
     
