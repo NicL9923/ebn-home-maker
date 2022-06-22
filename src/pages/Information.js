@@ -24,9 +24,9 @@ const Information = () => {
   const [editedMd, setEditedMd] = useState(null);
   const [addingEvent, setAddingEvent] = useState(false);
   const [newEvent, setNewEvent] = useState(defaultEvent);
-  const [editingEvent, setEditingEvent] = useState(null); // Not a bool - the actual event obj being edited
-
-  let dateConvertedEvents = [...family.events];
+  const [editingEvent, setEditingEvent] = useState(false);
+  const [eventBeingEdited, setEventBeingEdited] = useState(defaultEvent);
+  const [dateConvertedEvents, setDateConvertedEvents] = useState([...family.events]);
 
   const beginEditingBoard = () => {
     setEditedMd(family.boardMarkdown);
@@ -57,38 +57,42 @@ const Information = () => {
   };
 
   const handleEventSelection= (calEvent) => {
-    setEditingEvent(calEvent);
+    setEditingEvent(true);
+    setEventBeingEdited({ ...calEvent, originalTitle: calEvent.title });
   };
 
   const updateEvent = () => {
     const updEvArr = [...family.events];
-    updEvArr[updEvArr.findIndex(ev => ev.title === editingEvent.title)] = {
-      title: editingEvent.title,
-      start: editingEvent.start.toString(),
-      end: editingEvent.end.toString()
+    updEvArr[updEvArr.findIndex(ev => ev.title === eventBeingEdited.originalTitle)] = {
+      title: eventBeingEdited.title,
+      start: eventBeingEdited.start.toString(),
+      end: eventBeingEdited.end.toString()
     };
 
     updateDoc(doc(db, 'families', profile.familyId), { events: updEvArr }).then(() => getFamily());
 
-    setEditingEvent(null);
+    setEditingEvent(false);
   };
 
   const deleteEvent = () => {
     const updEvArr = [...family.events];
-    updEvArr.splice(updEvArr.findIndex(ev => ev.title === editingEvent.title), 1);
+    updEvArr.splice(updEvArr.findIndex(ev => ev.title === eventBeingEdited.originalTitle), 1);
 
     updateDoc(doc(db, 'families', profile.familyId), { events: updEvArr }).then(() => getFamily());
 
-    setEditingEvent(null);
+    setEditingEvent(false);
   };
 
   useEffect(() => {
-    dateConvertedEvents = [...family.events];
-    if (dateConvertedEvents) {
-      dateConvertedEvents.forEach(ev => {
+    let fmtdEvts = [...family.events];
+
+    if (fmtdEvts) {
+      fmtdEvts.forEach(ev => {
         ev.start = new Date(ev.start);
         ev.end = new Date(ev.end);
       });
+
+      setDateConvertedEvents(fmtdEvts);
     }
   }, [family]);
   
@@ -174,24 +178,24 @@ const Information = () => {
           </DialogActions>
       </Dialog>
 
-      <Dialog open={editingEvent} onClose={() => setEditingEvent(null)}>
+      <Dialog open={editingEvent} onClose={() => setEditingEvent(false)}>
           <DialogTitle>Edit Event</DialogTitle>
 
           <DialogContent>
               <Stack>
                   <TextField
-                      autoFocus
                       variant='standard'
                       label='Event Name'
-                      value={editingEvent && editingEvent.title}
-                      onChange={(event) => setEditingEvent({ ...editingEvent, title: event.target.value })}
+                      value={eventBeingEdited.title}
+                      onChange={(event) => setEventBeingEdited({ ...eventBeingEdited, title: event.target.value })}
+                      autoFocus
                   />
 
                   <LocalizationProvider dateAdapter={AdapterLuxon}>
                       <DateTimePicker
                           label='Start Date/Time'
-                          value={editingEvent && editingEvent.start}
-                          onChange={(newVal) => setEditingEvent({ ...editingEvent, start: newVal })}
+                          value={eventBeingEdited.start}
+                          onChange={(newVal) => setEventBeingEdited({ ...eventBeingEdited, start: newVal })}
                           renderInput={(params) => <TextField { ...params } variant='standard' />}
                       />
                   </LocalizationProvider>
@@ -199,8 +203,8 @@ const Information = () => {
                   <LocalizationProvider dateAdapter={AdapterLuxon}>
                       <DateTimePicker
                           label='End Date/Time'
-                          value={editingEvent && editingEvent.end}
-                          onChange={(newVal) => setEditingEvent({ ...editingEvent, end: newVal })}
+                          value={eventBeingEdited.end}
+                          onChange={(newVal) => setEventBeingEdited({ ...eventBeingEdited, end: newVal })}
                           renderInput={(params) => <TextField { ...params } variant='standard' />}
                       />
                   </LocalizationProvider>
@@ -208,7 +212,7 @@ const Information = () => {
           </DialogContent>
 
           <DialogActions>
-              <Button onClick={() => setEditingEvent(null)}>Cancel</Button>
+              <Button onClick={() => setEditingEvent(false)}>Cancel</Button>
               <Button variant='contained' onClick={updateEvent}>Update</Button>
               <Button variant='text' color='error' onClick={deleteEvent}>Delete</Button>
           </DialogActions>
