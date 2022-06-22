@@ -1,7 +1,6 @@
 {
   "short_name": "Our Home",
   "name": "Our Home",
-  "iconVersion": 1.0,
   "icons": [
     {
       "src": "favicon.ico",
@@ -9,7 +8,7 @@
       "type": "image/x-icon"
     },
     {
-      "src": "icon512.png",
+      "src": "icon512-1.1.png",
       "type": "image/png",
       "sizes": "512x512"
     }
