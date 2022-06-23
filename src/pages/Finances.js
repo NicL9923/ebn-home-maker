@@ -96,6 +96,13 @@ const Finances = () => {
 
           const tCatIdx = docData.categories.findIndex(x => x.name === transaction.category);
           const tSubCatIdx = docData.categories[tCatIdx].subcategories.findIndex(x => x.name === transaction.subcategory);
+
+          // MAJOR TODO: validate each transaction's category/subcategory when doing above 
+          // - if doesn't exist anymore, null out its category & subcategory **Make sure this
+          // change will be saved/reflected on its own at some point, otherwise push its update here
+          // ****Note: At the same time you do this, implement when you change a (sub)category name,
+          // it will update any transactions with that category automatically
+
           docData.categories[tCatIdx].subcategories[tSubCatIdx].currentSpent += transaction.amt;
         });
 

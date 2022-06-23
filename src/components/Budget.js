@@ -178,7 +178,7 @@ const Budget = (props) => {
             cat.subcategories.forEach(subCat => {
               if (subCat.name === oldName) {
                 if (propName === 'name') {
-                    if (cat.subcategories.some(scat => scat.name === subCat.name)) {
+                    if (cat.subcategories.some(scat => scat.name === newValue)) {
                         alert('This name is already in use!');
                         getBudget();
                         return;
