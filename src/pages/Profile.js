@@ -11,6 +11,8 @@ import NoFamily from '../components/NoFamily';
 import { UserContext } from '../App';
 import { FirebaseContext } from '..';
 
+// TODO: family.gcal_id setting
+
 const Profile = () => {
   const { db } = useContext(FirebaseContext);
   const { userId, profile, family, getProfile } = useContext(UserContext);

@@ -14,15 +14,10 @@ Families
     name
     openweathermap_api_key
     gmaps_api_key
+    gcal_id
     pets
         imgLink
         name
-    events
-        title
-        start: Date
-        end: Date
-        repeatFrequency?
-        allDay?
     boardMarkdown
     vehicles
     residences
