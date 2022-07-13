@@ -8,6 +8,11 @@ import { doc, setDoc } from 'firebase/firestore';
 
 /* The moral of this page is *drum roll please*... KISS */
 
+/* To keep GCal private but still viewable on /info, pvttk
+parameter must be specified in family.gcal_id as alphanumeric
+value following 'private-' in the 'Secret address in iCal format'
+setting
+*/
 
 const Information = () => {
   const { db } = useContext(FirebaseContext);
