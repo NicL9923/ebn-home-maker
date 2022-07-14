@@ -14,7 +14,6 @@ Families
     name
     openweathermap_api_key
     gmaps_api_key
-    gcal_id
     pets
         imgLink
         name
