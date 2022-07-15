@@ -17,6 +17,8 @@
     "axios": "^0.26.0",
     "clipboard-copy": "^4.0.1",
     "firebase": "^9.6.6",
+    "jspdf": "^2.5.1",
+    "jspdf-autotable": "^3.5.25",
     "luxon": "^2.4.0",
     "material-ui-image": "^3.3.2",
     "mui-file-dropzone": "^4.0.1",

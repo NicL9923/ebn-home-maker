@@ -1,5 +1,5 @@
-import { AccountBalance, AttachMoney, CreditCard, ShowChart } from '@mui/icons-material';
-import { Box, Button, CircularProgress, Container, Divider, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Paper, Toolbar, Typography } from '@mui/material';
+import { AccountBalance, Article, AttachMoney, CreditCard, ShowChart } from '@mui/icons-material';
+import { Box, Button, CircularProgress, Divider, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Paper, Toolbar, Typography } from '@mui/material';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import React, { useContext, useEffect, useState } from 'react';
 import Budget from '../components/Budget';
@@ -9,6 +9,8 @@ import Transactions from '../components/Transactions';
 import { v4 as uuidv4 } from 'uuid';
 import { FirebaseContext } from '..';
 import { UserContext } from '../App';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
 
 // TODO: anytime we change/remove a category, update any transactions set to those
 
@@ -91,7 +93,7 @@ const Finances = () => {
         });
 
         docData.transactions.forEach((transaction, index) => { 
-          transaction.timestamp = new Date(transaction.timestamp).toLocaleDateString();
+          transaction.timestamp = new Date(transaction.timestamp);
           transaction.id = index;
 
           const tCatIdx = docData.categories.findIndex(x => x.name === transaction.category);
@@ -103,7 +105,12 @@ const Finances = () => {
           // ****Note: At the same time you do this, implement when you change a (sub)category name,
           // it will update any transactions with that category automatically
 
-          docData.categories[tCatIdx].subcategories[tSubCatIdx].currentSpent += transaction.amt;
+          // Only count transaction towards this month's budget if it's from this month
+          if (transaction.timestamp.getMonth() === (new Date().getMonth())) {
+            docData.categories[tCatIdx].subcategories[tSubCatIdx].currentSpent += transaction.amt;
+          }
+
+          transaction.timestamp = transaction.timestamp.toLocaleDateString();
         });
 
         // Handle some calculations we do locally so we can reuse their values (efficiency!)
@@ -125,6 +132,39 @@ const Finances = () => {
         // Budget wasn't retrieved when it should've been
       }
     });
+  };
+
+  const generateFinanceReport = () => {
+    // TODO: Switch to HTML formatting and use doc.html()
+
+    const doc = new jsPDF();
+    const monthYear = new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(24);
+    doc.text(`Finance Report - ${monthYear}`, 105, 15, 'center');
+
+    doc.setFontSize(20);
+    doc.text('Budget', 15, 45);
+    // TODO: budget info, if any
+
+    doc.text('Savings', 15, 65);
+    const savTableColumns = ['Blob Name', 'Amount'];
+    const savTableRows = [];
+    budget.savingsBlobs.forEach(sb => savTableRows.push([sb.name, sb.currentAmt]));
+    doc.autoTable(savTableColumns, savTableRows, { startY: 70 });
+
+    // TODO: investments
+
+    doc.text('Transactions', 15, 140);
+    const transTableColumns = ['Amount', 'Name', 'Subcategory', 'Date'];
+    const transTableRows = [];
+    budget.transactions.forEach(t => {
+      transTableRows.push([t.amt, t.name, t.subcategory, t.timestamp]);
+    });
+    doc.autoTable(transTableColumns, transTableRows, { startY: 145 });
+
+    doc.save(`FinanceReport_${monthYear}.pdf`);
   };
 
   useEffect(() => {
@@ -172,6 +212,15 @@ const Finances = () => {
         <ListItem><ListItemButton onClick={() => setShownComponent(3)} selected={shownComponent === 3}>
           <ListItemIcon><CreditCard /></ListItemIcon>
           <ListItemText>Transactions</ListItemText>
+        </ListItemButton></ListItem>
+      </List>
+
+      <Divider />
+
+      <List>
+        <ListItem><ListItemButton onClick={generateFinanceReport}>
+          <ListItemIcon><Article /></ListItemIcon>
+          <ListItemText>Generate report</ListItemText>
         </ListItemButton></ListItem>
       </List>
   </>);
