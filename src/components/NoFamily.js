@@ -1,5 +1,5 @@
 import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, Divider, Paper, Stack, TextField, Typography } from '@mui/material';
-import { doc, setDoc } from 'firebase/firestore';
+import { doc, setDoc, updateDoc } from 'firebase/firestore';
 import React, { useContext, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { FirebaseContext } from '..';
@@ -31,7 +31,7 @@ const NoFamily = () => {
             getFamily();
         });
 
-        setDoc(doc(db, 'profiles', userId), { familyId: newFamId }, { merge: true }).then(() => {
+        updateDoc(doc(db, 'profiles', userId), { familyId: newFamId }).then(() => {
             getProfile();
         });
     };

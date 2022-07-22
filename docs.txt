@@ -75,12 +75,10 @@ General TODOs-----------------------------
 -Input validation (Simple regex should cover most or all cases)
     -Handle forms better (don't allow submit with validation errors, displaying input/validation errors + required fields, etc.)
 -Fix dialog maxWidths
--Replace all merge-true setDoc calls with updateDoc *derp*
 
 -Complete mobile-friendly interface revamp
 -Make 'Home Management' and 'Vehicle Management' their own pages
     -House Management: appliances (name, manufacturer, model year, year bought?, upload manual), projects section?, notes section for misc. stuff like paint colors
--Find/implement a calendar that can subscribe to .ics links (as on iCloud calendar)
 -Make/implement 'Grocery List' page
 -Add 'Export/Backup data' to family page
     *Link budgets to families (implement family being required to make budget - as opposed to current profile-only req)

@@ -1,6 +1,6 @@
 import { Add, Clear, KeyboardArrowDown, SubdirectoryArrowRight } from '@mui/icons-material';
 import { Box, Divider, Grid, IconButton, LinearProgress, Menu, MenuItem, Paper, Stack, Tooltip, Typography, useTheme } from '@mui/material';
-import { doc, setDoc } from 'firebase/firestore';
+import { doc, updateDoc } from 'firebase/firestore';
 import React, { useContext, useState } from 'react';
 import { Droppable } from 'react-beautiful-dnd';
 import { Draggable } from 'react-beautiful-dnd';
@@ -150,7 +150,7 @@ const Budget = (props) => {
     const theme = useTheme();
 
     const setMonthlyNetIncome = (newValue) => {
-        setDoc(doc(db, 'budgets', profile.budgetId), { monthlyNetIncome: parseFloat(newValue) }, { merge: true }).then(() => getBudget());
+        updateDoc(doc(db, 'budgets', profile.budgetId), { monthlyNetIncome: parseFloat(newValue) }).then(() => getBudget());
     };
     
     const setCategoryName = (newValue, oldName) => {
@@ -165,7 +165,7 @@ const Budget = (props) => {
         const updArr = [...budget.categories];
         updArr[updArr.findIndex(cat => cat.name === oldName)].name = newValue;
     
-        setDoc(doc(db, 'budgets', profile.budgetId), { categories: updArr }, { merge: true }).then(() => getBudget());
+        updateDoc(doc(db, 'budgets', profile.budgetId), { categories: updArr }).then(() => getBudget());
     };
     
     const setSubCatProperty = (newValue, oldName, catName, propName) => {
@@ -195,7 +195,7 @@ const Budget = (props) => {
           }
         });
         
-        setDoc(doc(db, 'budgets', profile.budgetId), { categories: updArr }, { merge: true }).then(() => getBudget());
+        updateDoc(doc(db, 'budgets', profile.budgetId), { categories: updArr }).then(() => getBudget());
     };
     
     const addNewCategory = () => {
@@ -207,7 +207,7 @@ const Budget = (props) => {
             nameIterator++;
         };
 
-        setDoc(doc(db, 'budgets', profile.budgetId), { categories: [...budget.categories, { name: newCatName, subcategories: [] }] }, { merge: true }).then(() => getBudget());
+        updateDoc(doc(db, 'budgets', profile.budgetId), { categories: [...budget.categories, { name: newCatName, subcategories: [] }] }).then(() => getBudget());
     };
     
     const removeCategory = (catName) => {
@@ -215,7 +215,7 @@ const Budget = (props) => {
     
         updArr.splice(updArr.findIndex((cat) => cat.name === catName), 1);
     
-        setDoc(doc(db, 'budgets', profile.budgetId), { categories: updArr }, { merge: true }).then(() => getBudget()); 
+        updateDoc(doc(db, 'budgets', profile.budgetId), { categories: updArr }).then(() => getBudget()); 
     };
     
     const addNewSubCategory = (catName) => {
@@ -235,7 +235,7 @@ const Budget = (props) => {
           }
         });
     
-        setDoc(doc(db, 'budgets', profile.budgetId), { categories: updArr }, { merge: true }).then(() => getBudget());
+        updateDoc(doc(db, 'budgets', profile.budgetId), { categories: updArr }).then(() => getBudget());
     };
 
     const removeSubCategory = (catName, subCatName) => {
@@ -247,7 +247,7 @@ const Budget = (props) => {
           }
         });
     
-        setDoc(doc(db, 'budgets', profile.budgetId), { categories: updArr }, { merge: true }).then(() => getBudget());
+        updateDoc(doc(db, 'budgets', profile.budgetId), { categories: updArr }).then(() => getBudget());
     };
 
     const moveCategory = (dragIdx, dropIdx) => {
@@ -260,7 +260,7 @@ const Budget = (props) => {
         const newBudget = { ...budget };
         newBudget.categories = updArr;
         setBudget(newBudget);
-        setDoc(doc(db, 'budgets', profile.budgetId), { categories: updArr }, { merge: true }).then(() => getBudget());
+        updateDoc(doc(db, 'budgets', profile.budgetId), { categories: updArr }).then(() => getBudget());
     };
 
     const moveSubCategory = (srcCatName, destCatName, dragIdx, dropIdx) => {
@@ -277,11 +277,11 @@ const Budget = (props) => {
         const newBudget = { ...budget };
         newBudget.categories = updArr;
         setBudget(newBudget);
-        setDoc(doc(db, 'budgets', profile.budgetId), { categories: updArr }, { merge: true }).then(() => getBudget());
+        updateDoc(doc(db, 'budgets', profile.budgetId), { categories: updArr }).then(() => getBudget());
     };
 
     const setBudgetName = (newName) => {
-        setDoc(doc(db, 'budgets', profile.budgetId), { name: newName }, { merge: true }).then(() => getBudget());
+        updateDoc(doc(db, 'budgets', profile.budgetId), { name: newName }).then(() => getBudget());
     };
 
     const getAllottedRemainder = () => {

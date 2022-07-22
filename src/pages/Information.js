@@ -4,7 +4,7 @@ import MDEditor from '@uiw/react-md-editor';
 import { FirebaseContext } from '..';
 import { UserContext } from '../App';
 import { Edit, Save } from '@mui/icons-material';
-import { doc, setDoc } from 'firebase/firestore';
+import { doc, updateDoc } from 'firebase/firestore';
 
 /* The moral of this page is *drum roll please*... KISS */
 
@@ -25,7 +25,7 @@ const Information = () => {
 
     if (editedMd === family.boardMarkdown) return;
 
-    setDoc(doc(db, 'families', profile.familyId), { boardMarkdown: editedMd }, { merge: true }).then(() => {
+    updateDoc(doc(db, 'families', profile.familyId), { boardMarkdown: editedMd }).then(() => {
       getFamily();
       setEditedMd(null);
     });

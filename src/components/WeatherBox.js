@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import axios from 'axios';
 import { Alert, AlertTitle, Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, Grid, Paper, Stack, Tab, Tabs, TextField, Typography, CircularProgress } from '@mui/material';
 import { WiRain, WiThunderstorm, WiSnowflakeCold, WiFog, WiDaySunny, WiNightClear, WiDayCloudy, WiCloudy, WiNightCloudy } from 'weather-icons-react';
-import { doc, setDoc } from 'firebase/firestore';
+import { doc, updateDoc } from 'firebase/firestore';
 import { UserContext } from '../App';
 import { FirebaseContext } from '..';
 
@@ -209,7 +209,7 @@ const WeatherBox = () => {
   };
 
   const saveApiKey = () => {
-    setDoc(doc(db, 'families', profile.familyId), { openweathermap_api_key: newApiKey, location: { lat: '39.83', long: '-98.58' } }, { merge: true }).then(() => {
+    updateDoc(doc(db, 'families', profile.familyId), { openweathermap_api_key: newApiKey, location: { lat: '39.83', long: '-98.58' } }).then(() => {
       getFamily();
     });
   };

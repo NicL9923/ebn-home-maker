@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { getDoc, doc, setDoc, deleteDoc } from 'firebase/firestore';
+import { getDoc, doc, deleteDoc, updateDoc } from 'firebase/firestore';
 import { deleteObject, getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
 import { Avatar, Box, Button, Checkbox, Container, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, FormControlLabel, IconButton, InputLabel, Paper, Snackbar, Stack, TextField, Typography } from '@mui/material';
 import { Add, Close, ContentCopyOutlined, Edit, Logout } from '@mui/icons-material';
@@ -27,7 +27,7 @@ const Profile = () => {
   const [leavingFamily, setLeavingFamily] = useState(false);
   
   const mergeProfileProperty = (profObjToMerge, profileId = userId, refreshProfile = true) => {
-    setDoc(doc(db, 'profiles', profileId), profObjToMerge, { merge: true }).then(() => {
+    updateDoc(doc(db, 'profiles', profileId), profObjToMerge).then(() => {
       if (refreshProfile) getProfile();
     });
   };
@@ -123,7 +123,7 @@ const Profile = () => {
       mergeFam.headOfFamily = newMembers[0];
     }
 
-    setDoc(doc(db, 'families', profile.familyId), mergeFam, { merge: true });
+    updateDoc(doc(db, 'families', profile.familyId), mergeFam);
     mergeProfileProperty({ familyId: '' });
   };
 

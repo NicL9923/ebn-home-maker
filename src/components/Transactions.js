@@ -4,7 +4,7 @@ import { Button, Paper, Stack, Typography, Box, Dialog, DialogTitle, DialogConte
 import { DataGrid } from '@mui/x-data-grid';
 import { DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterLuxon } from '@mui/x-date-pickers/AdapterLuxon';
-import { doc, setDoc } from 'firebase/firestore';
+import { doc, updateDoc } from 'firebase/firestore';
 import { UserContext } from '../App';
 import { FirebaseContext } from '..';
 
@@ -38,7 +38,7 @@ const Transactions = (props) => {
             subcategory: splitCats[1]
         });
 
-        setDoc(doc(db, 'budgets', profile.budgetId), { transactions: updArr }, { merge: true }).then(() => {
+        updateDoc(doc(db, 'budgets', profile.budgetId), { transactions: updArr }).then(() => {
             getBudget();
             setAddingTransaction(false);
             setNewTransactionName('');
@@ -53,7 +53,7 @@ const Transactions = (props) => {
 
         updArr = updArr.filter((val, idx) => selection.indexOf(idx)); // Efficient way to remove transaction(s) from array
 
-        setDoc(doc(db, 'budgets', profile.budgetId), { transactions: updArr }, { merge: true }).then(() => {
+        updateDoc(doc(db, 'budgets', profile.budgetId), { transactions: updArr }).then(() => {
             getBudget();
             setSelection([]);
         });

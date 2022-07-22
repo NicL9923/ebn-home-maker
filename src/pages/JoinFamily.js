@@ -1,7 +1,7 @@
 import React, { useContext, useEffect } from 'react';
-import { Alert, Box, CircularProgress, Stack } from '@mui/material';
+import { Alert, Box, CircularProgress } from '@mui/material';
 import { useParams } from 'react-router-dom';
-import { arrayUnion, doc, setDoc } from 'firebase/firestore';
+import { arrayUnion, doc, updateDoc } from 'firebase/firestore';
 import { FirebaseContext } from '..';
 import { UserContext } from '../App';
 
@@ -16,9 +16,9 @@ const JoinFamily = () => {
         if (!profile || profile.familyId === familyId) return;
 
         // Add familyId to profile(user.uid).familyId, getFamily, and show success message
-        setDoc(doc(db, 'families', familyId), { members: arrayUnion(userId) }, { merge: true });
+        updateDoc(doc(db, 'families', familyId), { members: arrayUnion(userId) });
 
-        setDoc(doc(db, 'profiles', userId), { familyId }, { merge: true }).then(() => {
+        updateDoc(doc(db, 'profiles', userId), { familyId }).then(() => {
             getProfile();
             getFamily();
         });

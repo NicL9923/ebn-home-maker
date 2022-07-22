@@ -1,6 +1,6 @@
 import { AccountBalance, Article, AttachMoney, CreditCard } from '@mui/icons-material';
 import { Box, Button, CircularProgress, Divider, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Paper, Toolbar, Typography } from '@mui/material';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 import React, { useContext, useEffect, useState } from 'react';
 import Budget from '../components/Budget';
 import Savings from '../components/Savings';
@@ -70,7 +70,7 @@ const Finances = () => {
       transactions: [{ id: 0, name: 'Default transaction', amt: 10, category: 'Essentials', subcategory: 'Rent', timestamp: Date.now() }]
     };
 
-    setDoc(doc(db, 'profiles', userId), { budgetId: newBudgetUuid }, { merge: true }).then(() => {
+    updateDoc(doc(db, 'profiles', userId), { budgetId: newBudgetUuid }).then(() => {
         setDoc(doc(db, 'budgets', newBudgetUuid), newBudgetTemplate).then(() => {
           getProfile();
         });

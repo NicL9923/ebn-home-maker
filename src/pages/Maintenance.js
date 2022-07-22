@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { getDoc, doc, setDoc, deleteDoc } from 'firebase/firestore';
+import { getDoc, doc, setDoc, deleteDoc, updateDoc } from 'firebase/firestore';
 import { Box, Button, CircularProgress, Container, Dialog, DialogActions, DialogContent, DialogTitle, Grid, InputLabel, Paper, Stack, TextField, Typography } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import { Add, DirectionsCar, House } from '@mui/icons-material';
@@ -107,7 +107,7 @@ const Maintenance = () => {
     newResIdArr.push(newResId);
 
     setDoc(doc(db, 'residences', newResId), { ...newResidence, id: newResId }).then(() => {
-      setDoc(doc(db, 'families', profile.familyId), { residences: newResIdArr }, { merge: true }).then(() => {
+      updateDoc(doc(db, 'families', profile.familyId), { residences: newResIdArr }).then(() => {
         getFamily();
         setAddingResidence(false);
         setNewResidence(defNewRes);
@@ -119,7 +119,7 @@ const Maintenance = () => {
       const imgRef = ref(storage, uuidv4());
       uploadBytes(imgRef, newResImgFile).then(snapshot => {
           getDownloadURL(snapshot.ref).then(url => { 
-            setDoc(doc(db, 'residences', newResId), { img: url }, { merge: true }).then(() => {
+            updateDoc(doc(db, 'residences', newResId), { img: url }).then(() => {
               getResidences();
               setNewResImgFile(null);
             });
@@ -138,7 +138,7 @@ const Maintenance = () => {
     newVehIdArr.push(newVehId);
 
     setDoc(doc(db, 'vehicles', newVehId), { ...newVehicle, id: newVehId }).then(() => {
-      setDoc(doc(db, 'families', profile.familyId), { vehicles: newVehIdArr }, { merge: true }).then(() => {
+      updateDoc(doc(db, 'families', profile.familyId), { vehicles: newVehIdArr }).then(() => {
         getFamily();
         setAddingVehicle(false);
         setNewVehicle(defNewVeh);
@@ -150,7 +150,7 @@ const Maintenance = () => {
       const imgRef = ref(storage, uuidv4());
       uploadBytes(imgRef, newVehImgFile).then(snapshot => {
           getDownloadURL(snapshot.ref).then(url => { 
-            setDoc(doc(db, 'vehicles', newVehId), { img: url }, { merge: true }).then(() => {
+            updateDoc(doc(db, 'vehicles', newVehId), { img: url }).then(() => {
               getVehicles();
               setNewVehImgFile(null);
             });
@@ -164,7 +164,7 @@ const Maintenance = () => {
       const newResIdArr = [...family.residences];
       newResIdArr.splice(newResIdArr.findIndex(res => res.id === resId), 1);
 
-      setDoc(doc(db, 'families', profile.familyId), { residences: newResIdArr }, { merge: true }).then(() => getFamily());
+      updateDoc(doc(db, 'families', profile.familyId), { residences: newResIdArr }).then(() => getFamily());
     });
   };
 
@@ -173,7 +173,7 @@ const Maintenance = () => {
       const newVehIdArr = [...family.vehicles];
       newVehIdArr.splice(newVehIdArr.findIndex(veh => veh.id === vehId), 1);
 
-      setDoc(doc(db, 'families', profile.familyId), { vehicles: newVehIdArr }, { merge: true }).then(() => getFamily());
+      updateDoc(doc(db, 'families', profile.familyId), { vehicles: newVehIdArr }).then(() => getFamily());
     });
   };
 

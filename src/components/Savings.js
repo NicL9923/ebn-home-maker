@@ -1,6 +1,6 @@
 import { Add, Clear } from '@mui/icons-material';
 import { Box, Button, Grid, IconButton, Paper, Stack, Typography } from '@mui/material';
-import { doc, setDoc } from 'firebase/firestore';
+import { doc, updateDoc } from 'firebase/firestore';
 import React, { useContext } from 'react';
 import { Cell, Pie, PieChart, ResponsiveContainer } from 'recharts';
 import { FirebaseContext } from '..';
@@ -33,7 +33,7 @@ const Savings = (props) => {
     const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
 
     const saveUpdBlobsArr = (newArr) => {
-      setDoc(doc(db, 'budgets', profile.budgetId), { savingsBlobs: newArr }, { merge: true }).then(() => getBudget());
+      updateDoc(doc(db, 'budgets', profile.budgetId), { savingsBlobs: newArr }).then(() => getBudget());
     };
 
     const createSavingsBlob = () => {
