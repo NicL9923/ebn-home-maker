@@ -221,7 +221,7 @@ const Finances = () => {
   return (<>
     { !budget ? (isFetchingBudget ? (<Box mx='auto' textAlign='center' mt={20}><CircularProgress size={60} /></Box>) : (<NoBudget createAndSaveDefaultBudget={createAndSaveDefaultBudget} />)) : (
       <Box display='flex'>
-        <Paper sx={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 100 }} elevation={5}>
+        <Paper sx={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 100, pb: 1 }} elevation={5}>
           <BottomNavigation showLabels value={shownComponent} onChange={(event, newValue) => setShownComponent(newValue)} sx={{ display: { xs: 'normal', sm: 'none' } }}>
             <BottomNavigationAction label='Budget' icon={<AttachMoney />} />
             <BottomNavigationAction label='Savings' icon={<AccountBalance />} />
