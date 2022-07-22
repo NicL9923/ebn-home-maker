@@ -1,9 +1,8 @@
-import { AccountBalance, Article, AttachMoney, CreditCard, ShowChart } from '@mui/icons-material';
+import { AccountBalance, Article, AttachMoney, CreditCard } from '@mui/icons-material';
 import { Box, Button, CircularProgress, Divider, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Paper, Toolbar, Typography } from '@mui/material';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import React, { useContext, useEffect, useState } from 'react';
 import Budget from '../components/Budget';
-import Investments from '../components/Investments';
 import Savings from '../components/Savings';
 import Transactions from '../components/Transactions';
 import { v4 as uuidv4 } from 'uuid';
@@ -68,7 +67,6 @@ const Finances = () => {
         }
       ],
       savingsBlobs: [{ name: 'Default Blob', currentAmt: 1000 }],
-      investmentAccts: [{ name: 'Default Account', broker: 'Broker', curValue: 1000, prevValues: [{ monthYear: '01/01/2020', value: 500 }] }],
       transactions: [{ id: 0, name: 'Default transaction', amt: 10, category: 'Essentials', subcategory: 'Rent', timestamp: Date.now() }]
     };
 
@@ -135,8 +133,6 @@ const Finances = () => {
   };
 
   const generateFinanceReport = () => {
-    // TODO: Switch to HTML formatting and use doc.html()
-
     const doc = new jsPDF();
     const monthYear = new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
 
@@ -153,8 +149,6 @@ const Finances = () => {
     const savTableRows = [];
     budget.savingsBlobs.forEach(sb => savTableRows.push([sb.name, sb.currentAmt]));
     doc.autoTable(savTableColumns, savTableRows, { startY: 70 });
-
-    // TODO: investments
 
     doc.text('Transactions', 15, 140);
     const transTableColumns = ['Amount', 'Name', 'Subcategory', 'Date'];
@@ -184,12 +178,15 @@ const Finances = () => {
       case 1:
         return <Savings budget={budget} getBudget={getBudget} />;
       case 2:
-        return <Investments budget={budget} getBudget={getBudget} />;
-      case 3:
         return <Transactions budget={budget} getBudget={getBudget} />;
       default:
         return budgetComponent;
     }
+  };
+
+  const updateShownComponent = (newComponentId) => {
+    setShownComponent(newComponentId);
+    setMobileDrawerOpen(false);
   };
 
   const drawerContents = (<>
@@ -197,19 +194,15 @@ const Finances = () => {
       <Typography variant='h6' mt={2} mb={1} mx='auto'>Finance Dashboard</Typography>
       <Divider />
       <List>
-        <ListItem><ListItemButton onClick={() => setShownComponent(0)} selected={shownComponent === 0}>
+        <ListItem><ListItemButton onClick={() => updateShownComponent(0)} selected={shownComponent === 0}>
           <ListItemIcon><AttachMoney /></ListItemIcon>
           <ListItemText>Budget</ListItemText>
         </ListItemButton></ListItem>
-        <ListItem><ListItemButton onClick={() => setShownComponent(1)} selected={shownComponent === 1}>
+        <ListItem><ListItemButton onClick={() => updateShownComponent(1)} selected={shownComponent === 1}>
           <ListItemIcon><AccountBalance /></ListItemIcon>
           <ListItemText>Savings</ListItemText>
         </ListItemButton></ListItem>
-        <ListItem><ListItemButton onClick={() => setShownComponent(2)} selected={shownComponent === 2}>
-          <ListItemIcon><ShowChart /></ListItemIcon>
-          <ListItemText>Investments</ListItemText>
-        </ListItemButton></ListItem>
-        <ListItem><ListItemButton onClick={() => setShownComponent(3)} selected={shownComponent === 3}>
+        <ListItem><ListItemButton onClick={() => updateShownComponent(2)} selected={shownComponent === 3}>
           <ListItemIcon><CreditCard /></ListItemIcon>
           <ListItemText>Transactions</ListItemText>
         </ListItemButton></ListItem>
@@ -228,7 +221,7 @@ const Finances = () => {
   return (<>
     { !budget ? (isFetchingBudget ? (<Box mx='auto' textAlign='center' mt={20}><CircularProgress size={60} /></Box>) : (<NoBudget createAndSaveDefaultBudget={createAndSaveDefaultBudget} />)) : (
       <Box display='flex'>
-        <Button variant='contained' onClick={() => setMobileDrawerOpen(true)} sx={{ display: { xs: 'block', sm: 'none' }, position: 'fixed', zIndex: 3000, bottom: 5, right: 5 }}>Dashboard Menu</Button>
+        <Button variant='contained' onClick={() => setMobileDrawerOpen(!mobileDrawerOpen)} sx={{ display: { xs: 'block', sm: 'none' }, position: 'fixed', zIndex: 3000, bottom: 5, right: 5 }}>Dashboard Menu</Button>
 
         <Drawer variant='permanent' sx={{ display: { xs: 'none', sm: 'block' }, flexShrink: 0, width: 250 }}>
           {drawerContents}

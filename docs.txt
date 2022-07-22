@@ -41,13 +41,6 @@ Budgets
         category
         name
         timestamp
-    investmentAccts
-        name
-        broker
-        curValue
-        prevValues
-            monthYear
-            value
 
 Residences
     id
@@ -82,30 +75,29 @@ General TODOs-----------------------------
 -Input validation (Simple regex should cover most or all cases)
     -Handle forms better (don't allow submit with validation errors, displaying input/validation errors + required fields, etc.)
 -Fix dialog maxWidths
-
--Button (on /profile) to back-up data (mass dump of: budget, family info, maintenance items, etc)
 -Replace all merge-true setDoc calls with updateDoc *derp*
--Handle recurring events for /info
+
+-Complete mobile-friendly interface revamp
+-Make 'Home Management' and 'Vehicle Management' their own pages
+    -House Management: appliances (name, manufacturer, model year, year bought?, upload manual), projects section?, notes section for misc. stuff like paint colors
+-Find/implement a calendar that can subscribe to .ics links (as on iCloud calendar)
+-Make/implement 'Grocery List' page
+-Add 'Export/Backup data' to family page
+    *Link budgets to families (implement family being required to make budget - as opposed to current profile-only req)
+    *Data included/exported: all finance stuff w/ only key data points, family board text dump, home/vehicle management data
+-Finances (on Mobile):
+    -Make dashboard menu button in fixed div on bottom that will still let you scroll to see content under it
+-Better savings chart (labels shouldn't overlap and should always be clearly visible - see Google charts)
+
 
 
 Finance TODOs-----------------------------
--Edit investment account value points (incl. current)
-    -Appropriate spacing between date points
 -Ability to edit existing transactions (https://mui.com/x/react-data-grid/editing/)
 
--FS Functions -> generate report at end of month with different data (budget
-data - income, allotted, spent; transactions; savings/investment account
-checkpoints), clear budget.transactions     ***Spreadsheet or just PDF?...both???
 
--Track assets & loans (mortgage, auto loans, etc.)
+Maintenance TODOs------------------------
+-None
 
-Maintenance TODOs------------------------  ***PRIORITY***
--Implement editing
--Log management
--Adding/displaying maintenance markers
-
--Probably a good idea to just show simple list of items on main page, then
-click an item to pull up a new page with just that item
 
 Profile TODOs------------------------------
 -Add pets, remove members
@@ -116,5 +108,4 @@ Ideas-----------------------
 -Refactor to TypeScript if insane
 -Add secondary editors in addition to head of household?
 
--Implement localization *VERY low priority*
 -Light/dark mode? *VERY low priority*
