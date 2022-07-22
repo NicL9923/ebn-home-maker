@@ -83,9 +83,8 @@ General TODOs-----------------------------
 -Add 'Export/Backup data' to family page
     *Link budgets to families (implement family being required to make budget - as opposed to current profile-only req)
     *Data included/exported: all finance stuff w/ only key data points, family board text dump, home/vehicle management data
--Finances (on Mobile):
-    -Make dashboard menu button in fixed div on bottom that will still let you scroll to see content under it
 -Better savings chart (labels shouldn't overlap and should always be clearly visible - see Google charts)
+-Consider redoing navbar/(main-)menu?
 
 
 

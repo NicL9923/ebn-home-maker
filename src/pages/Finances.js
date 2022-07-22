@@ -1,5 +1,5 @@
 import { AccountBalance, Article, AttachMoney, CreditCard } from '@mui/icons-material';
-import { Box, Button, CircularProgress, Divider, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Paper, Toolbar, Typography } from '@mui/material';
+import { BottomNavigation, BottomNavigationAction, Box, Button, CircularProgress, Divider, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Paper, Toolbar, Typography } from '@mui/material';
 import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 import React, { useContext, useEffect, useState } from 'react';
 import Budget from '../components/Budget';
@@ -221,22 +221,19 @@ const Finances = () => {
   return (<>
     { !budget ? (isFetchingBudget ? (<Box mx='auto' textAlign='center' mt={20}><CircularProgress size={60} /></Box>) : (<NoBudget createAndSaveDefaultBudget={createAndSaveDefaultBudget} />)) : (
       <Box display='flex'>
-        <Button variant='contained' onClick={() => setMobileDrawerOpen(!mobileDrawerOpen)} sx={{ display: { xs: 'block', sm: 'none' }, position: 'fixed', zIndex: 3000, bottom: 5, right: 5 }}>Dashboard Menu</Button>
+        <Paper sx={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 100 }} elevation={5}>
+          <BottomNavigation showLabels value={shownComponent} onChange={(event, newValue) => setShownComponent(newValue)} sx={{ display: { xs: 'normal', sm: 'none' } }}>
+            <BottomNavigationAction label='Budget' icon={<AttachMoney />} />
+            <BottomNavigationAction label='Savings' icon={<AccountBalance />} />
+            <BottomNavigationAction label='Transactions' icon={<CreditCard />} />
+          </BottomNavigation>
+        </Paper>
 
         <Drawer variant='permanent' sx={{ display: { xs: 'none', sm: 'block' }, flexShrink: 0, width: 250 }}>
           {drawerContents}
         </Drawer>
-        <Drawer
-          variant='temporary'
-          open={mobileDrawerOpen}
-          onClose={() => setMobileDrawerOpen(false)}
-          sx={{ display: { xs: 'block', sm: 'none' } }}
-          ModalProps={{ keepMounted: true }}
-        >
-          {drawerContents}
-        </Drawer>
         
-        <Box flexGrow={1}>
+        <Box flexGrow={1} pb={6}>
           {showDashboardComponent()}
         </Box>
       </Box>
