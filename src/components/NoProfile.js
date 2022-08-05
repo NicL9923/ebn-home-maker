@@ -62,7 +62,7 @@ const NoProfile = () => {
           Creating a profile allows you to create/join a budget and opens the door to family/household management!
         </Typography>
 
-        <Dialog open={creatingProfile} onClose={() => setCreatingProfile(false)}>
+        <Dialog open={creatingProfile} onClose={() => setCreatingProfile(false)} fullWidth>
           <DialogTitle>Create Profile</DialogTitle>
 
           <DialogContent>

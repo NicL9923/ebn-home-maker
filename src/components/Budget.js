@@ -28,7 +28,7 @@ const BudgetCategories = (props) => {
     };
     
     return (
-        <Box p={2}>
+        <Box pt={1} pb={1}>
             <DragDropContext onDragEnd={onDragEnd}>
                 <Droppable droppableId='budgetCats' type='category'>
                     {(provided) =>

@@ -232,7 +232,7 @@ const WeatherBox = () => {
 
           <Button variant='contained' onClick={() => setSettingApiKey(true)}>Set API Key</Button>
 
-          <Dialog open={settingApiKey} onClose={() => setSettingApiKey(false)}>
+          <Dialog open={settingApiKey} onClose={() => setSettingApiKey(false)} fullWidth>
             <DialogTitle>Set Weather API Key</DialogTitle>
 
             <DialogContent>

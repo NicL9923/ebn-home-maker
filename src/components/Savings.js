@@ -81,26 +81,30 @@ const Savings = (props) => {
     };
 
     return (
-      <Box mt={2}>
+      <Box mt={2} ml={1} mr={1}>
         <Typography variant='h3' mb={2}>Savings Blobs</Typography>
 
-        <Grid container mb={4} spacing={2}>
+        <Paper sx={{ p: 1, maxWidth: 'auto', mb: 2 }}>
+          <Typography variant='h4'>Total Saved:</Typography>
+          <Typography variant='h5'>${parseFloat(budget.savingsBlobs.reduce(((sum, { currentAmt }) =>  sum + currentAmt ), 0)).toFixed(2)}</Typography>
+        </Paper>
+        
+        <Button variant='contained' startIcon={<Add />} onClick={createSavingsBlob}>Create New Blob</Button>
+
+        <Stack mb={4} spacing={1} mt={2}>
           { budget.savingsBlobs.map(blob =>
-            <Grid container item xs={6} md={3} key={blob.name}>
-              <Paper sx={{ p: 2 }}>
-                <Stack direction='row' alignItems='center' justifyContent='space-between'>
-                  <EditableLabel initialValue={blob.name} variant='h4' onBlur={(newValue) => updateSavingsBlobName(blob.name, newValue)} />
-                  <IconButton sx={{ ml: 4 }} onClick={() => deleteSavingsBlob(blob.name)}><Clear /></IconButton>
-                </Stack>
-                <EditableLabel variant='h5' initialValue={parseFloat(blob.currentAmt).toFixed(2)} prefix='$' onBlur={(newValue) => updateSavingsBlobAmt(blob.name, newValue)} />
-              </Paper>
-            </Grid>
+            <Paper sx={{ p: 1 }} key={blob.name}>
+              <Stack direction='row' alignItems='center' justifyContent='space-between'>
+                <EditableLabel initialValue={blob.name} variant='h6' onBlur={(newValue) => updateSavingsBlobName(blob.name, newValue)} />
+                <IconButton sx={{ ml: 4 }} onClick={() => deleteSavingsBlob(blob.name)}><Clear /></IconButton>
+              </Stack>
+              <EditableLabel variant='body1' initialValue={parseFloat(blob.currentAmt).toFixed(2)} prefix='$' onBlur={(newValue) => updateSavingsBlobAmt(blob.name, newValue)} />
+            </Paper>
           )}
-        </Grid>
+        </Stack>
 
         <Box maxWidth='md'>
           <Paper sx={{ p: 2, mb: 4 }}>
-            <Typography variant='h4'>Total Saved: ${parseFloat(budget.savingsBlobs.reduce(((sum, { currentAmt }) =>  sum + currentAmt ), 0)).toFixed(2)}</Typography>
             <ResponsiveContainer width='100%' height={400}>
               <PieChart>
                 <Pie
@@ -118,8 +122,6 @@ const Savings = (props) => {
             </ResponsiveContainer>
           </Paper>
         </Box>
-
-        <Button variant='contained' startIcon={<Add />} onClick={createSavingsBlob}>Create New Blob</Button>
       </Box>
     );
 };

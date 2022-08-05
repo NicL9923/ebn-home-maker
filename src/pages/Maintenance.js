@@ -235,7 +235,7 @@ const Maintenance = () => {
         <Button variant='contained' onClick={() => setAddingResidence(true)}>Add residence</Button>
       </Box>
 
-      <Dialog open={addingResidence} onClose={() => setAddingResidence(false)}>
+      <Dialog open={addingResidence} onClose={() => setAddingResidence(false)} fullWidth>
           <DialogTitle>Add Residence</DialogTitle>
 
           <DialogContent>

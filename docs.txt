@@ -74,7 +74,6 @@ Vehicles
 General TODOs-----------------------------
 -Input validation (Simple regex should cover most or all cases)
     -Handle forms better (don't allow submit with validation errors, displaying input/validation errors + required fields, etc.)
--Fix dialog maxWidths
 
 -Complete mobile-friendly interface revamp
 -Make 'Home Management' and 'Vehicle Management' their own pages

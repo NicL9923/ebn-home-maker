@@ -1,18 +1,18 @@
 import React, { useContext, useState } from 'react';
 import { Add, Delete } from '@mui/icons-material';
-import { Button, Paper, Stack, Typography, Box, Dialog, DialogTitle, DialogContent, TextField, DialogActions, Select, ListSubheader, MenuItem, FormControl, InputLabel } from '@mui/material';
+import { Button, Stack, Typography, Box, Dialog, DialogTitle, DialogContent, TextField, DialogActions, Select, ListSubheader, MenuItem, FormControl, InputLabel } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
-import { DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers';
+import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterLuxon } from '@mui/x-date-pickers/AdapterLuxon';
 import { doc, updateDoc } from 'firebase/firestore';
 import { UserContext } from '../App';
 import { FirebaseContext } from '..';
 
 const dgColumns = [
-    { field: 'amt', headerName: 'Amount', editable: true },
-    { field: 'name', headerName: 'Name', flex: 1, editable: true },
-    { field: 'subcategory', headerName: 'Subcategory', width: 150, editable: true },
-    { field: 'timestamp', headerName: 'Date', width: 200, editable: true }
+    { field: 'amt', headerName: 'Amount', minWidth: 65, flex: 1, editable: true },
+    { field: 'name', headerName: 'Description', minWidth: 120, flex: 1, editable: true },
+    { field: 'subcategory', headerName: 'Subcategory', minWidth: 90, flex: 1, editable: true },
+    { field: 'timestamp', headerName: 'Date', width: 100, editable: true }
 ];
 
 const Transactions = (props) => {
@@ -74,32 +74,28 @@ const Transactions = (props) => {
     };
 
     return (
-        <Box mt={3}>
-            <Paper sx={{ p: 2 }}>
-                <Typography variant='h3' mb={2}>Transactions</Typography>
-                <Stack height={500} mb={3}>
-                    <DataGrid
-                        columns={dgColumns}
-                        rows={budget.transactions}
-                        pageSize={10}
-                        rowsPerPageOptions={[5, 10, 20, 50, 100]}
-                        selectionModel={selection}
-                        onSelectionModelChange={setSelection}
-                        experimentalFeatures={{ newEditingApi: true }}
-                        checkboxSelection
-                        disableSelectionOnClick
-                    />
-                </Stack>
-                
-                <Stack direction='row' spacing={2}>
-                    <Button startIcon={<Add />} variant='contained' onClick={() => setAddingTransaction(true)}>Add transaction</Button>
-                    { selection.length > 0 && 
-                        <Button startIcon={<Delete />} variant='contained' color='error' onClick={removeTransactions}>Remove transaction{selection.length > 1 && 's'}</Button>
-                    }
-                </Stack>
-            </Paper>
+        <Box mt={2} ml={1} mr={1}>
+            <Typography variant='h3' mb={2}>Transactions</Typography>
+            <Button startIcon={<Add />} variant='contained' onClick={() => setAddingTransaction(true)}>Add transaction</Button>
+            <Stack height={500} mt={3} mb={2}>
+                <DataGrid
+                    columns={dgColumns}
+                    rows={budget.transactions}
+                    pageSize={10}
+                    rowsPerPageOptions={[5, 10, 20, 50, 100]}
+                    selectionModel={selection}
+                    onSelectionModelChange={setSelection}
+                    experimentalFeatures={{ newEditingApi: true }}
+                    checkboxSelection
+                    disableSelectionOnClick
+                />
+            </Stack>
+            
+            { selection.length > 0 && 
+                <Button startIcon={<Delete />} variant='contained' color='error' onClick={removeTransactions} sx={{ mb: 3 }}>Remove transaction{selection.length > 1 && 's'}</Button>
+            }
 
-            <Dialog open={addingTransaction} onClose={() => setAddingTransaction(false)}>
+            <Dialog open={addingTransaction} onClose={() => setAddingTransaction(false)} fullWidth>
                 <DialogTitle>Add Transaction</DialogTitle>
 
                 <DialogContent>
@@ -115,7 +111,7 @@ const Transactions = (props) => {
 
                         <TextField
                             variant='standard'
-                            label='Name'
+                            label='Description'
                             value={newTransactionName}
                             onChange={(event) => setNewTransactionName(event.target.value)}
                         />
@@ -128,8 +124,8 @@ const Transactions = (props) => {
                         </FormControl>
 
                         <LocalizationProvider dateAdapter={AdapterLuxon}>
-                            <DateTimePicker
-                                label='Date/Time'
+                            <DatePicker
+                                label='Date'
                                 value={newTransactionDate}
                                 onChange={setNewTransactionDate}
                                 renderInput={(params) => <TextField { ...params } variant='standard' />}

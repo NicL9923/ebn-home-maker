@@ -305,7 +305,7 @@ const Profile = () => {
             <Button variant='contained' color='error' startIcon={<Logout />} onClick={() => setLeavingFamily(true)}>Leave Family</Button>
           )}
 
-          <Dialog open={deletingFamily} onClose={() => setDeletingFamily(false)}>
+          <Dialog open={deletingFamily} onClose={() => setDeletingFamily(false)} fullWidth>
             <DialogTitle>Delete family?</DialogTitle>
             <DialogContent>
               <DialogContentText>Are you sure you want to delete the {family.name} family?</DialogContentText>
@@ -316,7 +316,7 @@ const Profile = () => {
             </DialogActions>
           </Dialog>
 
-          <Dialog open={leavingFamily} onClose={() => setLeavingFamily(false)}>
+          <Dialog open={leavingFamily} onClose={() => setLeavingFamily(false)} fullWidth>
             <DialogTitle>Leave family?</DialogTitle>
             <DialogContent>
               <DialogContentText>Are you sure you want to leave the {family.name} family?</DialogContentText>

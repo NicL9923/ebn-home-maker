@@ -47,7 +47,7 @@ const NoFamily = () => {
                 <Button variant='contained' onClick={() => setCreatingFamily(true)}>Create a family</Button>
             </Stack>
 
-            <Dialog open={creatingFamily} onClose={() => setCreatingFamily(false)}>
+            <Dialog open={creatingFamily} onClose={() => setCreatingFamily(false)} fullWidth>
                 <DialogTitle>Create Family</DialogTitle>
 
                 <DialogContent>
