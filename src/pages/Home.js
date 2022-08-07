@@ -13,16 +13,16 @@ const Home = () => {
   return (
     <Container>
       <Stack direction='column' alignItems='center' mb={5}>
-        <Box component={Typography} variant='h1'><Clock format={'h:mm A'} ticking={true} /></Box>
+        <Box component={Typography} variant='h2'><Clock format={'h:mm A'} ticking={true} /></Box>
 
         { profile ?
-          (<Typography variant='h3'>Welcome back, {profile.firstName}!</Typography>)
+          (<Typography variant='h5'>Welcome back, {profile.firstName}!</Typography>)
           :
           (isFetchingProfile ? (<Box mx='auto' textAlign='center' mt={20}><CircularProgress size={60} /></Box>) : (<NoProfile />))
         }
 
         { family && 
-          <Typography variant='h5'>The {family.name} family</Typography>
+          <Typography variant='h6'>The {family.name} family</Typography>
         }
       </Stack>
 

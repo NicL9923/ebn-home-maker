@@ -256,7 +256,7 @@ const WeatherBox = () => {
   }
 
   return (
-    <Stack alignItems='center' justifyContent='center'>
+    <Stack alignItems='center' justifyContent='center' mb={6}>
       <Typography variant='h4'>Weather</Typography>
       <Tabs value={shownWeather} onChange={(e, newVal) => setShownWeather(newVal)}>
         <Tab label='Current' />
