@@ -86,6 +86,9 @@ const Transactions = (props) => {
                     selectionModel={selection}
                     onSelectionModelChange={setSelection}
                     experimentalFeatures={{ newEditingApi: true }}
+                    initialState={{
+                        sorting: { sortModel: [{ field: 'timestamp', sort: 'desc' }] }
+                    }}
                     checkboxSelection
                     disableSelectionOnClick
                 />
