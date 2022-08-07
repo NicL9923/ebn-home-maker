@@ -164,14 +164,24 @@ const Budget = (props) => {
         
         const updArr = [...budget.categories];
         updArr[updArr.findIndex(cat => cat.name === oldName)].name = newValue;
+
+        // Update any transactions w/ this cat
+        const updTransactions = [...budget.transactions];
+        updTransactions.forEach(t => {
+            if (t.category === oldName) {
+                t.category = newValue;
+            }
+        });
+
     
-        updateDoc(doc(db, 'budgets', profile.budgetId), { categories: updArr }).then(() => getBudget());
+        updateDoc(doc(db, 'budgets', profile.budgetId), { categories: updArr, transactions: updTransactions }).then(() => getBudget());
     };
     
     const setSubCatProperty = (newValue, oldName, catName, propName) => {
         if (newValue === oldName) return;
         
         const updArr = [...budget.categories];
+        const updTransactions = [...budget.transactions];
     
         updArr.forEach(cat => {
           if (cat.name === catName) {
@@ -183,6 +193,13 @@ const Budget = (props) => {
                         getBudget();
                         return;
                     }
+
+                    updTransactions.forEach(t => {
+                        if (t.category === catName && t.subcategory === oldName) {
+                            t.subcategory = newValue;
+                        }
+                    });
+
                     subCat.name = newValue;
                 }
                 else if (propName === 'allotted') {
@@ -195,7 +212,7 @@ const Budget = (props) => {
           }
         });
         
-        updateDoc(doc(db, 'budgets', profile.budgetId), { categories: updArr }).then(() => getBudget());
+        updateDoc(doc(db, 'budgets', profile.budgetId), { categories: updArr, transactions: updTransactions }).then(() => getBudget());
     };
     
     const addNewCategory = () => {
@@ -212,10 +229,17 @@ const Budget = (props) => {
     
     const removeCategory = (catName) => {
         const updArr = [...budget.categories];
+        const updTransactions = [...budget.transactions];
     
         updArr.splice(updArr.findIndex((cat) => cat.name === catName), 1);
+
+        updTransactions.forEach(t => {
+            if (t.category === catName) {
+                t.category = 'N/A';
+            }
+        });
     
-        updateDoc(doc(db, 'budgets', profile.budgetId), { categories: updArr }).then(() => getBudget()); 
+        updateDoc(doc(db, 'budgets', profile.budgetId), { categories: updArr, transactions: updTransactions }).then(() => getBudget()); 
     };
     
     const addNewSubCategory = (catName) => {
@@ -240,14 +264,21 @@ const Budget = (props) => {
 
     const removeSubCategory = (catName, subCatName) => {
         const updArr = [...budget.categories];
+        const updTransactions = [...budget.transactions];
     
         updArr.forEach(cat => {
           if (cat.name === catName) {
             cat.subcategories.splice(cat.subcategories.findIndex((subcat) => subcat.name === subCatName), 1);
           }
         });
+
+        updTransactions.forEach(t => {
+            if (t.category === catName && t.subcategory === subCatName) {
+                t.subcategory = 'N/A';
+            }
+        });
     
-        updateDoc(doc(db, 'budgets', profile.budgetId), { categories: updArr }).then(() => getBudget());
+        updateDoc(doc(db, 'budgets', profile.budgetId), { categories: updArr, transactions: updTransactions }).then(() => getBudget());
     };
 
     const moveCategory = (dragIdx, dropIdx) => {
