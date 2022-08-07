@@ -1,36 +1,28 @@
 import { Add, Clear } from '@mui/icons-material';
-import { Box, Button, Grid, IconButton, Paper, Stack, Typography } from '@mui/material';
+import { Box, Button, IconButton, Paper, Stack, Typography } from '@mui/material';
 import { doc, updateDoc } from 'firebase/firestore';
 import React, { useContext } from 'react';
-import { Cell, Pie, PieChart, ResponsiveContainer } from 'recharts';
+import Chart from 'react-google-charts';
 import { FirebaseContext } from '..';
 import { UserContext } from '../App';
 import EditableLabel from './EditableLabel';
 
 // TODO: handle duplicate name stuff here too
 
-const renderCustomizedLabel = (props) => {
-  const RADIAN = Math.PI / 180;
-  const { cx, cy, midAngle, innerRadius, outerRadius, payload, value, percent } = props;
-  const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
-  const x = cx + radius * Math.cos(-midAngle * RADIAN);
-  const y = cy + radius * Math.sin(-midAngle * RADIAN);
+const formatChartData = (blobsData) => {
+  const formattedDataArr = [['Name', 'Amount']];
+  
+  blobsData.forEach(blob => {
+    formattedDataArr.push([blob.name, blob.currentAmt]);
+  });
 
-  return (<>
-    <text x={x} y={y} fill='white' textAnchor='middle' dominantBaseline='central'>
-      {`${payload.name} (${(percent * 100).toFixed(0)}%)`}
-    </text>
-    <text x={x} y={y + 20} fill='white' textAnchor='middle' dominantBaseline='central'>
-      ${parseFloat(value).toFixed(2)}
-    </text>
-  </>);
+  return formattedDataArr;
 };
 
 const Savings = (props) => {
     const { db } = useContext(FirebaseContext);
     const { profile } = useContext(UserContext);
     const { budget, getBudget } = props;
-    const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
 
     const saveUpdBlobsArr = (newArr) => {
       updateDoc(doc(db, 'budgets', profile.budgetId), { savingsBlobs: newArr }).then(() => getBudget());
@@ -103,25 +95,15 @@ const Savings = (props) => {
           )}
         </Stack>
 
-        <Box maxWidth='md'>
-          <Paper sx={{ p: 2, mb: 4 }}>
-            <ResponsiveContainer width='100%' height={400}>
-              <PieChart>
-                <Pie
-                  label={renderCustomizedLabel}
-                  labelLine={false}
-                  data={budget.savingsBlobs} 
-                  nameKey='name'
-                  dataKey='currentAmt'
-                >
-                  { budget.savingsBlobs.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Pie>
-              </PieChart>
-            </ResponsiveContainer>
-          </Paper>
-        </Box>
+        <Paper sx={{ mb: 4, height: '25vw', '@media (max-width:600px)': { height: '100vw' } }}>
+          <Chart
+            chartType='PieChart'
+            width='100%'
+            height='100%'
+            data={formatChartData(budget.savingsBlobs)}
+            options={{ title: 'Savings Breakdown', pieHole: 0.5, is3D: false }}
+          />
+        </Paper>
       </Box>
     );
 };
