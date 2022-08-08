@@ -13,8 +13,9 @@ import JoinFamily from './pages/JoinFamily';
 import NotLoggedIn from './components/NotLoggedIn';
 import { FirebaseContext } from '.';
 import { Box, CircularProgress } from '@mui/material';
+import { UserContextValue } from 'models/types';
 
-export const UserContext = React.createContext(null);
+export const UserContext = React.createContext({} as UserContextValue);
 
 const App = () => {
   const { auth, db } = useContext(FirebaseContext);
@@ -27,7 +28,7 @@ const App = () => {
 
   const getProfile = () => {
     setIsFetchingProfile(true);
-    getDoc(doc(db, 'profiles', userId)).then(doc => {
+    getDoc(doc(db, 'profiles', userId)).then((doc) => {
       setIsFetchingProfile(false);
       if (doc.exists()) setProfile(doc.data());
     });
@@ -35,14 +36,14 @@ const App = () => {
 
   const getFamily = () => {
     setIsFetchingFamily(true);
-    getDoc(doc(db, 'families', profile.familyId)).then(doc => {
+    getDoc(doc(db, 'families', profile.familyId)).then((doc) => {
       setIsFetchingFamily(false);
       if (doc.exists()) setFamily(doc.data());
     });
   };
 
   useEffect(() => {
-    onAuthStateChanged(auth, user => {
+    onAuthStateChanged(auth, (user) => {
       setUserId(user ? user.uid : null);
       setIsFetchingUser(false);
     });
@@ -73,39 +74,47 @@ const App = () => {
         isFetchingProfile,
         isFetchingFamily,
         getProfile,
-        getFamily
+        getFamily,
       }}
     >
       <Router>
         <Navbar />
 
-        { userId ? (
+        {userId ? (
           <Routes>
-            { profile && 
+            {profile && (
               <>
-                <Route exact path='/profile' element={<Profile />} />
-                <Route exact path='/joinFamily/:familyId' element={<JoinFamily />} />
-                <Route exact path='/finances' element={<Finances />} />
+                <Route exact path="/profile" element={<Profile />} />
+                <Route
+                  exact
+                  path="/joinFamily/:familyId"
+                  element={<JoinFamily />}
+                />
+                <Route exact path="/finances" element={<Finances />} />
               </>
-            }
-            
-            { family && 
-              <>
-                <Route exact path='/smarthome' element={<SmartHome />} />
-                <Route exact path='/info' element={<Information />} />
-                <Route exact path='/maintenance' element={<Maintenance />} />
-              </>
-            }
+            )}
 
-            <Route path='/' element={<Home />} />
+            {family && (
+              <>
+                <Route exact path="/smarthome" element={<SmartHome />} />
+                <Route exact path="/info" element={<Information />} />
+                <Route exact path="/maintenance" element={<Maintenance />} />
+              </>
+            )}
+
+            <Route path="/" element={<Home />} />
             <Route element={<Home />} />
           </Routes>
+        ) : isFetchingUser ? (
+          <Box mx="auto" textAlign="center" mt={20}>
+            <CircularProgress size={80} />
+          </Box>
         ) : (
-          isFetchingUser ? (<Box mx='auto' textAlign='center' mt={20}><CircularProgress size={80} /></Box>) : (<NotLoggedIn auth={auth} />)
+          <NotLoggedIn auth={auth} />
         )}
       </Router>
     </UserContext.Provider>
   );
-}
+};
 
 export default App;

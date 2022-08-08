@@ -6,30 +6,31 @@ import App from './App';
 import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 import * as serviceWorkerRegistration from './serviceWorkerRegistration';
+import { FBContextValue } from 'models/types';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBEokTSCPR2Cw-o5pKAUwTK8vlmNaIAASk",
-  authDomain: "our-home-239c1.firebaseapp.com",
-  projectId: "our-home-239c1",
-  storageBucket: "our-home-239c1.appspot.com",
-  messagingSenderId: "613377018757",
-  appId: "1:613377018757:web:ebbb3c902c79b01aabd2ec"
+  apiKey: 'AIzaSyBEokTSCPR2Cw-o5pKAUwTK8vlmNaIAASk',
+  authDomain: 'our-home-239c1.firebaseapp.com',
+  projectId: 'our-home-239c1',
+  storageBucket: 'our-home-239c1.appspot.com',
+  messagingSenderId: '613377018757',
+  appId: '1:613377018757:web:ebbb3c902c79b01aabd2ec',
 };
 initializeApp(firebaseConfig);
-export const FirebaseContext = React.createContext(null);
+export const FirebaseContext = React.createContext({} as FBContextValue);
 
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#1b5e20'
+      main: '#1b5e20',
     },
     secondary: {
-      main: '#43a047'
-    }
-  }
+      main: '#43a047',
+    },
+  },
 });
 
-const rootContainer = document.getElementById('root');
+const rootContainer = document.getElementById('root') as HTMLElement;
 const root = createRoot(rootContainer);
 
 root.render(
