@@ -1,6 +1,8 @@
 import { Auth } from 'firebase/auth';
 import { Firestore } from 'firebase/firestore';
 
+export type GenericObject = { [key: string]: any };
+
 export interface FBContextValue {
   auth: Auth;
   db: Firestore;
@@ -12,8 +14,8 @@ export interface UserContextValue {
   family: Family | null;
   isFetchingProfile: boolean;
   isFetchingFamily: boolean;
-  getProfile: () => UserProfile;
-  getFamily: () => Family;
+  getProfile: () => void;
+  getFamily: () => void;
 }
 
 // ID === user.uid
@@ -26,15 +28,15 @@ export interface UserProfile {
 
 export interface Family {
   headOfFamily: string;
-  location: { lat: number; long: number };
+  location: { lat: string; long: string };
   members: string[];
   name: string;
   openweathermap_api_key: string;
   gmaps_api_key: string;
   pets: Pet[];
   boardMarkdown: string;
-  vehicles: Vehicle[];
-  residences: Residence[];
+  vehicles: string[]; // IDs
+  residences: string[]; // IDs
 }
 
 export interface Pet {

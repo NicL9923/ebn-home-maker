@@ -1,5 +1,26 @@
-import { AccountBalance, Article, AttachMoney, CreditCard } from '@mui/icons-material';
-import { BottomNavigation, BottomNavigationAction, Box, Button, CircularProgress, Divider, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Paper, Toolbar, Typography } from '@mui/material';
+import {
+  AccountBalance,
+  Article,
+  AttachMoney,
+  CreditCard,
+} from '@mui/icons-material';
+import {
+  BottomNavigation,
+  BottomNavigationAction,
+  Box,
+  Button,
+  CircularProgress,
+  Divider,
+  Drawer,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Paper,
+  Toolbar,
+  Typography,
+} from '@mui/material';
 import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 import React, { useContext, useEffect, useState } from 'react';
 import Budget from '../components/Budget';
@@ -11,18 +32,20 @@ import { UserContext } from '../App';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 
-// TODO: anytime we change/remove a category, update any transactions set to those
-
 const NoBudget = (props) => {
   const { createAndSaveDefaultBudget } = props;
 
   return (
-    <Box maxWidth='sm' textAlign='center' mt={4} mx='auto'>
+    <Box maxWidth="sm" textAlign="center" mt={4} mx="auto">
       <Paper sx={{ p: 2 }}>
-        <Typography variant='h6'>You don't have a budget yet!</Typography>
-        <Typography variant='subtitle1' mb={4}>Create one?</Typography>
+        <Typography variant="h6">You don't have a budget yet!</Typography>
+        <Typography variant="subtitle1" mb={4}>
+          Create one?
+        </Typography>
 
-        <Button variant='contained' onClick={createAndSaveDefaultBudget}>Create Budget</Button>
+        <Button variant="contained" onClick={createAndSaveDefaultBudget}>
+          Create Budget
+        </Button>
       </Paper>
     </Box>
   );
@@ -41,67 +64,85 @@ const Finances = () => {
     const newBudgetTemplate = {
       id: newBudgetUuid,
       editors: [userId],
-      monthlyNetIncome: 3000, 
+      monthlyNetIncome: 3000,
       categories: [
         {
           name: 'Essentials',
           subcategories: [
             {
               name: 'Rent',
-              totalAllotted: 1250
+              totalAllotted: 1250,
             },
             {
               name: 'Utilities',
-              totalAllotted: 300
-            }
-          ]
+              totalAllotted: 300,
+            },
+          ],
         },
         {
           name: 'Lifestyle',
           subcategories: [
             {
               name: 'Spending',
-              totalAllotted: 300
-            }
-          ]
-        }
+              totalAllotted: 300,
+            },
+          ],
+        },
       ],
       savingsBlobs: [{ name: 'Default Blob', currentAmt: 1000 }],
-      transactions: [{ id: 0, name: 'Default transaction', amt: 10, category: 'Essentials', subcategory: 'Rent', timestamp: Date.now() }]
+      transactions: [
+        {
+          id: 0,
+          name: 'Default transaction',
+          amt: 10,
+          category: 'Essentials',
+          subcategory: 'Rent',
+          timestamp: Date.now(),
+        },
+      ],
     };
 
-    updateDoc(doc(db, 'profiles', userId), { budgetId: newBudgetUuid }).then(() => {
-        setDoc(doc(db, 'budgets', newBudgetUuid), newBudgetTemplate).then(() => {
-          getProfile();
-        });
+    updateDoc(doc(db, 'profiles', userId), { budgetId: newBudgetUuid }).then(
+      () => {
+        setDoc(doc(db, 'budgets', newBudgetUuid), newBudgetTemplate).then(
+          () => {
+            getProfile();
+          }
+        );
       }
     );
   };
 
   const getBudget = () => {
     setIsFetchingBudget(true);
-    getDoc(doc(db, 'budgets', profile.budgetId)).then(doc => {
+    getDoc(doc(db, 'budgets', profile.budgetId)).then((doc) => {
       setIsFetchingBudget(false);
       if (doc.exists()) {
         const docData = doc.data();
 
-        docData.categories.forEach(cat => {
+        docData.categories.forEach((cat) => {
           cat.currentSpent = 0;
-          cat.subcategories.forEach(subcat => subcat.currentSpent = 0);
+          cat.subcategories.forEach((subcat) => (subcat.currentSpent = 0));
         });
 
-        docData.transactions.forEach((transaction, index) => { 
+        docData.transactions.forEach((transaction, index) => {
           transaction.timestamp = new Date(transaction.timestamp);
           transaction.id = index;
 
-          const tCatIdx = docData.categories.findIndex(x => x.name === transaction.category);
-          const tSubCatIdx = docData.categories[tCatIdx].subcategories.findIndex(x => x.name === transaction.subcategory);
+          const tCatIdx = docData.categories.findIndex(
+            (x) => x.name === transaction.category
+          );
+          const tSubCatIdx = docData.categories[
+            tCatIdx
+          ].subcategories.findIndex((x) => x.name === transaction.subcategory);
 
           // Only count transaction towards this month's budget if it's from this month
-          if (transaction.timestamp.getMonth() === (new Date().getMonth())) {
+          if (transaction.timestamp.getMonth() === new Date().getMonth()) {
             // Verify cat and subcat were found (i.e. if the transaction has valid ones)
             if (tCatIdx !== -1 && tSubCatIdx !== -1) {
-              docData.categories[tCatIdx].subcategories[tSubCatIdx].currentSpent += transaction.amt;
+              docData.categories[tCatIdx].subcategories[
+                tSubCatIdx
+              ].currentSpent += transaction.amt;
             }
           }
 
@@ -111,16 +152,21 @@ const Finances = () => {
         // Handle some calculations we do locally so we can reuse their values (efficiency!)
         let totalSpent = 0;
         let totalAllotted = 0;
-        docData.categories.forEach(cat => {
-          cat.totalAllotted = cat.subcategories.reduce(((sum, subcat) =>  sum + subcat.totalAllotted ), 0);
+        docData.categories.forEach((cat) => {
+          cat.totalAllotted = cat.subcategories.reduce(
+            (sum, subcat) => sum + subcat.totalAllotted,
+            0
+          );
           totalAllotted += cat.totalAllotted;
 
-          cat.currentSpent = cat.subcategories.reduce(((sum, subcat) =>  sum + subcat.currentSpent ), 0);
+          cat.currentSpent = cat.subcategories.reduce(
+            (sum, subcat) => sum + subcat.currentSpent,
+            0
+          );
           totalSpent += cat.currentSpent;
         });
         docData.totalSpent = totalSpent;
         docData.totalAllotted = totalAllotted;
-
 
         setBudget(docData);
       } else {
@@ -131,7 +177,10 @@ const Finances = () => {
 
   const generateFinanceReport = () => {
     const doc = new jsPDF();
-    const monthYear = new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+    const monthYear = new Date().toLocaleDateString('en-US', {
+      month: 'long',
+      year: 'numeric',
+    });
 
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(24);
@@ -144,13 +193,15 @@ const Finances = () => {
     doc.text('Savings', 15, 65);
     const savTableColumns = ['Blob Name', 'Amount'];
     const savTableRows = [];
-    budget.savingsBlobs.forEach(sb => savTableRows.push([sb.name, sb.currentAmt]));
+    budget.savingsBlobs.forEach((sb) =>
+      savTableRows.push([sb.name, sb.currentAmt])
+    );
     doc.autoTable(savTableColumns, savTableRows, { startY: 70 });
 
     doc.text('Transactions', 15, 140);
     const transTableColumns = ['Amount', 'Name', 'Subcategory', 'Date'];
     const transTableRows = [];
-    budget.transactions.forEach(t => {
+    budget.transactions.forEach((t) => {
       transTableRows.push([t.amt, t.name, t.subcategory, t.timestamp]);
     });
     doc.autoTable(transTableColumns, transTableRows, { startY: 145 });
@@ -167,8 +218,10 @@ const Finances = () => {
   }, [profile]);
 
   const showDashboardComponent = () => {
-    const budgetComponent = (<Budget budget={budget} setBudget={setBudget} getBudget={getBudget} />);
-    
+    const budgetComponent = (
+      <Budget budget={budget} setBudget={setBudget} getBudget={getBudget} />
+    );
+
     switch (shownComponent) {
       case 0:
         return budgetComponent;
@@ -186,56 +239,123 @@ const Finances = () => {
     setMobileDrawerOpen(false);
   };
 
-  const drawerContents = (<>
-    <Toolbar />
-      <Typography variant='h6' mt={2} mb={1} mx='auto'>Finance Dashboard</Typography>
+  const drawerContents = (
+    <>
+      <Toolbar />
+      <Typography variant="h6" mt={2} mb={1} mx="auto">
+        Finance Dashboard
+      </Typography>
       <Divider />
       <List>
-        <ListItem><ListItemButton onClick={() => updateShownComponent(0)} selected={shownComponent === 0}>
-          <ListItemIcon><AttachMoney /></ListItemIcon>
-          <ListItemText>Budget</ListItemText>
-        </ListItemButton></ListItem>
-        <ListItem><ListItemButton onClick={() => updateShownComponent(1)} selected={shownComponent === 1}>
-          <ListItemIcon><AccountBalance /></ListItemIcon>
-          <ListItemText>Savings</ListItemText>
-        </ListItemButton></ListItem>
-        <ListItem><ListItemButton onClick={() => updateShownComponent(2)} selected={shownComponent === 3}>
-          <ListItemIcon><CreditCard /></ListItemIcon>
-          <ListItemText>Transactions</ListItemText>
-        </ListItemButton></ListItem>
+        <ListItem>
+          <ListItemButton
+            onClick={() => updateShownComponent(0)}
+            selected={shownComponent === 0}
+          >
+            <ListItemIcon>
+              <AttachMoney />
+            </ListItemIcon>
+            <ListItemText>Budget</ListItemText>
+          </ListItemButton>
+        </ListItem>
+        <ListItem>
+          <ListItemButton
+            onClick={() => updateShownComponent(1)}
+            selected={shownComponent === 1}
+          >
+            <ListItemIcon>
+              <AccountBalance />
+            </ListItemIcon>
+            <ListItemText>Savings</ListItemText>
+          </ListItemButton>
+        </ListItem>
+        <ListItem>
+          <ListItemButton
+            onClick={() => updateShownComponent(2)}
+            selected={shownComponent === 3}
+          >
+            <ListItemIcon>
+              <CreditCard />
+            </ListItemIcon>
+            <ListItemText>Transactions</ListItemText>
+          </ListItemButton>
+        </ListItem>
       </List>
 
       <Divider />
 
       <List>
-        <ListItem><ListItemButton onClick={generateFinanceReport}>
-          <ListItemIcon><Article /></ListItemIcon>
-          <ListItemText>Generate report</ListItemText>
-        </ListItemButton></ListItem>
+        <ListItem>
+          <ListItemButton onClick={generateFinanceReport}>
+            <ListItemIcon>
+              <Article />
+            </ListItemIcon>
+            <ListItemText>Generate report</ListItemText>
+          </ListItemButton>
+        </ListItem>
       </List>
-  </>);
+    </>
+  );
 
-  return (<>
-    { !budget ? (isFetchingBudget ? (<Box mx='auto' textAlign='center' mt={20}><CircularProgress size={60} /></Box>) : (<NoBudget createAndSaveDefaultBudget={createAndSaveDefaultBudget} />)) : (
-      <Box display='flex'>
-        <Paper sx={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 100, pb: 2 }} elevation={5}>
-          <BottomNavigation showLabels value={shownComponent} onChange={(event, newValue) => setShownComponent(newValue)} sx={{ display: { xs: 'normal', sm: 'none' } }}>
-            <BottomNavigationAction label='Budget' icon={<AttachMoney />} />
-            <BottomNavigationAction label='Savings' icon={<AccountBalance />} />
-            <BottomNavigationAction label='Transactions' icon={<CreditCard />} />
-          </BottomNavigation>
-        </Paper>
+  return (
+    <>
+      {!budget ? (
+        isFetchingBudget ? (
+          <Box mx="auto" textAlign="center" mt={20}>
+            <CircularProgress size={60} />
+          </Box>
+        ) : (
+          <NoBudget createAndSaveDefaultBudget={createAndSaveDefaultBudget} />
+        )
+      ) : (
+        <Box display="flex">
+          <Paper
+            sx={{
+              position: 'fixed',
+              bottom: 0,
+              left: 0,
+              right: 0,
+              zIndex: 100,
+              pb: 2,
+            }}
+            elevation={5}
+          >
+            <BottomNavigation
+              showLabels
+              value={shownComponent}
+              onChange={(event, newValue) => setShownComponent(newValue)}
+              sx={{ display: { xs: 'normal', sm: 'none' } }}
+            >
+              <BottomNavigationAction label="Budget" icon={<AttachMoney />} />
+              <BottomNavigationAction
+                label="Savings"
+                icon={<AccountBalance />}
+              />
+              <BottomNavigationAction
+                label="Transactions"
+                icon={<CreditCard />}
+              />
+            </BottomNavigation>
+          </Paper>
 
-        <Drawer variant='permanent' sx={{ display: { xs: 'none', sm: 'block' }, flexShrink: 0, width: 250 }}>
-          {drawerContents}
-        </Drawer>
-        
-        <Box flexGrow={1} pb={6}>
-          {showDashboardComponent()}
+          <Drawer
+            variant="permanent"
+            sx={{
+              display: { xs: 'none', sm: 'block' },
+              flexShrink: 0,
+              width: 250,
+            }}
+          >
+            {drawerContents}
+          </Drawer>
+
+          <Box flexGrow={1} pb={6}>
+            {showDashboardComponent()}
+          </Box>
         </Box>
-      </Box>
-    )}
-  </>);
-}
+      )}
+    </>
+  );
+};
 
 export default Finances;

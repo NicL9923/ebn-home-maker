@@ -1,5 +1,12 @@
 import { Add, Clear } from '@mui/icons-material';
-import { Box, Button, IconButton, Paper, Stack, Typography } from '@mui/material';
+import {
+  Box,
+  Button,
+  IconButton,
+  Paper,
+  Stack,
+  Typography,
+} from '@mui/material';
 import { doc, updateDoc } from 'firebase/firestore';
 import React, { useContext } from 'react';
 import Chart from 'react-google-charts';
@@ -11,8 +18,8 @@ import EditableLabel from './EditableLabel';
 
 const formatChartData = (blobsData) => {
   const formattedDataArr = [['Name', 'Amount']];
-  
-  blobsData.forEach(blob => {
+
+  blobsData.forEach((blob) => {
     formattedDataArr.push([blob.name, blob.currentAmt]);
   });
 
@@ -20,92 +27,142 @@ const formatChartData = (blobsData) => {
 };
 
 const Savings = (props) => {
-    const { db } = useContext(FirebaseContext);
-    const { profile } = useContext(UserContext);
-    const { budget, getBudget } = props;
+  const { db } = useContext(FirebaseContext);
+  const { profile } = useContext(UserContext);
+  const { budget, getBudget } = props;
 
-    const saveUpdBlobsArr = (newArr) => {
-      updateDoc(doc(db, 'budgets', profile.budgetId), { savingsBlobs: newArr }).then(() => getBudget());
-    };
+  const saveUpdBlobsArr = (newArr) => {
+    updateDoc(doc(db, 'budgets', profile.budgetId), {
+      savingsBlobs: newArr,
+    }).then(() => getBudget());
+  };
 
-    const createSavingsBlob = () => {
-      const updBlobsArr = [...budget.savingsBlobs];
+  const createSavingsBlob = () => {
+    const updBlobsArr = [...budget.savingsBlobs];
 
-      let newBlobName = 'New Blob';
-      let nameIterator = 1;
+    let newBlobName = 'New Blob';
+    let nameIterator = 1;
 
-      while (updBlobsArr.some(blob => blob.name === newBlobName)) {
-        newBlobName = `New Blob${nameIterator}`;
-        nameIterator++;
-      };
+    while (updBlobsArr.some((blob) => blob.name === newBlobName)) {
+      newBlobName = `New Blob${nameIterator}`;
+      nameIterator++;
+    }
 
-      updBlobsArr.push({ name: newBlobName, currentAmt: 0 });
+    updBlobsArr.push({ name: newBlobName, currentAmt: 0 });
 
-      saveUpdBlobsArr(updBlobsArr);
-    };
-    
-    const updateSavingsBlobName = (oldName, newName) => {
-      const updBlobsArr = [...budget.savingsBlobs];
+    saveUpdBlobsArr(updBlobsArr);
+  };
 
-      if (updBlobsArr.some(blob => blob.name === newName)) {
-        alert('This name is already in use!');
-        getBudget();
-        return; // TODO: fix editable label not updating (same solution works for budget...)
-      }
+  const updateSavingsBlobName = (oldName, newName) => {
+    const updBlobsArr = [...budget.savingsBlobs];
 
-      updBlobsArr[updBlobsArr.findIndex(blob => blob.name === oldName)].name = newName;
+    if (updBlobsArr.some((blob) => blob.name === newName)) {
+      alert('This name is already in use!');
+      getBudget();
+      return; // TODO: fix editable label not updating (same solution works for budget...)
+    }
 
-      saveUpdBlobsArr(updBlobsArr);
-    };
+    updBlobsArr[updBlobsArr.findIndex((blob) => blob.name === oldName)].name =
+      newName;
 
-    const updateSavingsBlobAmt = (blobName, newAmt) => {
-      const updBlobsArr = [...budget.savingsBlobs];
-      updBlobsArr[updBlobsArr.findIndex(blob => blob.name === blobName)].currentAmt = parseFloat(newAmt);
+    saveUpdBlobsArr(updBlobsArr);
+  };
 
-      saveUpdBlobsArr(updBlobsArr);
-    };
+  const updateSavingsBlobAmt = (blobName, newAmt) => {
+    const updBlobsArr = [...budget.savingsBlobs];
+    updBlobsArr[
+      updBlobsArr.findIndex((blob) => blob.name === blobName)
+    ].currentAmt = parseFloat(newAmt);
 
-    const deleteSavingsBlob = (blobName) => {
-      const updBlobsArr = [...budget.savingsBlobs];
-      updBlobsArr.splice(updBlobsArr.findIndex(blob => blob.name === blobName), 1);
+    saveUpdBlobsArr(updBlobsArr);
+  };
 
-      saveUpdBlobsArr(updBlobsArr);
-    };
-
-    return (
-      <Box mt={2} ml={1} mr={1}>
-        <Typography variant='h3' mb={2}>Savings Blobs</Typography>
-
-        <Paper sx={{ p: 1, maxWidth: 'auto', mb: 2 }}>
-          <Typography variant='h4'>Total Saved:</Typography>
-          <Typography variant='h5'>${parseFloat(budget.savingsBlobs.reduce(((sum, { currentAmt }) =>  sum + currentAmt ), 0)).toFixed(2)}</Typography>
-        </Paper>
-        
-        <Button variant='contained' startIcon={<Add />} onClick={createSavingsBlob}>Create New Blob</Button>
-
-        <Stack mb={4} spacing={1} mt={2}>
-          { budget.savingsBlobs.map(blob =>
-            <Paper sx={{ p: 1 }} key={blob.name}>
-              <Stack direction='row' alignItems='center' justifyContent='space-between'>
-                <EditableLabel initialValue={blob.name} variant='h6' onBlur={(newValue) => updateSavingsBlobName(blob.name, newValue)} />
-                <IconButton sx={{ ml: 4 }} onClick={() => deleteSavingsBlob(blob.name)}><Clear /></IconButton>
-              </Stack>
-              <EditableLabel variant='body1' initialValue={parseFloat(blob.currentAmt).toFixed(2)} prefix='$' onBlur={(newValue) => updateSavingsBlobAmt(blob.name, newValue)} />
-            </Paper>
-          )}
-        </Stack>
-
-        <Paper sx={{ mb: 4, height: '25vw', '@media (max-width:600px)': { height: '100vw' } }}>
-          <Chart
-            chartType='PieChart'
-            width='100%'
-            height='100%'
-            data={formatChartData(budget.savingsBlobs)}
-            options={{ title: 'Savings Breakdown', pieHole: 0.5, is3D: false }}
-          />
-        </Paper>
-      </Box>
+  const deleteSavingsBlob = (blobName) => {
+    const updBlobsArr = [...budget.savingsBlobs];
+    updBlobsArr.splice(
+      updBlobsArr.findIndex((blob) => blob.name === blobName),
+      1
     );
+
+    saveUpdBlobsArr(updBlobsArr);
+  };
+
+  return (
+    <Box mt={2} ml={1} mr={1}>
+      <Typography variant="h3" mb={2}>
+        Savings Blobs
+      </Typography>
+
+      <Paper sx={{ p: 1, maxWidth: 'auto', mb: 2 }}>
+        <Typography variant="h4">Total Saved:</Typography>
+        <Typography variant="h5">
+          $
+          {parseFloat(
+            budget.savingsBlobs.reduce(
+              (sum, { currentAmt }) => sum + currentAmt,
+              0
+            )
+          ).toFixed(2)}
+        </Typography>
+      </Paper>
+
+      <Button
+        variant="contained"
+        startIcon={<Add />}
+        onClick={createSavingsBlob}
+      >
+        Create New Blob
+      </Button>
+
+      <Stack mb={4} spacing={1} mt={2}>
+        {budget.savingsBlobs.map((blob) => (
+          <Paper sx={{ p: 1 }} key={blob.name}>
+            <Stack
+              direction="row"
+              alignItems="center"
+              justifyContent="space-between"
+            >
+              <EditableLabel
+                initialValue={blob.name}
+                variant="h6"
+                onBlur={(newValue) =>
+                  updateSavingsBlobName(blob.name, newValue)
+                }
+              />
+              <IconButton
+                sx={{ ml: 4 }}
+                onClick={() => deleteSavingsBlob(blob.name)}
+              >
+                <Clear />
+              </IconButton>
+            </Stack>
+            <EditableLabel
+              variant="body1"
+              initialValue={parseFloat(blob.currentAmt).toFixed(2)}
+              prefix="$"
+              onBlur={(newValue) => updateSavingsBlobAmt(blob.name, newValue)}
+            />
+          </Paper>
+        ))}
+      </Stack>
+
+      <Paper
+        sx={{
+          mb: 4,
+          height: '25vw',
+          '@media (max-width:600px)': { height: '100vw' },
+        }}
+      >
+        <Chart
+          chartType="PieChart"
+          width="100%"
+          height="100%"
+          data={formatChartData(budget.savingsBlobs)}
+          options={{ title: 'Savings Breakdown', pieHole: 0.5, is3D: false }}
+        />
+      </Paper>
+    </Box>
+  );
 };
 
 export default Savings;

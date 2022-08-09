@@ -13,33 +13,41 @@ import JoinFamily from './pages/JoinFamily';
 import NotLoggedIn from './components/NotLoggedIn';
 import { FirebaseContext } from '.';
 import { Box, CircularProgress } from '@mui/material';
-import { UserContextValue } from 'models/types';
+import { Family, UserContextValue, UserProfile } from 'models/types';
 
 export const UserContext = React.createContext({} as UserContextValue);
 
-const App = () => {
+const App = (): JSX.Element => {
   const { auth, db } = useContext(FirebaseContext);
-  const [userId, setUserId] = useState(null);
-  const [profile, setProfile] = useState(null);
-  const [family, setFamily] = useState(null);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [family, setFamily] = useState<Family | null>(null);
   const [isFetchingUser, setIsFetchingUser] = useState(true);
   const [isFetchingProfile, setIsFetchingProfile] = useState(true);
   const [isFetchingFamily, setIsFetchingFamily] = useState(true);
 
   const getProfile = () => {
-    setIsFetchingProfile(true);
-    getDoc(doc(db, 'profiles', userId)).then((doc) => {
-      setIsFetchingProfile(false);
-      if (doc.exists()) setProfile(doc.data());
-    });
+    if (userId) {
+      setIsFetchingProfile(true);
+      getDoc(doc(db, 'profiles', userId)).then((doc) => {
+        setIsFetchingProfile(false);
+        if (doc.exists()) setProfile(doc.data() as UserProfile);
+      });
+    } else {
+      setProfile(null);
+    }
   };
 
   const getFamily = () => {
-    setIsFetchingFamily(true);
-    getDoc(doc(db, 'families', profile.familyId)).then((doc) => {
-      setIsFetchingFamily(false);
-      if (doc.exists()) setFamily(doc.data());
-    });
+    if (profile && profile.familyId) {
+      setIsFetchingFamily(true);
+      getDoc(doc(db, 'families', profile.familyId)).then((doc) => {
+        setIsFetchingFamily(false);
+        if (doc.exists()) setFamily(doc.data() as Family);
+      });
+    } else {
+      setFamily(null);
+    }
   };
 
   useEffect(() => {
@@ -49,21 +57,9 @@ const App = () => {
     });
   }, []);
 
-  useEffect(() => {
-    if (userId) {
-      getProfile();
-    } else {
-      setProfile(null);
-    }
-  }, [userId]);
+  useEffect(getProfile, [userId]);
 
-  useEffect(() => {
-    if (profile && profile.familyId) {
-      getFamily();
-    } else {
-      setFamily(null);
-    }
-  }, [profile]);
+  useEffect(getFamily, [profile]);
 
   return (
     <UserContext.Provider
@@ -84,21 +80,17 @@ const App = () => {
           <Routes>
             {profile && (
               <>
-                <Route exact path="/profile" element={<Profile />} />
-                <Route
-                  exact
-                  path="/joinFamily/:familyId"
-                  element={<JoinFamily />}
-                />
-                <Route exact path="/finances" element={<Finances />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/joinFamily/:familyId" element={<JoinFamily />} />
+                <Route path="/finances" element={<Finances />} />
               </>
             )}
 
             {family && (
               <>
-                <Route exact path="/smarthome" element={<SmartHome />} />
-                <Route exact path="/info" element={<Information />} />
-                <Route exact path="/maintenance" element={<Maintenance />} />
+                <Route path="/smarthome" element={<SmartHome />} />
+                <Route path="/info" element={<Information />} />
+                <Route path="/maintenance" element={<Maintenance />} />
               </>
             )}
 
