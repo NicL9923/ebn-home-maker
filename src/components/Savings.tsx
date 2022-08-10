@@ -8,6 +8,7 @@ import {
   Typography,
 } from '@mui/material';
 import { doc, updateDoc } from 'firebase/firestore';
+import { BudgetIF, SavingsBlob } from 'models/types';
 import React, { useContext } from 'react';
 import Chart from 'react-google-charts';
 import { FirebaseContext } from '..';
@@ -16,22 +17,29 @@ import EditableLabel from './EditableLabel';
 
 // TODO: handle duplicate name stuff here too
 
-const formatChartData = (blobsData) => {
+const formatChartData = (blobsData: SavingsBlob[]) => {
   const formattedDataArr = [['Name', 'Amount']];
 
   blobsData.forEach((blob) => {
-    formattedDataArr.push([blob.name, blob.currentAmt]);
+    formattedDataArr.push([blob.name, blob.currentAmt.toFixed(2).toString()]);
   });
 
   return formattedDataArr;
 };
 
-const Savings = (props) => {
+interface SavingsProps {
+  budget: BudgetIF;
+  getBudget: () => void;
+}
+
+const Savings = (props: SavingsProps): JSX.Element => {
   const { db } = useContext(FirebaseContext);
   const { profile } = useContext(UserContext);
   const { budget, getBudget } = props;
 
-  const saveUpdBlobsArr = (newArr) => {
+  const saveUpdBlobsArr = (newArr: SavingsBlob[]) => {
+    if (!profile) return;
+
     updateDoc(doc(db, 'budgets', profile.budgetId), {
       savingsBlobs: newArr,
     }).then(() => getBudget());
@@ -53,7 +61,12 @@ const Savings = (props) => {
     saveUpdBlobsArr(updBlobsArr);
   };
 
-  const updateSavingsBlobName = (oldName, newName) => {
+  const updateSavingsBlobName = (
+    oldName: string,
+    newName: string | undefined
+  ) => {
+    if (!newName) return;
+
     const updBlobsArr = [...budget.savingsBlobs];
 
     if (updBlobsArr.some((blob) => blob.name === newName)) {
@@ -68,7 +81,12 @@ const Savings = (props) => {
     saveUpdBlobsArr(updBlobsArr);
   };
 
-  const updateSavingsBlobAmt = (blobName, newAmt) => {
+  const updateSavingsBlobAmt = (
+    blobName: string,
+    newAmt: string | undefined
+  ) => {
+    if (!newAmt) return;
+
     const updBlobsArr = [...budget.savingsBlobs];
     updBlobsArr[
       updBlobsArr.findIndex((blob) => blob.name === blobName)
@@ -77,7 +95,7 @@ const Savings = (props) => {
     saveUpdBlobsArr(updBlobsArr);
   };
 
-  const deleteSavingsBlob = (blobName) => {
+  const deleteSavingsBlob = (blobName: string) => {
     const updBlobsArr = [...budget.savingsBlobs];
     updBlobsArr.splice(
       updBlobsArr.findIndex((blob) => blob.name === blobName),
@@ -97,12 +115,9 @@ const Savings = (props) => {
         <Typography variant="h4">Total Saved:</Typography>
         <Typography variant="h5">
           $
-          {parseFloat(
-            budget.savingsBlobs.reduce(
-              (sum, { currentAmt }) => sum + currentAmt,
-              0
-            )
-          ).toFixed(2)}
+          {budget.savingsBlobs
+            .reduce((sum, { currentAmt }) => sum + currentAmt, 0)
+            .toFixed(2)}
         </Typography>
       </Paper>
 
@@ -138,7 +153,7 @@ const Savings = (props) => {
             </Stack>
             <EditableLabel
               variant="body1"
-              initialValue={parseFloat(blob.currentAmt).toFixed(2)}
+              initialValue={blob.currentAmt.toFixed(2).toString()}
               prefix="$"
               onBlur={(newValue) => updateSavingsBlobAmt(blob.name, newValue)}
             />

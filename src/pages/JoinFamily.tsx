@@ -35,7 +35,7 @@ const JoinFamily = () => {
     <Box maxWidth="md" mt={6} mx="auto">
       {family ? (
         <Alert severity="success">
-          You've successfully joined the {family.name} family! ({familyId})
+          You&apos;ve successfully joined the {family.name} family! ({familyId})
         </Alert>
       ) : (
         <CircularProgress />

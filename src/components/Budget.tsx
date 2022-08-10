@@ -19,15 +19,43 @@ import {
   useTheme,
 } from '@mui/material';
 import { doc, updateDoc } from 'firebase/firestore';
+import { BudgetCategory, BudgetIF, BudgetSubcategory } from 'models/types';
 import React, { useContext, useState } from 'react';
-import { Droppable } from 'react-beautiful-dnd';
+import { Droppable, DropResult } from 'react-beautiful-dnd';
 import { Draggable } from 'react-beautiful-dnd';
 import { DragDropContext } from 'react-beautiful-dnd';
 import { FirebaseContext } from '..';
 import { UserContext } from '../App';
 import EditableLabel from './EditableLabel';
 
-const BudgetCategories = (props) => {
+interface UltraSharedFuncProps {
+  setSubCatProperty: (
+    newValue: string | undefined,
+    oldName: string,
+    catName: string,
+    propName: string
+  ) => void;
+  removeSubCategory: (catName: string, subCatName: string) => void;
+}
+
+interface SharedFuncProps extends UltraSharedFuncProps {
+  setCategoryName: (newName: string | undefined, curCatName: string) => void;
+  addNewSubCategory: (catName: string) => void;
+  removeCategory: (catName: string) => void;
+}
+
+interface BudgetCategoriesProps extends SharedFuncProps {
+  budget: BudgetIF;
+  moveCategory: (srcIdx: number, destIdx: number) => void;
+  moveSubCategory: (
+    srcCat: string,
+    destCat: string,
+    srcIdx: number,
+    destIdx: number
+  ) => void;
+}
+
+const BudgetCategories = (props: BudgetCategoriesProps): JSX.Element => {
   const {
     budget,
     setCategoryName,
@@ -39,7 +67,7 @@ const BudgetCategories = (props) => {
     moveSubCategory,
   } = props;
 
-  const onDragEnd = ({ type, source, destination }) => {
+  const onDragEnd = ({ type, source, destination }: DropResult) => {
     if (!source || !destination || !type) return;
 
     if (type === 'category') {
@@ -82,19 +110,25 @@ const BudgetCategories = (props) => {
   );
 };
 
-const Category = (props) => {
+interface CategoryProps extends SharedFuncProps {
+  idx: number;
+  category: BudgetCategory;
+  isLastCat: boolean;
+}
+
+const Category = (props: CategoryProps): JSX.Element => {
   const {
     idx,
     category,
+    isLastCat,
     setCategoryName,
     addNewSubCategory,
     removeCategory,
     setSubCatProperty,
     removeSubCategory,
-    isLastCat,
   } = props;
   const [isHovered, setIsHovered] = useState(false);
-  const [anchorEl, setAnchorEl] = useState(null);
+  const [anchorEl, setAnchorEl] = useState<Element | null>(null);
 
   return (
     <Draggable draggableId={category.name} index={idx}>
@@ -134,7 +168,7 @@ const Category = (props) => {
                   <Menu
                     id={`cat${idx}-menu`}
                     anchorEl={anchorEl}
-                    open={anchorEl}
+                    open={!!anchorEl}
                     onClose={() => setAnchorEl(null)}
                   >
                     <MenuItem onClick={() => addNewSubCategory(category.name)}>
@@ -148,12 +182,12 @@ const Category = (props) => {
               </Grid>
               <Grid item xs={3}>
                 <Typography variant="body1" ml={1} sx={{ fontWeight: 'bold' }}>
-                  ${category.totalAllotted.toFixed(2)}
+                  ${category.totalAllotted?.toFixed(2)}
                 </Typography>
               </Grid>
               <Grid item xs={2} ml={1}>
                 <Typography variant="body1" ml={1} sx={{ fontWeight: 'bold' }}>
-                  ${category.currentSpent.toFixed(2)}
+                  ${category.currentSpent?.toFixed(2)}
                 </Typography>
               </Grid>
             </Grid>
@@ -187,7 +221,13 @@ const Category = (props) => {
   );
 };
 
-const SubCategory = (props) => {
+interface SubCategoryProps extends UltraSharedFuncProps {
+  subidx: number;
+  category: BudgetCategory;
+  subcategory: BudgetSubcategory;
+}
+
+const SubCategory = (props: SubCategoryProps): JSX.Element => {
   const {
     subidx,
     category,
@@ -276,22 +316,34 @@ const SubCategory = (props) => {
   );
 };
 
-const Budget = (props) => {
+interface BudgetProps {
+  budget: BudgetIF;
+  setBudget: (newBudget: BudgetIF) => void;
+  getBudget: () => void;
+}
+
+const Budget = (props: BudgetProps): JSX.Element => {
   const { db } = useContext(FirebaseContext);
   const { profile } = useContext(UserContext);
   const { budget, setBudget, getBudget } = props;
   const theme = useTheme();
 
-  const setMonthlyNetIncome = (newValue) => {
+  const setMonthlyNetIncome = (newValue: string | undefined) => {
+    if (!profile || !newValue) return;
+
     updateDoc(doc(db, 'budgets', profile.budgetId), {
       monthlyNetIncome: parseFloat(newValue),
     }).then(() => getBudget());
   };
 
-  const setCategoryName = (newValue, oldName) => {
+  const setCategoryName = (newValue: string | undefined, oldName: string) => {
+    if (!profile || !newValue) return;
+
     if (newValue === oldName) return;
 
-    if (budget.categories.some((cat) => cat.name === newValue)) {
+    if (
+      budget.categories.some((cat: BudgetCategory) => cat.name === newValue)
+    ) {
       alert('This name is already in use!');
       getBudget(); // Have to do this to get EditableLabels to refresh their values
       return;
@@ -314,18 +366,27 @@ const Budget = (props) => {
     }).then(() => getBudget());
   };
 
-  const setSubCatProperty = (newValue, oldName, catName, propName) => {
-    if (newValue === oldName) return;
+  const setSubCatProperty = (
+    newValue: string | undefined,
+    oldName: string,
+    catName: string,
+    propName: string
+  ) => {
+    if (!profile || !newValue || newValue === oldName) return;
 
     const updArr = [...budget.categories];
     const updTransactions = [...budget.transactions];
 
     updArr.forEach((cat) => {
       if (cat.name === catName) {
-        cat.subcategories.forEach((subCat) => {
+        cat.subcategories.forEach((subCat: BudgetSubcategory) => {
           if (subCat.name === oldName) {
             if (propName === 'name') {
-              if (cat.subcategories.some((scat) => scat.name === newValue)) {
+              if (
+                cat.subcategories.some(
+                  (scat: BudgetSubcategory) => scat.name === newValue
+                )
+              ) {
                 alert('This name is already in use!');
                 getBudget();
                 return;
@@ -355,10 +416,14 @@ const Budget = (props) => {
   };
 
   const addNewCategory = () => {
+    if (!profile) return;
+
     let newCatName = 'New Category';
     let nameIterator = 1;
 
-    while (budget.categories.some((cat) => cat.name === newCatName)) {
+    while (
+      budget.categories.some((cat: BudgetCategory) => cat.name === newCatName)
+    ) {
       newCatName = `New Category${nameIterator}`;
       nameIterator++;
     }
@@ -371,7 +436,9 @@ const Budget = (props) => {
     }).then(() => getBudget());
   };
 
-  const removeCategory = (catName) => {
+  const removeCategory = (catName: string) => {
+    if (!profile) return;
+
     const updArr = [...budget.categories];
     const updTransactions = [...budget.transactions];
 
@@ -392,7 +459,9 @@ const Budget = (props) => {
     }).then(() => getBudget());
   };
 
-  const addNewSubCategory = (catName) => {
+  const addNewSubCategory = (catName: string) => {
+    if (!profile) return;
+
     const updArr = [...budget.categories];
 
     updArr.forEach((cat) => {
@@ -401,7 +470,9 @@ const Budget = (props) => {
         let nameIterator = 1;
 
         while (
-          cat.subcategories.some((subcat) => subcat.name === newSubCatName)
+          cat.subcategories.some(
+            (subcat: BudgetSubcategory) => subcat.name === newSubCatName
+          )
         ) {
           newSubCatName = `New SubCategory${nameIterator}`;
           nameIterator++;
@@ -420,14 +491,18 @@ const Budget = (props) => {
     }).then(() => getBudget());
   };
 
-  const removeSubCategory = (catName, subCatName) => {
+  const removeSubCategory = (catName: string, subCatName: string) => {
+    if (!profile) return;
+
     const updArr = [...budget.categories];
     const updTransactions = [...budget.transactions];
 
     updArr.forEach((cat) => {
       if (cat.name === catName) {
         cat.subcategories.splice(
-          cat.subcategories.findIndex((subcat) => subcat.name === subCatName),
+          cat.subcategories.findIndex(
+            (subcat: BudgetSubcategory) => subcat.name === subCatName
+          ),
           1
         );
       }
@@ -445,7 +520,9 @@ const Budget = (props) => {
     }).then(() => getBudget());
   };
 
-  const moveCategory = (dragIdx, dropIdx) => {
+  const moveCategory = (dragIdx: number, dropIdx: number) => {
+    if (!profile) return;
+
     const updArr = [...budget.categories];
     const cat = updArr[dragIdx];
 
@@ -460,8 +537,14 @@ const Budget = (props) => {
     }).then(() => getBudget());
   };
 
-  const moveSubCategory = (srcCatName, destCatName, dragIdx, dropIdx) => {
-    // Src & Dest cat is used to handle subcat being moved to a different cat=
+  const moveSubCategory = (
+    srcCatName: string,
+    destCatName: string,
+    dragIdx: number,
+    dropIdx: number
+  ) => {
+    // Src & Dest cat is used to handle subcat being moved to a different cat
+    if (!profile) return;
 
     const updArr = [...budget.categories];
     const srcCatIdx = updArr.findIndex((cat) => cat.name === srcCatName);
@@ -479,21 +562,25 @@ const Budget = (props) => {
     }).then(() => getBudget());
   };
 
-  const setBudgetName = (newName) => {
+  const setBudgetName = (newName: string | undefined) => {
+    if (!profile || !newName) return;
+
     updateDoc(doc(db, 'budgets', profile.budgetId), { name: newName }).then(
       () => getBudget()
     );
   };
 
   const getAllottedRemainder = () => {
+    if (!budget.totalAllotted) return;
+
     const difference = budget.monthlyNetIncome - budget.totalAllotted;
-    let helperColor = '';
+    let helperColor: string | undefined = '';
     let helperText = 'to allot';
 
     if (difference > 0) {
       helperColor = theme.palette.warning.main;
     } else if (difference === 0) {
-      helperColor = null;
+      helperColor = undefined;
     } else {
       helperText = 'over-allotted';
       helperColor = theme.palette.error.main;
@@ -507,14 +594,16 @@ const Budget = (props) => {
   };
 
   const getSpendingRemainder = () => {
+    if (!budget.totalAllotted || !budget.totalSpent) return;
+
     const difference = budget.totalAllotted - budget.totalSpent;
-    let helperColor = '';
+    let helperColor: string | undefined = '';
     let helperText = 'remaining';
 
     if (difference > 0) {
       helperColor = theme.palette.success.main;
     } else if (difference === 0) {
-      helperColor = null;
+      helperColor = undefined;
     } else {
       helperText = 'over-budget';
       helperColor = theme.palette.error.main;
@@ -558,7 +647,7 @@ const Budget = (props) => {
           <Stack direction="row" alignContent="center" spacing={2}>
             <Typography variant="h6">Total Allotted</Typography>
             <Typography variant="h5">
-              ${budget.totalAllotted.toFixed(2)}
+              ${budget.totalAllotted?.toFixed(2)}
             </Typography>
           </Stack>
           {getAllottedRemainder()}
@@ -566,7 +655,7 @@ const Budget = (props) => {
           <Stack direction="row" alignContent="center" spacing={2} mt={1}>
             <Typography variant="h6">Total Spent</Typography>
             <Typography variant="h5">
-              ${budget.totalSpent.toFixed(2)}
+              ${budget.totalSpent?.toFixed(2)}
             </Typography>
           </Stack>
           {getSpendingRemainder()}

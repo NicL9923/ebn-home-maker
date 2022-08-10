@@ -29,16 +29,32 @@ import Transactions from '../components/Transactions';
 import { v4 as uuidv4 } from 'uuid';
 import { FirebaseContext } from '..';
 import { UserContext } from '../App';
-import jsPDF from 'jspdf';
+// import jsPDF from 'jspdf';
 import 'jspdf-autotable';
+import {
+  BudgetCategory,
+  BudgetIF,
+  BudgetSubcategory,
+  Transaction,
+} from 'models/types';
 
-const NoBudget = (props) => {
+enum COMPONENTS {
+  BUDGET,
+  SAVINGS,
+  TRANSACTIONS,
+}
+
+interface NoBudgetProps {
+  createAndSaveDefaultBudget: () => void;
+}
+
+const NoBudget = (props: NoBudgetProps): JSX.Element => {
   const { createAndSaveDefaultBudget } = props;
 
   return (
     <Box maxWidth="sm" textAlign="center" mt={4} mx="auto">
       <Paper sx={{ p: 2 }}>
-        <Typography variant="h6">You don't have a budget yet!</Typography>
+        <Typography variant="h6">You don&apos;t have a budget yet!</Typography>
         <Typography variant="subtitle1" mb={4}>
           Create one?
         </Typography>
@@ -51,15 +67,16 @@ const NoBudget = (props) => {
   );
 };
 
-const Finances = () => {
+const Finances = (): JSX.Element => {
   const { db } = useContext(FirebaseContext);
   const { userId, profile, getProfile } = useContext(UserContext);
   const [shownComponent, setShownComponent] = useState(0);
-  const [budget, setBudget] = useState(null);
-  const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
+  const [budget, setBudget] = useState<BudgetIF | undefined>(undefined);
   const [isFetchingBudget, setIsFetchingBudget] = useState(false);
 
   const createAndSaveDefaultBudget = () => {
+    if (!userId) return;
+
     const newBudgetUuid = uuidv4();
     const newBudgetTemplate = {
       id: newBudgetUuid,
@@ -114,45 +131,53 @@ const Finances = () => {
   };
 
   const getBudget = () => {
+    if (!profile) return;
+
     setIsFetchingBudget(true);
     getDoc(doc(db, 'budgets', profile.budgetId)).then((doc) => {
       setIsFetchingBudget(false);
       if (doc.exists()) {
         const docData = doc.data();
 
-        docData.categories.forEach((cat) => {
+        docData.categories.forEach((cat: BudgetCategory) => {
           cat.currentSpent = 0;
-          cat.subcategories.forEach((subcat) => (subcat.currentSpent = 0));
-        });
-
-        docData.transactions.forEach((transaction, index) => {
-          transaction.timestamp = new Date(transaction.timestamp);
-          transaction.id = index;
-
-          const tCatIdx = docData.categories.findIndex(
-            (x) => x.name === transaction.category
+          cat.subcategories.forEach(
+            (subcat: BudgetSubcategory) => (subcat.currentSpent = 0)
           );
-          const tSubCatIdx = docData.categories[
-            tCatIdx
-          ].subcategories.findIndex((x) => x.name === transaction.subcategory);
-
-          // Only count transaction towards this month's budget if it's from this month
-          if (transaction.timestamp.getMonth() === new Date().getMonth()) {
-            // Verify cat and subcat were found (i.e. if the transaction has valid ones)
-            if (tCatIdx !== -1 && tSubCatIdx !== -1) {
-              docData.categories[tCatIdx].subcategories[
-                tSubCatIdx
-              ].currentSpent += transaction.amt;
-            }
-          }
-
-          transaction.timestamp = transaction.timestamp.toLocaleDateString();
         });
+
+        docData.transactions.forEach(
+          (transaction: Transaction, index: number) => {
+            transaction.timestamp = new Date(transaction.timestamp);
+            transaction.id = index;
+
+            const tCatIdx = docData.categories.findIndex(
+              (x: BudgetCategory) => x.name === transaction.category
+            );
+            const tSubCatIdx = docData.categories[
+              tCatIdx
+            ].subcategories.findIndex(
+              (x: BudgetSubcategory) => x.name === transaction.subcategory
+            );
+
+            // Only count transaction towards this month's budget if it's from this month
+            if (transaction.timestamp.getMonth() === new Date().getMonth()) {
+              // Verify cat and subcat were found (i.e. if the transaction has valid ones)
+              if (tCatIdx !== -1 && tSubCatIdx !== -1) {
+                docData.categories[tCatIdx].subcategories[
+                  tSubCatIdx
+                ].currentSpent += transaction.amt;
+              }
+            }
+
+            transaction.timestamp = transaction.timestamp.toLocaleDateString();
+          }
+        );
 
         // Handle some calculations we do locally so we can reuse their values (efficiency!)
         let totalSpent = 0;
         let totalAllotted = 0;
-        docData.categories.forEach((cat) => {
+        docData.categories.forEach((cat: BudgetCategory) => {
           cat.totalAllotted = cat.subcategories.reduce(
             (sum, subcat) => sum + subcat.totalAllotted,
             0
@@ -168,7 +193,7 @@ const Finances = () => {
         docData.totalSpent = totalSpent;
         docData.totalAllotted = totalAllotted;
 
-        setBudget(docData);
+        setBudget(docData as BudgetIF);
       } else {
         // Budget wasn't retrieved when it should've been
       }
@@ -176,7 +201,9 @@ const Finances = () => {
   };
 
   const generateFinanceReport = () => {
-    const doc = new jsPDF();
+    alert("Finance reports are currently disabled - they'll be rebuilt soon!");
+
+    /*const doc = new jsPDF();
     const monthYear = new Date().toLocaleDateString('en-US', {
       month: 'long',
       year: 'numeric',
@@ -206,18 +233,20 @@ const Finances = () => {
     });
     doc.autoTable(transTableColumns, transTableRows, { startY: 145 });
 
-    doc.save(`FinanceReport_${monthYear}.pdf`);
+    doc.save(`FinanceReport_${monthYear}.pdf`);*/
   };
 
   useEffect(() => {
     if (profile && profile.budgetId) {
       getBudget();
     } else {
-      setBudget(null);
+      setBudget(undefined);
     }
   }, [profile]);
 
   const showDashboardComponent = () => {
+    if (!budget) return;
+
     const budgetComponent = (
       <Budget budget={budget} setBudget={setBudget} getBudget={getBudget} />
     );
@@ -234,11 +263,6 @@ const Finances = () => {
     }
   };
 
-  const updateShownComponent = (newComponentId) => {
-    setShownComponent(newComponentId);
-    setMobileDrawerOpen(false);
-  };
-
   const drawerContents = (
     <>
       <Toolbar />
@@ -249,7 +273,7 @@ const Finances = () => {
       <List>
         <ListItem>
           <ListItemButton
-            onClick={() => updateShownComponent(0)}
+            onClick={() => setShownComponent(COMPONENTS.BUDGET)}
             selected={shownComponent === 0}
           >
             <ListItemIcon>
@@ -260,7 +284,7 @@ const Finances = () => {
         </ListItem>
         <ListItem>
           <ListItemButton
-            onClick={() => updateShownComponent(1)}
+            onClick={() => setShownComponent(COMPONENTS.SAVINGS)}
             selected={shownComponent === 1}
           >
             <ListItemIcon>
@@ -271,7 +295,7 @@ const Finances = () => {
         </ListItem>
         <ListItem>
           <ListItemButton
-            onClick={() => updateShownComponent(2)}
+            onClick={() => setShownComponent(COMPONENTS.TRANSACTIONS)}
             selected={shownComponent === 3}
           >
             <ListItemIcon>

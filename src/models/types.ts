@@ -9,9 +9,9 @@ export interface FBContextValue {
 }
 
 export interface UserContextValue {
-  userId: string | null;
-  profile: UserProfile | null;
-  family: Family | null;
+  userId?: string;
+  profile?: UserProfile;
+  family?: Family;
   isFetchingProfile: boolean;
   isFetchingFamily: boolean;
   getProfile: () => void;
@@ -55,8 +55,8 @@ export interface Vehicle {
   vin: string;
   licensePlate: string;
   miles: number;
-  serviceLogEntries: { date: string; note: string };
-  maintenanceMarkers: { mileage: string; maintenanceReq: string };
+  serviceLogEntries: { date: string; note: string }[];
+  maintenanceMarkers: { mileage: string; maintenanceReq: string }[];
 }
 
 export interface Residence {
@@ -65,11 +65,12 @@ export interface Residence {
   img: string;
   yearBuilt: string;
   yearPurchased: string;
-  maintenanceMarkers: { houseAgeYears: number; maintenanceReq: string };
+  serviceLogEntries: { date: string; note: string }[];
+  maintenanceMarkers: { houseAgeYears: number; maintenanceReq: string }[];
 }
 
 // ID === same as docID
-export interface Budget {
+export interface BudgetIF {
   name: string;
   id: string;
   monthlyNetIncome: number;
@@ -77,11 +78,15 @@ export interface Budget {
   editors: string[];
   savingsBlobs: SavingsBlob[];
   transactions: Transaction[];
+  totalSpent?: number;
+  totalAllotted?: number;
 }
 
 export interface BudgetCategory {
   name: string;
   subcategories: BudgetSubcategory[];
+  currentSpent?: number;
+  totalAllotted?: number;
 }
 
 export interface BudgetSubcategory {
@@ -97,9 +102,10 @@ export interface SavingsBlob {
 }
 
 export interface Transaction {
+  id?: number;
   name: string;
   amt: number;
   category: string;
   subcategory: string;
-  timestamp: string;
+  timestamp: string | Date;
 }

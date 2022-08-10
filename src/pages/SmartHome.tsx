@@ -11,9 +11,9 @@ const SmartHome = (): JSX.Element => {
         </Typography>
 
         <Typography variant="h6">
-          Welcome to the Smart Home page! This page doesn't do anything yet -
-          it's just here to remind me in case I want to do any cool smarthome
-          integration stuff in the future!
+          Welcome to the Smart Home page! This page doesn&apos;t do anything yet
+          - it&apos;s just here to remind me in case I want to do any cool
+          smarthome integration stuff in the future!
         </Typography>
       </Paper>
     </Box>

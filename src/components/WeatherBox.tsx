@@ -33,13 +33,15 @@ import { doc, updateDoc } from 'firebase/firestore';
 import { UserContext } from '../App';
 import { FirebaseContext } from '..';
 
-const WeatherBox = () => {
+// TODO: Make types for retrieved weather data
+
+const WeatherBox = (): JSX.Element => {
   const { db } = useContext(FirebaseContext);
   const { profile, family, getFamily } = useContext(UserContext);
-  const [currentWeather, setCurrentWeather] = useState(null);
-  const [weatherAlerts, setWeatherAlerts] = useState(null);
-  const [hourlyWeather, setHourlyWeather] = useState(null);
-  const [dailyWeather, setDailyWeather] = useState(null);
+  const [currentWeather, setCurrentWeather] = useState<any>(null);
+  const [weatherAlerts, setWeatherAlerts] = useState<any>(null);
+  const [hourlyWeather, setHourlyWeather] = useState<any>(null);
+  const [dailyWeather, setDailyWeather] = useState<any>(null);
   const [shownWeather, setShownWeather] = useState(0);
   const [isFetchingWeather, setIsFetchingWeather] = useState(true);
 
@@ -47,6 +49,8 @@ const WeatherBox = () => {
   const [newApiKey, setNewApiKey] = useState('');
 
   const getWeatherData = () => {
+    if (!family || !family.location || !family.openweathermap_api_key) return;
+
     setIsFetchingWeather(true);
     const url = `https://api.openweathermap.org/data/2.5/onecall?lat=${family.location.lat}&lon=${family.location.long}&exclude=minutely&appid=${family.openweathermap_api_key}&units=imperial`; // Exclude minute-ly forecast
 
@@ -77,28 +81,25 @@ const WeatherBox = () => {
       });
   };
 
-  const getDayOfWeek = (dayNum) => {
-    switch (dayNum) {
-      case 0:
-        return 'Sunday';
-      case 1:
-        return 'Monday';
-      case 2:
-        return 'Tuesday';
-      case 3:
-        return 'Wednesday';
-      case 4:
-        return 'Thursday';
-      case 5:
-        return 'Friday';
-      case 6:
-        return 'Saturday';
-      default:
-        console.error('ERROR: Incorrect day of week');
+  const getDayOfWeek = (dayNum: number) => {
+    const daysOfWeek = [
+      'Sunday',
+      'Monday',
+      'Tuesday',
+      'Wednesday',
+      'Thursday',
+      'Friday',
+      'Saturday',
+    ];
+
+    if (dayNum >= 0 && dayNum <= 6) {
+      return daysOfWeek[dayNum];
+    } else {
+      console.error('ERROR: Incorrect day of week');
     }
   };
 
-  const getWeatherIcon = (weatherId, size = 48) => {
+  const getWeatherIcon = (weatherId: number, size = 48) => {
     if (weatherId >= 200 && weatherId <= 299)
       return <WiThunderstorm size={size} />;
     else if (weatherId >= 300 && weatherId <= 399)
@@ -133,9 +134,8 @@ const WeatherBox = () => {
   };
 
   const parseCurrentWeather = () => {
-    if (!currentWeather) {
-      return;
-    }
+    if (!currentWeather) return;
+
     const curWeatherInfo = {
       condition: currentWeather.weather[0].main,
       iconCode: currentWeather.weather[0].id,
@@ -178,9 +178,9 @@ const WeatherBox = () => {
   const parseWeatherAlerts = () => {
     if (!weatherAlerts) return;
 
-    let parsedAlerts = [];
+    const parsedAlerts: any[] = [];
 
-    weatherAlerts.forEach((alert) => {
+    weatherAlerts.forEach((alert: any) => {
       parsedAlerts.push({
         event: alert.event,
         reporter: alert.sender_name,
@@ -208,9 +208,9 @@ const WeatherBox = () => {
   const parseHourlyWeather = () => {
     if (!hourlyWeather) return;
 
-    let parsedHourlyReports = [];
+    const parsedHourlyReports: any[] = [];
 
-    hourlyWeather.forEach((hour) => {
+    hourlyWeather.forEach((hour: any) => {
       parsedHourlyReports.push({
         hour: new Date(1000 * hour.dt).getHours(),
         iconCode: hour.weather[0].id,
@@ -233,6 +233,7 @@ const WeatherBox = () => {
               sm={3}
               md={2}
               justifyContent="space-evenly"
+              key={rpt.hour}
             >
               <Paper>
                 <Stack
@@ -270,9 +271,9 @@ const WeatherBox = () => {
   const parseDailyWeather = () => {
     if (!dailyWeather) return;
 
-    let parsedDailyReports = [];
+    const parsedDailyReports: any[] = [];
 
-    dailyWeather.forEach((day) => {
+    dailyWeather.forEach((day: any) => {
       parsedDailyReports.push({
         day: getDayOfWeek(new Date(1000 * day.dt).getDay()),
         iconCode: day.weather[0].id,
@@ -299,6 +300,7 @@ const WeatherBox = () => {
               sm={3}
               md={2}
               justifyContent="space-evenly"
+              key={rpt.day}
             >
               <Paper>
                 <Stack
@@ -331,6 +333,8 @@ const WeatherBox = () => {
   };
 
   const saveApiKey = () => {
+    if (!profile) return;
+
     updateDoc(doc(db, 'families', profile.familyId), {
       openweathermap_api_key: newApiKey,
       location: { lat: '39.83', long: '-98.58' },
@@ -339,13 +343,9 @@ const WeatherBox = () => {
     });
   };
 
-  useEffect(() => {
-    if (family.openweathermap_api_key && family.location) {
-      getWeatherData();
-    }
-  }, [family]);
+  useEffect(getWeatherData, [family]);
 
-  if (!family.openweathermap_api_key) {
+  if (family && !family.openweathermap_api_key) {
     return (
       <Box textAlign="center" maxWidth="sm" mx="auto">
         <Paper sx={{ p: 2 }}>
@@ -353,9 +353,9 @@ const WeatherBox = () => {
             Want to see the weather here?
           </Typography>
           <Typography variant="subtitle1" mb={3}>
-            Obtain a free 'Current Weather' API key from OpenWeatherMap
-            (https://openweathermap.org/price), input it below, then set your
-            family location on your profile page
+            Obtain a free &apos;Current Weather&apos; API key from
+            OpenWeatherMap (https://openweathermap.org/price), input it below,
+            then set your family location on your profile page
           </Typography>
 
           <Button variant="contained" onClick={() => setSettingApiKey(true)}>

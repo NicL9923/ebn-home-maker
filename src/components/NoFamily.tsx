@@ -17,14 +17,16 @@ import { v4 as uuidv4 } from 'uuid';
 import { FirebaseContext } from '..';
 import { UserContext } from '../App';
 
-const NoFamily = () => {
+const NoFamily = (): JSX.Element => {
   const { db } = useContext(FirebaseContext);
   const { userId, getProfile, getFamily } = useContext(UserContext);
 
   const [creatingFamily, setCreatingFamily] = useState(false);
-  const [newName, setNewName] = useState(null);
+  const [newName, setNewName] = useState<string | undefined>(undefined);
 
   const createFamily = () => {
+    if (!userId) return;
+
     const newFamId = uuidv4();
     const newFamObj = {
       name: newName,
@@ -52,7 +54,7 @@ const NoFamily = () => {
     <Box maxWidth="sm" mx="auto" mt={3}>
       <Paper sx={{ p: 2 }}>
         <Typography variant="h5" mb={3}>
-          We couldn't find a family for this profile!
+          We couldn&apos;t find a family for this profile!
         </Typography>
 
         <Typography variant="h6" textAlign="center">

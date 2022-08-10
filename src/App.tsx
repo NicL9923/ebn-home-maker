@@ -19,9 +19,9 @@ export const UserContext = React.createContext({} as UserContextValue);
 
 const App = (): JSX.Element => {
   const { auth, db } = useContext(FirebaseContext);
-  const [userId, setUserId] = useState<string | null>(null);
-  const [profile, setProfile] = useState<UserProfile | null>(null);
-  const [family, setFamily] = useState<Family | null>(null);
+  const [userId, setUserId] = useState<string | undefined>(undefined);
+  const [profile, setProfile] = useState<UserProfile | undefined>(undefined);
+  const [family, setFamily] = useState<Family | undefined>(undefined);
   const [isFetchingUser, setIsFetchingUser] = useState(true);
   const [isFetchingProfile, setIsFetchingProfile] = useState(true);
   const [isFetchingFamily, setIsFetchingFamily] = useState(true);
@@ -34,7 +34,7 @@ const App = (): JSX.Element => {
         if (doc.exists()) setProfile(doc.data() as UserProfile);
       });
     } else {
-      setProfile(null);
+      setProfile(undefined);
     }
   };
 
@@ -46,13 +46,13 @@ const App = (): JSX.Element => {
         if (doc.exists()) setFamily(doc.data() as Family);
       });
     } else {
-      setFamily(null);
+      setFamily(undefined);
     }
   };
 
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
-      setUserId(user ? user.uid : null);
+      setUserId(user ? user.uid : undefined);
       setIsFetchingUser(false);
     });
   }, []);
@@ -102,7 +102,7 @@ const App = (): JSX.Element => {
             <CircularProgress size={80} />
           </Box>
         ) : (
-          <NotLoggedIn auth={auth} />
+          <NotLoggedIn />
         )}
       </Router>
     </UserContext.Provider>

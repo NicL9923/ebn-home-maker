@@ -4,7 +4,7 @@ import MemoryOutlinedIcon from '@mui/icons-material/MemoryOutlined';
 import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
 import PaymentsOutlinedIcon from '@mui/icons-material/PaymentsOutlined';
 import EventNoteOutlinedIcon from '@mui/icons-material/EventNoteOutlined';
-import ProfileIcon from '../components/ProfileIcon';
+import ProfileIcon from './ProfileIcon';
 import {
   AppBar,
   IconButton,
@@ -19,9 +19,9 @@ import MenuIcon from '@mui/icons-material/Menu';
 import { Home } from '@mui/icons-material';
 import { UserContext } from '../App';
 
-const Navbar = () => {
+const Navbar = (): JSX.Element => {
   const { userId, profile } = useContext(UserContext);
-  const [anchorEl, setAnchorEl] = useState(null);
+  const [anchorEl, setAnchorEl] = useState<Element | null>(null);
 
   return (
     <AppBar
@@ -44,7 +44,7 @@ const Navbar = () => {
         <Menu
           id="menu-appbar"
           anchorEl={anchorEl}
-          open={anchorEl ? anchorEl : false}
+          open={!!anchorEl}
           onClose={() => setAnchorEl(null)}
         >
           <MenuItem

@@ -19,29 +19,30 @@ import { v4 as uuidv4 } from 'uuid';
 import { FirebaseContext } from '..';
 import { UserContext } from '../App';
 
-const NoProfile = () => {
+const NoProfile = (): JSX.Element => {
   const { db } = useContext(FirebaseContext);
   const { userId, getProfile } = useContext(UserContext);
 
-  const [newName, setNewName] = useState(null);
-  const [nameError, setNameError] = useState(null);
-  const [newPhoto, setNewPhoto] = useState(null);
+  const [newName, setNewName] = useState<string | undefined>(undefined);
+  const [nameError, setNameError] = useState<string | undefined>(undefined);
+  const [newPhoto, setNewPhoto] = useState<File | null>(null);
   const [creatingProfile, setCreatingProfile] = useState(false);
 
-  const isNameValid = () => {
+  const isNameValid = (): boolean => {
     if (!newName) {
       setNameError('You must input a name!');
       return false;
     } else if (newName.includes(' ')) {
       setNameError('The name cannot contain spaces!');
+      return false;
     } else {
-      setNameError(null);
+      setNameError(undefined);
       return true;
     }
   };
 
   const createProfile = () => {
-    if (!isNameValid()) return;
+    if (!isNameValid() || !userId) return;
 
     const newProfileObj = { firstName: newName, familyId: '' };
 
@@ -70,8 +71,8 @@ const NoProfile = () => {
       <Paper sx={{ p: 2 }}>
         <Typography variant="h5">Welcome to Our Home!</Typography>
         <Typography variant="h6" mb={2}>
-          It looks like you don't have a profile yet, would you like to create
-          one?
+          It looks like you don&apos;t have a profile yet, would you like to
+          create one?
         </Typography>
         <Stack direction="row" justifyContent="center" mb={2}>
           <Button variant="contained" onClick={() => setCreatingProfile(true)}>
@@ -98,7 +99,7 @@ const NoProfile = () => {
               value={newName}
               onChange={(event) => setNewName(event.target.value)}
               required
-              error={nameError}
+              error={!!nameError}
               helperText={nameError}
             />
 
@@ -107,6 +108,7 @@ const NoProfile = () => {
               acceptedFiles={['image/jpeg', 'image/png']}
               filesLimit={1}
               onChange={(files) => setNewPhoto(files[0])}
+              fileObjects={[]}
             />
           </DialogContent>
 

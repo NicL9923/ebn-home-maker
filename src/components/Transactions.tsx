@@ -16,12 +16,13 @@ import {
   FormControl,
   InputLabel,
 } from '@mui/material';
-import { DataGrid } from '@mui/x-data-grid';
+import { DataGrid, GridRowId } from '@mui/x-data-grid';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterLuxon } from '@mui/x-date-pickers/AdapterLuxon';
 import { doc, updateDoc } from 'firebase/firestore';
 import { UserContext } from '../App';
 import { FirebaseContext } from '..';
+import { BudgetCategory, BudgetIF, BudgetSubcategory } from 'models/types';
 
 const dgColumns = [
   { field: 'amt', headerName: 'Amount', minWidth: 65, flex: 1, editable: true },
@@ -42,18 +43,40 @@ const dgColumns = [
   { field: 'timestamp', headerName: 'Date', width: 100, editable: true },
 ];
 
-const Transactions = (props) => {
+interface TransactionsProps {
+  budget: BudgetIF;
+  getBudget: () => void;
+}
+
+const Transactions = (props: TransactionsProps): JSX.Element => {
   const { budget, getBudget } = props;
   const { db } = useContext(FirebaseContext);
   const { profile } = useContext(UserContext);
   const [addingTransaction, setAddingTransaction] = useState(false);
-  const [newTransactionName, setNewTransactionName] = useState('');
-  const [newTransactionAmt, setNewTransactionAmt] = useState('');
-  const [newTransactionCat, setNewTransactionCat] = useState('');
-  const [newTransactionDate, setNewTransactionDate] = useState(null);
-  const [selection, setSelection] = useState([]);
+  const [newTransactionName, setNewTransactionName] = useState<
+    string | undefined
+  >(''); // TODO: combine newTransaction into single state object
+  const [newTransactionAmt, setNewTransactionAmt] = useState<
+    string | undefined
+  >('');
+  const [newTransactionCat, setNewTransactionCat] = useState<
+    string | undefined
+  >('');
+  const [newTransactionDate, setNewTransactionDate] = useState<
+    Date | string | undefined | null
+  >(undefined);
+  const [selection, setSelection] = useState<GridRowId[]>([]);
 
   const saveNewTransaction = () => {
+    if (
+      !newTransactionName ||
+      !newTransactionAmt ||
+      !newTransactionCat ||
+      !newTransactionDate ||
+      !profile
+    )
+      return;
+
     const updArr = [...budget.transactions];
     const splitCats = newTransactionCat.split('-');
 
@@ -73,11 +96,13 @@ const Transactions = (props) => {
       setNewTransactionName('');
       setNewTransactionAmt('');
       setNewTransactionCat('');
-      setNewTransactionDate(null);
+      setNewTransactionDate(undefined);
     });
   };
 
   const removeTransactions = () => {
+    if (!profile) return;
+
     let updArr = [...budget.transactions];
 
     updArr = updArr.filter((val, idx) => selection.indexOf(idx)); // Efficient way to remove transaction(s) from array
@@ -90,13 +115,13 @@ const Transactions = (props) => {
     });
   };
 
-  const getCatSelectList = () => {
-    const catSelectArr = [];
+  const getCatSelectList = (): JSX.Element[] => {
+    const catSelectArr: JSX.Element[] = [];
 
-    budget.categories.forEach((category) => {
+    budget.categories.forEach((category: BudgetCategory) => {
       catSelectArr.push(<ListSubheader>{category.name}</ListSubheader>);
 
-      category.subcategories.forEach((subcat) => {
+      category.subcategories.forEach((subcat: BudgetSubcategory) => {
         catSelectArr.push(
           <MenuItem value={`${category.name}-${subcat.name}`}>
             {subcat.name}
@@ -178,7 +203,11 @@ const Transactions = (props) => {
               <InputLabel id="selectLbl">Category</InputLabel>
               <Select
                 labelId="selectLbl"
-                value={newTransactionCat.split('-')[1]}
+                value={
+                  newTransactionCat
+                    ? newTransactionCat.split('-')[1]
+                    : undefined
+                }
                 onChange={(event) => setNewTransactionCat(event.target.value)}
               >
                 {getCatSelectList()}

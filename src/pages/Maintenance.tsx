@@ -24,6 +24,9 @@ import { UserContext } from '../App';
 import { DropzoneArea } from 'mui-file-dropzone';
 import { getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
 import { v4 as uuidv4 } from 'uuid';
+import { Residence, Vehicle } from 'models/types';
+
+// TODO: Refactor this thing...just...just refactor it PLEASE
 
 const defNewRes = {
   name: '',
@@ -46,36 +49,36 @@ const defNewVeh = {
   serviceLogEntries: [],
 };
 
-const Maintenance = () => {
+const Maintenance = (): JSX.Element => {
   const { db } = useContext(FirebaseContext);
   const { profile, family, getFamily } = useContext(UserContext);
-  const [residences, setResidences] = useState(null);
-  const [vehicles, setVehicles] = useState(null);
+  const [residences, setResidences] = useState<Residence[]>([]);
+  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [isFetchingResidences, setIsFetchingResidences] = useState(false);
   const [isFetchingVehicles, setIsFetchingVehicles] = useState(false);
 
   const [addingResidence, setAddingResidence] = useState(false);
   const [addingVehicle, setAddingVehicle] = useState(false);
   const [newResidence, setNewResidence] = useState(defNewRes);
-  const [newResImgFile, setNewResImgFile] = useState(null);
+  const [newResImgFile, setNewResImgFile] = useState<File | null>(null);
   const [newVehicle, setNewVehicle] = useState(defNewVeh);
-  const [newVehImgFile, setNewVehImgFile] = useState(null);
+  const [newVehImgFile, setNewVehImgFile] = useState<File | null>(null);
 
   const getResidences = () => {
-    if (!family.residences) return;
+    if (!family || !family.residences) return;
 
     setIsFetchingResidences(true);
-    let residencesArr = [];
+    const residencesArr: Residence[] = [];
 
     family.residences.forEach((residence) => {
       getDoc(doc(db, 'residences', residence)).then((resDoc) => {
         if (resDoc.exists()) {
           const docData = resDoc.data();
-          docData.serviceLogEntries.forEach((entry, index) => {
+          docData.serviceLogEntries.forEach((entry: any, index: number) => {
             entry.date = new Date(entry.date).toLocaleDateString();
             entry.id = index;
           });
-          residencesArr.push(docData);
+          residencesArr.push(docData as Residence);
           setResidences(residencesArr);
         } else {
           // No residences found
@@ -87,20 +90,20 @@ const Maintenance = () => {
   };
 
   const getVehicles = () => {
-    if (!family.vehicles) return;
+    if (!family || !family.vehicles) return;
 
     setIsFetchingVehicles(true);
-    let vehiclesArr = [];
+    const vehiclesArr: Vehicle[] = [];
 
     family.vehicles.forEach((vehicle) => {
       getDoc(doc(db, 'vehicles', vehicle)).then((vehDoc) => {
         if (vehDoc.exists()) {
           const docData = vehDoc.data();
-          docData.serviceLogEntries.forEach((entry, index) => {
+          docData.serviceLogEntries.forEach((entry: any, index: number) => {
             entry.date = new Date(entry.date).toLocaleDateString();
             entry.id = index;
           });
-          vehiclesArr.push(docData);
+          vehiclesArr.push(docData as Vehicle);
           setVehicles(vehiclesArr);
         } else {
           // No vehicles found
@@ -112,9 +115,11 @@ const Maintenance = () => {
   };
 
   const addNewResidence = () => {
+    if (!family || !profile) return;
+
     const newResId = uuidv4();
 
-    let newResIdArr = [];
+    let newResIdArr: string[] = [];
     if (family.residences) {
       newResIdArr = [...family.residences];
     }
@@ -148,9 +153,11 @@ const Maintenance = () => {
   };
 
   const addNewVehicle = () => {
+    if (!family || !profile) return;
+
     const newVehId = uuidv4();
 
-    let newVehIdArr = [];
+    let newVehIdArr: string[] = [];
     if (family.vehicles) {
       newVehIdArr = [...family.vehicles];
     }
@@ -182,11 +189,13 @@ const Maintenance = () => {
     }
   };
 
-  const deleteResidence = (resId) => {
+  const deleteResidence = (resId: string) => {
+    if (!family || !profile) return;
+
     deleteDoc(doc(db, 'residences', resId)).then(() => {
       const newResIdArr = [...family.residences];
       newResIdArr.splice(
-        newResIdArr.findIndex((res) => res.id === resId),
+        newResIdArr.findIndex((res) => res === resId),
         1
       );
 
@@ -196,11 +205,13 @@ const Maintenance = () => {
     });
   };
 
-  const deleteVehicle = (vehId) => {
+  const deleteVehicle = (vehId: string) => {
+    if (!family || !profile) return;
+
     deleteDoc(doc(db, 'vehicles', vehId)).then(() => {
       const newVehIdArr = [...family.vehicles];
       newVehIdArr.splice(
-        newVehIdArr.findIndex((veh) => veh.id === vehId),
+        newVehIdArr.findIndex((veh) => veh === vehId),
         1
       );
 
@@ -333,6 +344,7 @@ const Maintenance = () => {
             acceptedFiles={['image/jpeg', 'image/png']}
             filesLimit={1}
             onChange={(files) => setNewResImgFile(files[0])}
+            fileObjects={[]}
           />
 
           <TextField
@@ -550,6 +562,7 @@ const Maintenance = () => {
             acceptedFiles={['image/jpeg', 'image/png']}
             filesLimit={1}
             onChange={(files) => setNewVehImgFile(files[0])}
+            fileObjects={[]}
           />
         </DialogContent>
 

@@ -12,10 +12,10 @@ import {
 import { FirebaseContext } from '..';
 import { UserContext } from '../App';
 
-const ProfileIcon = () => {
+const ProfileIcon = (): JSX.Element => {
   const { auth } = useContext(FirebaseContext);
   const { profile } = useContext(UserContext);
-  const [anchorEl, setAnchorEl] = useState(null);
+  const [anchorEl, setAnchorEl] = useState<Element | null>(null);
 
   const handleSignOut = () =>
     signOut(auth)
@@ -35,21 +35,22 @@ const ProfileIcon = () => {
           aria-haspopup="true"
           aria-expanded={anchorEl ? 'true' : undefined}
           aria-controls="profile-menu"
-          src={profile.imgLink ? profile.imgLink : null}
+          src={profile && profile.imgLink ? profile.imgLink : undefined}
           alt="profile"
           sx={{ cursor: 'pointer' }}
         >
-          {profile.imgLink ? null : (
-            <Typography variant="h6">
-              {profile.firstName[0].toUpperCase()}
-            </Typography>
-          )}
+          {profile &&
+            (profile.imgLink ? undefined : (
+              <Typography variant="h6">
+                {profile.firstName[0].toUpperCase()}
+              </Typography>
+            ))}
         </Avatar>
 
         <Menu
           id="profile-menu"
           anchorEl={anchorEl}
-          open={anchorEl ? anchorEl : false}
+          open={!!anchorEl}
           onClose={() => setAnchorEl(null)}
           MenuListProps={{ 'aria-labelledby': 'profile-button' }}
         >

@@ -7,7 +7,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import {
   signInWithRedirect,
   GoogleAuthProvider,
@@ -15,20 +15,24 @@ import {
   createUserWithEmailAndPassword,
 } from 'firebase/auth';
 import { Google } from '@mui/icons-material';
+import { FirebaseContext } from 'index';
 
-const NotLoggedIn = (props) => {
-  const { auth } = props;
+const NotLoggedIn = (): JSX.Element => {
+  const { auth } = useContext(FirebaseContext);
   const provider = new GoogleAuthProvider();
 
-  const [email, setEmail] = useState(null);
-  const [password, setPassword] = useState(null);
+  const [email, setEmail] = useState<string | undefined>(undefined);
+  const [password, setPassword] = useState<string | undefined>(undefined);
 
   const googleSignIn = () => signInWithRedirect(auth, provider);
 
-  const emailPassSignIn = () =>
-    signInWithEmailAndPassword(auth, email, password);
+  const emailPassSignIn = () => {
+    if (email && password) signInWithEmailAndPassword(auth, email, password);
+  };
 
   const createEmailPassAccount = () => {
+    if (!email || !password) return;
+
     createUserWithEmailAndPassword(auth, email, password)
       .then(() => {
         // Successfully created & signed in

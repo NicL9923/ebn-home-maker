@@ -2,12 +2,12 @@ import React, { useState, useRef } from 'react';
 import { TextField, Typography, TypographyTypeMap } from '@mui/material';
 
 interface EditableLabelPropTypes {
-  onFocus: (value: string | undefined) => void;
+  onFocus?: (value: string | undefined) => void;
   onBlur: (value: string | undefined) => void;
   initialValue: string;
-  labelPlaceholder: string | undefined;
-  variant: TypographyTypeMap['props']['variant'] | undefined;
-  prefix: string | undefined;
+  labelPlaceholder?: string;
+  variant?: TypographyTypeMap['props']['variant'];
+  prefix?: string;
 }
 
 const EditableLabel = (props: EditableLabelPropTypes) => {
@@ -27,7 +27,7 @@ const EditableLabel = (props: EditableLabelPropTypes) => {
     if (isEditing) {
       onBlur(value);
       setIsHovered(false);
-    } else {
+    } else if (onFocus) {
       onFocus(value);
     }
 
