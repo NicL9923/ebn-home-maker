@@ -18,11 +18,13 @@ import EditableLabel from './EditableLabel';
 // TODO: handle duplicate name stuff here too
 
 const formatChartData = (blobsData: SavingsBlob[]) => {
-  const formattedDataArr = [['Name', 'Amount']];
+  const formattedDataArr: any[][] = [['Name', 'Amount']];
 
   blobsData.forEach((blob) => {
-    formattedDataArr.push([blob.name, blob.currentAmt.toFixed(2).toString()]);
+    formattedDataArr.push([blob.name, blob.currentAmt]);
   });
+
+  console.log(formattedDataArr);
 
   return formattedDataArr;
 };
@@ -153,7 +155,7 @@ const Savings = (props: SavingsProps): JSX.Element => {
             </Stack>
             <EditableLabel
               variant="body1"
-              initialValue={blob.currentAmt.toFixed(2).toString()}
+              initialValue={blob.currentAmt.toFixed(2)}
               prefix="$"
               onBlur={(newValue) => updateSavingsBlobAmt(blob.name, newValue)}
             />
