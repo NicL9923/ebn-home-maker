@@ -7,11 +7,10 @@ import {
   Stack,
   Typography,
 } from '@mui/material';
-import { doc, updateDoc } from 'firebase/firestore';
 import { BudgetIF, SavingsBlob } from 'models/types';
 import React, { useContext } from 'react';
 import Chart from 'react-google-charts';
-import { FirebaseContext } from '..';
+import { FirebaseContext } from '../Firebase';
 import { UserContext } from '../App';
 import EditableLabel from './EditableLabel';
 
@@ -33,16 +32,18 @@ interface SavingsProps {
 }
 
 const Savings = (props: SavingsProps): JSX.Element => {
-  const { db } = useContext(FirebaseContext);
+  const firebase = useContext(FirebaseContext);
   const { profile } = useContext(UserContext);
   const { budget, getBudget } = props;
 
   const saveUpdBlobsArr = (newArr: SavingsBlob[]) => {
-    if (!profile) return;
+    if (!profile || !profile.budgetId) return;
 
-    updateDoc(doc(db, 'budgets', profile.budgetId), {
-      savingsBlobs: newArr,
-    }).then(() => getBudget());
+    firebase
+      .updateBudget(profile.budgetId, {
+        savingsBlobs: newArr,
+      })
+      .then(() => getBudget());
   };
 
   const createSavingsBlob = () => {

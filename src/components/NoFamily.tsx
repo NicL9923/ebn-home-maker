@@ -11,41 +11,38 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import { doc, setDoc, updateDoc } from 'firebase/firestore';
 import React, { useContext, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { FirebaseContext } from '..';
+import { FirebaseContext } from '../Firebase';
 import { UserContext } from '../App';
+import { Family } from 'models/types';
 
 const NoFamily = (): JSX.Element => {
-  const { db } = useContext(FirebaseContext);
+  const firebase = useContext(FirebaseContext);
   const { userId, getProfile, getFamily } = useContext(UserContext);
 
   const [creatingFamily, setCreatingFamily] = useState(false);
   const [newName, setNewName] = useState<string | undefined>(undefined);
 
   const createFamily = () => {
-    if (!userId) return;
+    if (!userId || !newName) return;
 
     const newFamId = uuidv4();
-    const newFamObj = {
+    const newFamObj: Family = {
       name: newName,
       headOfFamily: userId,
       members: [userId],
       boardMarkdown: 'This is the family board!',
-      events: {
-        title: 'Created family on Our Home!',
-        start: Date.now(),
-        end: Date.now(),
-        allDay: true,
-      },
+      pets: [],
+      vehicles: [],
+      residences: [],
     };
 
-    setDoc(doc(db, 'families', newFamId), newFamObj).then(() => {
+    firebase.createFamily(newFamId, newFamObj).then(() => {
       getFamily();
     });
 
-    updateDoc(doc(db, 'profiles', userId), { familyId: newFamId }).then(() => {
+    firebase.updateProfile(userId, { familyId: newFamId }).then(() => {
       getProfile();
     });
   };

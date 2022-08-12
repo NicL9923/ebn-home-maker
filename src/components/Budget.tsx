@@ -18,16 +18,16 @@ import {
   Typography,
   useTheme,
 } from '@mui/material';
-import { doc, updateDoc } from 'firebase/firestore';
 import { BudgetCategory, BudgetIF, BudgetSubcategory } from 'models/types';
 import React, { useContext, useState } from 'react';
 import { Droppable, DropResult } from 'react-beautiful-dnd';
 import { Draggable } from 'react-beautiful-dnd';
 import { DragDropContext } from 'react-beautiful-dnd';
-import { FirebaseContext } from '..';
+import { FirebaseContext } from '../Firebase';
 import { UserContext } from '../App';
 import EditableLabel from './EditableLabel';
 
+// TODO: Put all this crap into FinancesContext or something to avoid prop spam and combine all the IFs
 interface UltraSharedFuncProps {
   setSubCatProperty: (
     newValue: string | undefined,
@@ -341,21 +341,23 @@ interface BudgetProps {
 }
 
 const Budget = (props: BudgetProps): JSX.Element => {
-  const { db } = useContext(FirebaseContext);
+  const firebase = useContext(FirebaseContext);
   const { profile } = useContext(UserContext);
   const { budget, setBudget, getBudget } = props;
   const theme = useTheme();
 
   const setMonthlyNetIncome = (newValue: string | undefined) => {
-    if (!profile || !newValue) return;
+    if (!profile || !profile.budgetId || !newValue) return;
 
-    updateDoc(doc(db, 'budgets', profile.budgetId), {
-      monthlyNetIncome: parseFloat(newValue),
-    }).then(() => getBudget());
+    firebase
+      .updateBudget(profile.budgetId, {
+        monthlyNetIncome: parseFloat(newValue),
+      })
+      .then(() => getBudget());
   };
 
   const setCategoryName = (newValue: string | undefined, oldName: string) => {
-    if (!profile || !newValue) return;
+    if (!profile || !profile.budgetId || !newValue) return;
 
     if (newValue === oldName) return;
 
@@ -378,10 +380,12 @@ const Budget = (props: BudgetProps): JSX.Element => {
       }
     });
 
-    updateDoc(doc(db, 'budgets', profile.budgetId), {
-      categories: updArr,
-      transactions: updTransactions,
-    }).then(() => getBudget());
+    firebase
+      .updateBudget(profile.budgetId, {
+        categories: updArr,
+        transactions: updTransactions,
+      })
+      .then(() => getBudget());
   };
 
   const setSubCatProperty = (
@@ -390,7 +394,8 @@ const Budget = (props: BudgetProps): JSX.Element => {
     catName: string,
     propName: string
   ) => {
-    if (!profile || !newValue || newValue === oldName) return;
+    if (!profile || !profile.budgetId || !newValue || newValue === oldName)
+      return;
 
     const updArr = [...budget.categories];
     const updTransactions = [...budget.transactions];
@@ -427,14 +432,16 @@ const Budget = (props: BudgetProps): JSX.Element => {
       }
     });
 
-    updateDoc(doc(db, 'budgets', profile.budgetId), {
-      categories: updArr,
-      transactions: updTransactions,
-    }).then(() => getBudget());
+    firebase
+      .updateBudget(profile.budgetId, {
+        categories: updArr,
+        transactions: updTransactions,
+      })
+      .then(() => getBudget());
   };
 
   const addNewCategory = () => {
-    if (!profile) return;
+    if (!profile || !profile.budgetId) return;
 
     let newCatName = 'New Category';
     let nameIterator = 1;
@@ -446,16 +453,18 @@ const Budget = (props: BudgetProps): JSX.Element => {
       nameIterator++;
     }
 
-    updateDoc(doc(db, 'budgets', profile.budgetId), {
-      categories: [
-        ...budget.categories,
-        { name: newCatName, subcategories: [] },
-      ],
-    }).then(() => getBudget());
+    firebase
+      .updateBudget(profile.budgetId, {
+        categories: [
+          ...budget.categories,
+          { name: newCatName, subcategories: [] },
+        ],
+      })
+      .then(() => getBudget());
   };
 
   const removeCategory = (catName: string) => {
-    if (!profile) return;
+    if (!profile || !profile.budgetId) return;
 
     const updArr = [...budget.categories];
     const updTransactions = [...budget.transactions];
@@ -471,14 +480,16 @@ const Budget = (props: BudgetProps): JSX.Element => {
       }
     });
 
-    updateDoc(doc(db, 'budgets', profile.budgetId), {
-      categories: updArr,
-      transactions: updTransactions,
-    }).then(() => getBudget());
+    firebase
+      .updateBudget(profile.budgetId, {
+        categories: updArr,
+        transactions: updTransactions,
+      })
+      .then(() => getBudget());
   };
 
   const addNewSubCategory = (catName: string) => {
-    if (!profile) return;
+    if (!profile || !profile.budgetId) return;
 
     const updArr = [...budget.categories];
 
@@ -504,13 +515,15 @@ const Budget = (props: BudgetProps): JSX.Element => {
       }
     });
 
-    updateDoc(doc(db, 'budgets', profile.budgetId), {
-      categories: updArr,
-    }).then(() => getBudget());
+    firebase
+      .updateBudget(profile.budgetId, {
+        categories: updArr,
+      })
+      .then(() => getBudget());
   };
 
   const removeSubCategory = (catName: string, subCatName: string) => {
-    if (!profile) return;
+    if (!profile || !profile.budgetId) return;
 
     const updArr = [...budget.categories];
     const updTransactions = [...budget.transactions];
@@ -532,14 +545,16 @@ const Budget = (props: BudgetProps): JSX.Element => {
       }
     });
 
-    updateDoc(doc(db, 'budgets', profile.budgetId), {
-      categories: updArr,
-      transactions: updTransactions,
-    }).then(() => getBudget());
+    firebase
+      .updateBudget(profile.budgetId, {
+        categories: updArr,
+        transactions: updTransactions,
+      })
+      .then(() => getBudget());
   };
 
   const moveCategory = (dragIdx: number, dropIdx: number) => {
-    if (!profile) return;
+    if (!profile || !profile.budgetId) return;
 
     const updArr = [...budget.categories];
     const cat = updArr[dragIdx];
@@ -550,9 +565,12 @@ const Budget = (props: BudgetProps): JSX.Element => {
     const newBudget = { ...budget };
     newBudget.categories = updArr;
     setBudget(newBudget);
-    updateDoc(doc(db, 'budgets', profile.budgetId), {
-      categories: updArr,
-    }).then(() => getBudget());
+
+    firebase
+      .updateBudget(profile.budgetId, {
+        categories: updArr,
+      })
+      .then(() => getBudget());
   };
 
   const moveSubCategory = (
@@ -562,7 +580,7 @@ const Budget = (props: BudgetProps): JSX.Element => {
     dropIdx: number
   ) => {
     // Src & Dest cat is used to handle subcat being moved to a different cat
-    if (!profile) return;
+    if (!profile || !profile.budgetId) return;
 
     const updArr = [...budget.categories];
     const srcCatIdx = updArr.findIndex((cat) => cat.name === srcCatName);
@@ -575,17 +593,20 @@ const Budget = (props: BudgetProps): JSX.Element => {
     const newBudget = { ...budget };
     newBudget.categories = updArr;
     setBudget(newBudget);
-    updateDoc(doc(db, 'budgets', profile.budgetId), {
-      categories: updArr,
-    }).then(() => getBudget());
+
+    firebase
+      .updateBudget(profile.budgetId, {
+        categories: updArr,
+      })
+      .then(() => getBudget());
   };
 
   const setBudgetName = (newName: string | undefined) => {
-    if (!profile || !newName) return;
+    if (!profile || !profile.budgetId || !newName) return;
 
-    updateDoc(doc(db, 'budgets', profile.budgetId), { name: newName }).then(
-      () => getBudget()
-    );
+    firebase
+      .updateBudget(profile.budgetId, { name: newName })
+      .then(() => getBudget());
   };
 
   const getAllottedRemainder = () => {

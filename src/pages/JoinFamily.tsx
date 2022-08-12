@@ -1,15 +1,15 @@
 import React, { useContext, useEffect } from 'react';
 import { Alert, Box, CircularProgress } from '@mui/material';
 import { useParams } from 'react-router-dom';
-import { arrayUnion, doc, updateDoc } from 'firebase/firestore';
-import { FirebaseContext } from '..';
+import { arrayUnion } from 'firebase/firestore';
+import { FirebaseContext } from '../Firebase';
 import { UserContext } from '../App';
 
 // TODO: flesh this out
 
 const JoinFamily = () => {
   const { familyId } = useParams();
-  const { db } = useContext(FirebaseContext);
+  const firebase = useContext(FirebaseContext);
   const { userId, profile, family, getProfile, getFamily } =
     useContext(UserContext);
 
@@ -19,9 +19,9 @@ const JoinFamily = () => {
     }
 
     // Add familyId to profile(user.uid).familyId, getFamily, and show success message
-    updateDoc(doc(db, 'families', familyId), { members: arrayUnion(userId) });
+    firebase.updateFamily(familyId, { members: arrayUnion(userId) });
 
-    updateDoc(doc(db, 'profiles', userId), { familyId }).then(() => {
+    firebase.updateProfile(userId, { familyId }).then(() => {
       getProfile();
       getFamily();
     });

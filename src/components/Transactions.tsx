@@ -19,9 +19,8 @@ import {
 import { DataGrid, GridRowId } from '@mui/x-data-grid';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterLuxon } from '@mui/x-date-pickers/AdapterLuxon';
-import { doc, updateDoc } from 'firebase/firestore';
 import { UserContext } from '../App';
-import { FirebaseContext } from '..';
+import { FirebaseContext } from '../Firebase';
 import { BudgetCategory, BudgetIF, BudgetSubcategory } from 'models/types';
 
 const dgColumns = [
@@ -60,6 +59,7 @@ const dgColumns = [
     flex: 1,
     width: 100,
     editable: true,
+    valueGetter: (params: any) => new Date(params.value),
   },
 ];
 
@@ -70,7 +70,7 @@ interface TransactionsProps {
 
 const Transactions = (props: TransactionsProps): JSX.Element => {
   const { budget, getBudget } = props;
-  const { db } = useContext(FirebaseContext);
+  const firebase = useContext(FirebaseContext);
   const { profile } = useContext(UserContext);
   const [addingTransaction, setAddingTransaction] = useState(false);
   const [newTransactionName, setNewTransactionName] = useState(''); // TODO: combine newTransaction into single state object
@@ -81,20 +81,14 @@ const Transactions = (props: TransactionsProps): JSX.Element => {
   >(new Date());
   const [selection, setSelection] = useState<GridRowId[]>([]);
 
-  // MUST BE DONE BEFORE PUSHING TRANSACTIONS
-  const convertTimestampsToStrings = (arrOfObjsToConvert: any[]) => {
-    arrOfObjsToConvert.forEach((item) => {
-      item.timestamp = item.timestamp.toString();
-    });
-  };
-
   const saveNewTransaction = () => {
     if (
       !newTransactionName ||
       !newTransactionAmt ||
       !newTransactionCat ||
       !newTransactionDate ||
-      !profile
+      !profile ||
+      !profile.budgetId
     ) {
       console.error(
         `One or more values are null/undefined: ${newTransactionName}, ${newTransactionAmt}, ${newTransactionCat}, ${newTransactionDate}, ${profile}`
@@ -105,7 +99,6 @@ const Transactions = (props: TransactionsProps): JSX.Element => {
     const updArr: any[] = Array.from(budget.transactions);
     const splitCats = newTransactionCat.split('-');
 
-    convertTimestampsToStrings(updArr);
     updArr.push({
       amt: parseFloat(newTransactionAmt),
       name: newTransactionName,
@@ -114,33 +107,31 @@ const Transactions = (props: TransactionsProps): JSX.Element => {
       subcategory: splitCats[1],
     });
 
-    updateDoc(doc(db, 'budgets', profile.budgetId), {
-      transactions: updArr,
-    }).then(() => {
-      getBudget();
-      setAddingTransaction(false);
-      setNewTransactionName('');
-      setNewTransactionAmt('');
-      setNewTransactionCat('');
-      setNewTransactionDate(new Date());
-    });
+    firebase
+      .updateBudget(profile.budgetId, { transactions: updArr })
+      .then(() => {
+        getBudget();
+        setAddingTransaction(false);
+        setNewTransactionName('');
+        setNewTransactionAmt('');
+        setNewTransactionCat('');
+        setNewTransactionDate(new Date());
+      });
   };
 
   const removeTransactions = () => {
-    if (!profile) return;
+    if (!profile || !profile.budgetId) return;
 
     let updArr = [...budget.transactions];
 
     updArr = updArr.filter((val, idx) => selection.indexOf(idx) === -1); // Efficient way to remove transaction(s) from array
 
-    convertTimestampsToStrings(updArr);
-
-    updateDoc(doc(db, 'budgets', profile.budgetId), {
-      transactions: updArr,
-    }).then(() => {
-      getBudget();
-      setSelection([]);
-    });
+    firebase
+      .updateBudget(profile.budgetId, { transactions: updArr })
+      .then(() => {
+        getBudget();
+        setSelection([]);
+      });
   };
 
   const getCatSelectList = (): JSX.Element[] => {

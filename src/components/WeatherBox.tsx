@@ -29,14 +29,13 @@ import {
   WiCloudy,
   WiNightCloudy,
 } from 'weather-icons-react';
-import { doc, updateDoc } from 'firebase/firestore';
 import { UserContext } from '../App';
-import { FirebaseContext } from '..';
+import { FirebaseContext } from '../Firebase';
 
 // TODO: Make types for retrieved weather data
 
 const WeatherBox = (): JSX.Element => {
-  const { db } = useContext(FirebaseContext);
+  const firebase = useContext(FirebaseContext);
   const { profile, family, getFamily } = useContext(UserContext);
   const [currentWeather, setCurrentWeather] = useState<any>(null);
   const [weatherAlerts, setWeatherAlerts] = useState<any>(null);
@@ -335,12 +334,14 @@ const WeatherBox = (): JSX.Element => {
   const saveApiKey = () => {
     if (!profile) return;
 
-    updateDoc(doc(db, 'families', profile.familyId), {
-      openweathermap_api_key: newApiKey,
-      location: { lat: '39.83', long: '-98.58' },
-    }).then(() => {
-      getFamily();
-    });
+    firebase
+      .updateFamily(profile.familyId, {
+        openweathermap_api_key: newApiKey,
+        location: { lat: '39.83', long: '-98.58' },
+      })
+      .then(() => {
+        getFamily();
+      });
   };
 
   useEffect(getWeatherData, [family]);

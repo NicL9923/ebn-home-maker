@@ -9,7 +9,7 @@ import {
   MenuItem,
   Typography,
 } from '@mui/material';
-import { FirebaseContext } from '..';
+import { FirebaseContext } from '../Firebase';
 import { UserContext } from '../App';
 
 const ProfileIcon = (): JSX.Element => {

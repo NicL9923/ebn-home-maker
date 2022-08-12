@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { getDoc, doc, deleteDoc, updateDoc } from 'firebase/firestore';
 import {
   deleteObject,
   getDownloadURL,
@@ -41,12 +40,12 @@ import { v4 as uuidv4 } from 'uuid';
 import copy from 'clipboard-copy';
 import NoFamily from '../components/NoFamily';
 import { UserContext } from '../App';
-import { FirebaseContext } from '..';
+import { FirebaseContext } from '../Firebase';
 import NoProfile from 'components/NoProfile';
 import { GenericObject, UserProfile } from 'models/types';
 
 const Profile = () => {
-  const { db } = useContext(FirebaseContext);
+  const firebase = useContext(FirebaseContext);
   const { userId, profile, family, getProfile } = useContext(UserContext);
   const [familyMemberProfiles, setFamilyMemberProfiles] = useState<
     UserProfile[]
@@ -72,7 +71,7 @@ const Profile = () => {
   ) => {
     if (!profileId) return;
 
-    updateDoc(doc(db, 'profiles', profileId), profObjToMerge).then(() => {
+    firebase.updateProfile(profileId, profObjToMerge).then(() => {
       if (refreshProfile) getProfile();
     });
   };
@@ -85,7 +84,7 @@ const Profile = () => {
     family.members.forEach((member) => {
       if (member === userId) return;
 
-      getDoc(doc(db, 'profiles', member)).then((doc) => {
+      firebase.getProfile(member).then((doc) => {
         if (doc.exists()) {
           const profileData = doc.data() as UserProfile;
           famMemProfs.push(profileData);
@@ -145,18 +144,18 @@ const Profile = () => {
     // Delete residences and vehicles
     if (family.residences) {
       family.residences.forEach((res) => {
-        deleteDoc(doc(db, 'residences', res));
+        firebase.deleteResidence(res);
       });
     }
 
     if (family.vehicles) {
       family.vehicles.forEach((veh) => {
-        deleteDoc(doc(db, 'vehicles', veh));
+        firebase.deleteVehicle(veh);
       });
     }
 
     // Delete family doc
-    deleteDoc(doc(db, 'families', profile.familyId)).then(() => {
+    firebase.deleteFamily(profile.familyId).then(() => {
       mergeProfileProperty({ familyId: '' });
     });
   };
@@ -174,7 +173,7 @@ const Profile = () => {
       mergeFam.headOfFamily = newMembers[0];
     }
 
-    updateDoc(doc(db, 'families', profile.familyId), mergeFam);
+    firebase.updateFamily(profile.familyId, mergeFam);
     mergeProfileProperty({ familyId: '' });
   };
 

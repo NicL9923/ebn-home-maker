@@ -1,5 +1,4 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { getDoc, doc, setDoc, deleteDoc, updateDoc } from 'firebase/firestore';
 import {
   Box,
   Button,
@@ -19,7 +18,7 @@ import {
 import { DataGrid } from '@mui/x-data-grid';
 import { Add, DirectionsCar, House } from '@mui/icons-material';
 import Image from 'material-ui-image';
-import { FirebaseContext } from '..';
+import { FirebaseContext } from '../Firebase';
 import { UserContext } from '../App';
 import { DropzoneArea } from 'mui-file-dropzone';
 import { getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
@@ -50,7 +49,7 @@ const defNewVeh = {
 };
 
 const Maintenance = (): JSX.Element => {
-  const { db } = useContext(FirebaseContext);
+  const firebase = useContext(FirebaseContext);
   const { profile, family, getFamily } = useContext(UserContext);
   const [residences, setResidences] = useState<Residence[]>([]);
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
@@ -71,7 +70,7 @@ const Maintenance = (): JSX.Element => {
     const residencesArr: Residence[] = [];
 
     family.residences.forEach((residence) => {
-      getDoc(doc(db, 'residences', residence)).then((resDoc) => {
+      firebase.getResidence(residence).then((resDoc) => {
         if (resDoc.exists()) {
           const docData = resDoc.data();
           docData.serviceLogEntries.forEach((entry: any, index: number) => {
@@ -96,7 +95,7 @@ const Maintenance = (): JSX.Element => {
     const vehiclesArr: Vehicle[] = [];
 
     family.vehicles.forEach((vehicle) => {
-      getDoc(doc(db, 'vehicles', vehicle)).then((vehDoc) => {
+      firebase.getVehicle(vehicle).then((vehDoc) => {
         if (vehDoc.exists()) {
           const docData = vehDoc.data();
           docData.serviceLogEntries.forEach((entry: any, index: number) => {
@@ -125,25 +124,29 @@ const Maintenance = (): JSX.Element => {
     }
     newResIdArr.push(newResId);
 
-    setDoc(doc(db, 'residences', newResId), {
-      ...newResidence,
-      id: newResId,
-    }).then(() => {
-      updateDoc(doc(db, 'families', profile.familyId), {
-        residences: newResIdArr,
-      }).then(() => {
-        getFamily();
-        setAddingResidence(false);
-        setNewResidence(defNewRes);
+    firebase
+      .createResidence(newResId, {
+        ...newResidence,
+        id: newResId,
+      })
+      .then(() => {
+        firebase
+          .updateFamily(profile.familyId, {
+            residences: newResIdArr,
+          })
+          .then(() => {
+            getFamily();
+            setAddingResidence(false);
+            setNewResidence(defNewRes);
+          });
       });
-    });
 
     if (newResImgFile) {
       const storage = getStorage();
       const imgRef = ref(storage, uuidv4());
       uploadBytes(imgRef, newResImgFile).then((snapshot) => {
         getDownloadURL(snapshot.ref).then((url) => {
-          updateDoc(doc(db, 'residences', newResId), { img: url }).then(() => {
+          firebase.updateResidence(newResId, { img: url }).then(() => {
             getResidences();
             setNewResImgFile(null);
           });
@@ -163,24 +166,26 @@ const Maintenance = (): JSX.Element => {
     }
     newVehIdArr.push(newVehId);
 
-    setDoc(doc(db, 'vehicles', newVehId), { ...newVehicle, id: newVehId }).then(
-      () => {
-        updateDoc(doc(db, 'families', profile.familyId), {
-          vehicles: newVehIdArr,
-        }).then(() => {
-          getFamily();
-          setAddingVehicle(false);
-          setNewVehicle(defNewVeh);
-        });
-      }
-    );
+    firebase
+      .createVehicle(newVehId, { ...newVehicle, id: newVehId })
+      .then(() => {
+        firebase
+          .updateFamily(profile.familyId, {
+            vehicles: newVehIdArr,
+          })
+          .then(() => {
+            getFamily();
+            setAddingVehicle(false);
+            setNewVehicle(defNewVeh);
+          });
+      });
 
     if (newVehImgFile) {
       const storage = getStorage();
       const imgRef = ref(storage, uuidv4());
       uploadBytes(imgRef, newVehImgFile).then((snapshot) => {
         getDownloadURL(snapshot.ref).then((url) => {
-          updateDoc(doc(db, 'vehicles', newVehId), { img: url }).then(() => {
+          firebase.updateVehicle(newVehId, { img: url }).then(() => {
             getVehicles();
             setNewVehImgFile(null);
           });
@@ -192,32 +197,36 @@ const Maintenance = (): JSX.Element => {
   const deleteResidence = (resId: string) => {
     if (!family || !profile) return;
 
-    deleteDoc(doc(db, 'residences', resId)).then(() => {
+    firebase.deleteResidence(resId).then(() => {
       const newResIdArr = [...family.residences];
       newResIdArr.splice(
         newResIdArr.findIndex((res) => res === resId),
         1
       );
 
-      updateDoc(doc(db, 'families', profile.familyId), {
-        residences: newResIdArr,
-      }).then(() => getFamily());
+      firebase
+        .updateFamily(profile.familyId, {
+          residences: newResIdArr,
+        })
+        .then(() => getFamily());
     });
   };
 
   const deleteVehicle = (vehId: string) => {
     if (!family || !profile) return;
 
-    deleteDoc(doc(db, 'vehicles', vehId)).then(() => {
+    firebase.deleteVehicle(vehId).then(() => {
       const newVehIdArr = [...family.vehicles];
       newVehIdArr.splice(
         newVehIdArr.findIndex((veh) => veh === vehId),
         1
       );
 
-      updateDoc(doc(db, 'families', profile.familyId), {
-        vehicles: newVehIdArr,
-      }).then(() => getFamily());
+      firebase
+        .updateFamily(profile.familyId, {
+          vehicles: newVehIdArr,
+        })
+        .then(() => getFamily());
     });
   };
 

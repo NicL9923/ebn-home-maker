@@ -1,12 +1,4 @@
-import { Auth } from 'firebase/auth';
-import { Firestore } from 'firebase/firestore';
-
-export type GenericObject = { [key: string]: any };
-
-export interface FBContextValue {
-  auth: Auth;
-  db: Firestore;
-}
+export type GenericObject<T = any> = { [key: string]: T };
 
 export interface UserContextValue {
   userId?: string;
@@ -20,19 +12,19 @@ export interface UserContextValue {
 
 // ID === user.uid
 export interface UserProfile {
-  budgetId: string;
+  budgetId?: string;
   familyId: string;
   firstName: string;
-  imgLink: string;
+  imgLink?: string;
 }
 
 export interface Family {
   headOfFamily: string;
-  location: { lat: string; long: string };
+  location?: { lat: string; long: string };
   members: string[];
   name: string;
-  openweathermap_api_key: string;
-  gmaps_api_key: string;
+  openweathermap_api_key?: string;
+  gmaps_api_key?: string;
   pets: Pet[];
   boardMarkdown: string;
   vehicles: string[]; // IDs
@@ -46,7 +38,7 @@ export interface Pet {
 
 export interface Vehicle {
   id: string;
-  img: string;
+  img?: string;
   year: string;
   make: string;
   model: string;
@@ -62,7 +54,7 @@ export interface Vehicle {
 export interface Residence {
   id: string;
   name: string;
-  img: string;
+  img?: string;
   yearBuilt: string;
   yearPurchased: string;
   serviceLogEntries: { date: string; note: string }[];
@@ -107,5 +99,5 @@ export interface Transaction {
   amt: number;
   category: string;
   subcategory: string;
-  timestamp: Date;
+  timestamp: string;
 }

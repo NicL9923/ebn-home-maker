@@ -11,16 +11,15 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import { doc, setDoc } from 'firebase/firestore';
 import { getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
 import { DropzoneArea } from 'mui-file-dropzone';
 import React, { useContext, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { FirebaseContext } from '..';
+import { FirebaseContext } from '../Firebase';
 import { UserContext } from '../App';
 
 const NoProfile = (): JSX.Element => {
-  const { db } = useContext(FirebaseContext);
+  const firebase = useContext(FirebaseContext);
   const { userId, getProfile } = useContext(UserContext);
 
   const [newName, setNewName] = useState<string | undefined>(undefined);
@@ -42,7 +41,7 @@ const NoProfile = (): JSX.Element => {
   };
 
   const createProfile = () => {
-    if (!isNameValid() || !userId) return;
+    if (!isNameValid() || !userId || !newName) return;
 
     const newProfileObj = { firstName: newName, familyId: '' };
 
@@ -51,16 +50,18 @@ const NoProfile = (): JSX.Element => {
       const imgRef = ref(storage, uuidv4());
       uploadBytes(imgRef, newPhoto).then((snapshot) => {
         getDownloadURL(snapshot.ref).then((url) => {
-          setDoc(doc(db, 'profiles', userId), {
-            ...newProfileObj,
-            imgLink: url,
-          }).then(() => {
-            getProfile();
-          });
+          firebase
+            .createProfile(userId, {
+              ...newProfileObj,
+              imgLink: url,
+            })
+            .then(() => {
+              getProfile();
+            });
         });
       });
     } else {
-      setDoc(doc(db, 'profiles', userId), newProfileObj).then(() => {
+      firebase.createProfile(userId, newProfileObj).then(() => {
         getProfile();
       });
     }

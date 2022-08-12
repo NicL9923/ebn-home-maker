@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { onAuthStateChanged } from 'firebase/auth';
-import { getDoc, doc } from 'firebase/firestore';
 import Home from './pages/Home';
 import SmartHome from './pages/SmartHome';
 import Finances from './pages/Finances';
@@ -11,14 +10,14 @@ import Profile from './pages/Profile';
 import Navbar from './components/Navbar';
 import JoinFamily from './pages/JoinFamily';
 import NotLoggedIn from './components/NotLoggedIn';
-import { FirebaseContext } from '.';
+import { FirebaseContext } from './Firebase';
 import { Box, CircularProgress } from '@mui/material';
 import { Family, UserContextValue, UserProfile } from 'models/types';
 
 export const UserContext = React.createContext({} as UserContextValue);
 
 const App = (): JSX.Element => {
-  const { auth, db } = useContext(FirebaseContext);
+  const firebase = useContext(FirebaseContext);
   const [userId, setUserId] = useState<string | undefined>(undefined);
   const [profile, setProfile] = useState<UserProfile | undefined>(undefined);
   const [family, setFamily] = useState<Family | undefined>(undefined);
@@ -29,7 +28,7 @@ const App = (): JSX.Element => {
   const getProfile = () => {
     if (userId) {
       setIsFetchingProfile(true);
-      getDoc(doc(db, 'profiles', userId)).then((doc) => {
+      firebase.getProfile(userId).then((doc) => {
         setIsFetchingProfile(false);
         if (doc.exists()) setProfile(doc.data() as UserProfile);
       });
@@ -41,7 +40,7 @@ const App = (): JSX.Element => {
   const getFamily = () => {
     if (profile && profile.familyId) {
       setIsFetchingFamily(true);
-      getDoc(doc(db, 'families', profile.familyId)).then((doc) => {
+      firebase.getFamily(profile.familyId).then((doc) => {
         setIsFetchingFamily(false);
         if (doc.exists()) setFamily(doc.data() as Family);
       });
@@ -51,7 +50,7 @@ const App = (): JSX.Element => {
   };
 
   useEffect(() => {
-    onAuthStateChanged(auth, (user) => {
+    onAuthStateChanged(firebase.auth, (user) => {
       setUserId(user ? user.uid : undefined);
       setIsFetchingUser(false);
     });

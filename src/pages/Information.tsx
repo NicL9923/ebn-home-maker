@@ -1,15 +1,14 @@
 import React, { useContext, useState } from 'react';
 import { Box, Button, Paper, Typography } from '@mui/material';
 import MDEditor from '@uiw/react-md-editor';
-import { FirebaseContext } from '..';
+import { FirebaseContext } from '../Firebase';
 import { UserContext } from '../App';
 import { Edit, Save } from '@mui/icons-material';
-import { doc, updateDoc } from 'firebase/firestore';
 
 /* The moral of this page is *drum roll please*... KISS */
 
 const Information = (): JSX.Element => {
-  const { db } = useContext(FirebaseContext);
+  const firebase = useContext(FirebaseContext);
   const { userId, profile, family, getFamily } = useContext(UserContext);
   const [isEditingMd, setIsEditingMd] = useState(false);
   const [editedMd, setEditedMd] = useState<string | undefined>(undefined);
@@ -30,12 +29,14 @@ const Information = (): JSX.Element => {
 
     if (editedMd === family.boardMarkdown) return;
 
-    updateDoc(doc(db, 'families', profile.familyId), {
-      boardMarkdown: editedMd,
-    }).then(() => {
-      getFamily();
-      setEditedMd(undefined);
-    });
+    firebase
+      .updateFamily(profile.familyId, {
+        boardMarkdown: editedMd,
+      })
+      .then(() => {
+        getFamily();
+        setEditedMd(undefined);
+      });
   };
 
   return (

@@ -21,13 +21,12 @@ import {
   Toolbar,
   Typography,
 } from '@mui/material';
-import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 import React, { useContext, useEffect, useState } from 'react';
 import Budget from '../components/Budget';
 import Savings from '../components/Savings';
 import Transactions from '../components/Transactions';
 import { v4 as uuidv4 } from 'uuid';
-import { FirebaseContext } from '..';
+import { FirebaseContext } from '../Firebase';
 import { UserContext } from '../App';
 // import jsPDF from 'jspdf';
 import 'jspdf-autotable';
@@ -68,7 +67,7 @@ const NoBudget = (props: NoBudgetProps): JSX.Element => {
 };
 
 const Finances = (): JSX.Element => {
-  const { db } = useContext(FirebaseContext);
+  const firebase = useContext(FirebaseContext);
   const { userId, profile, getProfile } = useContext(UserContext);
   const [shownComponent, setShownComponent] = useState(0);
   const [budget, setBudget] = useState<BudgetIF | undefined>(undefined);
@@ -78,7 +77,8 @@ const Finances = (): JSX.Element => {
     if (!userId) return;
 
     const newBudgetUuid = uuidv4();
-    const newBudgetTemplate = {
+    const newBudgetTemplate: BudgetIF = {
+      name: 'My Budget',
       id: newBudgetUuid,
       editors: [userId],
       monthlyNetIncome: 3000,
@@ -89,10 +89,12 @@ const Finances = (): JSX.Element => {
             {
               name: 'Rent',
               totalAllotted: 1250,
+              currentSpent: 0,
             },
             {
               name: 'Utilities',
               totalAllotted: 300,
+              currentSpent: 0,
             },
           ],
         },
@@ -102,6 +104,7 @@ const Finances = (): JSX.Element => {
             {
               name: 'Spending',
               totalAllotted: 300,
+              currentSpent: 0,
             },
           ],
         },
@@ -114,40 +117,26 @@ const Finances = (): JSX.Element => {
           amt: 10,
           category: 'Essentials',
           subcategory: 'Rent',
-          timestamp: Date.now(),
+          timestamp: Date.now().toString(),
         },
       ],
     };
 
-    updateDoc(doc(db, 'profiles', userId), { budgetId: newBudgetUuid }).then(
-      () => {
-        setDoc(doc(db, 'budgets', newBudgetUuid), newBudgetTemplate).then(
-          () => {
-            getProfile();
-          }
-        );
-      }
-    );
+    firebase.updateProfile(userId, { budgetId: newBudgetUuid }).then(() => {
+      firebase.createBudget(newBudgetUuid, newBudgetTemplate).then(() => {
+        getProfile();
+      });
+    });
   };
 
   const getBudget = () => {
-    if (!profile) return;
+    if (!profile || !profile.budgetId) return;
 
     setIsFetchingBudget(true);
-    getDoc(doc(db, 'budgets', profile.budgetId)).then((docx) => {
+    firebase.getBudget(profile.budgetId).then((doc) => {
       setIsFetchingBudget(false);
-      if (docx.exists()) {
-        const docData = docx.data();
-
-        /* Emergency conversion of Firestore timestamps back to strings
-        const ts = [...docData.transactions];
-        ts.forEach((t) => {
-          if (typeof t.timestamp !== 'string') {
-            t.timestamp = t.timestamp.toDate().toString();
-          }
-        });
-        updateDoc(doc(db, 'budgets', profile.budgetId), { transactions: ts });
-        */
+      if (doc.exists()) {
+        const docData = doc.data();
 
         if (!docData.categories) {
           console.error('Missing budget categories array!');
@@ -167,7 +156,6 @@ const Finances = (): JSX.Element => {
         } else {
           docData.transactions.forEach(
             (transaction: Transaction, index: number) => {
-              transaction.timestamp = new Date(transaction.timestamp);
               transaction.id = index;
 
               const tCatIdx = docData.categories.findIndex(
@@ -180,7 +168,10 @@ const Finances = (): JSX.Element => {
               );
 
               // Only count transaction towards this month's budget if it's from this month
-              if (transaction.timestamp.getMonth() === new Date().getMonth()) {
+              if (
+                new Date(transaction.timestamp).getMonth() ===
+                new Date().getMonth()
+              ) {
                 // Verify cat and subcat were found (i.e. if the transaction has valid ones)
                 if (tCatIdx !== -1 && tSubCatIdx !== -1) {
                   docData.categories[tCatIdx].subcategories[
