@@ -21,13 +21,14 @@ import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterLuxon } from '@mui/x-date-pickers/AdapterLuxon';
 import { UserContext } from '../App';
 import { FirebaseContext } from '../Firebase';
-import { BudgetCategory, BudgetIF, BudgetSubcategory } from 'models/types';
+import { BudgetCategory, BudgetIF, BudgetSubcategory, Transaction } from 'models/types';
 
 const dgColumns = [
   {
     field: 'amt',
     headerName: 'Amount',
     minWidth: 65,
+    type: 'number',
     flex: 1,
     editable: true,
     valueFormatter: (params: any) => {
@@ -50,7 +51,7 @@ const dgColumns = [
     headerName: 'Subcategory',
     minWidth: 90,
     flex: 1,
-    editable: true,
+    // editable: true, TODO: Make a custom edit component for this (same Select/Switch component as Dialog)
   },
   {
     field: 'timestamp',
@@ -146,6 +147,18 @@ const Transactions = (props: TransactionsProps): JSX.Element => {
     return catSelectArr;
   };
 
+  const processTransactionUpdate = (newRow: Transaction, oldRow: Transaction) => {
+    if (!profile || !profile.budgetId) return oldRow;
+
+    newRow.timestamp = newRow.timestamp.toString();
+    const updArr = [...budget.transactions];
+    updArr[updArr.findIndex((transaction) => transaction.id === oldRow.id)] = newRow;
+
+    firebase.updateBudget(profile.budgetId, { transactions: updArr }).then(getBudget);
+
+    return newRow;
+  };
+
   return (
     <Box mt={2} ml={1} mr={1}>
       <Typography variant='h3' mb={2}>
@@ -166,6 +179,7 @@ const Transactions = (props: TransactionsProps): JSX.Element => {
           initialState={{
             sorting: { sortModel: [{ field: 'timestamp', sort: 'desc' }] },
           }}
+          processRowUpdate={processTransactionUpdate}
           checkboxSelection
           disableSelectionOnClick
         />
