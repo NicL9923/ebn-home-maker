@@ -182,12 +182,20 @@ const Category = (props: CategoryProps): JSX.Element => {
               </Grid>
               <Grid item xs={3}>
                 <Typography variant="body1" ml={1} sx={{ fontWeight: 'bold' }}>
-                  ${category.totalAllotted?.toFixed(2)}
+                  $
+                  {category.totalAllotted?.toLocaleString(undefined, {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })}
                 </Typography>
               </Grid>
               <Grid item xs={2} ml={1}>
                 <Typography variant="body1" ml={1} sx={{ fontWeight: 'bold' }}>
-                  ${category.currentSpent?.toFixed(2)}
+                  $
+                  {category.currentSpent?.toLocaleString(undefined, {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })}
                 </Typography>
               </Grid>
             </Grid>
@@ -292,7 +300,13 @@ const SubCategory = (props: SubCategoryProps): JSX.Element => {
                 <EditableLabel
                   variant="body1"
                   prefix="$"
-                  initialValue={subcategory.totalAllotted.toFixed(2)}
+                  initialValue={subcategory.totalAllotted.toLocaleString(
+                    undefined,
+                    {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    }
+                  )}
                   onBlur={(newValue) =>
                     setSubCatProperty(
                       newValue,
@@ -305,7 +319,11 @@ const SubCategory = (props: SubCategoryProps): JSX.Element => {
               </Grid>
               <Grid item xs={2} ml={1.5}>
                 <Typography variant="body1">
-                  ${subcategory.currentSpent.toFixed(2)}
+                  $
+                  {subcategory.currentSpent.toLocaleString(undefined, {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })}
                 </Typography>
               </Grid>
             </Grid>
@@ -588,7 +606,12 @@ const Budget = (props: BudgetProps): JSX.Element => {
 
     return (
       <Typography variant="subtitle1" ml={3} color={helperColor}>
-        ${Math.abs(difference).toFixed(2)} {helperText}
+        $
+        {Math.abs(difference).toLocaleString(undefined, {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        })}{' '}
+        {helperText}
       </Typography>
     );
   };
@@ -611,7 +634,12 @@ const Budget = (props: BudgetProps): JSX.Element => {
 
     return (
       <Typography variant="subtitle1" ml={3} color={helperColor}>
-        ${Math.abs(difference).toFixed(2)} {helperText}
+        $
+        {Math.abs(difference).toLocaleString(undefined, {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        })}{' '}
+        {helperText}
       </Typography>
     );
   };
@@ -639,7 +667,10 @@ const Budget = (props: BudgetProps): JSX.Element => {
             <EditableLabel
               variant="h5"
               prefix="$"
-              initialValue={budget.monthlyNetIncome.toFixed(2)}
+              initialValue={budget.monthlyNetIncome.toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}
               onBlur={setMonthlyNetIncome}
             />
           </Stack>
@@ -647,7 +678,11 @@ const Budget = (props: BudgetProps): JSX.Element => {
           <Stack direction="row" alignContent="center" spacing={2}>
             <Typography variant="h6">Total Allotted</Typography>
             <Typography variant="h5">
-              ${budget.totalAllotted?.toFixed(2)}
+              $
+              {budget.totalAllotted?.toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}
             </Typography>
           </Stack>
           {getAllottedRemainder()}
@@ -655,7 +690,11 @@ const Budget = (props: BudgetProps): JSX.Element => {
           <Stack direction="row" alignContent="center" spacing={2} mt={1}>
             <Typography variant="h6">Total Spent</Typography>
             <Typography variant="h5">
-              ${budget.totalSpent?.toFixed(2)}
+              $
+              {budget.totalSpent?.toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}
             </Typography>
           </Stack>
           {getSpendingRemainder()}

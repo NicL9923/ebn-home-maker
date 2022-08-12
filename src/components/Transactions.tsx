@@ -25,7 +25,20 @@ import { FirebaseContext } from '..';
 import { BudgetCategory, BudgetIF, BudgetSubcategory } from 'models/types';
 
 const dgColumns = [
-  { field: 'amt', headerName: 'Amount', minWidth: 65, flex: 1, editable: true },
+  {
+    field: 'amt',
+    headerName: 'Amount',
+    minWidth: 65,
+    flex: 1,
+    editable: true,
+    valueFormatter: (params: any) => {
+      if (params.value === null) return '';
+      return `$${params.value.toLocaleString(undefined, {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      })}`;
+    },
+  },
   {
     field: 'name',
     headerName: 'Description',
@@ -40,7 +53,13 @@ const dgColumns = [
     flex: 1,
     editable: true,
   },
-  { field: 'timestamp', headerName: 'Date', width: 100, editable: true },
+  {
+    field: 'timestamp',
+    headerName: 'Date',
+    type: 'date',
+    width: 100,
+    editable: true,
+  },
 ];
 
 interface TransactionsProps {
@@ -53,18 +72,12 @@ const Transactions = (props: TransactionsProps): JSX.Element => {
   const { db } = useContext(FirebaseContext);
   const { profile } = useContext(UserContext);
   const [addingTransaction, setAddingTransaction] = useState(false);
-  const [newTransactionName, setNewTransactionName] = useState<
-    string | undefined
-  >(''); // TODO: combine newTransaction into single state object
-  const [newTransactionAmt, setNewTransactionAmt] = useState<
-    string | undefined
-  >('');
-  const [newTransactionCat, setNewTransactionCat] = useState<
-    string | undefined
-  >('');
+  const [newTransactionName, setNewTransactionName] = useState(''); // TODO: combine newTransaction into single state object
+  const [newTransactionAmt, setNewTransactionAmt] = useState('');
+  const [newTransactionCat, setNewTransactionCat] = useState('');
   const [newTransactionDate, setNewTransactionDate] = useState<
-    Date | string | undefined | null
-  >(undefined);
+    Date | undefined | null
+  >(new Date());
   const [selection, setSelection] = useState<GridRowId[]>([]);
 
   const saveNewTransaction = () => {
@@ -74,12 +87,19 @@ const Transactions = (props: TransactionsProps): JSX.Element => {
       !newTransactionCat ||
       !newTransactionDate ||
       !profile
-    )
+    ) {
+      console.error(
+        `One or more values are null/undefined: ${newTransactionName}, ${newTransactionAmt}, ${newTransactionCat}, ${newTransactionDate}, ${profile}`
+      );
       return;
+    }
 
     const updArr = [...budget.transactions];
     const splitCats = newTransactionCat.split('-');
 
+    updArr.forEach((t) => {
+      t.timestamp = t.timestamp.toString();
+    });
     updArr.push({
       amt: parseFloat(newTransactionAmt),
       name: newTransactionName,
@@ -96,7 +116,7 @@ const Transactions = (props: TransactionsProps): JSX.Element => {
       setNewTransactionName('');
       setNewTransactionAmt('');
       setNewTransactionCat('');
-      setNewTransactionDate(undefined);
+      setNewTransactionDate(new Date());
     });
   };
 
@@ -119,11 +139,16 @@ const Transactions = (props: TransactionsProps): JSX.Element => {
     const catSelectArr: JSX.Element[] = [];
 
     budget.categories.forEach((category: BudgetCategory) => {
-      catSelectArr.push(<ListSubheader>{category.name}</ListSubheader>);
+      catSelectArr.push(
+        <ListSubheader key={category.name}>{category.name}</ListSubheader>
+      );
 
       category.subcategories.forEach((subcat: BudgetSubcategory) => {
         catSelectArr.push(
-          <MenuItem value={`${category.name}-${subcat.name}`}>
+          <MenuItem
+            key={`${category.name}-${subcat.name}`}
+            value={`${category.name}-${subcat.name}`}
+          >
             {subcat.name}
           </MenuItem>
         );
@@ -204,9 +229,9 @@ const Transactions = (props: TransactionsProps): JSX.Element => {
               <Select
                 labelId="selectLbl"
                 value={
-                  newTransactionCat
+                  newTransactionCat !== undefined
                     ? newTransactionCat.split('-')[1]
-                    : undefined
+                    : ''
                 }
                 onChange={(event) => setNewTransactionCat(event.target.value)}
               >
@@ -218,7 +243,9 @@ const Transactions = (props: TransactionsProps): JSX.Element => {
               <DatePicker
                 label="Date"
                 value={newTransactionDate}
-                onChange={setNewTransactionDate}
+                onChange={(newDate: Date | null) =>
+                  setNewTransactionDate(newDate)
+                }
                 renderInput={(params) => (
                   <TextField {...params} variant="standard" />
                 )}

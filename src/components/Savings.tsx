@@ -24,8 +24,6 @@ const formatChartData = (blobsData: SavingsBlob[]) => {
     formattedDataArr.push([blob.name, blob.currentAmt]);
   });
 
-  console.log(formattedDataArr);
-
   return formattedDataArr;
 };
 
@@ -119,7 +117,10 @@ const Savings = (props: SavingsProps): JSX.Element => {
           $
           {budget.savingsBlobs
             .reduce((sum, { currentAmt }) => sum + currentAmt, 0)
-            .toFixed(2)}
+            .toLocaleString(undefined, {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })}
         </Typography>
       </Paper>
 
@@ -155,7 +156,10 @@ const Savings = (props: SavingsProps): JSX.Element => {
             </Stack>
             <EditableLabel
               variant="body1"
-              initialValue={blob.currentAmt.toFixed(2)}
+              initialValue={blob.currentAmt.toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}
               prefix="$"
               onBlur={(newValue) => updateSavingsBlobAmt(blob.name, newValue)}
             />

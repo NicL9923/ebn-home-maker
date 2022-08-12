@@ -169,8 +169,6 @@ const Finances = (): JSX.Element => {
                 ].currentSpent += transaction.amt;
               }
             }
-
-            transaction.timestamp = transaction.timestamp.toLocaleDateString();
           }
         );
 
