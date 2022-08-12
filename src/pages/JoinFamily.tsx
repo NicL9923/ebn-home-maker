@@ -10,8 +10,7 @@ import { UserContext } from '../App';
 const JoinFamily = () => {
   const { familyId } = useParams();
   const firebase = useContext(FirebaseContext);
-  const { userId, profile, family, getProfile, getFamily } =
-    useContext(UserContext);
+  const { userId, profile, family, getProfile, getFamily } = useContext(UserContext);
 
   const addUserToFamily = () => {
     if (!profile || !familyId || !userId || profile.familyId === familyId) {
@@ -32,9 +31,9 @@ const JoinFamily = () => {
   }, []);
 
   return (
-    <Box maxWidth="md" mt={6} mx="auto">
+    <Box maxWidth='md' mt={6} mx='auto'>
       {family ? (
-        <Alert severity="success">
+        <Alert severity='success'>
           You&apos;ve successfully joined the {family.name} family! ({familyId})
         </Alert>
       ) : (

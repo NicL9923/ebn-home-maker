@@ -1,12 +1,4 @@
-import {
-  Box,
-  Button,
-  Divider,
-  Paper,
-  Stack,
-  TextField,
-  Typography,
-} from '@mui/material';
+import { Box, Button, Divider, Paper, Stack, TextField, Typography } from '@mui/material';
 import React, { useContext, useState } from 'react';
 import {
   signInWithRedirect,
@@ -44,48 +36,44 @@ const NotLoggedIn = (): JSX.Element => {
   };
 
   return (
-    <Box maxWidth="sm" mx="auto" textAlign="center" mt={8}>
+    <Box maxWidth='sm' mx='auto' textAlign='center' mt={8}>
       <Paper sx={{ p: 2 }}>
-        <Typography variant="h3" mb={3}>
+        <Typography variant='h3' mb={3}>
           Login
         </Typography>
 
-        <Stack width="75%" mx="auto">
+        <Stack width='75%' mx='auto'>
           <TextField
             autoFocus
-            variant="standard"
-            type="email"
-            label="Email"
+            variant='standard'
+            type='email'
+            label='Email'
             value={email}
             onChange={(event) => setEmail(event.target.value)}
             required
           />
 
           <TextField
-            variant="standard"
-            type="password"
-            label="Password"
+            variant='standard'
+            type='password'
+            label='Password'
             value={password}
             onChange={(event) => setPassword(event.target.value)}
             required
           />
 
-          <Stack direction="row" justifyContent="center" spacing={2} mt={3}>
-            <Button variant="contained" onClick={emailPassSignIn}>
+          <Stack direction='row' justifyContent='center' spacing={2} mt={3}>
+            <Button variant='contained' onClick={emailPassSignIn}>
               Sign in
             </Button>
-            <Button variant="outlined" onClick={createEmailPassAccount}>
+            <Button variant='outlined' onClick={createEmailPassAccount}>
               Create account
             </Button>
           </Stack>
 
           <Divider sx={{ mt: 3, mb: 3 }}>OR</Divider>
 
-          <Button
-            variant="contained"
-            startIcon={<Google />}
-            onClick={googleSignIn}
-          >
+          <Button variant='contained' startIcon={<Google />} onClick={googleSignIn}>
             Sign-In with Google
           </Button>
         </Stack>

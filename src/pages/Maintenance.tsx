@@ -166,19 +166,17 @@ const Maintenance = (): JSX.Element => {
     }
     newVehIdArr.push(newVehId);
 
-    firebase
-      .createVehicle(newVehId, { ...newVehicle, id: newVehId })
-      .then(() => {
-        firebase
-          .updateFamily(profile.familyId, {
-            vehicles: newVehIdArr,
-          })
-          .then(() => {
-            getFamily();
-            setAddingVehicle(false);
-            setNewVehicle(defNewVeh);
-          });
-      });
+    firebase.createVehicle(newVehId, { ...newVehicle, id: newVehId }).then(() => {
+      firebase
+        .updateFamily(profile.familyId, {
+          vehicles: newVehIdArr,
+        })
+        .then(() => {
+          getFamily();
+          setAddingVehicle(false);
+          setNewVehicle(defNewVeh);
+        });
+    });
 
     if (newVehImgFile) {
       const storage = getStorage();
@@ -240,14 +238,14 @@ const Maintenance = (): JSX.Element => {
   }, [family]);
 
   return (
-    <Box maxWidth="lg" mx="auto" mt={2}>
-      <Typography variant="h3">Maintenance</Typography>
+    <Box maxWidth='lg' mx='auto' mt={2}>
+      <Typography variant='h3'>Maintenance</Typography>
 
       <Box mt={2}>
-        <Typography variant="h4">Residences</Typography>
+        <Typography variant='h4'>Residences</Typography>
         {!residences ? (
           isFetchingResidences && (
-            <Box mx="auto" textAlign="center" mt={20}>
+            <Box mx='auto' textAlign='center' mt={20}>
               <CircularProgress />
             </Box>
           )
@@ -257,22 +255,18 @@ const Maintenance = (): JSX.Element => {
               <Grid container item xs={12} md={6} lg={4} key={residence.name}>
                 <Paper sx={{ p: 2 }}>
                   {residence.img ? (
-                    <Image height="250" src={residence.img} />
+                    <Image height='250' src={residence.img} />
                   ) : (
                     <Container>
                       <House sx={{ fontSize: 200 }} />
                     </Container>
                   )}
 
-                  <Typography variant="h5">{residence.name}</Typography>
-                  <Typography variant="body1">
-                    Built: {residence.yearBuilt}
-                  </Typography>
-                  <Typography variant="body1">
-                    Purchased: {residence.yearPurchased}
-                  </Typography>
+                  <Typography variant='h5'>{residence.name}</Typography>
+                  <Typography variant='body1'>Built: {residence.yearBuilt}</Typography>
+                  <Typography variant='body1'>Purchased: {residence.yearPurchased}</Typography>
 
-                  <Typography variant="h6" mt={2}>
+                  <Typography variant='h6' mt={2}>
                     Service Log
                   </Typography>
                   <Box height={300}>
@@ -286,36 +280,20 @@ const Maintenance = (): JSX.Element => {
                       rowsPerPageOptions={[5, 10, 20]}
                     />
                   </Box>
-                  <Button
-                    variant="contained"
-                    startIcon={<Add />}
-                    sx={{ mt: 1 }}
-                  >
+                  <Button variant='contained' startIcon={<Add />} sx={{ mt: 1 }}>
                     Add to log
                   </Button>
 
-                  <Typography variant="h6" mt={2}>
+                  <Typography variant='h6' mt={2}>
                     Maintenance
                   </Typography>
-                  <Button
-                    variant="contained"
-                    startIcon={<Add />}
-                    sx={{ mt: 1 }}
-                  >
+                  <Button variant='contained' startIcon={<Add />} sx={{ mt: 1 }}>
                     Edit maintenance schedule
                   </Button>
 
-                  <Stack
-                    direction="row"
-                    justifyContent="right"
-                    spacing={1}
-                    mt={3}
-                  >
-                    <Button variant="outlined">Edit</Button>
-                    <Button
-                      variant="text"
-                      onClick={() => deleteResidence(residence.id)}
-                    >
+                  <Stack direction='row' justifyContent='right' spacing={1} mt={3}>
+                    <Button variant='outlined'>Edit</Button>
+                    <Button variant='text' onClick={() => deleteResidence(residence.id)}>
                       Delete
                     </Button>
                   </Stack>
@@ -324,28 +302,22 @@ const Maintenance = (): JSX.Element => {
             ))}
           </Grid>
         )}
-        <Button variant="contained" onClick={() => setAddingResidence(true)}>
+        <Button variant='contained' onClick={() => setAddingResidence(true)}>
           Add residence
         </Button>
       </Box>
 
-      <Dialog
-        open={addingResidence}
-        onClose={() => setAddingResidence(false)}
-        fullWidth
-      >
+      <Dialog open={addingResidence} onClose={() => setAddingResidence(false)} fullWidth>
         <DialogTitle>Add Residence</DialogTitle>
 
         <DialogContent>
           <TextField
             autoFocus
-            variant="standard"
-            label="Name"
-            placeholder="My House!"
+            variant='standard'
+            label='Name'
+            placeholder='My House!'
             value={newResidence.name}
-            onChange={(event) =>
-              setNewResidence({ ...newResidence, name: event.target.value })
-            }
+            onChange={(event) => setNewResidence({ ...newResidence, name: event.target.value })}
           />
 
           <InputLabel>Upload Photo</InputLabel>
@@ -357,8 +329,8 @@ const Maintenance = (): JSX.Element => {
           />
 
           <TextField
-            variant="standard"
-            label="Year Built"
+            variant='standard'
+            label='Year Built'
             value={newResidence.yearBuilt}
             onChange={(event) =>
               setNewResidence({
@@ -369,8 +341,8 @@ const Maintenance = (): JSX.Element => {
           />
 
           <TextField
-            variant="standard"
-            label="Year Purchased"
+            variant='standard'
+            label='Year Purchased'
             value={newResidence.yearPurchased}
             onChange={(event) =>
               setNewResidence({
@@ -383,17 +355,17 @@ const Maintenance = (): JSX.Element => {
 
         <DialogActions>
           <Button onClick={() => setAddingResidence(false)}>Cancel</Button>
-          <Button variant="contained" onClick={addNewResidence}>
+          <Button variant='contained' onClick={addNewResidence}>
             Save
           </Button>
         </DialogActions>
       </Dialog>
 
       <Box mt={4}>
-        <Typography variant="h4">Vehicles</Typography>
+        <Typography variant='h4'>Vehicles</Typography>
         {!vehicles ? (
           isFetchingVehicles && (
-            <Box mx="auto" textAlign="center" mt={20}>
+            <Box mx='auto' textAlign='center' mt={20}>
               <CircularProgress />
             </Box>
           )
@@ -403,28 +375,22 @@ const Maintenance = (): JSX.Element => {
               <Grid container item xs={12} md={6} lg={4} key={vehicle.vin}>
                 <Paper sx={{ p: 2 }}>
                   {vehicle.img ? (
-                    <Image height="250" src={vehicle.img} />
+                    <Image height='250' src={vehicle.img} />
                   ) : (
                     <Container>
                       <DirectionsCar sx={{ fontSize: 200 }} />
                     </Container>
                   )}
 
-                  <Typography variant="h5">
+                  <Typography variant='h5'>
                     {vehicle.year} {vehicle.make} {vehicle.model} {vehicle.trim}
                   </Typography>
-                  <Typography variant="body1">
-                    Engine: {vehicle.engine}
-                  </Typography>
-                  <Typography variant="body1">
-                    Odometer: {vehicle.miles} mi
-                  </Typography>
-                  <Typography variant="body1">VIN: {vehicle.vin}</Typography>
-                  <Typography variant="body1">
-                    License Plate: {vehicle.licensePlate}
-                  </Typography>
+                  <Typography variant='body1'>Engine: {vehicle.engine}</Typography>
+                  <Typography variant='body1'>Odometer: {vehicle.miles} mi</Typography>
+                  <Typography variant='body1'>VIN: {vehicle.vin}</Typography>
+                  <Typography variant='body1'>License Plate: {vehicle.licensePlate}</Typography>
 
-                  <Typography variant="h6" mt={2}>
+                  <Typography variant='h6' mt={2}>
                     Service Log
                   </Typography>
                   <Box height={300}>
@@ -439,36 +405,20 @@ const Maintenance = (): JSX.Element => {
                       getRowId={(row) => row.date}
                     />
                   </Box>
-                  <Button
-                    variant="contained"
-                    startIcon={<Add />}
-                    sx={{ mt: 1 }}
-                  >
+                  <Button variant='contained' startIcon={<Add />} sx={{ mt: 1 }}>
                     Add to log
                   </Button>
 
-                  <Typography variant="h6" mt={2}>
+                  <Typography variant='h6' mt={2}>
                     Maintenance
                   </Typography>
-                  <Button
-                    variant="contained"
-                    startIcon={<Add />}
-                    sx={{ mt: 1 }}
-                  >
+                  <Button variant='contained' startIcon={<Add />} sx={{ mt: 1 }}>
                     Edit maintenance schedule
                   </Button>
 
-                  <Stack
-                    direction="row"
-                    justifyContent="right"
-                    spacing={1}
-                    mt={3}
-                  >
-                    <Button variant="outlined">Edit</Button>
-                    <Button
-                      variant="text"
-                      onClick={() => deleteVehicle(vehicle.id)}
-                    >
+                  <Stack direction='row' justifyContent='right' spacing={1} mt={3}>
+                    <Button variant='outlined'>Edit</Button>
+                    <Button variant='text' onClick={() => deleteVehicle(vehicle.id)}>
                       Delete
                     </Button>
                   </Stack>
@@ -477,7 +427,7 @@ const Maintenance = (): JSX.Element => {
             ))}
           </Grid>
         )}
-        <Button variant="contained" onClick={() => setAddingVehicle(true)}>
+        <Button variant='contained' onClick={() => setAddingVehicle(true)}>
           Add vehicle
         </Button>
       </Box>
@@ -488,75 +438,61 @@ const Maintenance = (): JSX.Element => {
         <DialogContent>
           <TextField
             autoFocus
-            variant="standard"
-            label="Model Year"
+            variant='standard'
+            label='Model Year'
             value={newVehicle.year}
-            onChange={(event) =>
-              setNewVehicle({ ...newVehicle, year: event.target.value })
-            }
+            onChange={(event) => setNewVehicle({ ...newVehicle, year: event.target.value })}
           />
 
           <TextField
-            variant="standard"
-            label="Make"
-            placeholder="Chevrolet, Ford, Dodge, Toyota..."
+            variant='standard'
+            label='Make'
+            placeholder='Chevrolet, Ford, Dodge, Toyota...'
             value={newVehicle.make}
-            onChange={(event) =>
-              setNewVehicle({ ...newVehicle, make: event.target.value })
-            }
+            onChange={(event) => setNewVehicle({ ...newVehicle, make: event.target.value })}
           />
 
           <TextField
-            variant="standard"
-            label="Model"
-            placeholder="F150, Corolla, Tacoma, Tahoe..."
+            variant='standard'
+            label='Model'
+            placeholder='F150, Corolla, Tacoma, Tahoe...'
             value={newVehicle.model}
-            onChange={(event) =>
-              setNewVehicle({ ...newVehicle, model: event.target.value })
-            }
+            onChange={(event) => setNewVehicle({ ...newVehicle, model: event.target.value })}
           />
 
           <TextField
-            variant="standard"
-            label="Trim"
-            placeholder="SE, Limited..."
+            variant='standard'
+            label='Trim'
+            placeholder='SE, Limited...'
             value={newVehicle.trim}
-            onChange={(event) =>
-              setNewVehicle({ ...newVehicle, trim: event.target.value })
-            }
+            onChange={(event) => setNewVehicle({ ...newVehicle, trim: event.target.value })}
           />
 
           <TextField
-            variant="standard"
-            label="Engine"
-            placeholder="3.5L V6..."
+            variant='standard'
+            label='Engine'
+            placeholder='3.5L V6...'
             value={newVehicle.engine}
-            onChange={(event) =>
-              setNewVehicle({ ...newVehicle, engine: event.target.value })
-            }
+            onChange={(event) => setNewVehicle({ ...newVehicle, engine: event.target.value })}
           />
 
           <TextField
-            variant="standard"
-            label="VIN (Vehicle Identification Number)"
+            variant='standard'
+            label='VIN (Vehicle Identification Number)'
             value={newVehicle.vin}
-            onChange={(event) =>
-              setNewVehicle({ ...newVehicle, vin: event.target.value })
-            }
+            onChange={(event) => setNewVehicle({ ...newVehicle, vin: event.target.value })}
           />
 
           <TextField
-            variant="standard"
-            label="License Plate"
+            variant='standard'
+            label='License Plate'
             value={newVehicle.licensePlate}
-            onChange={(event) =>
-              setNewVehicle({ ...newVehicle, licensePlate: event.target.value })
-            }
+            onChange={(event) => setNewVehicle({ ...newVehicle, licensePlate: event.target.value })}
           />
 
           <TextField
-            variant="standard"
-            label="Odometer (miles)"
+            variant='standard'
+            label='Odometer (miles)'
             value={newVehicle.miles}
             onChange={(event) =>
               setNewVehicle({
@@ -577,7 +513,7 @@ const Maintenance = (): JSX.Element => {
 
         <DialogActions>
           <Button onClick={() => setAddingVehicle(false)}>Cancel</Button>
-          <Button variant="contained" onClick={addNewVehicle}>
+          <Button variant='contained' onClick={addNewVehicle}>
             Save
           </Button>
         </DialogActions>

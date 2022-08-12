@@ -76,9 +76,7 @@ const Transactions = (props: TransactionsProps): JSX.Element => {
   const [newTransactionName, setNewTransactionName] = useState(''); // TODO: combine newTransaction into single state object
   const [newTransactionAmt, setNewTransactionAmt] = useState('');
   const [newTransactionCat, setNewTransactionCat] = useState('');
-  const [newTransactionDate, setNewTransactionDate] = useState<
-    Date | undefined | null
-  >(new Date());
+  const [newTransactionDate, setNewTransactionDate] = useState<Date | undefined | null>(new Date());
   const [selection, setSelection] = useState<GridRowId[]>([]);
 
   const saveNewTransaction = () => {
@@ -107,16 +105,14 @@ const Transactions = (props: TransactionsProps): JSX.Element => {
       subcategory: splitCats[1],
     });
 
-    firebase
-      .updateBudget(profile.budgetId, { transactions: updArr })
-      .then(() => {
-        getBudget();
-        setAddingTransaction(false);
-        setNewTransactionName('');
-        setNewTransactionAmt('');
-        setNewTransactionCat('');
-        setNewTransactionDate(new Date());
-      });
+    firebase.updateBudget(profile.budgetId, { transactions: updArr }).then(() => {
+      getBudget();
+      setAddingTransaction(false);
+      setNewTransactionName('');
+      setNewTransactionAmt('');
+      setNewTransactionCat('');
+      setNewTransactionDate(new Date());
+    });
   };
 
   const removeTransactions = () => {
@@ -126,28 +122,21 @@ const Transactions = (props: TransactionsProps): JSX.Element => {
 
     updArr = updArr.filter((val, idx) => selection.indexOf(idx) === -1); // Efficient way to remove transaction(s) from array
 
-    firebase
-      .updateBudget(profile.budgetId, { transactions: updArr })
-      .then(() => {
-        getBudget();
-        setSelection([]);
-      });
+    firebase.updateBudget(profile.budgetId, { transactions: updArr }).then(() => {
+      getBudget();
+      setSelection([]);
+    });
   };
 
   const getCatSelectList = (): JSX.Element[] => {
     const catSelectArr: JSX.Element[] = [];
 
     budget.categories.forEach((category: BudgetCategory) => {
-      catSelectArr.push(
-        <ListSubheader key={category.name}>{category.name}</ListSubheader>
-      );
+      catSelectArr.push(<ListSubheader key={category.name}>{category.name}</ListSubheader>);
 
       category.subcategories.forEach((subcat: BudgetSubcategory) => {
         catSelectArr.push(
-          <MenuItem
-            key={`${category.name}-${subcat.name}`}
-            value={`${category.name}-${subcat.name}`}
-          >
+          <MenuItem key={`${category.name}-${subcat.name}`} value={`${category.name}-${subcat.name}`}>
             {subcat.name}
           </MenuItem>
         );
@@ -159,14 +148,10 @@ const Transactions = (props: TransactionsProps): JSX.Element => {
 
   return (
     <Box mt={2} ml={1} mr={1}>
-      <Typography variant="h3" mb={2}>
+      <Typography variant='h3' mb={2}>
         Transactions
       </Typography>
-      <Button
-        startIcon={<Add />}
-        variant="contained"
-        onClick={() => setAddingTransaction(true)}
-      >
+      <Button startIcon={<Add />} variant='contained' onClick={() => setAddingTransaction(true)}>
         Add transaction
       </Button>
       <Stack height={500} mt={3} mb={2}>
@@ -187,51 +172,37 @@ const Transactions = (props: TransactionsProps): JSX.Element => {
       </Stack>
 
       {selection.length > 0 && (
-        <Button
-          startIcon={<Delete />}
-          variant="contained"
-          color="error"
-          onClick={removeTransactions}
-          sx={{ mb: 3 }}
-        >
+        <Button startIcon={<Delete />} variant='contained' color='error' onClick={removeTransactions} sx={{ mb: 3 }}>
           Remove transaction{selection.length > 1 && 's'}
         </Button>
       )}
 
-      <Dialog
-        open={addingTransaction}
-        onClose={() => setAddingTransaction(false)}
-        fullWidth
-      >
+      <Dialog open={addingTransaction} onClose={() => setAddingTransaction(false)} fullWidth>
         <DialogTitle>Add Transaction</DialogTitle>
 
         <DialogContent>
           <Stack>
             <TextField
               autoFocus
-              variant="standard"
-              label="Amount"
-              type="number"
+              variant='standard'
+              label='Amount'
+              type='number'
               value={newTransactionAmt}
               onChange={(event) => setNewTransactionAmt(event.target.value)}
             />
 
             <TextField
-              variant="standard"
-              label="Description"
+              variant='standard'
+              label='Description'
               value={newTransactionName}
               onChange={(event) => setNewTransactionName(event.target.value)}
             />
 
-            <FormControl variant="standard" sx={{ mt: 2, mb: 2 }}>
-              <InputLabel id="selectLbl">Category</InputLabel>
+            <FormControl variant='standard' sx={{ mt: 2, mb: 2 }}>
+              <InputLabel id='selectLbl'>Category</InputLabel>
               <Select
-                labelId="selectLbl"
-                value={
-                  newTransactionCat !== undefined
-                    ? newTransactionCat.split('-')[1]
-                    : ''
-                }
+                labelId='selectLbl'
+                value={newTransactionCat !== undefined ? newTransactionCat.split('-')[1] : ''}
                 onChange={(event) => setNewTransactionCat(event.target.value)}
               >
                 {getCatSelectList()}
@@ -240,14 +211,10 @@ const Transactions = (props: TransactionsProps): JSX.Element => {
 
             <LocalizationProvider dateAdapter={AdapterLuxon}>
               <DatePicker
-                label="Date"
+                label='Date'
                 value={newTransactionDate}
-                onChange={(newDate: Date | null) =>
-                  setNewTransactionDate(newDate)
-                }
-                renderInput={(params) => (
-                  <TextField {...params} variant="standard" />
-                )}
+                onChange={(newDate: Date | null) => setNewTransactionDate(newDate)}
+                renderInput={(params) => <TextField {...params} variant='standard' />}
               />
             </LocalizationProvider>
           </Stack>
@@ -255,7 +222,7 @@ const Transactions = (props: TransactionsProps): JSX.Element => {
 
         <DialogActions>
           <Button onClick={() => setAddingTransaction(false)}>Cancel</Button>
-          <Button variant="contained" onClick={saveNewTransaction}>
+          <Button variant='contained' onClick={saveNewTransaction}>
             Save
           </Button>
         </DialogActions>

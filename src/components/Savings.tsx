@@ -1,12 +1,5 @@
 import { Add, Clear } from '@mui/icons-material';
-import {
-  Box,
-  Button,
-  IconButton,
-  Paper,
-  Stack,
-  Typography,
-} from '@mui/material';
+import { Box, Button, IconButton, Paper, Stack, Typography } from '@mui/material';
 import { BudgetIF, SavingsBlob } from 'models/types';
 import React, { useContext } from 'react';
 import Chart from 'react-google-charts';
@@ -62,10 +55,7 @@ const Savings = (props: SavingsProps): JSX.Element => {
     saveUpdBlobsArr(updBlobsArr);
   };
 
-  const updateSavingsBlobName = (
-    oldName: string,
-    newName: string | undefined
-  ) => {
+  const updateSavingsBlobName = (oldName: string, newName: string | undefined) => {
     if (!newName) return;
 
     const updBlobsArr = [...budget.savingsBlobs];
@@ -76,22 +66,16 @@ const Savings = (props: SavingsProps): JSX.Element => {
       return; // TODO: fix editable label not updating (same solution works for budget...)
     }
 
-    updBlobsArr[updBlobsArr.findIndex((blob) => blob.name === oldName)].name =
-      newName;
+    updBlobsArr[updBlobsArr.findIndex((blob) => blob.name === oldName)].name = newName;
 
     saveUpdBlobsArr(updBlobsArr);
   };
 
-  const updateSavingsBlobAmt = (
-    blobName: string,
-    newAmt: string | undefined
-  ) => {
+  const updateSavingsBlobAmt = (blobName: string, newAmt: string | undefined) => {
     if (!newAmt) return;
 
     const updBlobsArr = [...budget.savingsBlobs];
-    updBlobsArr[
-      updBlobsArr.findIndex((blob) => blob.name === blobName)
-    ].currentAmt = parseFloat(newAmt);
+    updBlobsArr[updBlobsArr.findIndex((blob) => blob.name === blobName)].currentAmt = parseFloat(newAmt);
 
     saveUpdBlobsArr(updBlobsArr);
   };
@@ -108,13 +92,13 @@ const Savings = (props: SavingsProps): JSX.Element => {
 
   return (
     <Box mt={2} ml={1} mr={1}>
-      <Typography variant="h3" mb={2}>
+      <Typography variant='h3' mb={2}>
         Savings Blobs
       </Typography>
 
       <Paper sx={{ p: 1, maxWidth: 'auto', mb: 2 }}>
-        <Typography variant="h4">Total Saved:</Typography>
-        <Typography variant="h5">
+        <Typography variant='h4'>Total Saved:</Typography>
+        <Typography variant='h5'>
           $
           {budget.savingsBlobs
             .reduce((sum, { currentAmt }) => sum + currentAmt, 0)
@@ -125,43 +109,30 @@ const Savings = (props: SavingsProps): JSX.Element => {
         </Typography>
       </Paper>
 
-      <Button
-        variant="contained"
-        startIcon={<Add />}
-        onClick={createSavingsBlob}
-      >
+      <Button variant='contained' startIcon={<Add />} onClick={createSavingsBlob}>
         Create New Blob
       </Button>
 
       <Stack mb={4} spacing={1} mt={2}>
         {budget.savingsBlobs.map((blob) => (
           <Paper sx={{ p: 1 }} key={blob.name}>
-            <Stack
-              direction="row"
-              alignItems="center"
-              justifyContent="space-between"
-            >
+            <Stack direction='row' alignItems='center' justifyContent='space-between'>
               <EditableLabel
                 initialValue={blob.name}
-                variant="h6"
-                onBlur={(newValue) =>
-                  updateSavingsBlobName(blob.name, newValue)
-                }
+                variant='h6'
+                onBlur={(newValue) => updateSavingsBlobName(blob.name, newValue)}
               />
-              <IconButton
-                sx={{ ml: 4 }}
-                onClick={() => deleteSavingsBlob(blob.name)}
-              >
+              <IconButton sx={{ ml: 4 }} onClick={() => deleteSavingsBlob(blob.name)}>
                 <Clear />
               </IconButton>
             </Stack>
             <EditableLabel
-              variant="body1"
+              variant='body1'
               initialValue={blob.currentAmt.toLocaleString(undefined, {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2,
               })}
-              prefix="$"
+              prefix='$'
               onBlur={(newValue) => updateSavingsBlobAmt(blob.name, newValue)}
             />
           </Paper>
@@ -176,9 +147,9 @@ const Savings = (props: SavingsProps): JSX.Element => {
         }}
       >
         <Chart
-          chartType="PieChart"
-          width="100%"
-          height="100%"
+          chartType='PieChart'
+          width='100%'
+          height='100%'
           data={formatChartData(budget.savingsBlobs)}
           options={{ title: 'Savings Breakdown', pieHole: 0.5, is3D: false }}
         />

@@ -1,22 +1,6 @@
 import { getAuth, Auth } from 'firebase/auth';
-import {
-  deleteDoc,
-  doc,
-  FieldValue,
-  Firestore,
-  getDoc,
-  getFirestore,
-  setDoc,
-  updateDoc,
-} from 'firebase/firestore';
-import {
-  BudgetIF,
-  Family,
-  GenericObject,
-  Residence,
-  UserProfile,
-  Vehicle,
-} from 'models/types';
+import { deleteDoc, doc, FieldValue, Firestore, getDoc, getFirestore, setDoc, updateDoc } from 'firebase/firestore';
+import { BudgetIF, Family, GenericObject, Residence, UserProfile, Vehicle } from 'models/types';
 import { createContext } from 'react';
 
 export const firebaseConfig = {
@@ -109,10 +93,7 @@ export class FirebaseManager {
   updateBudget(budgetId: string, fieldData: Partial<BudgetIF>) {
     return this.updateDocumentFields(DocTypes.budget, budgetId, fieldData);
   }
-  updateFamily(
-    familyId: string,
-    fieldData: Partial<Family> | GenericObject<FieldValue>
-  ) {
+  updateFamily(familyId: string, fieldData: Partial<Family> | GenericObject<FieldValue>) {
     return this.updateDocumentFields(DocTypes.family, familyId, fieldData);
   }
   updateProfile(profileId: string, fieldData: Partial<UserProfile>) {
@@ -122,11 +103,7 @@ export class FirebaseManager {
     return this.updateDocumentFields(DocTypes.vehicle, vehicleId, fieldData);
   }
   updateResidence(residenceId: string, fieldData: Partial<Residence>) {
-    return this.updateDocumentFields(
-      DocTypes.residence,
-      residenceId,
-      fieldData
-    );
+    return this.updateDocumentFields(DocTypes.residence, residenceId, fieldData);
   }
 
   // DELETE

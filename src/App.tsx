@@ -79,25 +79,25 @@ const App = (): JSX.Element => {
           <Routes>
             {profile && (
               <>
-                <Route path="/profile" element={<Profile />} />
-                <Route path="/joinFamily/:familyId" element={<JoinFamily />} />
-                <Route path="/finances" element={<Finances />} />
+                <Route path='/profile' element={<Profile />} />
+                <Route path='/joinFamily/:familyId' element={<JoinFamily />} />
+                <Route path='/finances' element={<Finances />} />
               </>
             )}
 
             {family && (
               <>
-                <Route path="/smarthome" element={<SmartHome />} />
-                <Route path="/info" element={<Information />} />
-                <Route path="/maintenance" element={<Maintenance />} />
+                <Route path='/smarthome' element={<SmartHome />} />
+                <Route path='/info' element={<Information />} />
+                <Route path='/maintenance' element={<Maintenance />} />
               </>
             )}
 
-            <Route path="/" element={<Home />} />
+            <Route path='/' element={<Home />} />
             <Route element={<Home />} />
           </Routes>
         ) : isFetchingUser ? (
-          <Box mx="auto" textAlign="center" mt={20}>
+          <Box mx='auto' textAlign='center' mt={20}>
             <CircularProgress size={80} />
           </Box>
         ) : (

@@ -1,9 +1,4 @@
-import {
-  Add,
-  Clear,
-  KeyboardArrowDown,
-  SubdirectoryArrowRight,
-} from '@mui/icons-material';
+import { Add, Clear, KeyboardArrowDown, SubdirectoryArrowRight } from '@mui/icons-material';
 import {
   Box,
   Divider,
@@ -29,12 +24,7 @@ import EditableLabel from './EditableLabel';
 
 // TODO: Put all this crap into FinancesContext or something to avoid prop spam and combine all the IFs
 interface UltraSharedFuncProps {
-  setSubCatProperty: (
-    newValue: string | undefined,
-    oldName: string,
-    catName: string,
-    propName: string
-  ) => void;
+  setSubCatProperty: (newValue: string | undefined, oldName: string, catName: string, propName: string) => void;
   removeSubCategory: (catName: string, subCatName: string) => void;
 }
 
@@ -47,12 +37,7 @@ interface SharedFuncProps extends UltraSharedFuncProps {
 interface BudgetCategoriesProps extends SharedFuncProps {
   budget: BudgetIF;
   moveCategory: (srcIdx: number, destIdx: number) => void;
-  moveSubCategory: (
-    srcCat: string,
-    destCat: string,
-    srcIdx: number,
-    destIdx: number
-  ) => void;
+  moveSubCategory: (srcCat: string, destCat: string, srcIdx: number, destIdx: number) => void;
 }
 
 const BudgetCategories = (props: BudgetCategoriesProps): JSX.Element => {
@@ -83,7 +68,7 @@ const BudgetCategories = (props: BudgetCategoriesProps): JSX.Element => {
   return (
     <Box pt={1} pb={1}>
       <DragDropContext onDragEnd={onDragEnd}>
-        <Droppable droppableId="budgetCats" type="category">
+        <Droppable droppableId='budgetCats' type='category'>
           {(provided) => (
             <div {...provided.droppableProps} ref={provided.innerRef}>
               {budget.categories.map((category, idx) => (
@@ -96,9 +81,7 @@ const BudgetCategories = (props: BudgetCategoriesProps): JSX.Element => {
                   removeCategory={removeCategory}
                   setSubCatProperty={setSubCatProperty}
                   removeSubCategory={removeSubCategory}
-                  isLastCat={
-                    idx === budget.categories.length - 1 ? true : false
-                  }
+                  isLastCat={idx === budget.categories.length - 1 ? true : false}
                 />
               ))}
               {provided.placeholder}
@@ -133,26 +116,15 @@ const Category = (props: CategoryProps): JSX.Element => {
   return (
     <Draggable draggableId={category.name} index={idx}>
       {(provided) => (
-        <div
-          {...provided.draggableProps}
-          {...provided.dragHandleProps}
-          ref={provided.innerRef}
-        >
+        <div {...provided.draggableProps} {...provided.dragHandleProps} ref={provided.innerRef}>
           <Box mb={1}>
-            <Grid container alignItems="center">
-              <Grid
-                item
-                xs={6}
-                onMouseOver={() => setIsHovered(true)}
-                onMouseOut={() => setIsHovered(false)}
-              >
-                <Stack direction="row" alignItems="center">
+            <Grid container alignItems='center'>
+              <Grid item xs={6} onMouseOver={() => setIsHovered(true)} onMouseOut={() => setIsHovered(false)}>
+                <Stack direction='row' alignItems='center'>
                   <EditableLabel
-                    variant="h5"
+                    variant='h5'
                     initialValue={category.name}
-                    onBlur={(newValue) =>
-                      setCategoryName(newValue, category.name)
-                    }
+                    onBlur={(newValue) => setCategoryName(newValue, category.name)}
                   />
 
                   <IconButton
@@ -165,23 +137,14 @@ const Category = (props: CategoryProps): JSX.Element => {
                   >
                     <KeyboardArrowDown sx={{ fontSize: 30 }} />
                   </IconButton>
-                  <Menu
-                    id={`cat${idx}-menu`}
-                    anchorEl={anchorEl}
-                    open={!!anchorEl}
-                    onClose={() => setAnchorEl(null)}
-                  >
-                    <MenuItem onClick={() => addNewSubCategory(category.name)}>
-                      Add sub-category
-                    </MenuItem>
-                    <MenuItem onClick={() => removeCategory(category.name)}>
-                      Delete category
-                    </MenuItem>
+                  <Menu id={`cat${idx}-menu`} anchorEl={anchorEl} open={!!anchorEl} onClose={() => setAnchorEl(null)}>
+                    <MenuItem onClick={() => addNewSubCategory(category.name)}>Add sub-category</MenuItem>
+                    <MenuItem onClick={() => removeCategory(category.name)}>Delete category</MenuItem>
                   </Menu>
                 </Stack>
               </Grid>
               <Grid item xs={3}>
-                <Typography variant="body1" ml={1} sx={{ fontWeight: 'bold' }}>
+                <Typography variant='body1' ml={1} sx={{ fontWeight: 'bold' }}>
                   $
                   {category.totalAllotted?.toLocaleString(undefined, {
                     minimumFractionDigits: 2,
@@ -190,7 +153,7 @@ const Category = (props: CategoryProps): JSX.Element => {
                 </Typography>
               </Grid>
               <Grid item xs={2} ml={1}>
-                <Typography variant="body1" ml={1} sx={{ fontWeight: 'bold' }}>
+                <Typography variant='body1' ml={1} sx={{ fontWeight: 'bold' }}>
                   $
                   {category.currentSpent?.toLocaleString(undefined, {
                     minimumFractionDigits: 2,
@@ -200,10 +163,7 @@ const Category = (props: CategoryProps): JSX.Element => {
               </Grid>
             </Grid>
 
-            <Droppable
-              droppableId={`subcats-${category.name}`}
-              type="subcategory"
-            >
+            <Droppable droppableId={`subcats-${category.name}`} type='subcategory'>
               {(provided) => (
                 <div {...provided.droppableProps} ref={provided.innerRef}>
                   {category.subcategories.map((subcategory, subidx) => (
@@ -236,47 +196,23 @@ interface SubCategoryProps extends UltraSharedFuncProps {
 }
 
 const SubCategory = (props: SubCategoryProps): JSX.Element => {
-  const {
-    subidx,
-    category,
-    subcategory,
-    setSubCatProperty,
-    removeSubCategory,
-  } = props;
+  const { subidx, category, subcategory, setSubCatProperty, removeSubCategory } = props;
   const [isHovered, setIsHovered] = useState(false);
 
   return (
     <Draggable draggableId={subcategory.name} index={subidx}>
       {(provided) => (
-        <div
-          {...provided.draggableProps}
-          {...provided.dragHandleProps}
-          ref={provided.innerRef}
-        >
+        <div {...provided.draggableProps} {...provided.dragHandleProps} ref={provided.innerRef}>
           <Box ml={2} mb={1}>
-            <Grid container alignItems="center">
-              <Grid
-                item
-                xs={6}
-                onMouseOver={() => setIsHovered(true)}
-                onMouseOut={() => setIsHovered(false)}
-              >
-                <Stack direction="row" alignItems="center">
+            <Grid container alignItems='center'>
+              <Grid item xs={6} onMouseOver={() => setIsHovered(true)} onMouseOut={() => setIsHovered(false)}>
+                <Stack direction='row' alignItems='center'>
                   <EditableLabel
                     initialValue={subcategory.name}
-                    onBlur={(newValue) =>
-                      setSubCatProperty(
-                        newValue,
-                        subcategory.name,
-                        category.name,
-                        'name'
-                      )
-                    }
+                    onBlur={(newValue) => setSubCatProperty(newValue, subcategory.name, category.name, 'name')}
                   />
                   <IconButton
-                    onClick={() =>
-                      removeSubCategory(category.name, subcategory.name)
-                    }
+                    onClick={() => removeSubCategory(category.name, subcategory.name)}
                     sx={{
                       display: isHovered ? 'inherit' : 'none',
                       p: 0.5,
@@ -288,37 +224,25 @@ const SubCategory = (props: SubCategoryProps): JSX.Element => {
                   </IconButton>
                 </Stack>
                 <LinearProgress
-                  value={
-                    (subcategory.currentSpent / subcategory.totalAllotted) * 100
-                  }
-                  variant="determinate"
+                  value={(subcategory.currentSpent / subcategory.totalAllotted) * 100}
+                  variant='determinate'
                   sx={{ width: '85%', mt: 1 }}
                 />
               </Grid>
 
               <Grid item xs={3}>
                 <EditableLabel
-                  variant="body1"
-                  prefix="$"
-                  initialValue={subcategory.totalAllotted.toLocaleString(
-                    undefined,
-                    {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 2,
-                    }
-                  )}
-                  onBlur={(newValue) =>
-                    setSubCatProperty(
-                      newValue,
-                      subcategory.name,
-                      category.name,
-                      'allotted'
-                    )
-                  }
+                  variant='body1'
+                  prefix='$'
+                  initialValue={subcategory.totalAllotted.toLocaleString(undefined, {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })}
+                  onBlur={(newValue) => setSubCatProperty(newValue, subcategory.name, category.name, 'allotted')}
                 />
               </Grid>
               <Grid item xs={2} ml={1.5}>
-                <Typography variant="body1">
+                <Typography variant='body1'>
                   $
                   {subcategory.currentSpent.toLocaleString(undefined, {
                     minimumFractionDigits: 2,
@@ -361,9 +285,7 @@ const Budget = (props: BudgetProps): JSX.Element => {
 
     if (newValue === oldName) return;
 
-    if (
-      budget.categories.some((cat: BudgetCategory) => cat.name === newValue)
-    ) {
+    if (budget.categories.some((cat: BudgetCategory) => cat.name === newValue)) {
       alert('This name is already in use!');
       getBudget(); // Have to do this to get EditableLabels to refresh their values
       return;
@@ -388,14 +310,8 @@ const Budget = (props: BudgetProps): JSX.Element => {
       .then(() => getBudget());
   };
 
-  const setSubCatProperty = (
-    newValue: string | undefined,
-    oldName: string,
-    catName: string,
-    propName: string
-  ) => {
-    if (!profile || !profile.budgetId || !newValue || newValue === oldName)
-      return;
+  const setSubCatProperty = (newValue: string | undefined, oldName: string, catName: string, propName: string) => {
+    if (!profile || !profile.budgetId || !newValue || newValue === oldName) return;
 
     const updArr = [...budget.categories];
     const updTransactions = [...budget.transactions];
@@ -405,11 +321,7 @@ const Budget = (props: BudgetProps): JSX.Element => {
         cat.subcategories.forEach((subCat: BudgetSubcategory) => {
           if (subCat.name === oldName) {
             if (propName === 'name') {
-              if (
-                cat.subcategories.some(
-                  (scat: BudgetSubcategory) => scat.name === newValue
-                )
-              ) {
+              if (cat.subcategories.some((scat: BudgetSubcategory) => scat.name === newValue)) {
                 alert('This name is already in use!');
                 getBudget();
                 return;
@@ -446,19 +358,14 @@ const Budget = (props: BudgetProps): JSX.Element => {
     let newCatName = 'New Category';
     let nameIterator = 1;
 
-    while (
-      budget.categories.some((cat: BudgetCategory) => cat.name === newCatName)
-    ) {
+    while (budget.categories.some((cat: BudgetCategory) => cat.name === newCatName)) {
       newCatName = `New Category${nameIterator}`;
       nameIterator++;
     }
 
     firebase
       .updateBudget(profile.budgetId, {
-        categories: [
-          ...budget.categories,
-          { name: newCatName, subcategories: [] },
-        ],
+        categories: [...budget.categories, { name: newCatName, subcategories: [] }],
       })
       .then(() => getBudget());
   };
@@ -498,11 +405,7 @@ const Budget = (props: BudgetProps): JSX.Element => {
         let newSubCatName = 'New SubCategory';
         let nameIterator = 1;
 
-        while (
-          cat.subcategories.some(
-            (subcat: BudgetSubcategory) => subcat.name === newSubCatName
-          )
-        ) {
+        while (cat.subcategories.some((subcat: BudgetSubcategory) => subcat.name === newSubCatName)) {
           newSubCatName = `New SubCategory${nameIterator}`;
           nameIterator++;
         }
@@ -531,9 +434,7 @@ const Budget = (props: BudgetProps): JSX.Element => {
     updArr.forEach((cat) => {
       if (cat.name === catName) {
         cat.subcategories.splice(
-          cat.subcategories.findIndex(
-            (subcat: BudgetSubcategory) => subcat.name === subCatName
-          ),
+          cat.subcategories.findIndex((subcat: BudgetSubcategory) => subcat.name === subCatName),
           1
         );
       }
@@ -573,12 +474,7 @@ const Budget = (props: BudgetProps): JSX.Element => {
       .then(() => getBudget());
   };
 
-  const moveSubCategory = (
-    srcCatName: string,
-    destCatName: string,
-    dragIdx: number,
-    dropIdx: number
-  ) => {
+  const moveSubCategory = (srcCatName: string, destCatName: string, dragIdx: number, dropIdx: number) => {
     // Src & Dest cat is used to handle subcat being moved to a different cat
     if (!profile || !profile.budgetId) return;
 
@@ -604,9 +500,7 @@ const Budget = (props: BudgetProps): JSX.Element => {
   const setBudgetName = (newName: string | undefined) => {
     if (!profile || !profile.budgetId || !newName) return;
 
-    firebase
-      .updateBudget(profile.budgetId, { name: newName })
-      .then(() => getBudget());
+    firebase.updateBudget(profile.budgetId, { name: newName }).then(() => getBudget());
   };
 
   const getAllottedRemainder = () => {
@@ -626,7 +520,7 @@ const Budget = (props: BudgetProps): JSX.Element => {
     }
 
     return (
-      <Typography variant="subtitle1" ml={3} color={helperColor}>
+      <Typography variant='subtitle1' ml={3} color={helperColor}>
         $
         {Math.abs(difference).toLocaleString(undefined, {
           minimumFractionDigits: 2,
@@ -654,7 +548,7 @@ const Budget = (props: BudgetProps): JSX.Element => {
     }
 
     return (
-      <Typography variant="subtitle1" ml={3} color={helperColor}>
+      <Typography variant='subtitle1' ml={3} color={helperColor}>
         $
         {Math.abs(difference).toLocaleString(undefined, {
           minimumFractionDigits: 2,
@@ -666,14 +560,10 @@ const Budget = (props: BudgetProps): JSX.Element => {
   };
 
   return (
-    <Box key={budget.id} maxWidth="xl" mx="auto">
-      <Box textAlign="center" mb={4} mt={2} width={300} mx="auto">
-        <EditableLabel
-          variant="h3"
-          initialValue={budget.name}
-          onBlur={setBudgetName}
-        />
-        <Typography variant="h5">
+    <Box key={budget.id} maxWidth='xl' mx='auto'>
+      <Box textAlign='center' mb={4} mt={2} width={300} mx='auto'>
+        <EditableLabel variant='h3' initialValue={budget.name} onBlur={setBudgetName} />
+        <Typography variant='h5'>
           {new Date().toLocaleDateString('en-US', {
             month: 'long',
             year: 'numeric',
@@ -681,13 +571,13 @@ const Budget = (props: BudgetProps): JSX.Element => {
         </Typography>
       </Box>
 
-      <Box mb={4} width={325} mx="auto">
+      <Box mb={4} width={325} mx='auto'>
         <Paper sx={{ p: 2 }}>
-          <Stack direction="row" alignContent="center" spacing={2} mb={2}>
-            <Typography variant="h6">Net Income</Typography>
+          <Stack direction='row' alignContent='center' spacing={2} mb={2}>
+            <Typography variant='h6'>Net Income</Typography>
             <EditableLabel
-              variant="h5"
-              prefix="$"
+              variant='h5'
+              prefix='$'
               initialValue={budget.monthlyNetIncome.toLocaleString(undefined, {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2,
@@ -696,9 +586,9 @@ const Budget = (props: BudgetProps): JSX.Element => {
             />
           </Stack>
 
-          <Stack direction="row" alignContent="center" spacing={2}>
-            <Typography variant="h6">Total Allotted</Typography>
-            <Typography variant="h5">
+          <Stack direction='row' alignContent='center' spacing={2}>
+            <Typography variant='h6'>Total Allotted</Typography>
+            <Typography variant='h5'>
               $
               {budget.totalAllotted?.toLocaleString(undefined, {
                 minimumFractionDigits: 2,
@@ -708,9 +598,9 @@ const Budget = (props: BudgetProps): JSX.Element => {
           </Stack>
           {getAllottedRemainder()}
 
-          <Stack direction="row" alignContent="center" spacing={2} mt={1}>
-            <Typography variant="h6">Total Spent</Typography>
-            <Typography variant="h5">
+          <Stack direction='row' alignContent='center' spacing={2} mt={1}>
+            <Typography variant='h6'>Total Spent</Typography>
+            <Typography variant='h5'>
               $
               {budget.totalSpent?.toLocaleString(undefined, {
                 minimumFractionDigits: 2,
@@ -724,30 +614,30 @@ const Budget = (props: BudgetProps): JSX.Element => {
 
       <Box>
         <Paper sx={{ p: 1 }}>
-          <Grid container alignItems="center">
+          <Grid container alignItems='center'>
             <Grid item xs={6}>
-              <Stack direction="row" alignItems="center">
-                <Tooltip title="Add category">
+              <Stack direction='row' alignItems='center'>
+                <Tooltip title='Add category'>
                   <IconButton onClick={addNewCategory}>
                     <Add />
                   </IconButton>
                 </Tooltip>
 
                 <Stack>
-                  <Typography variant="body1">Category</Typography>
-                  <Stack direction="row" alignItems="end">
+                  <Typography variant='body1'>Category</Typography>
+                  <Stack direction='row' alignItems='end'>
                     <SubdirectoryArrowRight />
-                    <Typography variant="body2">Sub-category</Typography>
+                    <Typography variant='body2'>Sub-category</Typography>
                   </Stack>
                 </Stack>
               </Stack>
             </Grid>
 
             <Grid item xs={3} ml={1}>
-              <Typography variant="body1">Allotted</Typography>
+              <Typography variant='body1'>Allotted</Typography>
             </Grid>
             <Grid item xs={2}>
-              <Typography variant="body1">Spent</Typography>
+              <Typography variant='body1'>Spent</Typography>
             </Grid>
           </Grid>
 

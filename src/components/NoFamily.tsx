@@ -48,35 +48,31 @@ const NoFamily = (): JSX.Element => {
   };
 
   return (
-    <Box maxWidth="sm" mx="auto" mt={3}>
+    <Box maxWidth='sm' mx='auto' mt={3}>
       <Paper sx={{ p: 2 }}>
-        <Typography variant="h5" mb={3}>
+        <Typography variant='h5' mb={3}>
           We couldn&apos;t find a family for this profile!
         </Typography>
 
-        <Typography variant="h6" textAlign="center">
+        <Typography variant='h6' textAlign='center'>
           Ask your head-of-household for their family invite link
         </Typography>
         <Divider sx={{ width: 250, mx: 'auto', mt: 2, mb: 2 }}>OR</Divider>
-        <Stack direction="row" justifyContent="center">
-          <Button variant="contained" onClick={() => setCreatingFamily(true)}>
+        <Stack direction='row' justifyContent='center'>
+          <Button variant='contained' onClick={() => setCreatingFamily(true)}>
             Create a family
           </Button>
         </Stack>
 
-        <Dialog
-          open={creatingFamily}
-          onClose={() => setCreatingFamily(false)}
-          fullWidth
-        >
+        <Dialog open={creatingFamily} onClose={() => setCreatingFamily(false)} fullWidth>
           <DialogTitle>Create Family</DialogTitle>
 
           <DialogContent>
             <Stack>
               <TextField
                 autoFocus
-                variant="standard"
-                label="Family (Last) Name"
+                variant='standard'
+                label='Family (Last) Name'
                 value={newName}
                 onChange={(event) => setNewName(event.target.value)}
                 required
@@ -86,7 +82,7 @@ const NoFamily = (): JSX.Element => {
 
           <DialogActions>
             <Button onClick={() => setCreatingFamily(false)}>Cancel</Button>
-            <Button variant="contained" onClick={createFamily}>
+            <Button variant='contained' onClick={createFamily}>
               Create
             </Button>
           </DialogActions>

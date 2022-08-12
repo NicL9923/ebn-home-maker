@@ -40,42 +40,31 @@ const Information = (): JSX.Element => {
   };
 
   return (
-    <Box maxWidth="lg" mx="auto" mt={2}>
-      <Typography variant="h3" mb={2}>
+    <Box maxWidth='lg' mx='auto' mt={2}>
+      <Typography variant='h3' mb={2}>
         Information
       </Typography>
 
       <Paper sx={{ p: 2, mt: 3 }}>
-        <Box data-color-mode="light">
-          <Typography variant="h4" mb={2}>
+        <Box data-color-mode='light'>
+          <Typography variant='h4' mb={2}>
             Family Board
           </Typography>
 
           {isEditingMd ? (
             <MDEditor value={editedMd} onChange={setEditedMd} />
           ) : (
-            <MDEditor.Markdown
-              style={{ padding: 15 }}
-              source={family.boardMarkdown}
-            />
+            <MDEditor.Markdown style={{ padding: 15 }} source={family.boardMarkdown} />
           )}
 
           <Box mt={3}>
             {userId === family.headOfFamily && !isEditingMd && (
-              <Button
-                variant="contained"
-                startIcon={<Edit />}
-                onClick={beginEditingBoard}
-              >
+              <Button variant='contained' startIcon={<Edit />} onClick={beginEditingBoard}>
                 Edit Board
               </Button>
             )}
             {userId === family.headOfFamily && isEditingMd && (
-              <Button
-                variant="contained"
-                startIcon={<Save />}
-                onClick={endEditingBoard}
-              >
+              <Button variant='contained' startIcon={<Save />} onClick={endEditingBoard}>
                 Save Changes
               </Button>
             )}

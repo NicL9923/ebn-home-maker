@@ -81,15 +81,7 @@ const WeatherBox = (): JSX.Element => {
   };
 
   const getDayOfWeek = (dayNum: number) => {
-    const daysOfWeek = [
-      'Sunday',
-      'Monday',
-      'Tuesday',
-      'Wednesday',
-      'Thursday',
-      'Friday',
-      'Saturday',
-    ];
+    const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
     if (dayNum >= 0 && dayNum <= 6) {
       return daysOfWeek[dayNum];
@@ -99,37 +91,21 @@ const WeatherBox = (): JSX.Element => {
   };
 
   const getWeatherIcon = (weatherId: number, size = 48) => {
-    if (weatherId >= 200 && weatherId <= 299)
-      return <WiThunderstorm size={size} />;
-    else if (weatherId >= 300 && weatherId <= 399)
-      return <WiRain size={size} />;
-    else if (weatherId >= 500 && weatherId <= 504)
-      return <WiRain size={size} />;
+    if (weatherId >= 200 && weatherId <= 299) return <WiThunderstorm size={size} />;
+    else if (weatherId >= 300 && weatherId <= 399) return <WiRain size={size} />;
+    else if (weatherId >= 500 && weatherId <= 504) return <WiRain size={size} />;
     else if (weatherId === 511) return <WiSnowflakeCold size={size} />;
-    else if (weatherId >= 520 && weatherId <= 531)
-      return <WiRain size={size} />;
-    else if (weatherId >= 600 && weatherId <= 699)
-      return <WiSnowflakeCold size={size} />;
+    else if (weatherId >= 520 && weatherId <= 531) return <WiRain size={size} />;
+    else if (weatherId >= 600 && weatherId <= 699) return <WiSnowflakeCold size={size} />;
     else if (weatherId >= 700 && weatherId <= 799) return <WiFog size={size} />;
     else if (weatherId === 800 || weatherId === 801) {
       const curHour = new Date().getHours();
       const isDaytime = curHour >= 6 && curHour <= 18;
 
-      if (weatherId === 800)
-        return isDaytime ? (
-          <WiDaySunny size={size} />
-        ) : (
-          <WiNightClear size={size} />
-        );
-      else
-        return isDaytime ? (
-          <WiDayCloudy size={size} />
-        ) : (
-          <WiNightCloudy size={size} />
-        );
+      if (weatherId === 800) return isDaytime ? <WiDaySunny size={size} /> : <WiNightClear size={size} />;
+      else return isDaytime ? <WiDayCloudy size={size} /> : <WiNightCloudy size={size} />;
     } else if (weatherId === 802) return <WiCloudy size={size} />;
-    else if (weatherId === 803 || weatherId === 804)
-      return <WiCloudy size={size} />;
+    else if (weatherId === 803 || weatherId === 804) return <WiCloudy size={size} />;
   };
 
   const parseCurrentWeather = () => {
@@ -147,28 +123,22 @@ const WeatherBox = (): JSX.Element => {
     return (
       <Paper>
         <Stack
-          direction="column"
-          alignItems="center"
-          justifyContent="center"
-          textAlign="center"
+          direction='column'
+          alignItems='center'
+          justifyContent='center'
+          textAlign='center'
           mt={3}
           pl={5}
           pr={5}
           pt={2}
           pb={2}
         >
-          <Typography variant="h4">{curWeatherInfo.condition}</Typography>
+          <Typography variant='h4'>{curWeatherInfo.condition}</Typography>
           {getWeatherIcon(curWeatherInfo.iconCode, 108)}
-          <Typography variant="h4">{curWeatherInfo.temp}°F</Typography>
-          <Typography variant="h6">
-            Feels like {curWeatherInfo.feelsLike}°
-          </Typography>
-          <Typography variant="body1">
-            Humidity: {curWeatherInfo.humidity}%
-          </Typography>
-          <Typography variant="body1">
-            Wind: {curWeatherInfo.wind}mph
-          </Typography>
+          <Typography variant='h4'>{curWeatherInfo.temp}°F</Typography>
+          <Typography variant='h6'>Feels like {curWeatherInfo.feelsLike}°</Typography>
+          <Typography variant='body1'>Humidity: {curWeatherInfo.humidity}%</Typography>
+          <Typography variant='body1'>Wind: {curWeatherInfo.wind}mph</Typography>
         </Stack>
       </Paper>
     );
@@ -190,10 +160,10 @@ const WeatherBox = (): JSX.Element => {
     if (!parsedAlerts) return;
 
     return (
-      <Stack direction="column" alignContent="center" mb={4} mt={2}>
+      <Stack direction='column' alignContent='center' mb={4} mt={2}>
         {parsedAlerts.map((alert) => {
           return (
-            <Alert severity="error" key={alert.event}>
+            <Alert severity='error' key={alert.event}>
               <AlertTitle>{alert.event}</AlertTitle>
               <h5>{alert.reporter}</h5>
               <p>{alert.description}</p>
@@ -225,21 +195,13 @@ const WeatherBox = (): JSX.Element => {
       <Grid container spacing={2} mt={2}>
         {parsedHourlyReports.map((rpt) => {
           return (
-            <Grid
-              container
-              item
-              xs={4}
-              sm={3}
-              md={2}
-              justifyContent="space-evenly"
-              key={rpt.hour}
-            >
+            <Grid container item xs={4} sm={3} md={2} justifyContent='space-evenly' key={rpt.hour}>
               <Paper>
                 <Stack
-                  direction="column"
-                  alignItems="center"
-                  justifyContent="center"
-                  textAlign="center"
+                  direction='column'
+                  alignItems='center'
+                  justifyContent='center'
+                  textAlign='center'
                   width={75}
                   ml={4}
                   mr={4}
@@ -248,16 +210,14 @@ const WeatherBox = (): JSX.Element => {
                   key={rpt.hour}
                   spacing={1}
                 >
-                  <Typography variant="h6">
-                    {rpt.hour < 12
-                      ? `${rpt.hour} AM`
-                      : `${rpt.hour === 12 ? rpt.hour : rpt.hour - 12} PM`}
+                  <Typography variant='h6'>
+                    {rpt.hour < 12 ? `${rpt.hour} AM` : `${rpt.hour === 12 ? rpt.hour : rpt.hour - 12} PM`}
                   </Typography>
                   {getWeatherIcon(rpt.iconCode)}
-                  <Typography variant="h6">{rpt.condition}</Typography>
-                  <Typography variant="h6">{rpt.temp}°F</Typography>
-                  <Typography variant="body2">FL {rpt.feelsLike}°</Typography>
-                  <Typography variant="body2">HUM: {rpt.humidity}%</Typography>
+                  <Typography variant='h6'>{rpt.condition}</Typography>
+                  <Typography variant='h6'>{rpt.temp}°F</Typography>
+                  <Typography variant='body2'>FL {rpt.feelsLike}°</Typography>
+                  <Typography variant='body2'>HUM: {rpt.humidity}%</Typography>
                 </Stack>
               </Paper>
             </Grid>
@@ -283,30 +243,16 @@ const WeatherBox = (): JSX.Element => {
     });
 
     return (
-      <Grid
-        container
-        justifyContent="space-evenly"
-        alignItems="center"
-        spacing={4}
-        mt={1}
-      >
+      <Grid container justifyContent='space-evenly' alignItems='center' spacing={4} mt={1}>
         {parsedDailyReports.map((rpt) => {
           return (
-            <Grid
-              container
-              item
-              xs={4}
-              sm={3}
-              md={2}
-              justifyContent="space-evenly"
-              key={rpt.day}
-            >
+            <Grid container item xs={4} sm={3} md={2} justifyContent='space-evenly' key={rpt.day}>
               <Paper>
                 <Stack
-                  direction="column"
-                  alignItems="center"
-                  justifyContent="center"
-                  textAlign="center"
+                  direction='column'
+                  alignItems='center'
+                  justifyContent='center'
+                  textAlign='center'
                   width={90}
                   ml={4}
                   mr={4}
@@ -315,13 +261,11 @@ const WeatherBox = (): JSX.Element => {
                   key={rpt.day}
                   spacing={1}
                 >
-                  <Typography variant="h5">{rpt.day}</Typography>
+                  <Typography variant='h5'>{rpt.day}</Typography>
                   {getWeatherIcon(rpt.iconCode)}
-                  <Typography variant="h6">{rpt.condition}</Typography>
-                  <Typography variant="body1">
-                    High: {rpt.tempHigh}°F
-                  </Typography>
-                  <Typography variant="body1">Low: {rpt.tempLow}°F</Typography>
+                  <Typography variant='h6'>{rpt.condition}</Typography>
+                  <Typography variant='body1'>High: {rpt.tempHigh}°F</Typography>
+                  <Typography variant='body1'>Low: {rpt.tempLow}°F</Typography>
                 </Stack>
               </Paper>
             </Grid>
@@ -348,33 +292,28 @@ const WeatherBox = (): JSX.Element => {
 
   if (family && !family.openweathermap_api_key) {
     return (
-      <Box textAlign="center" maxWidth="sm" mx="auto">
+      <Box textAlign='center' maxWidth='sm' mx='auto'>
         <Paper sx={{ p: 2 }}>
-          <Typography variant="h5" mb={1}>
+          <Typography variant='h5' mb={1}>
             Want to see the weather here?
           </Typography>
-          <Typography variant="subtitle1" mb={3}>
-            Obtain a free &apos;Current Weather&apos; API key from
-            OpenWeatherMap (https://openweathermap.org/price), input it below,
-            then set your family location on your profile page
+          <Typography variant='subtitle1' mb={3}>
+            Obtain a free &apos;Current Weather&apos; API key from OpenWeatherMap (https://openweathermap.org/price),
+            input it below, then set your family location on your profile page
           </Typography>
 
-          <Button variant="contained" onClick={() => setSettingApiKey(true)}>
+          <Button variant='contained' onClick={() => setSettingApiKey(true)}>
             Set API Key
           </Button>
 
-          <Dialog
-            open={settingApiKey}
-            onClose={() => setSettingApiKey(false)}
-            fullWidth
-          >
+          <Dialog open={settingApiKey} onClose={() => setSettingApiKey(false)} fullWidth>
             <DialogTitle>Set Weather API Key</DialogTitle>
 
             <DialogContent>
               <TextField
                 autoFocus
-                variant="standard"
-                label="API Key"
+                variant='standard'
+                label='API Key'
                 value={newApiKey}
                 onChange={(event) => setNewApiKey(event.target.value)}
               />
@@ -382,7 +321,7 @@ const WeatherBox = (): JSX.Element => {
 
             <DialogActions>
               <Button onClick={() => setSettingApiKey(false)}>Cancel</Button>
-              <Button variant="contained" onClick={saveApiKey}>
+              <Button variant='contained' onClick={saveApiKey}>
                 Save
               </Button>
             </DialogActions>
@@ -393,19 +332,16 @@ const WeatherBox = (): JSX.Element => {
   }
 
   return (
-    <Stack alignItems="center" justifyContent="center" mb={6}>
-      <Typography variant="h4">Weather</Typography>
-      <Tabs
-        value={shownWeather}
-        onChange={(e, newVal) => setShownWeather(newVal)}
-      >
-        <Tab label="Current" />
-        <Tab label="Hourly" />
-        <Tab label="Daily" />
+    <Stack alignItems='center' justifyContent='center' mb={6}>
+      <Typography variant='h4'>Weather</Typography>
+      <Tabs value={shownWeather} onChange={(e, newVal) => setShownWeather(newVal)}>
+        <Tab label='Current' />
+        <Tab label='Hourly' />
+        <Tab label='Daily' />
       </Tabs>
 
       {isFetchingWeather ? (
-        <Box mx="auto" textAlign="center" mt={20}>
+        <Box mx='auto' textAlign='center' mt={20}>
           <CircularProgress />
         </Box>
       ) : (

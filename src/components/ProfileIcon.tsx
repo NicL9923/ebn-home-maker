@@ -1,14 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { signOut } from 'firebase/auth';
 import { Link } from 'react-router-dom';
-import {
-  Avatar,
-  Divider,
-  ListItemText,
-  Menu,
-  MenuItem,
-  Typography,
-} from '@mui/material';
+import { Avatar, Divider, ListItemText, Menu, MenuItem, Typography } from '@mui/material';
 import { FirebaseContext } from '../Firebase';
 import { UserContext } from '../App';
 
@@ -27,38 +20,30 @@ const ProfileIcon = (): JSX.Element => {
       });
 
   return (
-    <div className="flex flex-row justify-end">
+    <div className='flex flex-row justify-end'>
       <div>
         <Avatar
-          id="profile-button"
+          id='profile-button'
           onClick={(event) => setAnchorEl(event.currentTarget)}
-          aria-haspopup="true"
+          aria-haspopup='true'
           aria-expanded={anchorEl ? 'true' : undefined}
-          aria-controls="profile-menu"
+          aria-controls='profile-menu'
           src={profile && profile.imgLink ? profile.imgLink : undefined}
-          alt="profile"
+          alt='profile'
           sx={{ cursor: 'pointer' }}
         >
           {profile &&
-            (profile.imgLink ? undefined : (
-              <Typography variant="h6">
-                {profile.firstName[0].toUpperCase()}
-              </Typography>
-            ))}
+            (profile.imgLink ? undefined : <Typography variant='h6'>{profile.firstName[0].toUpperCase()}</Typography>)}
         </Avatar>
 
         <Menu
-          id="profile-menu"
+          id='profile-menu'
           anchorEl={anchorEl}
           open={!!anchorEl}
           onClose={() => setAnchorEl(null)}
           MenuListProps={{ 'aria-labelledby': 'profile-button' }}
         >
-          <MenuItem
-            onClick={() => setAnchorEl(null)}
-            component={Link}
-            to="/profile"
-          >
+          <MenuItem onClick={() => setAnchorEl(null)} component={Link} to='/profile'>
             <ListItemText>My Profile</ListItemText>
           </MenuItem>
           <Divider />

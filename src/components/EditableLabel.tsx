@@ -11,17 +11,13 @@ interface EditableLabelPropTypes {
 }
 
 const EditableLabel = (props: EditableLabelPropTypes) => {
-  const { initialValue, labelPlaceholder, variant, prefix, onFocus, onBlur } =
-    props;
+  const { initialValue, labelPlaceholder, variant, prefix, onFocus, onBlur } = props;
   const [isEditing, setEditing] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
-  const [value, setValue] = useState<string | undefined>(
-    initialValue ? initialValue : undefined
-  );
+  const [value, setValue] = useState<string | undefined>(initialValue ? initialValue : undefined);
   const inputRef = useRef<any>(null);
 
-  const isTextValueValid = () =>
-    typeof value !== 'undefined' && value.trim().length > 0;
+  const isTextValueValid = () => typeof value !== 'undefined' && value.trim().length > 0;
 
   const handleFocus = () => {
     if (isEditing) {
@@ -34,8 +30,7 @@ const EditableLabel = (props: EditableLabelPropTypes) => {
     handleEditState();
   };
 
-  const handleChange = () =>
-    setValue(inputRef && inputRef.current ? inputRef.current.value : undefined);
+  const handleChange = () => setValue(inputRef && inputRef.current ? inputRef.current.value : undefined);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
@@ -56,7 +51,7 @@ const EditableLabel = (props: EditableLabelPropTypes) => {
         onBlur={handleFocus}
         onKeyDown={handleKeyDown}
         autoFocus
-        variant="standard"
+        variant='standard'
       />
     );
   }

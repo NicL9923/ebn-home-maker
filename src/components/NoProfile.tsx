@@ -68,35 +68,29 @@ const NoProfile = (): JSX.Element => {
   };
 
   return (
-    <Box maxWidth="sm" mx="auto" mt={2}>
+    <Box maxWidth='sm' mx='auto' mt={2}>
       <Paper sx={{ p: 2 }}>
-        <Typography variant="h5">Welcome to Our Home!</Typography>
-        <Typography variant="h6" mb={2}>
-          It looks like you don&apos;t have a profile yet, would you like to
-          create one?
+        <Typography variant='h5'>Welcome to Our Home!</Typography>
+        <Typography variant='h6' mb={2}>
+          It looks like you don&apos;t have a profile yet, would you like to create one?
         </Typography>
-        <Stack direction="row" justifyContent="center" mb={2}>
-          <Button variant="contained" onClick={() => setCreatingProfile(true)}>
+        <Stack direction='row' justifyContent='center' mb={2}>
+          <Button variant='contained' onClick={() => setCreatingProfile(true)}>
             Create a profile
           </Button>
         </Stack>
-        <Typography variant="caption">
-          Creating a profile allows you to create/join a budget and opens the
-          door to family/household management!
+        <Typography variant='caption'>
+          Creating a profile allows you to create/join a budget and opens the door to family/household management!
         </Typography>
 
-        <Dialog
-          open={creatingProfile}
-          onClose={() => setCreatingProfile(false)}
-          fullWidth
-        >
+        <Dialog open={creatingProfile} onClose={() => setCreatingProfile(false)} fullWidth>
           <DialogTitle>Create Profile</DialogTitle>
 
           <DialogContent>
             <TextField
               autoFocus
-              variant="standard"
-              label="First Name"
+              variant='standard'
+              label='First Name'
               value={newName}
               onChange={(event) => setNewName(event.target.value)}
               required
@@ -115,7 +109,7 @@ const NoProfile = (): JSX.Element => {
 
           <DialogActions>
             <Button onClick={() => setCreatingProfile(false)}>Cancel</Button>
-            <Button variant="contained" onClick={createProfile}>
+            <Button variant='contained' onClick={createProfile}>
               Create
             </Button>
           </DialogActions>
