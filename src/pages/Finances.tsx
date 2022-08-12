@@ -134,10 +134,20 @@ const Finances = (): JSX.Element => {
     if (!profile) return;
 
     setIsFetchingBudget(true);
-    getDoc(doc(db, 'budgets', profile.budgetId)).then((doc) => {
+    getDoc(doc(db, 'budgets', profile.budgetId)).then((docx) => {
       setIsFetchingBudget(false);
-      if (doc.exists()) {
-        const docData = doc.data();
+      if (docx.exists()) {
+        const docData = docx.data();
+
+        /* Emergency conversion of Firestore timestamps back to strings
+        const ts = [...docData.transactions];
+        ts.forEach((t) => {
+          if (typeof t.timestamp !== 'string') {
+            t.timestamp = t.timestamp.toDate().toString();
+          }
+        });
+        updateDoc(doc(db, 'budgets', profile.budgetId), { transactions: ts });
+        */
 
         if (!docData.categories) {
           console.error('Missing budget categories array!');

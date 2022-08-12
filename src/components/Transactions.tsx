@@ -130,9 +130,10 @@ const Transactions = (props: TransactionsProps): JSX.Element => {
     if (!profile) return;
 
     let updArr = [...budget.transactions];
-    convertTimestampsToStrings(updArr);
 
-    updArr = updArr.filter((val, idx) => selection.indexOf(idx)); // Efficient way to remove transaction(s) from array
+    updArr = updArr.filter((val, idx) => selection.indexOf(idx) === -1); // Efficient way to remove transaction(s) from array
+
+    convertTimestampsToStrings(updArr);
 
     updateDoc(doc(db, 'budgets', profile.budgetId), {
       transactions: updArr,
