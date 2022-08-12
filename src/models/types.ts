@@ -107,5 +107,5 @@ export interface Transaction {
   amt: number;
   category: string;
   subcategory: string;
-  timestamp: string | Date;
+  timestamp: Date;
 }

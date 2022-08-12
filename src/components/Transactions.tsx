@@ -57,6 +57,7 @@ const dgColumns = [
     field: 'timestamp',
     headerName: 'Date',
     type: 'date',
+    flex: 1,
     width: 100,
     editable: true,
   },
@@ -80,6 +81,13 @@ const Transactions = (props: TransactionsProps): JSX.Element => {
   >(new Date());
   const [selection, setSelection] = useState<GridRowId[]>([]);
 
+  // MUST BE DONE BEFORE PUSHING TRANSACTIONS
+  const convertTimestampsToStrings = (arrOfObjsToConvert: any[]) => {
+    arrOfObjsToConvert.forEach((item) => {
+      item.timestamp = item.timestamp.toString();
+    });
+  };
+
   const saveNewTransaction = () => {
     if (
       !newTransactionName ||
@@ -94,12 +102,10 @@ const Transactions = (props: TransactionsProps): JSX.Element => {
       return;
     }
 
-    const updArr = [...budget.transactions];
+    const updArr: any[] = Array.from(budget.transactions);
     const splitCats = newTransactionCat.split('-');
 
-    updArr.forEach((t) => {
-      t.timestamp = t.timestamp.toString();
-    });
+    convertTimestampsToStrings(updArr);
     updArr.push({
       amt: parseFloat(newTransactionAmt),
       name: newTransactionName,
@@ -124,6 +130,7 @@ const Transactions = (props: TransactionsProps): JSX.Element => {
     if (!profile) return;
 
     let updArr = [...budget.transactions];
+    convertTimestampsToStrings(updArr);
 
     updArr = updArr.filter((val, idx) => selection.indexOf(idx)); // Efficient way to remove transaction(s) from array
 
@@ -174,8 +181,8 @@ const Transactions = (props: TransactionsProps): JSX.Element => {
         <DataGrid
           columns={dgColumns}
           rows={budget.transactions}
-          pageSize={10}
-          rowsPerPageOptions={[5, 10, 20, 50, 100]}
+          pageSize={20}
+          rowsPerPageOptions={[10, 20, 50, 100]}
           selectionModel={selection}
           onSelectionModelChange={setSelection}
           experimentalFeatures={{ newEditingApi: true }}

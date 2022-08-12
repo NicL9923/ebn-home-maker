@@ -139,38 +139,48 @@ const Finances = (): JSX.Element => {
       if (doc.exists()) {
         const docData = doc.data();
 
-        docData.categories.forEach((cat: BudgetCategory) => {
-          cat.currentSpent = 0;
-          cat.subcategories.forEach(
-            (subcat: BudgetSubcategory) => (subcat.currentSpent = 0)
-          );
-        });
-
-        docData.transactions.forEach(
-          (transaction: Transaction, index: number) => {
-            transaction.timestamp = new Date(transaction.timestamp);
-            transaction.id = index;
-
-            const tCatIdx = docData.categories.findIndex(
-              (x: BudgetCategory) => x.name === transaction.category
+        if (!docData.categories) {
+          console.error('Missing budget categories array!');
+          docData.categories = [];
+        } else {
+          docData.categories.forEach((cat: BudgetCategory) => {
+            cat.currentSpent = 0;
+            cat.subcategories.forEach(
+              (subcat: BudgetSubcategory) => (subcat.currentSpent = 0)
             );
-            const tSubCatIdx = docData.categories[
-              tCatIdx
-            ].subcategories.findIndex(
-              (x: BudgetSubcategory) => x.name === transaction.subcategory
-            );
+          });
+        }
 
-            // Only count transaction towards this month's budget if it's from this month
-            if (transaction.timestamp.getMonth() === new Date().getMonth()) {
-              // Verify cat and subcat were found (i.e. if the transaction has valid ones)
-              if (tCatIdx !== -1 && tSubCatIdx !== -1) {
-                docData.categories[tCatIdx].subcategories[
-                  tSubCatIdx
-                ].currentSpent += transaction.amt;
+        if (!docData.transactions) {
+          console.error('Missing budget categories array!');
+          docData.transactions = [];
+        } else {
+          docData.transactions.forEach(
+            (transaction: Transaction, index: number) => {
+              transaction.timestamp = new Date(transaction.timestamp);
+              transaction.id = index;
+
+              const tCatIdx = docData.categories.findIndex(
+                (x: BudgetCategory) => x.name === transaction.category
+              );
+              const tSubCatIdx = docData.categories[
+                tCatIdx
+              ].subcategories.findIndex(
+                (x: BudgetSubcategory) => x.name === transaction.subcategory
+              );
+
+              // Only count transaction towards this month's budget if it's from this month
+              if (transaction.timestamp.getMonth() === new Date().getMonth()) {
+                // Verify cat and subcat were found (i.e. if the transaction has valid ones)
+                if (tCatIdx !== -1 && tSubCatIdx !== -1) {
+                  docData.categories[tCatIdx].subcategories[
+                    tSubCatIdx
+                  ].currentSpent += transaction.amt;
+                }
               }
             }
-          }
-        );
+          );
+        }
 
         // Handle some calculations we do locally so we can reuse their values (efficiency!)
         let totalSpent = 0;
