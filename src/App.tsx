@@ -75,7 +75,11 @@ const App = (): JSX.Element => {
       <Router>
         <Navbar />
 
-        {userId ? (
+        {isFetchingUser ? (
+          <Box mx='auto' textAlign='center' mt={20}>
+            <CircularProgress size={80} />
+          </Box>
+        ) : userId ? (
           <Routes>
             {profile && (
               <>
@@ -96,12 +100,8 @@ const App = (): JSX.Element => {
             <Route path='/' element={<Home />} />
             <Route element={<Home />} />
           </Routes>
-        ) : isFetchingUser ? (
-          <Box mx='auto' textAlign='center' mt={20}>
-            <CircularProgress size={80} />
-          </Box>
         ) : (
-          <NotLoggedIn />
+          userId && <NotLoggedIn />
         )}
       </Router>
     </UserContext.Provider>
