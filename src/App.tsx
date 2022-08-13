@@ -72,14 +72,13 @@ const App = (): JSX.Element => {
         getFamily,
       }}
     >
-      <Router>
-        <Navbar />
-
-        {isFetchingUser ? (
-          <Box mx='auto' textAlign='center' mt={20}>
-            <CircularProgress size={80} />
-          </Box>
-        ) : userId ? (
+      {isFetchingUser || isFetchingProfile || isFetchingFamily ? (
+        <Box mx='auto' textAlign='center' mt={20}>
+          <CircularProgress size={80} />
+        </Box>
+      ) : userId ? (
+        <Router>
+          <Navbar />
           <Routes>
             {profile && (
               <>
@@ -100,10 +99,10 @@ const App = (): JSX.Element => {
             <Route path='/' element={<Home />} />
             <Route element={<Home />} />
           </Routes>
-        ) : (
-          userId && <NotLoggedIn />
-        )}
-      </Router>
+        </Router>
+      ) : (
+        userId && <NotLoggedIn />
+      )}
     </UserContext.Provider>
   );
 };
