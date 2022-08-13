@@ -13,7 +13,7 @@ const JoinFamily = () => {
   const { userId, profile, family, getProfile, getFamily } = useContext(UserContext);
 
   const addUserToFamily = () => {
-    if (!profile || !familyId || !userId || profile.familyId === familyId) {
+    if (!familyId || !userId || profile?.familyId === familyId) {
       return;
     }
 

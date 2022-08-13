@@ -28,12 +28,11 @@ const ProfileIcon = (): JSX.Element => {
           aria-haspopup='true'
           aria-expanded={anchorEl ? 'true' : undefined}
           aria-controls='profile-menu'
-          src={profile && profile.imgLink ? profile.imgLink : undefined}
+          src={profile?.imgLink ? profile.imgLink : undefined}
           alt='profile'
           sx={{ cursor: 'pointer' }}
         >
-          {profile &&
-            (profile.imgLink ? undefined : <Typography variant='h6'>{profile.firstName[0].toUpperCase()}</Typography>)}
+          {profile?.imgLink ? undefined : <Typography variant='h6'>{profile?.firstName[0].toUpperCase()}</Typography>}
         </Avatar>
 
         <Menu

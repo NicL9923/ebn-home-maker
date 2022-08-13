@@ -57,7 +57,7 @@ const Profile = () => {
   };
 
   const getFamilyMemberProfiles = () => {
-    if (!family || !family.members) return;
+    if (!family?.members) return;
 
     const famMemProfs: UserProfile[] = [];
 

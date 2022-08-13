@@ -271,7 +271,7 @@ const Budget = (props: BudgetProps): JSX.Element => {
   const theme = useTheme();
 
   const setMonthlyNetIncome = (newValue: string | undefined) => {
-    if (!profile || !profile.budgetId || !newValue) return;
+    if (!profile?.budgetId || !newValue) return;
 
     firebase
       .updateBudget(profile.budgetId, {
@@ -281,7 +281,7 @@ const Budget = (props: BudgetProps): JSX.Element => {
   };
 
   const setCategoryName = (newValue: string | undefined, oldName: string) => {
-    if (!profile || !profile.budgetId || !newValue) return;
+    if (!profile?.budgetId || !newValue) return;
 
     if (newValue === oldName) return;
 
@@ -311,7 +311,7 @@ const Budget = (props: BudgetProps): JSX.Element => {
   };
 
   const setSubCatProperty = (newValue: string | undefined, oldName: string, catName: string, propName: string) => {
-    if (!profile || !profile.budgetId || !newValue || newValue === oldName) return;
+    if (!profile?.budgetId || !newValue || newValue === oldName) return;
 
     const updArr = [...budget.categories];
     const updTransactions = [...budget.transactions];
@@ -353,7 +353,7 @@ const Budget = (props: BudgetProps): JSX.Element => {
   };
 
   const addNewCategory = () => {
-    if (!profile || !profile.budgetId) return;
+    if (!profile?.budgetId) return;
 
     let newCatName = 'New Category';
     let nameIterator = 1;
@@ -371,7 +371,7 @@ const Budget = (props: BudgetProps): JSX.Element => {
   };
 
   const removeCategory = (catName: string) => {
-    if (!profile || !profile.budgetId) return;
+    if (!profile?.budgetId) return;
 
     const updArr = [...budget.categories];
     const updTransactions = [...budget.transactions];
@@ -396,7 +396,7 @@ const Budget = (props: BudgetProps): JSX.Element => {
   };
 
   const addNewSubCategory = (catName: string) => {
-    if (!profile || !profile.budgetId) return;
+    if (!profile?.budgetId) return;
 
     const updArr = [...budget.categories];
 
@@ -426,7 +426,7 @@ const Budget = (props: BudgetProps): JSX.Element => {
   };
 
   const removeSubCategory = (catName: string, subCatName: string) => {
-    if (!profile || !profile.budgetId) return;
+    if (!profile?.budgetId) return;
 
     const updArr = [...budget.categories];
     const updTransactions = [...budget.transactions];
@@ -455,7 +455,7 @@ const Budget = (props: BudgetProps): JSX.Element => {
   };
 
   const moveCategory = (dragIdx: number, dropIdx: number) => {
-    if (!profile || !profile.budgetId) return;
+    if (!profile?.budgetId) return;
 
     const updArr = [...budget.categories];
     const cat = updArr[dragIdx];
@@ -476,7 +476,7 @@ const Budget = (props: BudgetProps): JSX.Element => {
 
   const moveSubCategory = (srcCatName: string, destCatName: string, dragIdx: number, dropIdx: number) => {
     // Src & Dest cat is used to handle subcat being moved to a different cat
-    if (!profile || !profile.budgetId) return;
+    if (!profile?.budgetId) return;
 
     const updArr = [...budget.categories];
     const srcCatIdx = updArr.findIndex((cat) => cat.name === srcCatName);
@@ -498,7 +498,7 @@ const Budget = (props: BudgetProps): JSX.Element => {
   };
 
   const setBudgetName = (newName: string | undefined) => {
-    if (!profile || !profile.budgetId || !newName) return;
+    if (!profile?.budgetId || !newName) return;
 
     firebase.updateBudget(profile.budgetId, { name: newName }).then(() => getBudget());
   };

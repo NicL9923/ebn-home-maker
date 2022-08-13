@@ -81,14 +81,7 @@ const Transactions = (props: TransactionsProps): JSX.Element => {
   const [selection, setSelection] = useState<GridRowId[]>([]);
 
   const saveNewTransaction = () => {
-    if (
-      !newTransactionName ||
-      !newTransactionAmt ||
-      !newTransactionCat ||
-      !newTransactionDate ||
-      !profile ||
-      !profile.budgetId
-    ) {
+    if (!newTransactionName || !newTransactionAmt || !newTransactionCat || !newTransactionDate || !profile?.budgetId) {
       console.error(
         `One or more values are null/undefined: ${newTransactionName}, ${newTransactionAmt}, ${newTransactionCat}, ${newTransactionDate}, ${profile}`
       );
@@ -117,7 +110,7 @@ const Transactions = (props: TransactionsProps): JSX.Element => {
   };
 
   const removeTransactions = () => {
-    if (!profile || !profile.budgetId) return;
+    if (!profile?.budgetId) return;
 
     let updArr = [...budget.transactions];
 
@@ -148,7 +141,7 @@ const Transactions = (props: TransactionsProps): JSX.Element => {
   };
 
   const processTransactionUpdate = (newRow: Transaction, oldRow: Transaction) => {
-    if (!profile || !profile.budgetId) return oldRow;
+    if (!profile?.budgetId) return oldRow;
 
     newRow.timestamp = newRow.timestamp.toString();
     const updArr = [...budget.transactions];

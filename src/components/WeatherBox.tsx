@@ -48,7 +48,7 @@ const WeatherBox = (): JSX.Element => {
   const [newApiKey, setNewApiKey] = useState('');
 
   const getWeatherData = () => {
-    if (!family || !family.location || !family.openweathermap_api_key) return;
+    if (!family?.location || !family?.openweathermap_api_key) return;
 
     setIsFetchingWeather(true);
     const url = `https://api.openweathermap.org/data/2.5/onecall?lat=${family.location.lat}&lon=${family.location.long}&exclude=minutely&appid=${family.openweathermap_api_key}&units=imperial`; // Exclude minute-ly forecast
@@ -290,7 +290,7 @@ const WeatherBox = (): JSX.Element => {
 
   useEffect(getWeatherData, [family]);
 
-  if (family && !family.openweathermap_api_key) {
+  if (!family?.openweathermap_api_key) {
     return (
       <Box textAlign='center' maxWidth='sm' mx='auto'>
         <Paper sx={{ p: 2 }}>

@@ -120,7 +120,7 @@ const Finances = (): JSX.Element => {
   };
 
   const getBudget = () => {
-    if (!profile || !profile.budgetId) return;
+    if (!profile?.budgetId) return;
 
     setIsFetchingBudget(true);
     firebase.getBudget(profile.budgetId).then((doc) => {

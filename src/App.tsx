@@ -38,7 +38,7 @@ const App = (): JSX.Element => {
   };
 
   const getFamily = () => {
-    if (profile && profile.familyId) {
+    if (profile?.familyId) {
       setIsFetchingFamily(true);
       firebase.getFamily(profile.familyId).then((doc) => {
         setIsFetchingFamily(false);

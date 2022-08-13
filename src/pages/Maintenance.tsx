@@ -64,7 +64,7 @@ const Maintenance = (): JSX.Element => {
   const [newVehImgFile, setNewVehImgFile] = useState<File | null>(null);
 
   const getResidences = () => {
-    if (!family || !family.residences) return;
+    if (!family?.residences) return;
 
     setIsFetchingResidences(true);
     const residencesArr: Residence[] = [];
@@ -89,7 +89,7 @@ const Maintenance = (): JSX.Element => {
   };
 
   const getVehicles = () => {
-    if (!family || !family.vehicles) return;
+    if (!family?.vehicles) return;
 
     setIsFetchingVehicles(true);
     const vehiclesArr: Vehicle[] = [];

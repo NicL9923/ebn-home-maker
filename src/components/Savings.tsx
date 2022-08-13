@@ -30,7 +30,7 @@ const Savings = (props: SavingsProps): JSX.Element => {
   const { budget, getBudget } = props;
 
   const saveUpdBlobsArr = (newArr: SavingsBlob[]) => {
-    if (!profile || !profile.budgetId) return;
+    if (!profile?.budgetId) return;
 
     firebase
       .updateBudget(profile.budgetId, {
