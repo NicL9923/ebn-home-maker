@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { TextField, Typography, TypographyTypeMap } from '@mui/material';
+import { InputAdornment, TextField, Typography, TypographyTypeMap } from '@mui/material';
 
 interface EditableLabelPropTypes {
   onFocus?: (value: string | undefined) => void;
@@ -14,7 +14,7 @@ const EditableLabel = (props: EditableLabelPropTypes) => {
   const { initialValue, labelPlaceholder, variant, prefix, onFocus, onBlur } = props;
   const [isEditing, setEditing] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
-  const [value, setValue] = useState<string | undefined>(initialValue ? initialValue : undefined);
+  const [value, setValue] = useState<string | undefined>(initialValue ?? undefined);
   const inputRef = useRef<any>(null);
 
   const isTextValueValid = () => typeof value !== 'undefined' && value.trim().length > 0;
@@ -23,14 +23,19 @@ const EditableLabel = (props: EditableLabelPropTypes) => {
     if (isEditing) {
       onBlur(value);
       setIsHovered(false);
-    } else if (onFocus) {
-      onFocus(value);
+    } else {
+      // If monetary value w/ commas, replace them when editing
+      if (prefix === '$' && value?.includes(',')) {
+        setValue(value.replaceAll(',', ''));
+      }
+
+      if (onFocus) onFocus(value);
     }
 
     handleEditState();
   };
 
-  const handleChange = () => setValue(inputRef && inputRef.current ? inputRef.current.value : undefined);
+  const handleChange = () => setValue(inputRef?.current?.value);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
@@ -52,6 +57,9 @@ const EditableLabel = (props: EditableLabelPropTypes) => {
         onKeyDown={handleKeyDown}
         autoFocus
         variant='standard'
+        InputProps={{
+          startAdornment: prefix === '$' ? <InputAdornment position='start'>$</InputAdornment> : undefined,
+        }}
       />
     );
   }
