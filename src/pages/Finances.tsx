@@ -17,9 +17,9 @@ import {
   Typography,
 } from '@mui/material';
 import React, { useContext, useEffect, useState } from 'react';
-import Budget from '../components/Budget';
-import Savings from '../components/Savings';
-import Transactions from '../components/Transactions';
+import Budget from '../components/Finances/Budget';
+import Savings from '../components/Finances/Savings';
+import Transactions from '../components/Finances/Transactions';
 import { v4 as uuidv4 } from 'uuid';
 import { FirebaseContext } from '../Firebase';
 import { UserContext } from '../App';

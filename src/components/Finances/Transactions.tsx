@@ -19,8 +19,8 @@ import {
 import { DataGrid, GridRowId } from '@mui/x-data-grid';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterLuxon } from '@mui/x-date-pickers/AdapterLuxon';
-import { UserContext } from '../App';
-import { FirebaseContext } from '../Firebase';
+import { UserContext } from '../../App';
+import { FirebaseContext } from '../../Firebase';
 import { BudgetCategory, BudgetIF, BudgetSubcategory, Transaction } from 'models/types';
 
 const dgColumns = [

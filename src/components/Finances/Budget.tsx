@@ -18,9 +18,9 @@ import React, { useContext, useState } from 'react';
 import { Droppable, DropResult } from 'react-beautiful-dnd';
 import { Draggable } from 'react-beautiful-dnd';
 import { DragDropContext } from 'react-beautiful-dnd';
-import { FirebaseContext } from '../Firebase';
-import { UserContext } from '../App';
-import EditableLabel from './EditableLabel';
+import { FirebaseContext } from '../../Firebase';
+import { UserContext } from '../../App';
+import EditableLabel from '../Inputs/EditableLabel';
 
 // TODO: Put all this crap into FinancesContext or something to avoid prop spam and combine all the IFs
 interface UltraSharedFuncProps {
