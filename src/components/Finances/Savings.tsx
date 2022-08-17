@@ -7,8 +7,6 @@ import { FirebaseContext } from '../../Firebase';
 import { UserContext } from '../../App';
 import EditableLabel from '../Inputs/EditableLabel';
 
-// TODO: handle duplicate name stuff here too
-
 const formatChartData = (blobsData: SavingsBlob[]) => {
   const formattedDataArr: any[][] = [['Name', 'Amount']];
 
@@ -28,6 +26,10 @@ const Savings = (props: SavingsProps): JSX.Element => {
   const firebase = useContext(FirebaseContext);
   const { profile } = useContext(UserContext);
   const { budget, getBudget } = props;
+
+  const isBlobNameUnique = (newBlobName: string) => {
+    return !budget.savingsBlobs.some((blob) => blob.name === newBlobName);
+  };
 
   const saveUpdBlobsArr = (newArr: SavingsBlob[]) => {
     if (!profile?.budgetId) return;
@@ -59,13 +61,6 @@ const Savings = (props: SavingsProps): JSX.Element => {
     if (!newName) return;
 
     const updBlobsArr = [...budget.savingsBlobs];
-
-    if (updBlobsArr.some((blob) => blob.name === newName)) {
-      alert('This name is already in use!');
-      getBudget();
-      return; // TODO: fix editable label not updating (same solution works for budget...)
-    }
-
     updBlobsArr[updBlobsArr.findIndex((blob) => blob.name === oldName)].name = newName;
 
     saveUpdBlobsArr(updBlobsArr);
@@ -118,22 +113,27 @@ const Savings = (props: SavingsProps): JSX.Element => {
           <Paper sx={{ p: 1 }} key={blob.name}>
             <Stack direction='row' alignItems='center' justifyContent='space-between'>
               <EditableLabel
-                initialValue={blob.name}
-                variant='h6'
-                onBlur={(newValue) => updateSavingsBlobName(blob.name, newValue)}
+                fieldName='Blob name'
+                fieldType='ItemName'
+                text={blob.name}
+                textVariant='h6'
+                isValUnique={isBlobNameUnique}
+                onSubmitValue={(newValue) => updateSavingsBlobName(blob.name, newValue)}
               />
               <IconButton sx={{ ml: 4 }} onClick={() => deleteSavingsBlob(blob.name)}>
                 <Clear />
               </IconButton>
             </Stack>
             <EditableLabel
-              variant='body1'
-              initialValue={blob.currentAmt.toLocaleString(undefined, {
+              fieldName='Amount'
+              fieldType='DecimalNum'
+              textVariant='body1'
+              text={blob.currentAmt.toLocaleString(undefined, {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2,
               })}
-              prefix='$'
-              onBlur={(newValue) => updateSavingsBlobAmt(blob.name, newValue)}
+              isMonetaryValue
+              onSubmitValue={(newValue) => updateSavingsBlobAmt(blob.name, newValue)}
             />
           </Paper>
         ))}

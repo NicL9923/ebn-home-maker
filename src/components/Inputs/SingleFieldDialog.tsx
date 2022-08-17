@@ -1,24 +1,26 @@
 import React, { useState } from 'react';
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField } from '@mui/material';
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, InputAdornment, TextField } from '@mui/material';
 import { FieldTypes, ValidationErrorMsgs } from '../../constants';
 
 interface SingleFieldDialogProps {
+  initialValue?: string;
   fieldName: string;
   fieldType: keyof typeof FieldTypes;
   isOpen: boolean;
+  isMonetaryValue?: boolean;
   onClosed: () => void;
   onSubmitValue: (newValue?: string) => void;
   isValUnique?: (valToCheck: string) => boolean;
 }
 
 const SingleFieldDialog = (props: SingleFieldDialogProps) => {
-  const { fieldName, fieldType, onSubmitValue, isOpen, onClosed, isValUnique } = props;
+  const { initialValue, isMonetaryValue, fieldName, fieldType, onSubmitValue, isOpen, onClosed, isValUnique } = props;
   const [valErr, setValErr] = useState<string | undefined>(undefined);
-  const [fieldValue, setFieldValue] = useState<string | undefined>(undefined);
+  const [fieldValue, setFieldValue] = useState<string | undefined>(initialValue);
 
   if (fieldType === 'ItemName' && !isValUnique) {
     console.error('Field is of type ItemName, but no function was provided to validate uniqueness.');
-    return;
+    return null;
   }
 
   const validateAndSetValue = (newValue?: string) => {
@@ -45,6 +47,14 @@ const SingleFieldDialog = (props: SingleFieldDialogProps) => {
     setValErr(undefined);
   };
 
+  const saveValue = () => {
+    if (fieldValue !== initialValue) {
+      onSubmitValue(fieldValue);
+    }
+
+    onClosed();
+  };
+
   return (
     <Dialog open={isOpen} onClose={onClosed} fullWidth>
       <DialogTitle>{`Edit ${fieldName}`}</DialogTitle>
@@ -57,6 +67,9 @@ const SingleFieldDialog = (props: SingleFieldDialogProps) => {
           onChange={(event: React.ChangeEvent<HTMLInputElement>) => validateAndSetValue(event.target.value)}
           error={!!valErr}
           helperText={valErr}
+          InputProps={{
+            startAdornment: isMonetaryValue ? <InputAdornment position='start'>$</InputAdornment> : undefined,
+          }}
           required
           autoFocus
         />
@@ -64,7 +77,7 @@ const SingleFieldDialog = (props: SingleFieldDialogProps) => {
 
       <DialogActions>
         <Button onClick={onClosed}>Cancel</Button>
-        <Button variant='contained' disabled={!!valErr} onClick={() => onSubmitValue(fieldValue)}>
+        <Button variant='contained' disabled={!!valErr} onClick={saveValue}>
           Save
         </Button>
       </DialogActions>

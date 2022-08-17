@@ -65,6 +65,15 @@ const BudgetCategories = (props: BudgetCategoriesProps): JSX.Element => {
     }
   };
 
+  const isCategoryNameUnique = (newCatName: string) => {
+    return !budget.categories.some((cat) => cat.name === newCatName);
+  };
+
+  // TODO: handle identically named subcat being moved to the same cat as its twin
+  const isSubcategoryNameUnique = (category: BudgetCategory, newSubcatName: string) => {
+    return !category.subcategories.some((subcat) => subcat.name === newSubcatName);
+  };
+
   return (
     <Box pt={1} pb={1}>
       <DragDropContext onDragEnd={onDragEnd}>
@@ -81,6 +90,8 @@ const BudgetCategories = (props: BudgetCategoriesProps): JSX.Element => {
                   removeCategory={removeCategory}
                   setSubCatProperty={setSubCatProperty}
                   removeSubCategory={removeSubCategory}
+                  isCategoryNameUnique={isCategoryNameUnique}
+                  isSubcategoryNameUnique={isSubcategoryNameUnique}
                   isLastCat={idx === budget.categories.length - 1 ? true : false}
                 />
               ))}
@@ -97,6 +108,8 @@ interface CategoryProps extends SharedFuncProps {
   idx: number;
   category: BudgetCategory;
   isLastCat: boolean;
+  isCategoryNameUnique: (newCatName: string) => boolean;
+  isSubcategoryNameUnique: (category: BudgetCategory, newSubcatName: string) => boolean;
 }
 
 const Category = (props: CategoryProps): JSX.Element => {
@@ -109,6 +122,8 @@ const Category = (props: CategoryProps): JSX.Element => {
     removeCategory,
     setSubCatProperty,
     removeSubCategory,
+    isCategoryNameUnique,
+    isSubcategoryNameUnique,
   } = props;
   const [isHovered, setIsHovered] = useState(false);
   const [anchorEl, setAnchorEl] = useState<Element | null>(null);
@@ -122,9 +137,12 @@ const Category = (props: CategoryProps): JSX.Element => {
               <Grid item xs={6} onMouseOver={() => setIsHovered(true)} onMouseOut={() => setIsHovered(false)}>
                 <Stack direction='row' alignItems='center'>
                   <EditableLabel
-                    variant='h5'
-                    initialValue={category.name}
-                    onBlur={(newValue) => setCategoryName(newValue, category.name)}
+                    fieldName='Category'
+                    fieldType='ItemName'
+                    textVariant='h5'
+                    text={category.name}
+                    isValUnique={isCategoryNameUnique}
+                    onSubmitValue={(newValue) => setCategoryName(newValue, category.name)}
                   />
 
                   <IconButton
@@ -174,6 +192,7 @@ const Category = (props: CategoryProps): JSX.Element => {
                       subcategory={subcategory}
                       setSubCatProperty={setSubCatProperty}
                       removeSubCategory={removeSubCategory}
+                      isSubcategoryNameUnique={isSubcategoryNameUnique}
                     />
                   ))}
                   {provided.placeholder}
@@ -193,10 +212,11 @@ interface SubCategoryProps extends UltraSharedFuncProps {
   subidx: number;
   category: BudgetCategory;
   subcategory: BudgetSubcategory;
+  isSubcategoryNameUnique: (category: BudgetCategory, newSubcatName: string) => boolean;
 }
 
 const SubCategory = (props: SubCategoryProps): JSX.Element => {
-  const { subidx, category, subcategory, setSubCatProperty, removeSubCategory } = props;
+  const { subidx, category, subcategory, setSubCatProperty, removeSubCategory, isSubcategoryNameUnique } = props;
   const [isHovered, setIsHovered] = useState(false);
 
   return (
@@ -208,8 +228,11 @@ const SubCategory = (props: SubCategoryProps): JSX.Element => {
               <Grid item xs={6} onMouseOver={() => setIsHovered(true)} onMouseOut={() => setIsHovered(false)}>
                 <Stack direction='row' alignItems='center'>
                   <EditableLabel
-                    initialValue={subcategory.name}
-                    onBlur={(newValue) => setSubCatProperty(newValue, subcategory.name, category.name, 'name')}
+                    fieldName='Subcategory'
+                    fieldType='ItemName'
+                    isValUnique={(valToCheck) => isSubcategoryNameUnique(category, valToCheck)}
+                    text={subcategory.name}
+                    onSubmitValue={(newValue) => setSubCatProperty(newValue, subcategory.name, category.name, 'name')}
                   />
                   <IconButton
                     onClick={() => removeSubCategory(category.name, subcategory.name)}
@@ -232,13 +255,15 @@ const SubCategory = (props: SubCategoryProps): JSX.Element => {
 
               <Grid item xs={3}>
                 <EditableLabel
-                  variant='body1'
-                  prefix='$'
-                  initialValue={subcategory.totalAllotted.toLocaleString(undefined, {
+                  fieldName='Total allotted'
+                  fieldType='DecimalNum'
+                  textVariant='body1'
+                  isMonetaryValue
+                  text={subcategory.totalAllotted.toLocaleString(undefined, {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2,
                   })}
-                  onBlur={(newValue) => setSubCatProperty(newValue, subcategory.name, category.name, 'allotted')}
+                  onSubmitValue={(newValue) => setSubCatProperty(newValue, subcategory.name, category.name, 'allotted')}
                 />
               </Grid>
               <Grid item xs={2} ml={1.5}>
@@ -282,14 +307,7 @@ const Budget = (props: BudgetProps): JSX.Element => {
 
   const setCategoryName = (newValue: string | undefined, oldName: string) => {
     if (!profile?.budgetId || !newValue) return;
-
     if (newValue === oldName) return;
-
-    if (budget.categories.some((cat: BudgetCategory) => cat.name === newValue)) {
-      alert('This name is already in use!');
-      getBudget(); // Have to do this to get EditableLabels to refresh their values
-      return;
-    }
 
     const updArr = [...budget.categories];
     updArr[updArr.findIndex((cat) => cat.name === oldName)].name = newValue;
@@ -321,12 +339,6 @@ const Budget = (props: BudgetProps): JSX.Element => {
         cat.subcategories.forEach((subCat: BudgetSubcategory) => {
           if (subCat.name === oldName) {
             if (propName === 'name') {
-              if (cat.subcategories.some((scat: BudgetSubcategory) => scat.name === newValue)) {
-                alert('This name is already in use!');
-                getBudget();
-                return;
-              }
-
               updTransactions.forEach((t) => {
                 if (t.category === catName && t.subcategory === oldName) {
                   t.subcategory = newValue;
@@ -562,7 +574,14 @@ const Budget = (props: BudgetProps): JSX.Element => {
   return (
     <Box key={budget.id} maxWidth='xl' mx='auto'>
       <Box textAlign='center' mb={4} mt={2} width={300} mx='auto'>
-        <EditableLabel variant='h3' initialValue={budget.name} onBlur={setBudgetName} />
+        <EditableLabel
+          fieldName='Budget name'
+          fieldType='ItemName'
+          isValUnique={(_) => true}
+          textVariant='h3'
+          text={budget.name}
+          onSubmitValue={setBudgetName}
+        />
         <Typography variant='h5'>
           {new Date().toLocaleDateString('en-US', {
             month: 'long',
@@ -576,13 +595,15 @@ const Budget = (props: BudgetProps): JSX.Element => {
           <Stack direction='row' alignContent='center' spacing={2} mb={2}>
             <Typography variant='h6'>Net Income</Typography>
             <EditableLabel
-              variant='h5'
-              prefix='$'
-              initialValue={budget.monthlyNetIncome.toLocaleString(undefined, {
+              fieldName='Monthly net income'
+              fieldType='DecimalNum'
+              textVariant='h5'
+              isMonetaryValue
+              text={budget.monthlyNetIncome.toLocaleString(undefined, {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2,
               })}
-              onBlur={setMonthlyNetIncome}
+              onSubmitValue={setMonthlyNetIncome}
             />
           </Stack>
 
