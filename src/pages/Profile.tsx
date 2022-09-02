@@ -164,6 +164,36 @@ const Profile = () => {
     setCopiedInviteLink(true);
   };
 
+  const exportFamilyDataJSON = () => {
+    if (!family) return;
+
+    const fileName = 'FamilyData';
+    const familyData = {
+      name: family.name,
+      members: family.members,
+      pets: family.pets,
+      boardMarkdown: family.boardMarkdown,
+      location: family.location,
+      apiKeys: {
+        openWeather: family.openweathermap_api_key,
+        gmaps: family.gmaps_api_key,
+      },
+    };
+
+    const json = JSON.stringify(familyData, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const href = URL.createObjectURL(blob);
+
+    const link = document.createElement('a');
+    link.href = href;
+    link.download = fileName + '.json';
+    document.body.appendChild(link);
+    link.click();
+
+    document.body.removeChild(link);
+    URL.revokeObjectURL(href);
+  };
+
   useEffect(() => {
     if (family) getFamilyMemberProfiles();
   }, [family]);
@@ -394,9 +424,14 @@ const Profile = () => {
           )}
 
           {userId === family.headOfFamily ? (
-            <Button variant='contained' color='error' startIcon={<Close />} onClick={() => setDeletingFamily(true)}>
-              Delete Family
-            </Button>
+            <Stack spacing={5}>
+              <Button variant='contained' onClick={exportFamilyDataJSON}>
+                Export family data
+              </Button>
+              <Button variant='contained' color='error' startIcon={<Close />} onClick={() => setDeletingFamily(true)}>
+                Delete Family
+              </Button>
+            </Stack>
           ) : (
             <Button variant='contained' color='error' startIcon={<Logout />} onClick={() => setLeavingFamily(true)}>
               Leave Family
