@@ -79,6 +79,7 @@ const Transactions = (props: TransactionsProps): JSX.Element => {
   const [newTransactionCat, setNewTransactionCat] = useState('');
   const [newTransactionDate, setNewTransactionDate] = useState<Date | undefined | null>(new Date());
   const [selection, setSelection] = useState<GridRowId[]>([]);
+  const [pageSize, setPageSize] = useState(20);
 
   const saveNewTransaction = () => {
     if (!newTransactionName || !newTransactionAmt || !newTransactionCat || !newTransactionDate || !profile?.budgetId) {
@@ -164,7 +165,8 @@ const Transactions = (props: TransactionsProps): JSX.Element => {
         <DataGrid
           columns={dgColumns}
           rows={budget.transactions}
-          pageSize={20}
+          pageSize={pageSize}
+          onPageSizeChange={(newPageSize) => setPageSize(newPageSize)}
           rowsPerPageOptions={[10, 20, 50, 100]}
           selectionModel={selection}
           onSelectionModelChange={setSelection}
