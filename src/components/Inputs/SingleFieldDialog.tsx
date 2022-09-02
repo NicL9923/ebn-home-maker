@@ -56,7 +56,7 @@ const SingleFieldDialog = (props: SingleFieldDialogProps) => {
   };
 
   return (
-    <Dialog open={isOpen} onClose={onClosed} fullWidth>
+    <Dialog open={isOpen} onClose={onClosed} fullWidth style={{ marginBottom: '35vh' }}>
       <DialogTitle>{`Edit ${fieldName}`}</DialogTitle>
 
       <DialogContent>
