@@ -58,13 +58,13 @@ const NoBudget = (props: NoBudgetProps): JSX.Element => {
 
 const Finances = (): JSX.Element => {
   const firebase = useContext(FirebaseContext);
-  const { userId, profile, getProfile } = useContext(UserContext);
+  const { userId, profile, family, getFamily } = useContext(UserContext);
   const [shownComponent, setShownComponent] = useState(0);
   const [budget, setBudget] = useState<BudgetIF | undefined>(undefined);
   const [isFetchingBudget, setIsFetchingBudget] = useState(false);
 
   const createAndSaveDefaultBudget = () => {
-    if (!userId) return;
+    if (!userId || !profile) return;
 
     const newBudgetUuid = uuidv4();
     const newBudgetTemplate: BudgetIF = {
@@ -112,18 +112,18 @@ const Finances = (): JSX.Element => {
       ],
     };
 
-    firebase.updateProfile(userId, { budgetId: newBudgetUuid }).then(() => {
+    firebase.updateFamily(profile.familyId, { budgetId: newBudgetUuid }).then(() => {
       firebase.createBudget(newBudgetUuid, newBudgetTemplate).then(() => {
-        getProfile();
+        getFamily();
       });
     });
   };
 
   const getBudget = () => {
-    if (!profile?.budgetId) return;
+    if (!family?.budgetId) return;
 
     setIsFetchingBudget(true);
-    firebase.getBudget(profile.budgetId).then((doc) => {
+    firebase.getBudget(family.budgetId).then((doc) => {
       setIsFetchingBudget(false);
       if (doc.exists()) {
         const docData = doc.data();
@@ -217,12 +217,12 @@ const Finances = (): JSX.Element => {
   };
 
   useEffect(() => {
-    if (profile && profile.budgetId) {
+    if (family && family.budgetId) {
       getBudget();
     } else {
       setBudget(undefined);
     }
-  }, [profile]);
+  }, [family]);
 
   const showDashboardComponent = () => {
     if (!budget) return;

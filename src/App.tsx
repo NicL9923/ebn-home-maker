@@ -84,12 +84,12 @@ const App = (): JSX.Element => {
               <>
                 <Route path='/profile' element={<Profile />} />
                 <Route path='/joinFamily/:familyId' element={<JoinFamily />} />
-                <Route path='/finances' element={<Finances />} />
               </>
             )}
 
             {family && (
               <>
+                <Route path='/finances' element={<Finances />} />
                 <Route path='/smarthome' element={<SmartHome />} />
                 <Route path='/info' element={<Information />} />
                 <Route path='/maintenance' element={<Maintenance />} />

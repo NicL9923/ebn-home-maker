@@ -72,7 +72,7 @@ interface TransactionsProps {
 const Transactions = (props: TransactionsProps): JSX.Element => {
   const { budget, getBudget } = props;
   const firebase = useContext(FirebaseContext);
-  const { profile } = useContext(UserContext);
+  const { family } = useContext(UserContext);
   const [addingTransaction, setAddingTransaction] = useState(false);
   const [newTransactionName, setNewTransactionName] = useState(''); // TODO: combine newTransaction into single state object
   const [newTransactionAmt, setNewTransactionAmt] = useState('');
@@ -82,9 +82,9 @@ const Transactions = (props: TransactionsProps): JSX.Element => {
   const [pageSize, setPageSize] = useState(20);
 
   const saveNewTransaction = () => {
-    if (!newTransactionName || !newTransactionAmt || !newTransactionCat || !newTransactionDate || !profile?.budgetId) {
+    if (!newTransactionName || !newTransactionAmt || !newTransactionCat || !newTransactionDate || !family?.budgetId) {
       console.error(
-        `One or more values are null/undefined: ${newTransactionName}, ${newTransactionAmt}, ${newTransactionCat}, ${newTransactionDate}, ${profile}`
+        `One or more values are null/undefined: ${newTransactionName}, ${newTransactionAmt}, ${newTransactionCat}, ${newTransactionDate}, ${family}`
       );
       return;
     }
@@ -100,7 +100,7 @@ const Transactions = (props: TransactionsProps): JSX.Element => {
       subcategory: splitCats[1],
     });
 
-    firebase.updateBudget(profile.budgetId, { transactions: updArr }).then(() => {
+    firebase.updateBudget(family.budgetId, { transactions: updArr }).then(() => {
       getBudget();
       setAddingTransaction(false);
       setNewTransactionName('');
@@ -111,13 +111,13 @@ const Transactions = (props: TransactionsProps): JSX.Element => {
   };
 
   const removeTransactions = () => {
-    if (!profile?.budgetId) return;
+    if (!family?.budgetId) return;
 
     let updArr = [...budget.transactions];
 
     updArr = updArr.filter((val, idx) => selection.indexOf(idx) === -1); // Efficient way to remove transaction(s) from array
 
-    firebase.updateBudget(profile.budgetId, { transactions: updArr }).then(() => {
+    firebase.updateBudget(family.budgetId, { transactions: updArr }).then(() => {
       getBudget();
       setSelection([]);
     });
@@ -142,13 +142,13 @@ const Transactions = (props: TransactionsProps): JSX.Element => {
   };
 
   const processTransactionUpdate = (newRow: Transaction, oldRow: Transaction) => {
-    if (!profile?.budgetId) return oldRow;
+    if (!family?.budgetId) return oldRow;
 
     newRow.timestamp = newRow.timestamp.toString();
     const updArr = [...budget.transactions];
     updArr[updArr.findIndex((transaction) => transaction.id === oldRow.id)] = newRow;
 
-    firebase.updateBudget(profile.budgetId, { transactions: updArr }).then(getBudget);
+    firebase.updateBudget(family.budgetId, { transactions: updArr }).then(getBudget);
 
     return newRow;
   };

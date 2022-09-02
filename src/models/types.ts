@@ -12,7 +12,6 @@ export interface UserContextValue {
 
 // ID === user.uid
 export interface UserProfile {
-  budgetId?: string;
   familyId: string;
   firstName: string;
   imgLink?: string;
@@ -21,6 +20,7 @@ export interface UserProfile {
 export interface Family {
   headOfFamily: string;
   location?: { lat: string; long: string };
+  budgetId?: string;
   members: string[];
   name: string;
   openweathermap_api_key?: string;

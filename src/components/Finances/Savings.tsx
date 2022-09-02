@@ -24,7 +24,7 @@ interface SavingsProps {
 
 const Savings = (props: SavingsProps): JSX.Element => {
   const firebase = useContext(FirebaseContext);
-  const { profile } = useContext(UserContext);
+  const { family } = useContext(UserContext);
   const { budget, getBudget } = props;
 
   const isBlobNameUnique = (newBlobName: string) => {
@@ -32,10 +32,10 @@ const Savings = (props: SavingsProps): JSX.Element => {
   };
 
   const saveUpdBlobsArr = (newArr: SavingsBlob[]) => {
-    if (!profile?.budgetId) return;
+    if (!family?.budgetId) return;
 
     firebase
-      .updateBudget(profile.budgetId, {
+      .updateBudget(family.budgetId, {
         savingsBlobs: newArr,
       })
       .then(() => getBudget());
