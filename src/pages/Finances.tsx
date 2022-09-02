@@ -23,7 +23,6 @@ import Transactions from '../components/Finances/Transactions';
 import { v4 as uuidv4 } from 'uuid';
 import { FirebaseContext } from '../Firebase';
 import { UserContext } from '../App';
-// import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import { BudgetCategory, BudgetIF, BudgetSubcategory, Transaction } from 'models/types';
 
@@ -180,40 +179,40 @@ const Finances = (): JSX.Element => {
     });
   };
 
-  const generateFinanceReport = () => {
-    alert("Finance reports are currently disabled - they'll be rebuilt soon!");
+  const exportBudgetDataJSON = () => {
+    if (!budget) return;
 
-    /*const doc = new jsPDF();
-    const monthYear = new Date().toLocaleDateString('en-US', {
-      month: 'long',
-      year: 'numeric',
-    });
+    const fileName = `FinanceData-${new Date()
+      .toLocaleDateString('en-US', {
+        month: 'long',
+        year: 'numeric',
+      })
+      .replace(' ', '-')}
+    `;
+    const budgetData = {
+      budget: {
+        name: budget.name,
+        netIncome: budget.monthlyNetIncome,
+        totalAllotted: budget.totalAllotted,
+        totalSpent: budget.totalSpent,
+        categories: [...budget.categories],
+      },
+      savingsBlobs: [...budget.savingsBlobs],
+      transactions: [...budget.transactions],
+    };
 
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(24);
-    doc.text(`Finance Report - ${monthYear}`, 105, 15, 'center');
+    const json = JSON.stringify(budgetData, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const href = URL.createObjectURL(blob);
 
-    doc.setFontSize(20);
-    doc.text('Budget', 15, 45);
-    // TODO: budget info, if any
+    const link = document.createElement('a');
+    link.href = href;
+    link.download = fileName + '.json';
+    document.body.appendChild(link);
+    link.click();
 
-    doc.text('Savings', 15, 65);
-    const savTableColumns = ['Blob Name', 'Amount'];
-    const savTableRows = [];
-    budget.savingsBlobs.forEach((sb) =>
-      savTableRows.push([sb.name, sb.currentAmt])
-    );
-    doc.autoTable(savTableColumns, savTableRows, { startY: 70 });
-
-    doc.text('Transactions', 15, 140);
-    const transTableColumns = ['Amount', 'Name', 'Subcategory', 'Date'];
-    const transTableRows = [];
-    budget.transactions.forEach((t) => {
-      transTableRows.push([t.amt, t.name, t.subcategory, t.timestamp]);
-    });
-    doc.autoTable(transTableColumns, transTableRows, { startY: 145 });
-
-    doc.save(`FinanceReport_${monthYear}.pdf`);*/
+    document.body.removeChild(link);
+    URL.revokeObjectURL(href);
   };
 
   useEffect(() => {
@@ -279,11 +278,11 @@ const Finances = (): JSX.Element => {
 
       <List>
         <ListItem>
-          <ListItemButton onClick={generateFinanceReport}>
+          <ListItemButton onClick={exportBudgetDataJSON}>
             <ListItemIcon>
               <Article />
             </ListItemIcon>
-            <ListItemText>Generate report</ListItemText>
+            <ListItemText>Export budget data</ListItemText>
           </ListItemButton>
         </ListItem>
       </List>
