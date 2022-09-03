@@ -1,6 +1,18 @@
 import React, { useState } from 'react';
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, InputAdornment, TextField } from '@mui/material';
+import {
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  IconButton,
+  InputAdornment,
+  Stack,
+  TextField,
+  Tooltip,
+} from '@mui/material';
 import { FieldTypes, ValidationErrorMsgs } from '../../constants';
+import { Calculate } from '@mui/icons-material';
 
 interface SingleFieldDialogProps {
   initialValue?: string;
@@ -55,24 +67,40 @@ const SingleFieldDialog = (props: SingleFieldDialogProps) => {
     onClosed();
   };
 
+  const calculateMoneyValue = () => {
+    if (!fieldValue) return;
+
+    // Thank god for the eval function - I thought I was about to have to custom-handle all math
+    validateAndSetValue(`${eval(fieldValue)}`);
+  };
+
   return (
     <Dialog open={isOpen} onClose={onClosed} fullWidth style={{ marginBottom: '35vh' }}>
       <DialogTitle>{`Edit ${fieldName}`}</DialogTitle>
 
       <DialogContent>
-        <TextField
-          variant='standard'
-          label={fieldName}
-          value={fieldValue}
-          onChange={(event: React.ChangeEvent<HTMLInputElement>) => validateAndSetValue(event.target.value)}
-          error={!!valErr}
-          helperText={valErr}
-          InputProps={{
-            startAdornment: isMonetaryValue ? <InputAdornment position='start'>$</InputAdornment> : undefined,
-          }}
-          required
-          autoFocus
-        />
+        <Stack direction='row' alignItems='center' spacing={1}>
+          <TextField
+            variant='standard'
+            label={fieldName}
+            value={fieldValue}
+            onChange={(event: React.ChangeEvent<HTMLInputElement>) => validateAndSetValue(event.target.value)}
+            error={!!valErr}
+            helperText={valErr}
+            InputProps={{
+              startAdornment: isMonetaryValue ? <InputAdornment position='start'>$</InputAdornment> : undefined,
+            }}
+            required
+            autoFocus
+          />
+          {isMonetaryValue && (
+            <Tooltip title='Calculate value'>
+              <IconButton onClick={calculateMoneyValue} sx={{ height: '50%' }}>
+                <Calculate />
+              </IconButton>
+            </Tooltip>
+          )}
+        </Stack>
       </DialogContent>
 
       <DialogActions>
