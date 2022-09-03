@@ -115,7 +115,7 @@ const Transactions = (props: TransactionsProps): JSX.Element => {
 
     let updArr = [...budget.transactions];
 
-    updArr = updArr.filter((val, idx) => selection.indexOf(idx) === -1); // Efficient way to remove transaction(s) from array
+    updArr = updArr.filter((_val, idx) => selection.indexOf(idx) === -1); // Efficient way to remove transaction(s) from array
 
     firebase.updateBudget(family.budgetId, { transactions: updArr }).then(() => {
       getBudget();

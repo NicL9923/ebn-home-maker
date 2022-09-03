@@ -4,6 +4,7 @@ import MDEditor from '@uiw/react-md-editor';
 import { FirebaseContext } from '../Firebase';
 import { UserContext } from '../App';
 import { Edit, Save } from '@mui/icons-material';
+import NoFamily from 'components/NoFamily';
 
 /* The moral of this page is *drum roll please*... KISS */
 
@@ -14,7 +15,7 @@ const Information = (): JSX.Element => {
   const [editedMd, setEditedMd] = useState<string | undefined>(undefined);
 
   if (!family) {
-    return <>This should literally never happen/show</>;
+    return <NoFamily />;
   }
 
   const beginEditingBoard = () => {

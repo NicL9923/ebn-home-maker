@@ -13,6 +13,7 @@ import NotLoggedIn from './components/NotLoggedIn';
 import { FirebaseContext } from './Firebase';
 import { Box, CircularProgress } from '@mui/material';
 import { Family, UserContextValue, UserProfile } from 'models/types';
+import GroceryList from 'pages/GroceryList';
 
 export const UserContext = React.createContext({} as UserContextValue);
 
@@ -70,6 +71,7 @@ const App = (): JSX.Element => {
         isFetchingFamily,
         getProfile,
         getFamily,
+        setFamily,
       }}
     >
       {isFetchingUser || isFetchingProfile || isFetchingFamily ? (
@@ -93,6 +95,7 @@ const App = (): JSX.Element => {
                 <Route path='/smarthome' element={<SmartHome />} />
                 <Route path='/info' element={<Information />} />
                 <Route path='/maintenance' element={<Maintenance />} />
+                <Route path='/grocerylist' element={<GroceryList />} />
               </>
             )}
 

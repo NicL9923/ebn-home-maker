@@ -7,6 +7,7 @@ import EventNoteOutlinedIcon from '@mui/icons-material/EventNoteOutlined';
 import ProfileIcon from './ProfileIcon';
 import { AppBar, IconButton, ListItemIcon, ListItemText, Menu, MenuItem, Toolbar, Typography } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
+import ListIcon from '@mui/icons-material/List';
 import { Home } from '@mui/icons-material';
 import { UserContext } from '../App';
 
@@ -41,6 +42,12 @@ const Navbar = (): JSX.Element => {
               <PaymentsOutlinedIcon />
             </ListItemIcon>
             <ListItemText>Finances</ListItemText>
+          </MenuItem>
+          <MenuItem onClick={() => setAnchorEl(null)} component={Link} to='/grocerylist'>
+            <ListItemIcon>
+              <ListIcon />
+            </ListItemIcon>
+            <ListItemText>Grocery List</ListItemText>
           </MenuItem>
           <MenuItem onClick={() => setAnchorEl(null)} component={Link} to='/info'>
             <ListItemIcon>

@@ -36,6 +36,7 @@ const NoFamily = (): JSX.Element => {
       pets: [],
       vehicles: [],
       residences: [],
+      groceryList: [],
     };
 
     firebase.createFamily(newFamId, newFamObj).then(() => {

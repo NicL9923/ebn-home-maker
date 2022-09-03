@@ -8,6 +8,7 @@ export interface UserContextValue {
   isFetchingFamily: boolean;
   getProfile: () => void;
   getFamily: () => void;
+  setFamily: (newFamily: Family) => void;
 }
 
 // ID === user.uid
@@ -29,6 +30,7 @@ export interface Family {
   boardMarkdown: string;
   vehicles: string[]; // IDs
   residences: string[]; // IDs
+  groceryList: GroceryItem[];
 }
 
 export interface Pet {
@@ -100,4 +102,9 @@ export interface Transaction {
   category: string;
   subcategory: string;
   timestamp: string;
+}
+
+export interface GroceryItem {
+  name: string;
+  isBought: boolean;
 }
