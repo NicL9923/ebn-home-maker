@@ -26,6 +26,11 @@ const App = (): JSX.Element => {
   const [isFetchingProfile, setIsFetchingProfile] = useState(true);
   const [isFetchingFamily, setIsFetchingFamily] = useState(true);
 
+  onAuthStateChanged(firebase.auth, (user) => {
+    setUserId(user ? user.uid : undefined);
+    setIsFetchingUser(false);
+  });
+
   const getProfile = () => {
     if (userId) {
       setIsFetchingProfile(true);
@@ -35,6 +40,7 @@ const App = (): JSX.Element => {
       });
     } else {
       setProfile(undefined);
+      setIsFetchingProfile(false);
     }
   };
 
@@ -47,15 +53,9 @@ const App = (): JSX.Element => {
       });
     } else {
       setFamily(undefined);
+      setIsFetchingFamily(false);
     }
   };
-
-  useEffect(() => {
-    onAuthStateChanged(firebase.auth, (user) => {
-      setUserId(user ? user.uid : undefined);
-      setIsFetchingUser(false);
-    });
-  }, []);
 
   useEffect(getProfile, [userId]);
 
@@ -104,7 +104,7 @@ const App = (): JSX.Element => {
           </Routes>
         </Router>
       ) : (
-        userId && <NotLoggedIn />
+        <NotLoggedIn />
       )}
     </UserContext.Provider>
   );
