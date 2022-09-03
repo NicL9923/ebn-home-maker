@@ -1,6 +1,6 @@
 import { getAuth, Auth } from 'firebase/auth';
 import { deleteDoc, doc, FieldValue, Firestore, getDoc, getFirestore, setDoc, updateDoc } from 'firebase/firestore';
-import { BudgetIF, Family, GenericObject, Residence, UserProfile, Vehicle } from 'models/types';
+import { IBudget, Family, GenericObject, Residence, UserProfile, Vehicle } from 'models/types';
 import { createContext } from 'react';
 
 export const firebaseConfig = {
@@ -73,7 +73,7 @@ export class FirebaseManager {
   }
 
   // CREATE
-  createBudget(budgetId: string, budget: BudgetIF) {
+  createBudget(budgetId: string, budget: IBudget) {
     return this.createDocument(DocTypes.budget, budgetId, budget);
   }
   createFamily(familyId: string, family: Family) {
@@ -90,7 +90,7 @@ export class FirebaseManager {
   }
 
   // UPDATE
-  updateBudget(budgetId: string, fieldData: Partial<BudgetIF>) {
+  updateBudget(budgetId: string, fieldData: Partial<IBudget>) {
     return this.updateDocumentFields(DocTypes.budget, budgetId, fieldData);
   }
   updateFamily(familyId: string, fieldData: Partial<Family> | GenericObject<FieldValue>) {

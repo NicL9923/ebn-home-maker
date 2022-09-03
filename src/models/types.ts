@@ -62,7 +62,7 @@ export interface Residence {
 }
 
 // ID === same as docID
-export interface BudgetIF {
+export interface IBudget {
   name: string;
   id: string;
   monthlyNetIncome: number;

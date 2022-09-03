@@ -13,7 +13,7 @@ import {
   Typography,
   useTheme,
 } from '@mui/material';
-import { BudgetCategory, BudgetIF, BudgetSubcategory } from 'models/types';
+import { BudgetCategory, IBudget, BudgetSubcategory } from 'models/types';
 import React, { useContext, useState } from 'react';
 import { Droppable, DropResult } from 'react-beautiful-dnd';
 import { Draggable } from 'react-beautiful-dnd';
@@ -35,7 +35,7 @@ interface SharedFuncProps extends UltraSharedFuncProps {
 }
 
 interface BudgetCategoriesProps extends SharedFuncProps {
-  budget: BudgetIF;
+  budget: IBudget;
   moveCategory: (srcIdx: number, destIdx: number) => void;
   moveSubCategory: (srcCat: string, destCat: string, srcIdx: number, destIdx: number) => void;
 }
@@ -284,8 +284,8 @@ const SubCategory = (props: SubCategoryProps): JSX.Element => {
 };
 
 interface BudgetProps {
-  budget: BudgetIF;
-  setBudget: (newBudget: BudgetIF) => void;
+  budget: IBudget;
+  setBudget: (newBudget: IBudget) => void;
   getBudget: () => void;
 }
 

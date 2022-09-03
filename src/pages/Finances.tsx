@@ -24,7 +24,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { FirebaseContext } from '../Firebase';
 import { UserContext } from '../App';
 import 'jspdf-autotable';
-import { BudgetCategory, BudgetIF, BudgetSubcategory, Transaction } from 'models/types';
+import { BudgetCategory, IBudget, BudgetSubcategory, Transaction } from 'models/types';
 
 enum COMPONENTS {
   BUDGET,
@@ -59,14 +59,14 @@ const Finances = (): JSX.Element => {
   const firebase = useContext(FirebaseContext);
   const { userId, profile, family, getFamily } = useContext(UserContext);
   const [shownComponent, setShownComponent] = useState(0);
-  const [budget, setBudget] = useState<BudgetIF | undefined>(undefined);
+  const [budget, setBudget] = useState<IBudget | undefined>(undefined);
   const [isFetchingBudget, setIsFetchingBudget] = useState(false);
 
   const createAndSaveDefaultBudget = () => {
     if (!userId || !profile) return;
 
     const newBudgetUuid = uuidv4();
-    const newBudgetTemplate: BudgetIF = {
+    const newBudgetTemplate: IBudget = {
       name: 'My Budget',
       id: newBudgetUuid,
       editors: [userId],
@@ -172,7 +172,7 @@ const Finances = (): JSX.Element => {
         docData.totalSpent = totalSpent;
         docData.totalAllotted = totalAllotted;
 
-        setBudget(docData as BudgetIF);
+        setBudget(docData as IBudget);
       } else {
         // Budget wasn't retrieved when it should've been
       }

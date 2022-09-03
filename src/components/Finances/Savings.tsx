@@ -1,6 +1,6 @@
 import { Add, Clear } from '@mui/icons-material';
 import { Box, Button, IconButton, Paper, Stack, Typography } from '@mui/material';
-import { BudgetIF, SavingsBlob } from 'models/types';
+import { IBudget, SavingsBlob } from 'models/types';
 import React, { useContext } from 'react';
 import Chart from 'react-google-charts';
 import { FirebaseContext } from '../../Firebase';
@@ -18,7 +18,7 @@ const formatChartData = (blobsData: SavingsBlob[]) => {
 };
 
 interface SavingsProps {
-  budget: BudgetIF;
+  budget: IBudget;
   getBudget: () => void;
 }
 
