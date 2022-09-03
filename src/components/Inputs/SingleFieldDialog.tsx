@@ -64,6 +64,7 @@ const SingleFieldDialog = (props: SingleFieldDialogProps) => {
       onSubmitValue(fieldValue);
     }
 
+    setFieldValue(initialValue);
     onClosed();
   };
 
