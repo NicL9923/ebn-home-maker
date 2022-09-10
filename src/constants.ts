@@ -11,8 +11,8 @@ export const FieldTypes = {
   },
   EntityName: {
     name: 'entityName',
-    regex: /^[\s\S]{1,25}$/, // Any (whitespace/non-whitespace) characters, 1-25 chars
-    valErrMsg: 'Entity names have a max length of 25 characters',
+    regex: /^[\s\S]{1,50}$/, // Any (whitespace/non-whitespace) characters, 1-50 chars
+    valErrMsg: 'Entity names have a max length of 50 characters',
   },
   ItemName: {
     name: 'itemName',
