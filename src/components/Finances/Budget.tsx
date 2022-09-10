@@ -577,7 +577,7 @@ const Budget = (props: BudgetProps): JSX.Element => {
         <EditableLabel
           fieldName='Budget name'
           fieldType='ItemName'
-          isValUnique={(_) => true}
+          isValUnique={() => true}
           textVariant='h3'
           text={budget.name}
           onSubmitValue={setBudgetName}
@@ -635,34 +635,36 @@ const Budget = (props: BudgetProps): JSX.Element => {
 
       <Box>
         <Paper sx={{ p: 1 }}>
-          <Grid container alignItems='center'>
-            <Grid item xs={6}>
-              <Stack direction='row' alignItems='center'>
-                <Tooltip title='Add category'>
-                  <IconButton onClick={addNewCategory}>
-                    <Add />
-                  </IconButton>
-                </Tooltip>
+          <Box sx={{ position: 'sticky', top: 60, backgroundColor: '#fbfbfb', zIndex: 1000 }}>
+            <Grid container alignItems='center' sx={{ p: 1 }}>
+              <Grid item xs={6}>
+                <Stack direction='row' alignItems='center'>
+                  <Tooltip title='Add category'>
+                    <IconButton onClick={addNewCategory}>
+                      <Add />
+                    </IconButton>
+                  </Tooltip>
 
-                <Stack>
-                  <Typography variant='body1'>Category</Typography>
-                  <Stack direction='row' alignItems='end'>
-                    <SubdirectoryArrowRight />
-                    <Typography variant='body2'>Sub-category</Typography>
+                  <Stack>
+                    <Typography variant='body1'>Category</Typography>
+                    <Stack direction='row' alignItems='end'>
+                      <SubdirectoryArrowRight />
+                      <Typography variant='body2'>Sub-category</Typography>
+                    </Stack>
                   </Stack>
                 </Stack>
-              </Stack>
+              </Grid>
+
+              <Grid item xs={3} ml={1}>
+                <Typography variant='body1'>Allotted</Typography>
+              </Grid>
+              <Grid item xs={2}>
+                <Typography variant='body1'>Spent</Typography>
+              </Grid>
             </Grid>
 
-            <Grid item xs={3} ml={1}>
-              <Typography variant='body1'>Allotted</Typography>
-            </Grid>
-            <Grid item xs={2}>
-              <Typography variant='body1'>Spent</Typography>
-            </Grid>
-          </Grid>
-
-          <Divider />
+            <Divider />
+          </Box>
 
           <BudgetCategories
             budget={budget}
