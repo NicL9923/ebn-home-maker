@@ -1,27 +1,12 @@
 import React, { useContext, useState } from 'react';
 import { Add, Delete } from '@mui/icons-material';
-import {
-  Button,
-  Stack,
-  Typography,
-  Box,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  TextField,
-  DialogActions,
-  Select,
-  ListSubheader,
-  MenuItem,
-  FormControl,
-  InputLabel,
-} from '@mui/material';
+import { Button, Stack, Typography, Box } from '@mui/material';
 import { DataGrid, GridRowId } from '@mui/x-data-grid';
-import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
-import { AdapterLuxon } from '@mui/x-date-pickers/AdapterLuxon';
+
 import { UserContext } from '../../App';
 import { FirebaseContext } from '../../Firebase';
-import { BudgetCategory, IBudget, BudgetSubcategory, Transaction } from 'models/types';
+import { IBudget, Transaction } from 'models/types';
+import AddTransaction from 'components/Forms/AddTransaction';
 
 const dgColumns = [
   {
@@ -74,39 +59,19 @@ const Transactions = (props: TransactionsProps): JSX.Element => {
   const firebase = useContext(FirebaseContext);
   const { family } = useContext(UserContext);
   const [addingTransaction, setAddingTransaction] = useState(false);
-  const [newTransactionName, setNewTransactionName] = useState(''); // TODO: combine newTransaction into single state object
-  const [newTransactionAmt, setNewTransactionAmt] = useState('');
-  const [newTransactionCat, setNewTransactionCat] = useState('');
-  const [newTransactionDate, setNewTransactionDate] = useState<Date | undefined | null>(new Date());
   const [selection, setSelection] = useState<GridRowId[]>([]);
   const [pageSize, setPageSize] = useState(20);
 
-  const saveNewTransaction = () => {
-    if (!newTransactionName || !newTransactionAmt || !newTransactionCat || !newTransactionDate || !family?.budgetId) {
-      console.error(
-        `One or more values are null/undefined: ${newTransactionName}, ${newTransactionAmt}, ${newTransactionCat}, ${newTransactionDate}, ${family}`
-      );
+  const saveNewTransaction = (newTransaction: Transaction) => {
+    if (!family?.budgetId) {
       return;
     }
 
-    const updArr: any[] = Array.from(budget.transactions);
-    const splitCats = newTransactionCat.split('-');
-
-    updArr.push({
-      amt: parseFloat(newTransactionAmt),
-      name: newTransactionName,
-      timestamp: newTransactionDate.toString(),
-      category: splitCats[0],
-      subcategory: splitCats[1],
-    });
+    const updArr = [...budget.transactions, newTransaction];
+    console.log(updArr);
 
     firebase.updateBudget(family.budgetId, { transactions: updArr }).then(() => {
       getBudget();
-      setAddingTransaction(false);
-      setNewTransactionName('');
-      setNewTransactionAmt('');
-      setNewTransactionCat('');
-      setNewTransactionDate(new Date());
     });
   };
 
@@ -121,24 +86,6 @@ const Transactions = (props: TransactionsProps): JSX.Element => {
       getBudget();
       setSelection([]);
     });
-  };
-
-  const getCatSelectList = (): JSX.Element[] => {
-    const catSelectArr: JSX.Element[] = [];
-
-    budget.categories.forEach((category: BudgetCategory) => {
-      catSelectArr.push(<ListSubheader key={category.name}>{category.name}</ListSubheader>);
-
-      category.subcategories.forEach((subcat: BudgetSubcategory) => {
-        catSelectArr.push(
-          <MenuItem key={`${category.name}-${subcat.name}`} value={`${category.name}-${subcat.name}`}>
-            {subcat.name}
-          </MenuItem>
-        );
-      });
-    });
-
-    return catSelectArr;
   };
 
   const processTransactionUpdate = (newRow: Transaction, oldRow: Transaction) => {
@@ -186,56 +133,12 @@ const Transactions = (props: TransactionsProps): JSX.Element => {
         </Button>
       )}
 
-      <Dialog open={addingTransaction} onClose={() => setAddingTransaction(false)} fullWidth>
-        <DialogTitle>Add Transaction</DialogTitle>
-
-        <DialogContent>
-          <Stack>
-            <TextField
-              autoFocus
-              variant='standard'
-              label='Amount'
-              type='number'
-              value={newTransactionAmt}
-              onChange={(event) => setNewTransactionAmt(event.target.value)}
-            />
-
-            <TextField
-              variant='standard'
-              label='Description'
-              value={newTransactionName}
-              onChange={(event) => setNewTransactionName(event.target.value)}
-            />
-
-            <FormControl variant='standard' sx={{ mt: 2, mb: 2 }}>
-              <InputLabel id='selectLbl'>Category</InputLabel>
-              <Select
-                labelId='selectLbl'
-                value={newTransactionCat !== undefined ? newTransactionCat.split('-')[1] : ''}
-                onChange={(event) => setNewTransactionCat(event.target.value)}
-              >
-                {getCatSelectList()}
-              </Select>
-            </FormControl>
-
-            <LocalizationProvider dateAdapter={AdapterLuxon}>
-              <DatePicker
-                label='Date'
-                value={newTransactionDate}
-                onChange={(newDate: Date | null) => setNewTransactionDate(newDate)}
-                renderInput={(params) => <TextField {...params} variant='standard' />}
-              />
-            </LocalizationProvider>
-          </Stack>
-        </DialogContent>
-
-        <DialogActions>
-          <Button onClick={() => setAddingTransaction(false)}>Cancel</Button>
-          <Button variant='contained' onClick={saveNewTransaction}>
-            Save
-          </Button>
-        </DialogActions>
-      </Dialog>
+      <AddTransaction
+        isOpen={addingTransaction}
+        setIsOpen={setAddingTransaction}
+        budgetCats={budget.categories}
+        saveNewTransaction={saveNewTransaction}
+      />
     </Box>
   );
 };
