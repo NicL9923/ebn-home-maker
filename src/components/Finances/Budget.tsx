@@ -21,6 +21,7 @@ import { DragDropContext } from 'react-beautiful-dnd';
 import { FirebaseContext } from '../../Firebase';
 import { UserContext } from '../../App';
 import EditableLabel from '../Inputs/EditableLabel';
+import Chart from 'react-google-charts';
 
 // TODO: Put all this crap into FinancesContext or something to avoid prop spam and combine all the IFs
 interface UltraSharedFuncProps {
@@ -571,6 +572,18 @@ const Budget = (props: BudgetProps): JSX.Element => {
     );
   };
 
+  const formatChartData = (budgetCats: BudgetCategory[]) => {
+    const formattedDataArr: any[][] = [['Category', 'Percent']];
+
+    budgetCats.forEach((cat) => {
+      if (cat.totalAllotted && budget.totalAllotted) {
+        formattedDataArr.push([cat.name, (cat.totalAllotted / budget.totalAllotted) * 100]);
+      }
+    });
+
+    return formattedDataArr;
+  };
+
   return (
     <Box key={budget.id} maxWidth='xl' mx='auto'>
       <Box textAlign='center' mb={4} mt={2} width={300} mx='auto'>
@@ -678,6 +691,22 @@ const Budget = (props: BudgetProps): JSX.Element => {
           />
         </Paper>
       </Box>
+
+      <Paper
+        sx={{
+          mt: 4,
+          height: '25vw',
+          '@media (max-width:600px)': { height: '100vw' },
+        }}
+      >
+        <Chart
+          chartType='PieChart'
+          width='100%'
+          height='100%'
+          data={formatChartData(budget.categories)}
+          options={{ title: 'Percent of Allotted Budget', is3D: false }}
+        />
+      </Paper>
     </Box>
   );
 };
