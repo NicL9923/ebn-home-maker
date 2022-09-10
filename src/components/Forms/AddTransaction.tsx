@@ -17,20 +17,21 @@ import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { BudgetCategory, BudgetSubcategory, Transaction } from 'models/types';
 import { AdapterLuxon } from '@mui/x-date-pickers/AdapterLuxon';
 
-const catSubcatKeySeparator = '&%&';
+export const catSubcatKeySeparator = '&%&';
 
 interface AddTransactionProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
   saveNewTransaction: (newTransaction: Transaction) => void;
   budgetCats: BudgetCategory[];
+  initialCatSubcat?: string;
 }
 
 const AddTransaction = (props: AddTransactionProps) => {
-  const { isOpen, setIsOpen, saveNewTransaction, budgetCats } = props;
+  const { isOpen, setIsOpen, saveNewTransaction, budgetCats, initialCatSubcat } = props;
   const [newTransactionName, setNewTransactionName] = useState('');
   const [newTransactionAmt, setNewTransactionAmt] = useState('');
-  const [newTransactionCat, setNewTransactionCat] = useState('');
+  const [newTransactionCat, setNewTransactionCat] = useState(initialCatSubcat ?? '');
   const [newTransactionDate, setNewTransactionDate] = useState<Date | undefined | null>(new Date());
 
   const getCatSelectList = (): JSX.Element[] => {
@@ -74,7 +75,7 @@ const AddTransaction = (props: AddTransactionProps) => {
     setIsOpen(false);
     setNewTransactionName('');
     setNewTransactionAmt('');
-    setNewTransactionCat('');
+    setNewTransactionCat(initialCatSubcat ?? '');
     setNewTransactionDate(new Date());
   };
 
@@ -104,7 +105,8 @@ const AddTransaction = (props: AddTransactionProps) => {
             <InputLabel id='selectLbl'>Category</InputLabel>
             <Select
               labelId='selectLbl'
-              value={newTransactionCat !== undefined ? newTransactionCat.split('-')[1] : ''}
+              // TODO: Properly auto-set value if provided from Budget (value technically set, but not displayed as selected properly)
+              value={newTransactionCat && newTransactionCat.split(catSubcatKeySeparator)[1]}
               onChange={(event) => setNewTransactionCat(event.target.value)}
             >
               {getCatSelectList()}

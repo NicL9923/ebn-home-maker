@@ -335,7 +335,7 @@ const Finances = (): JSX.Element => {
             {drawerContents}
           </Drawer>
 
-          <Box flexGrow={1} pb={6}>
+          <Box flexGrow={1} p={1} pb={6}>
             {showDashboardComponent()}
           </Box>
         </Box>

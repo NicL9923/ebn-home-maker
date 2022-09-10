@@ -13,7 +13,7 @@ import {
   Typography,
   useTheme,
 } from '@mui/material';
-import { BudgetCategory, IBudget, BudgetSubcategory } from 'models/types';
+import { BudgetCategory, IBudget, BudgetSubcategory, Transaction } from 'models/types';
 import React, { useContext, useState } from 'react';
 import { Droppable, DropResult } from 'react-beautiful-dnd';
 import { Draggable } from 'react-beautiful-dnd';
@@ -22,11 +22,14 @@ import { FirebaseContext } from '../../Firebase';
 import { UserContext } from '../../App';
 import EditableLabel from '../Inputs/EditableLabel';
 import Chart from 'react-google-charts';
+import AddTransaction, { catSubcatKeySeparator } from 'components/Forms/AddTransaction';
 
 // TODO: Put all this crap into FinancesContext or something to avoid prop spam and combine all the IFs
 interface UltraSharedFuncProps {
   setSubCatProperty: (newValue: string | undefined, oldName: string, catName: string, propName: string) => void;
   removeSubCategory: (catName: string, subCatName: string) => void;
+  setAddingTransaction: (newIs: boolean) => void;
+  setCatSubcatKey: (newCatSubcatKey: string) => void;
 }
 
 interface SharedFuncProps extends UltraSharedFuncProps {
@@ -51,6 +54,8 @@ const BudgetCategories = (props: BudgetCategoriesProps): JSX.Element => {
     removeSubCategory,
     moveCategory,
     moveSubCategory,
+    setAddingTransaction,
+    setCatSubcatKey,
   } = props;
 
   const onDragEnd = ({ type, source, destination }: DropResult) => {
@@ -94,6 +99,8 @@ const BudgetCategories = (props: BudgetCategoriesProps): JSX.Element => {
                   isCategoryNameUnique={isCategoryNameUnique}
                   isSubcategoryNameUnique={isSubcategoryNameUnique}
                   isLastCat={idx === budget.categories.length - 1 ? true : false}
+                  setAddingTransaction={setAddingTransaction}
+                  setCatSubcatKey={setCatSubcatKey}
                 />
               ))}
               {provided.placeholder}
@@ -125,6 +132,8 @@ const Category = (props: CategoryProps): JSX.Element => {
     removeSubCategory,
     isCategoryNameUnique,
     isSubcategoryNameUnique,
+    setAddingTransaction,
+    setCatSubcatKey,
   } = props;
   const [isHovered, setIsHovered] = useState(false);
   const [anchorEl, setAnchorEl] = useState<Element | null>(null);
@@ -194,6 +203,8 @@ const Category = (props: CategoryProps): JSX.Element => {
                       setSubCatProperty={setSubCatProperty}
                       removeSubCategory={removeSubCategory}
                       isSubcategoryNameUnique={isSubcategoryNameUnique}
+                      setAddingTransaction={setAddingTransaction}
+                      setCatSubcatKey={setCatSubcatKey}
                     />
                   ))}
                   {provided.placeholder}
@@ -217,8 +228,18 @@ interface SubCategoryProps extends UltraSharedFuncProps {
 }
 
 const SubCategory = (props: SubCategoryProps): JSX.Element => {
-  const { subidx, category, subcategory, setSubCatProperty, removeSubCategory, isSubcategoryNameUnique } = props;
+  const {
+    subidx,
+    category,
+    subcategory,
+    setSubCatProperty,
+    removeSubCategory,
+    isSubcategoryNameUnique,
+    setAddingTransaction,
+    setCatSubcatKey,
+  } = props;
   const [isHovered, setIsHovered] = useState(false);
+  const [anchorEl, setAnchorEl] = useState<Element | null>(null);
 
   return (
     <Draggable draggableId={subcategory.name} index={subidx}>
@@ -235,17 +256,35 @@ const SubCategory = (props: SubCategoryProps): JSX.Element => {
                     text={subcategory.name}
                     onSubmitValue={(newValue) => setSubCatProperty(newValue, subcategory.name, category.name, 'name')}
                   />
+
                   <IconButton
-                    onClick={() => removeSubCategory(category.name, subcategory.name)}
+                    onClick={(event) => setAnchorEl(event.currentTarget)}
                     sx={{
                       display: isHovered ? 'inherit' : 'none',
-                      p: 0.5,
-                      ml: 0.5,
-                      mt: 0.4,
+                      p: 0,
+                      ml: 1,
                     }}
                   >
-                    <Clear sx={{ fontSize: 20 }} />
+                    <KeyboardArrowDown sx={{ fontSize: 30 }} />
                   </IconButton>
+                  <Menu
+                    id={`subcat${subidx}-menu`}
+                    anchorEl={anchorEl}
+                    open={!!anchorEl}
+                    onClose={() => setAnchorEl(null)}
+                  >
+                    <MenuItem
+                      onClick={() => {
+                        setAddingTransaction(true);
+                        setCatSubcatKey(`${category.name}${catSubcatKeySeparator}${subcategory.name}`);
+                      }}
+                    >
+                      Add transaction
+                    </MenuItem>
+                    <MenuItem onClick={() => removeSubCategory(category.name, subcategory.name)}>
+                      Delete subcategory
+                    </MenuItem>
+                  </Menu>
                 </Stack>
                 <LinearProgress
                   value={(subcategory.currentSpent / subcategory.totalAllotted) * 100}
@@ -295,6 +334,8 @@ const Budget = (props: BudgetProps): JSX.Element => {
   const { family } = useContext(UserContext);
   const { budget, setBudget, getBudget } = props;
   const theme = useTheme();
+  const [addingTransaction, setAddingTransaction] = useState(false);
+  const [catSubcatKey, setCatSubcatKey] = useState('');
 
   const setMonthlyNetIncome = (newValue: string | undefined) => {
     if (!family?.budgetId || !newValue) return;
@@ -572,6 +613,19 @@ const Budget = (props: BudgetProps): JSX.Element => {
     );
   };
 
+  const saveNewTransaction = (newTransaction: Transaction) => {
+    if (!family?.budgetId) {
+      return;
+    }
+
+    const updArr = [...budget.transactions, newTransaction];
+    console.log(updArr);
+
+    firebase.updateBudget(family.budgetId, { transactions: updArr }).then(() => {
+      getBudget();
+    });
+  };
+
   const formatChartData = (budgetCats: BudgetCategory[]) => {
     const formattedDataArr: any[][] = [['Category', 'Percent']];
 
@@ -688,6 +742,8 @@ const Budget = (props: BudgetProps): JSX.Element => {
             removeSubCategory={removeSubCategory}
             moveCategory={moveCategory}
             moveSubCategory={moveSubCategory}
+            setAddingTransaction={setAddingTransaction}
+            setCatSubcatKey={setCatSubcatKey}
           />
         </Paper>
       </Box>
@@ -707,6 +763,14 @@ const Budget = (props: BudgetProps): JSX.Element => {
           options={{ title: 'Percent of Allotted Budget', is3D: false }}
         />
       </Paper>
+
+      <AddTransaction
+        isOpen={addingTransaction}
+        setIsOpen={setAddingTransaction}
+        saveNewTransaction={saveNewTransaction}
+        budgetCats={budget.categories}
+        initialCatSubcat={catSubcatKey}
+      />
     </Box>
   );
 };
