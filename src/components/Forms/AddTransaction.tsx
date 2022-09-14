@@ -106,7 +106,7 @@ const AddTransaction = (props: AddTransactionProps) => {
             <Select
               labelId='selectLbl'
               // TODO: Properly auto-set value if provided from Budget (value technically set, but not displayed as selected properly)
-              value={newTransactionCat && newTransactionCat.split(catSubcatKeySeparator)[1]}
+              value={newTransactionCat}
               onChange={(event) => setNewTransactionCat(event.target.value)}
             >
               {getCatSelectList()}
