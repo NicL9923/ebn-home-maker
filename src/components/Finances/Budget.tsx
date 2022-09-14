@@ -241,6 +241,17 @@ const SubCategory = (props: SubCategoryProps): JSX.Element => {
   const [isHovered, setIsHovered] = useState(false);
   const [anchorEl, setAnchorEl] = useState<Element | null>(null);
 
+  const getLinearProgressValue = (curSpent: number, curAllotted: number) =>
+    Math.max(0, Math.min(1, curSpent / curAllotted)) * 100;
+
+  const getLinearProgressColor = (curSpent: number, curAllotted: number) => {
+    if (curSpent / curAllotted > 1) {
+      return 'error';
+    } else {
+      return 'primary';
+    }
+  };
+
   return (
     <Draggable draggableId={subcategory.name} index={subidx}>
       {(provided) => (
@@ -287,7 +298,8 @@ const SubCategory = (props: SubCategoryProps): JSX.Element => {
                   </Menu>
                 </Stack>
                 <LinearProgress
-                  value={(subcategory.currentSpent / subcategory.totalAllotted) * 100}
+                  value={getLinearProgressValue(subcategory.currentSpent, subcategory.totalAllotted)}
+                  color={getLinearProgressColor(subcategory.currentSpent, subcategory.totalAllotted)}
                   variant='determinate'
                   sx={{ width: '85%', mt: 1 }}
                 />
