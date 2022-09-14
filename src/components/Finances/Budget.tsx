@@ -1,4 +1,4 @@
-import { Add, Clear, KeyboardArrowDown, SubdirectoryArrowRight } from '@mui/icons-material';
+import { Add, KeyboardArrowDown, SubdirectoryArrowRight } from '@mui/icons-material';
 import {
   Box,
   Divider,
@@ -260,7 +260,7 @@ const SubCategory = (props: SubCategoryProps): JSX.Element => {
                   <IconButton
                     onClick={(event) => setAnchorEl(event.currentTarget)}
                     sx={{
-                      display: isHovered ? 'inherit' : 'none',
+                      display: isHovered ? 'inherit' : 'hidden',
                       p: 0,
                       ml: 1,
                     }}
@@ -275,8 +275,8 @@ const SubCategory = (props: SubCategoryProps): JSX.Element => {
                   >
                     <MenuItem
                       onClick={() => {
-                        setAddingTransaction(true);
                         setCatSubcatKey(`${category.name}${catSubcatKeySeparator}${subcategory.name}`);
+                        setAddingTransaction(true);
                       }}
                     >
                       Add transaction

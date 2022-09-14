@@ -1,23 +1,33 @@
 import React, { useState } from 'react';
 import {
+  Autocomplete,
   Button,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
-  FormControl,
-  InputLabel,
-  ListSubheader,
-  MenuItem,
-  Select,
   Stack,
   TextField,
 } from '@mui/material';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
-import { BudgetCategory, BudgetSubcategory, Transaction } from 'models/types';
+import { BudgetCategory, Transaction } from 'models/types';
 import { AdapterLuxon } from '@mui/x-date-pickers/AdapterLuxon';
 
 export const catSubcatKeySeparator = '&%&';
+
+const convertConcatToCatOpt = (concatCats: string) => {
+  const splitCats = concatCats.split(catSubcatKeySeparator);
+
+  return {
+    category: splitCats[0],
+    subcategory: splitCats[1],
+  };
+};
+
+interface ICatOpt {
+  category: string;
+  subcategory: string;
+}
 
 interface AddTransactionProps {
   isOpen: boolean;
@@ -31,28 +41,23 @@ const AddTransaction = (props: AddTransactionProps) => {
   const { isOpen, setIsOpen, saveNewTransaction, budgetCats, initialCatSubcat } = props;
   const [newTransactionName, setNewTransactionName] = useState('');
   const [newTransactionAmt, setNewTransactionAmt] = useState('');
-  const [newTransactionCat, setNewTransactionCat] = useState(initialCatSubcat ?? '');
+  const [newTransactionCat, setNewTransactionCat] = useState<ICatOpt | undefined>(undefined);
+  const [catInputValue, setCatInputValue] = useState('');
   const [newTransactionDate, setNewTransactionDate] = useState<Date | undefined | null>(new Date());
 
-  const getCatSelectList = (): JSX.Element[] => {
-    const catSelectArr: JSX.Element[] = [];
+  const getCatOptions = () => {
+    const catOptions: ICatOpt[] = [];
 
-    budgetCats.forEach((category: BudgetCategory) => {
-      catSelectArr.push(<ListSubheader key={category.name}>{category.name}</ListSubheader>);
-
-      category.subcategories.forEach((subcat: BudgetSubcategory) => {
-        catSelectArr.push(
-          <MenuItem
-            key={`${category.name}${catSubcatKeySeparator}${subcat.name}`}
-            value={`${category.name}${catSubcatKeySeparator}${subcat.name}`}
-          >
-            {subcat.name}
-          </MenuItem>
-        );
+    budgetCats.forEach((category) => {
+      category.subcategories.forEach((subcat) => {
+        catOptions.push({
+          category: category.name,
+          subcategory: subcat.name,
+        });
       });
     });
 
-    return catSelectArr;
+    return catOptions;
   };
 
   const submitNewTransaction = () => {
@@ -60,22 +65,30 @@ const AddTransaction = (props: AddTransactionProps) => {
       return;
     }
 
-    const splitCats = newTransactionCat.split(catSubcatKeySeparator);
-
     const formattedTransaction: Transaction = {
       amt: parseFloat(newTransactionAmt),
       name: newTransactionName,
       timestamp: newTransactionDate.toString(),
-      category: splitCats[0],
-      subcategory: splitCats[1],
+      category: '',
+      subcategory: '',
     };
+
+    if (initialCatSubcat) {
+      const catOpt = convertConcatToCatOpt(initialCatSubcat);
+
+      formattedTransaction.category = catOpt.category;
+      formattedTransaction.subcategory = catOpt.subcategory;
+    } else if (newTransactionCat) {
+      formattedTransaction.category = newTransactionCat.category;
+      formattedTransaction.subcategory = newTransactionCat.subcategory;
+    }
 
     saveNewTransaction(formattedTransaction);
 
     setIsOpen(false);
     setNewTransactionName('');
     setNewTransactionAmt('');
-    setNewTransactionCat(initialCatSubcat ?? '');
+    setNewTransactionCat(undefined);
     setNewTransactionDate(new Date());
   };
 
@@ -101,17 +114,29 @@ const AddTransaction = (props: AddTransactionProps) => {
             onChange={(event) => setNewTransactionName(event.target.value)}
           />
 
-          <FormControl variant='standard' sx={{ mt: 2, mb: 2 }}>
-            <InputLabel id='selectLbl'>Category</InputLabel>
-            <Select
-              labelId='selectLbl'
-              // TODO: Properly auto-set value if provided from Budget (value technically set, but not displayed as selected properly)
+          {initialCatSubcat ? (
+            <TextField
+              variant='standard'
+              label='Category'
+              value={convertConcatToCatOpt(initialCatSubcat).subcategory}
+              InputProps={{
+                readOnly: true,
+              }}
+              sx={{ mt: 2, mb: 2 }}
+            />
+          ) : (
+            <Autocomplete
+              options={getCatOptions()}
+              groupBy={(option) => option.category}
+              getOptionLabel={(option) => option.subcategory}
               value={newTransactionCat}
-              onChange={(event) => setNewTransactionCat(event.target.value)}
-            >
-              {getCatSelectList()}
-            </Select>
-          </FormControl>
+              onChange={(_e, newValue) => setNewTransactionCat(newValue ?? undefined)}
+              inputValue={catInputValue}
+              onInputChange={(_event, newValue) => setCatInputValue(newValue)}
+              sx={{ mt: 2, mb: 2 }}
+              renderInput={(params) => <TextField {...params} label='Category' variant='standard' />}
+            />
+          )}
 
           <LocalizationProvider dateAdapter={AdapterLuxon}>
             <DatePicker
