@@ -1,339 +1,16 @@
-import { Add, KeyboardArrowDown, SubdirectoryArrowRight } from '@mui/icons-material';
-import {
-  Box,
-  Divider,
-  Grid,
-  IconButton,
-  LinearProgress,
-  Menu,
-  MenuItem,
-  Paper,
-  Stack,
-  Tooltip,
-  Typography,
-  useTheme,
-} from '@mui/material';
-import { BudgetCategory, IBudget, BudgetSubcategory, Transaction } from 'models/types';
+import { Add, SubdirectoryArrowRight } from '@mui/icons-material';
+import { Box, Divider, Grid, IconButton, Paper, Stack, Tooltip, Typography, useTheme } from '@mui/material';
+import { BudgetCategory, IBudget, BudgetSubcategory, BudgetContextValue } from 'models/types';
 import React, { useContext, useState } from 'react';
-import { Droppable, DropResult } from 'react-beautiful-dnd';
-import { Draggable } from 'react-beautiful-dnd';
-import { DragDropContext } from 'react-beautiful-dnd';
+
 import { FirebaseContext } from '../../Firebase';
 import { UserContext } from '../../App';
 import EditableLabel from '../Inputs/EditableLabel';
 import Chart from 'react-google-charts';
-import AddTransaction, { catSubcatKeySeparator } from 'components/Forms/AddTransaction';
+import AddTransaction from 'components/Forms/AddTransaction';
+import BudgetCategories from './BudgetComponents/BudgetCategories';
 
-// TODO: Put all this crap into FinancesContext or something to avoid prop spam and combine all the IFs
-interface UltraSharedFuncProps {
-  setSubCatProperty: (newValue: string | undefined, oldName: string, catName: string, propName: string) => void;
-  removeSubCategory: (catName: string, subCatName: string) => void;
-  setAddingTransaction: (newIs: boolean) => void;
-  setCatSubcatKey: (newCatSubcatKey: string) => void;
-}
-
-interface SharedFuncProps extends UltraSharedFuncProps {
-  setCategoryName: (newName: string | undefined, curCatName: string) => void;
-  addNewSubCategory: (catName: string) => void;
-  removeCategory: (catName: string) => void;
-}
-
-interface BudgetCategoriesProps extends SharedFuncProps {
-  budget: IBudget;
-  moveCategory: (srcIdx: number, destIdx: number) => void;
-  moveSubCategory: (srcCat: string, destCat: string, srcIdx: number, destIdx: number) => void;
-}
-
-const BudgetCategories = (props: BudgetCategoriesProps): JSX.Element => {
-  const {
-    budget,
-    setCategoryName,
-    addNewSubCategory,
-    removeCategory,
-    setSubCatProperty,
-    removeSubCategory,
-    moveCategory,
-    moveSubCategory,
-    setAddingTransaction,
-    setCatSubcatKey,
-  } = props;
-
-  const onDragEnd = ({ type, source, destination }: DropResult) => {
-    if (!source || !destination || !type) return;
-
-    if (type === 'category') {
-      moveCategory(source.index, destination.index);
-    } else if (type === 'subcategory') {
-      const srcCat = source.droppableId.replace('subcats-', '');
-      const destCat = destination.droppableId.replace('subcats-', '');
-
-      moveSubCategory(srcCat, destCat, source.index, destination.index);
-    }
-  };
-
-  const isCategoryNameUnique = (newCatName: string) => {
-    return !budget.categories.some((cat) => cat.name === newCatName);
-  };
-
-  // TODO: handle identically named subcat being moved to the same cat as its twin
-  const isSubcategoryNameUnique = (category: BudgetCategory, newSubcatName: string) => {
-    return !category.subcategories.some((subcat) => subcat.name === newSubcatName);
-  };
-
-  return (
-    <Box pt={1} pb={1}>
-      <DragDropContext onDragEnd={onDragEnd}>
-        <Droppable droppableId='budgetCats' type='category'>
-          {(provided) => (
-            <div {...provided.droppableProps} ref={provided.innerRef}>
-              {budget.categories.map((category, idx) => (
-                <Category
-                  key={category.name}
-                  idx={idx}
-                  category={category}
-                  setCategoryName={setCategoryName}
-                  addNewSubCategory={addNewSubCategory}
-                  removeCategory={removeCategory}
-                  setSubCatProperty={setSubCatProperty}
-                  removeSubCategory={removeSubCategory}
-                  isCategoryNameUnique={isCategoryNameUnique}
-                  isSubcategoryNameUnique={isSubcategoryNameUnique}
-                  isLastCat={idx === budget.categories.length - 1 ? true : false}
-                  setAddingTransaction={setAddingTransaction}
-                  setCatSubcatKey={setCatSubcatKey}
-                />
-              ))}
-              {provided.placeholder}
-            </div>
-          )}
-        </Droppable>
-      </DragDropContext>
-    </Box>
-  );
-};
-
-interface CategoryProps extends SharedFuncProps {
-  idx: number;
-  category: BudgetCategory;
-  isLastCat: boolean;
-  isCategoryNameUnique: (newCatName: string) => boolean;
-  isSubcategoryNameUnique: (category: BudgetCategory, newSubcatName: string) => boolean;
-}
-
-const Category = (props: CategoryProps): JSX.Element => {
-  const {
-    idx,
-    category,
-    isLastCat,
-    setCategoryName,
-    addNewSubCategory,
-    removeCategory,
-    setSubCatProperty,
-    removeSubCategory,
-    isCategoryNameUnique,
-    isSubcategoryNameUnique,
-    setAddingTransaction,
-    setCatSubcatKey,
-  } = props;
-  const [isHovered, setIsHovered] = useState(false);
-  const [anchorEl, setAnchorEl] = useState<Element | null>(null);
-
-  return (
-    <Draggable draggableId={category.name} index={idx}>
-      {(provided) => (
-        <div {...provided.draggableProps} {...provided.dragHandleProps} ref={provided.innerRef}>
-          <Box mb={1}>
-            <Grid container alignItems='center'>
-              <Grid item xs={6} onMouseOver={() => setIsHovered(true)} onMouseOut={() => setIsHovered(false)}>
-                <Stack direction='row' alignItems='center'>
-                  <EditableLabel
-                    fieldName='Category'
-                    fieldType='ItemName'
-                    textVariant='h5'
-                    text={category.name}
-                    isValUnique={isCategoryNameUnique}
-                    onSubmitValue={(newValue) => setCategoryName(newValue, category.name)}
-                  />
-
-                  <IconButton
-                    onClick={(event) => setAnchorEl(event.currentTarget)}
-                    sx={{
-                      display: isHovered ? 'inherit' : 'none',
-                      p: 0,
-                      ml: 1,
-                    }}
-                  >
-                    <KeyboardArrowDown sx={{ fontSize: 30 }} />
-                  </IconButton>
-                  <Menu id={`cat${idx}-menu`} anchorEl={anchorEl} open={!!anchorEl} onClose={() => setAnchorEl(null)}>
-                    <MenuItem onClick={() => addNewSubCategory(category.name)}>Add sub-category</MenuItem>
-                    <MenuItem onClick={() => removeCategory(category.name)}>Delete category</MenuItem>
-                  </Menu>
-                </Stack>
-              </Grid>
-              <Grid item xs={3}>
-                <Typography variant='body1' ml={1} sx={{ fontWeight: 'bold' }}>
-                  $
-                  {category.totalAllotted?.toLocaleString(undefined, {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  })}
-                </Typography>
-              </Grid>
-              <Grid item xs={2} ml={1}>
-                <Typography variant='body1' ml={1} sx={{ fontWeight: 'bold' }}>
-                  $
-                  {category.currentSpent?.toLocaleString(undefined, {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  })}
-                </Typography>
-              </Grid>
-            </Grid>
-
-            <Droppable droppableId={`subcats-${category.name}`} type='subcategory'>
-              {(provided) => (
-                <div {...provided.droppableProps} ref={provided.innerRef}>
-                  {category.subcategories.map((subcategory, subidx) => (
-                    <SubCategory
-                      key={subcategory.name}
-                      subidx={subidx}
-                      category={category}
-                      subcategory={subcategory}
-                      setSubCatProperty={setSubCatProperty}
-                      removeSubCategory={removeSubCategory}
-                      isSubcategoryNameUnique={isSubcategoryNameUnique}
-                      setAddingTransaction={setAddingTransaction}
-                      setCatSubcatKey={setCatSubcatKey}
-                    />
-                  ))}
-                  {provided.placeholder}
-                </div>
-              )}
-            </Droppable>
-
-            {!isLastCat && <Divider />}
-          </Box>
-        </div>
-      )}
-    </Draggable>
-  );
-};
-
-interface SubCategoryProps extends UltraSharedFuncProps {
-  subidx: number;
-  category: BudgetCategory;
-  subcategory: BudgetSubcategory;
-  isSubcategoryNameUnique: (category: BudgetCategory, newSubcatName: string) => boolean;
-}
-
-const SubCategory = (props: SubCategoryProps): JSX.Element => {
-  const {
-    subidx,
-    category,
-    subcategory,
-    setSubCatProperty,
-    removeSubCategory,
-    isSubcategoryNameUnique,
-    setAddingTransaction,
-    setCatSubcatKey,
-  } = props;
-  const [isHovered, setIsHovered] = useState(false);
-  const [anchorEl, setAnchorEl] = useState<Element | null>(null);
-
-  const getLinearProgressValue = (curSpent: number, curAllotted: number) =>
-    Math.max(0, Math.min(1, curSpent / curAllotted)) * 100;
-
-  const getLinearProgressColor = (curSpent: number, curAllotted: number) => {
-    if (curSpent / curAllotted > 1) {
-      return 'error';
-    } else {
-      return 'primary';
-    }
-  };
-
-  return (
-    <Draggable draggableId={subcategory.name} index={subidx}>
-      {(provided) => (
-        <div {...provided.draggableProps} {...provided.dragHandleProps} ref={provided.innerRef}>
-          <Box ml={2} mb={1}>
-            <Grid container alignItems='center'>
-              <Grid item xs={6} onMouseOver={() => setIsHovered(true)} onMouseOut={() => setIsHovered(false)}>
-                <Stack direction='row' alignItems='center'>
-                  <EditableLabel
-                    fieldName='Subcategory'
-                    fieldType='ItemName'
-                    isValUnique={(valToCheck) => isSubcategoryNameUnique(category, valToCheck)}
-                    text={subcategory.name}
-                    onSubmitValue={(newValue) => setSubCatProperty(newValue, subcategory.name, category.name, 'name')}
-                  />
-
-                  <IconButton
-                    onClick={(event) => setAnchorEl(event.currentTarget)}
-                    sx={{
-                      display: isHovered ? 'inherit' : 'hidden',
-                      p: 0,
-                      ml: 1,
-                    }}
-                  >
-                    <KeyboardArrowDown sx={{ fontSize: 30 }} />
-                  </IconButton>
-                  <Menu
-                    id={`subcat${subidx}-menu`}
-                    anchorEl={anchorEl}
-                    open={!!anchorEl}
-                    onClose={() => setAnchorEl(null)}
-                  >
-                    <MenuItem
-                      onClick={() => {
-                        setCatSubcatKey(`${category.name}${catSubcatKeySeparator}${subcategory.name}`);
-                        setAddingTransaction(true);
-                      }}
-                    >
-                      Add transaction
-                    </MenuItem>
-                    <MenuItem onClick={() => removeSubCategory(category.name, subcategory.name)}>
-                      Delete subcategory
-                    </MenuItem>
-                  </Menu>
-                </Stack>
-                <LinearProgress
-                  value={getLinearProgressValue(subcategory.currentSpent, subcategory.totalAllotted)}
-                  color={getLinearProgressColor(subcategory.currentSpent, subcategory.totalAllotted)}
-                  variant='determinate'
-                  sx={{ width: '85%', mt: 1 }}
-                />
-              </Grid>
-
-              <Grid item xs={3}>
-                <EditableLabel
-                  fieldName='Total allotted'
-                  fieldType='DecimalNum'
-                  textVariant='body1'
-                  isMonetaryValue
-                  text={subcategory.totalAllotted.toLocaleString(undefined, {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  })}
-                  onSubmitValue={(newValue) => setSubCatProperty(newValue, subcategory.name, category.name, 'allotted')}
-                />
-              </Grid>
-              <Grid item xs={2} ml={1.5}>
-                <Typography variant='body1'>
-                  $
-                  {subcategory.currentSpent.toLocaleString(undefined, {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  })}
-                </Typography>
-              </Grid>
-            </Grid>
-          </Box>
-        </div>
-      )}
-    </Draggable>
-  );
-};
+export const BudgetContext = React.createContext({} as BudgetContextValue);
 
 interface BudgetProps {
   budget: IBudget;
@@ -732,18 +409,22 @@ const Budget = (props: BudgetProps): JSX.Element => {
             <Divider />
           </Box>
 
-          <BudgetCategories
-            budget={budget}
-            setCategoryName={setCategoryName}
-            addNewSubCategory={addNewSubCategory}
-            removeCategory={removeCategory}
-            setSubCatProperty={setSubCatProperty}
-            removeSubCategory={removeSubCategory}
-            moveCategory={moveCategory}
-            moveSubCategory={moveSubCategory}
-            setAddingTransaction={setAddingTransaction}
-            setCatSubcatKey={setCatSubcatKey}
-          />
+          <BudgetContext.Provider
+            value={{
+              budget,
+              moveCategory,
+              moveSubCategory,
+              setCategoryName,
+              addNewSubCategory,
+              removeCategory,
+              setSubCatProperty,
+              removeSubCategory,
+              setAddingTransaction,
+              setCatSubcatKey,
+            }}
+          >
+            <BudgetCategories />
+          </BudgetContext.Provider>
         </Paper>
       </Box>
 
