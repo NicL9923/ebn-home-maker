@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import {
   Autocomplete,
   Button,
@@ -10,8 +10,10 @@ import {
   TextField,
 } from '@mui/material';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
-import { BudgetCategory, Transaction } from 'models/types';
+import { IBudget, Transaction } from 'models/types';
 import { AdapterLuxon } from '@mui/x-date-pickers/AdapterLuxon';
+import { FirebaseContext } from '../../Firebase';
+import { UserContext } from 'App';
 
 export const catSubcatKeySeparator = '&%&';
 
@@ -32,13 +34,15 @@ interface ICatOpt {
 interface AddTransactionProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
-  saveNewTransaction: (newTransaction: Transaction) => void;
-  budgetCats: BudgetCategory[];
   initialCatSubcat?: string;
+  budget: IBudget;
+  getBudget: () => void;
 }
 
 const AddTransaction = (props: AddTransactionProps) => {
-  const { isOpen, setIsOpen, saveNewTransaction, budgetCats, initialCatSubcat } = props;
+  const firebase = useContext(FirebaseContext);
+  const { family } = useContext(UserContext);
+  const { isOpen, setIsOpen, initialCatSubcat, budget, getBudget } = props;
   const [newTransactionName, setNewTransactionName] = useState('');
   const [newTransactionAmt, setNewTransactionAmt] = useState('');
   const [newTransactionCat, setNewTransactionCat] = useState<ICatOpt | undefined>(undefined);
@@ -48,7 +52,7 @@ const AddTransaction = (props: AddTransactionProps) => {
   const getCatOptions = () => {
     const catOptions: ICatOpt[] = [];
 
-    budgetCats.forEach((category) => {
+    budget.categories.forEach((category) => {
       category.subcategories.forEach((subcat) => {
         catOptions.push({
           category: category.name,
@@ -61,7 +65,7 @@ const AddTransaction = (props: AddTransactionProps) => {
   };
 
   const submitNewTransaction = () => {
-    if (!newTransactionDate) {
+    if (!family?.budgetId || !newTransactionDate) {
       return;
     }
 
@@ -83,13 +87,17 @@ const AddTransaction = (props: AddTransactionProps) => {
       formattedTransaction.subcategory = newTransactionCat.subcategory;
     }
 
-    saveNewTransaction(formattedTransaction);
+    const updArr = [...budget.transactions, formattedTransaction];
 
-    setIsOpen(false);
-    setNewTransactionName('');
-    setNewTransactionAmt('');
-    setNewTransactionCat(undefined);
-    setNewTransactionDate(new Date());
+    firebase.updateBudget(family.budgetId, { transactions: updArr }).then(() => {
+      getBudget();
+
+      setIsOpen(false);
+      setNewTransactionName('');
+      setNewTransactionAmt('');
+      setNewTransactionCat(undefined);
+      setNewTransactionDate(new Date());
+    });
   };
 
   return (

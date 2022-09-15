@@ -62,19 +62,6 @@ const Transactions = (props: TransactionsProps): JSX.Element => {
   const [selection, setSelection] = useState<GridRowId[]>([]);
   const [pageSize, setPageSize] = useState(20);
 
-  const saveNewTransaction = (newTransaction: Transaction) => {
-    if (!family?.budgetId) {
-      return;
-    }
-
-    const updArr = [...budget.transactions, newTransaction];
-    console.log(updArr);
-
-    firebase.updateBudget(family.budgetId, { transactions: updArr }).then(() => {
-      getBudget();
-    });
-  };
-
   const removeTransactions = () => {
     if (!family?.budgetId) return;
 
@@ -136,8 +123,8 @@ const Transactions = (props: TransactionsProps): JSX.Element => {
       <AddTransaction
         isOpen={addingTransaction}
         setIsOpen={setAddingTransaction}
-        budgetCats={budget.categories}
-        saveNewTransaction={saveNewTransaction}
+        budget={budget}
+        getBudget={getBudget}
       />
     </Box>
   );

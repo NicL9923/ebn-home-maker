@@ -1,52 +1,15 @@
 import React, { useContext, useEffect, useState } from 'react';
-import {
-  Box,
-  Button,
-  CircularProgress,
-  Container,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  Grid,
-  InputLabel,
-  Paper,
-  Stack,
-  TextField,
-  Typography,
-} from '@mui/material';
+import { Box, Button, CircularProgress, Container, Grid, Paper, Stack, Typography } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import { Add, DirectionsCar, House } from '@mui/icons-material';
 import Image from 'material-ui-image';
 import { FirebaseContext } from '../Firebase';
 import { UserContext } from '../App';
-import { DropzoneArea } from 'mui-file-dropzone';
-import { getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
-import { v4 as uuidv4 } from 'uuid';
 import { Residence, Vehicle } from 'models/types';
+import AddVehicle from 'components/Forms/AddVehicle';
+import AddResidence from 'components/Forms/AddResidence';
 
 // TODO: Refactor this thing...just...just refactor it PLEASE
-
-const defNewRes = {
-  name: '',
-  yearBuilt: '',
-  yearPurchased: '',
-  maintenanceMarkers: [],
-  serviceLogEntries: [],
-};
-
-const defNewVeh = {
-  year: '',
-  make: '',
-  model: '',
-  trim: '',
-  engine: '',
-  vin: '',
-  licensePlate: '',
-  miles: 0,
-  maintenanceMarkers: [],
-  serviceLogEntries: [],
-};
 
 const Maintenance = (): JSX.Element => {
   const firebase = useContext(FirebaseContext);
@@ -58,10 +21,6 @@ const Maintenance = (): JSX.Element => {
 
   const [addingResidence, setAddingResidence] = useState(false);
   const [addingVehicle, setAddingVehicle] = useState(false);
-  const [newResidence, setNewResidence] = useState(defNewRes);
-  const [newResImgFile, setNewResImgFile] = useState<File | null>(null);
-  const [newVehicle, setNewVehicle] = useState(defNewVeh);
-  const [newVehImgFile, setNewVehImgFile] = useState<File | null>(null);
 
   const getResidences = () => {
     if (!family?.residences) return;
@@ -111,85 +70,6 @@ const Maintenance = (): JSX.Element => {
     });
 
     setIsFetchingVehicles(false);
-  };
-
-  const addNewResidence = () => {
-    if (!family || !profile) return;
-
-    const newResId = uuidv4();
-
-    let newResIdArr: string[] = [];
-    if (family.residences) {
-      newResIdArr = [...family.residences];
-    }
-    newResIdArr.push(newResId);
-
-    firebase
-      .createResidence(newResId, {
-        ...newResidence,
-        id: newResId,
-      })
-      .then(() => {
-        firebase
-          .updateFamily(profile.familyId, {
-            residences: newResIdArr,
-          })
-          .then(() => {
-            getFamily();
-            setAddingResidence(false);
-            setNewResidence(defNewRes);
-          });
-      });
-
-    if (newResImgFile) {
-      const storage = getStorage();
-      const imgRef = ref(storage, uuidv4());
-      uploadBytes(imgRef, newResImgFile).then((snapshot) => {
-        getDownloadURL(snapshot.ref).then((url) => {
-          firebase.updateResidence(newResId, { img: url }).then(() => {
-            getResidences();
-            setNewResImgFile(null);
-          });
-        });
-      });
-    }
-  };
-
-  const addNewVehicle = () => {
-    if (!family || !profile) return;
-
-    const newVehId = uuidv4();
-
-    let newVehIdArr: string[] = [];
-    if (family.vehicles) {
-      newVehIdArr = [...family.vehicles];
-    }
-    newVehIdArr.push(newVehId);
-
-    firebase.createVehicle(newVehId, { ...newVehicle, id: newVehId }).then(() => {
-      firebase
-        .updateFamily(profile.familyId, {
-          vehicles: newVehIdArr,
-        })
-        .then(() => {
-          getFamily();
-          setAddingVehicle(false);
-          setNewVehicle(defNewVeh);
-        });
-    });
-
-    if (newVehImgFile) {
-      const storage = getStorage();
-      const imgRef = ref(storage, uuidv4());
-      uploadBytes(imgRef, newVehImgFile).then((snapshot) => {
-        getDownloadURL(snapshot.ref).then((url) => {
-          firebase.updateVehicle(newVehId, { img: url }).then(() => {
-            getVehicles();
-            setNewVehImgFile(null);
-          });
-        });
-      });
-    }
   };
 
   const deleteResidence = (resId: string) => {
@@ -307,59 +187,7 @@ const Maintenance = (): JSX.Element => {
         </Button>
       </Box>
 
-      <Dialog open={addingResidence} onClose={() => setAddingResidence(false)} fullWidth>
-        <DialogTitle>Add Residence</DialogTitle>
-
-        <DialogContent>
-          <TextField
-            autoFocus
-            variant='standard'
-            label='Name'
-            placeholder='My House!'
-            value={newResidence.name}
-            onChange={(event) => setNewResidence({ ...newResidence, name: event.target.value })}
-          />
-
-          <InputLabel>Upload Photo</InputLabel>
-          <DropzoneArea
-            acceptedFiles={['image/jpeg', 'image/png']}
-            filesLimit={1}
-            onChange={(files) => setNewResImgFile(files[0])}
-            fileObjects={[]}
-          />
-
-          <TextField
-            variant='standard'
-            label='Year Built'
-            value={newResidence.yearBuilt}
-            onChange={(event) =>
-              setNewResidence({
-                ...newResidence,
-                yearBuilt: event.target.value,
-              })
-            }
-          />
-
-          <TextField
-            variant='standard'
-            label='Year Purchased'
-            value={newResidence.yearPurchased}
-            onChange={(event) =>
-              setNewResidence({
-                ...newResidence,
-                yearPurchased: event.target.value,
-              })
-            }
-          />
-        </DialogContent>
-
-        <DialogActions>
-          <Button onClick={() => setAddingResidence(false)}>Cancel</Button>
-          <Button variant='contained' onClick={addNewResidence}>
-            Save
-          </Button>
-        </DialogActions>
-      </Dialog>
+      <AddResidence isOpen={addingResidence} setIsOpen={setAddingResidence} getResidences={getResidences} />
 
       <Box mt={4}>
         <Typography variant='h4'>Vehicles</Typography>
@@ -432,92 +260,7 @@ const Maintenance = (): JSX.Element => {
         </Button>
       </Box>
 
-      <Dialog open={addingVehicle} onClose={() => setAddingVehicle(false)}>
-        <DialogTitle>Add Vehicle</DialogTitle>
-
-        <DialogContent>
-          <TextField
-            autoFocus
-            variant='standard'
-            label='Model Year'
-            value={newVehicle.year}
-            onChange={(event) => setNewVehicle({ ...newVehicle, year: event.target.value })}
-          />
-
-          <TextField
-            variant='standard'
-            label='Make'
-            placeholder='Chevrolet, Ford, Dodge, Toyota...'
-            value={newVehicle.make}
-            onChange={(event) => setNewVehicle({ ...newVehicle, make: event.target.value })}
-          />
-
-          <TextField
-            variant='standard'
-            label='Model'
-            placeholder='F150, Corolla, Tacoma, Tahoe...'
-            value={newVehicle.model}
-            onChange={(event) => setNewVehicle({ ...newVehicle, model: event.target.value })}
-          />
-
-          <TextField
-            variant='standard'
-            label='Trim'
-            placeholder='SE, Limited...'
-            value={newVehicle.trim}
-            onChange={(event) => setNewVehicle({ ...newVehicle, trim: event.target.value })}
-          />
-
-          <TextField
-            variant='standard'
-            label='Engine'
-            placeholder='3.5L V6...'
-            value={newVehicle.engine}
-            onChange={(event) => setNewVehicle({ ...newVehicle, engine: event.target.value })}
-          />
-
-          <TextField
-            variant='standard'
-            label='VIN (Vehicle Identification Number)'
-            value={newVehicle.vin}
-            onChange={(event) => setNewVehicle({ ...newVehicle, vin: event.target.value })}
-          />
-
-          <TextField
-            variant='standard'
-            label='License Plate'
-            value={newVehicle.licensePlate}
-            onChange={(event) => setNewVehicle({ ...newVehicle, licensePlate: event.target.value })}
-          />
-
-          <TextField
-            variant='standard'
-            label='Odometer (miles)'
-            value={newVehicle.miles}
-            onChange={(event) =>
-              setNewVehicle({
-                ...newVehicle,
-                miles: parseInt(event.target.value),
-              })
-            }
-          />
-
-          <InputLabel>Upload Photo</InputLabel>
-          <DropzoneArea
-            acceptedFiles={['image/jpeg', 'image/png']}
-            filesLimit={1}
-            onChange={(files) => setNewVehImgFile(files[0])}
-            fileObjects={[]}
-          />
-        </DialogContent>
-
-        <DialogActions>
-          <Button onClick={() => setAddingVehicle(false)}>Cancel</Button>
-          <Button variant='contained' onClick={addNewVehicle}>
-            Save
-          </Button>
-        </DialogActions>
-      </Dialog>
+      <AddVehicle isOpen={addingVehicle} setIsOpen={setAddingVehicle} getVehicles={getVehicles} />
     </Box>
   );
 };

@@ -625,19 +625,6 @@ const Budget = (props: BudgetProps): JSX.Element => {
     );
   };
 
-  const saveNewTransaction = (newTransaction: Transaction) => {
-    if (!family?.budgetId) {
-      return;
-    }
-
-    const updArr = [...budget.transactions, newTransaction];
-    console.log(updArr);
-
-    firebase.updateBudget(family.budgetId, { transactions: updArr }).then(() => {
-      getBudget();
-    });
-  };
-
   const formatChartData = (budgetCats: BudgetCategory[]) => {
     const formattedDataArr: any[][] = [['Category', 'Percent']];
 
@@ -779,8 +766,8 @@ const Budget = (props: BudgetProps): JSX.Element => {
       <AddTransaction
         isOpen={addingTransaction}
         setIsOpen={setAddingTransaction}
-        saveNewTransaction={saveNewTransaction}
-        budgetCats={budget.categories}
+        budget={budget}
+        getBudget={getBudget}
         initialCatSubcat={catSubcatKey}
       />
     </Box>
