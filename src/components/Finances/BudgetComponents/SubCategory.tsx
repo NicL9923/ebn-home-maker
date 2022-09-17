@@ -28,7 +28,7 @@ const SubCategory = (props: SubCategoryProps): JSX.Element => {
     Math.max(0, Math.min(1, curSpent / curAllotted)) * 100;
 
   const getLinearProgressColor = (curSpent: number, curAllotted: number) => {
-    if (curSpent / curAllotted > 1) {
+    if (Math.round((curSpent / curAllotted) * 100) > 100) {
       return 'error';
     } else {
       return 'primary';
