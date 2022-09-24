@@ -90,6 +90,7 @@ const GroceryList = () => {
 
       <SingleFieldDialog
         initialValue={''}
+        titleVerb={'Add'}
         fieldName={'Grocery item'}
         fieldType={'EntityName'}
         isOpen={isEditing}

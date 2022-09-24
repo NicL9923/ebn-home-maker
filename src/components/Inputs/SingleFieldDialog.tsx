@@ -23,10 +23,21 @@ interface SingleFieldDialogProps {
   onClosed: () => void;
   onSubmitValue: (newValue?: string) => void;
   isValUnique?: (valToCheck: string) => boolean;
+  titleVerb?: string;
 }
 
 const SingleFieldDialog = (props: SingleFieldDialogProps) => {
-  const { initialValue, isMonetaryValue, fieldName, fieldType, onSubmitValue, isOpen, onClosed, isValUnique } = props;
+  const {
+    initialValue,
+    isMonetaryValue,
+    fieldName,
+    fieldType,
+    onSubmitValue,
+    isOpen,
+    onClosed,
+    isValUnique,
+    titleVerb = 'Edit',
+  } = props;
   const [valErr, setValErr] = useState<string | undefined>(undefined);
   const [fieldValue, setFieldValue] = useState<string | undefined>(initialValue);
 
@@ -76,7 +87,7 @@ const SingleFieldDialog = (props: SingleFieldDialogProps) => {
 
   return (
     <Dialog open={isOpen} onClose={onClosed} fullWidth style={{ marginBottom: '35vh' }}>
-      <DialogTitle>{`Edit ${fieldName}`}</DialogTitle>
+      <DialogTitle>{`${titleVerb} ${fieldName}`}</DialogTitle>
 
       <DialogContent>
         <Stack direction='row' alignItems='center' spacing={1}>
