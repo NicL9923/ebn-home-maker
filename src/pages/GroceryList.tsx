@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useMemo, useState } from 'react';
 import NoFamily from 'components/NoFamily';
 import { DocTypes, FirebaseContext } from '../Firebase';
 import { UserContext } from 'App';
@@ -53,6 +53,11 @@ const GroceryList = () => {
     firebase.updateFamily(profile.familyId, { groceryList: updGroceryList });
   };
 
+  const isItemSelected = useMemo(
+    () => family.groceryList.length > 0 && family.groceryList.some((item) => item.isBought),
+    [family.groceryList]
+  );
+
   return (
     <Box maxWidth='md' mx='auto' mt={2}>
       <Paper sx={{ p: 2 }}>
@@ -81,7 +86,7 @@ const GroceryList = () => {
           ))}
         </List>
 
-        {family.groceryList.length > 0 && family.groceryList.some((item) => item.isBought) && (
+        {isItemSelected && (
           <Button variant='outlined' onClick={removeGroceryItems} sx={{ mt: 8 }}>
             Remove checked items
           </Button>
