@@ -192,38 +192,38 @@ const WeatherBox = (): JSX.Element => {
     });
 
     return (
-      <Grid container spacing={2} mt={2}>
+      <Stack spacing={1} mt={2}>
         {parsedHourlyReports.map((rpt) => {
           return (
-            <Grid container item xs={4} sm={3} md={2} justifyContent='space-evenly' key={rpt.hour}>
-              <Paper>
-                <Stack
-                  direction='column'
-                  alignItems='center'
-                  justifyContent='center'
-                  textAlign='center'
-                  width={75}
-                  ml={4}
-                  mr={4}
-                  mt={1}
-                  mb={1}
-                  key={rpt.hour}
-                  spacing={1}
-                >
-                  <Typography variant='h6'>
-                    {rpt.hour < 12 ? `${rpt.hour} AM` : `${rpt.hour === 12 ? rpt.hour : rpt.hour - 12} PM`}
-                  </Typography>
+            <Paper key={rpt.hour}>
+              <Stack
+                direction='row'
+                alignItems='center'
+                justifyContent='space-evenly'
+                textAlign='center'
+                width={450}
+                key={rpt.hour}
+              >
+                <Typography variant='subtitle1'>
+                  {rpt.hour < 12 ? `${rpt.hour} AM` : `${rpt.hour === 12 ? rpt.hour : rpt.hour - 12} PM`}
+                </Typography>
+
+                <Stack>
                   {getWeatherIcon(rpt.iconCode)}
-                  <Typography variant='h6'>{rpt.condition}</Typography>
-                  <Typography variant='h6'>{rpt.temp}°F</Typography>
-                  <Typography variant='body2'>FL {rpt.feelsLike}°</Typography>
-                  <Typography variant='body2'>HUM: {rpt.humidity}%</Typography>
+                  <Typography variant='subtitle2'>{rpt.condition}</Typography>
                 </Stack>
-              </Paper>
-            </Grid>
+
+                <Typography variant='h6'>{rpt.temp}°F</Typography>
+
+                <Stack>
+                  <Typography variant='subtitle2'>Feels like: {rpt.feelsLike}°</Typography>
+                  <Typography variant='subtitle2'>Humidity: {rpt.humidity}%</Typography>
+                </Stack>
+              </Stack>
+            </Paper>
           );
         })}
-      </Grid>
+      </Stack>
     );
   };
 
@@ -243,35 +243,34 @@ const WeatherBox = (): JSX.Element => {
     });
 
     return (
-      <Grid container justifyContent='space-evenly' alignItems='center' spacing={4} mt={1}>
+      <Stack spacing={2} mt={2}>
         {parsedDailyReports.map((rpt) => {
           return (
-            <Grid container item xs={4} sm={3} md={2} justifyContent='space-evenly' key={rpt.day}>
-              <Paper>
-                <Stack
-                  direction='column'
-                  alignItems='center'
-                  justifyContent='center'
-                  textAlign='center'
-                  width={90}
-                  ml={4}
-                  mr={4}
-                  mt={1}
-                  mb={1}
-                  key={rpt.day}
-                  spacing={1}
-                >
-                  <Typography variant='h5'>{rpt.day}</Typography>
+            <Paper key={rpt.day}>
+              <Stack
+                direction='row'
+                alignItems='center'
+                justifyContent='space-evenly'
+                textAlign='center'
+                width={450}
+                key={rpt.day}
+              >
+                <Typography variant='h6'>{rpt.day}</Typography>
+
+                <Stack>
                   {getWeatherIcon(rpt.iconCode)}
-                  <Typography variant='h6'>{rpt.condition}</Typography>
+                  <Typography variant='subtitle1'>{rpt.condition}</Typography>
+                </Stack>
+
+                <Stack>
                   <Typography variant='body1'>High: {rpt.tempHigh}°F</Typography>
                   <Typography variant='body1'>Low: {rpt.tempLow}°F</Typography>
                 </Stack>
-              </Paper>
-            </Grid>
+              </Stack>
+            </Paper>
           );
         })}
-      </Grid>
+      </Stack>
     );
   };
 
