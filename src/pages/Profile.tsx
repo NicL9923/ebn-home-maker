@@ -47,11 +47,8 @@ const Profile = () => {
               width={164}
             />
 
-            <Typography variant='h5' mt={1} mb={2}>
-              {profile.firstName}
-            </Typography>
-
             <EditableLabel
+              textVariant='h5'
               text={profile.firstName}
               fieldName='First Name'
               fieldType='EntityName'
