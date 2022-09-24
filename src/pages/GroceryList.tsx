@@ -7,6 +7,7 @@ import { arrayUnion, doc, onSnapshot } from 'firebase/firestore';
 import NoProfile from 'components/NoProfile';
 import { Family } from 'models/types';
 import SingleFieldDialog from 'components/Inputs/SingleFieldDialog';
+import { DragDropContext, Draggable, Droppable, DropResult } from 'react-beautiful-dnd';
 
 const GroceryList = () => {
   const firebase = useContext(FirebaseContext);
@@ -53,6 +54,20 @@ const GroceryList = () => {
     firebase.updateFamily(profile.familyId, { groceryList: updGroceryList });
   };
 
+  const onDragEnd = ({ type, source, destination }: DropResult) => {
+    if (!source || !destination || !type) return;
+
+    if (type === 'gListItem') {
+      const newGList = [...family.groceryList];
+      const listItem = newGList[source.index];
+
+      newGList.splice(source.index, 1);
+      newGList.splice(destination.index, 0, listItem);
+
+      firebase.updateFamily(profile.familyId, { groceryList: newGList });
+    }
+  };
+
   const isItemSelected = useMemo(
     () => family.groceryList.length > 0 && family.groceryList.some((item) => item.isBought),
     [family.groceryList]
@@ -69,22 +84,33 @@ const GroceryList = () => {
           Add item
         </Button>
 
-        <List sx={{ mt: 2 }}>
-          {family.groceryList.map((groceryItem, idx) => (
-            <ListItem key={idx}>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    sx={{ '& .MuiSvgIcon-root': { fontSize: 28 } }}
-                    checked={groceryItem.isBought}
-                    onChange={(e) => editGroceryItem(idx, undefined, e.target.checked)}
-                  />
-                }
-                label={groceryItem.name}
-              />
-            </ListItem>
-          ))}
-        </List>
+        <DragDropContext onDragEnd={onDragEnd}>
+          <Droppable droppableId='groceryList' type='gListItem'>
+            {(provided) => (
+              <List {...provided.droppableProps} ref={provided.innerRef} sx={{ mt: 2 }}>
+                {family.groceryList.map((groceryItem, idx) => (
+                  <Draggable draggableId={`${idx}`} index={idx} key={idx}>
+                    {(provided) => (
+                      <ListItem {...provided.draggableProps} {...provided.dragHandleProps} ref={provided.innerRef}>
+                        <FormControlLabel
+                          control={
+                            <Checkbox
+                              sx={{ '& .MuiSvgIcon-root': { fontSize: 28 } }}
+                              checked={groceryItem.isBought}
+                              onChange={(e) => editGroceryItem(idx, undefined, e.target.checked)}
+                            />
+                          }
+                          label={groceryItem.name}
+                        />
+                      </ListItem>
+                    )}
+                  </Draggable>
+                ))}
+                {provided.placeholder}
+              </List>
+            )}
+          </Droppable>
+        </DragDropContext>
 
         {isItemSelected && (
           <Button variant='outlined' onClick={removeGroceryItems} sx={{ mt: 8 }}>
