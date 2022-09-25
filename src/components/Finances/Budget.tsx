@@ -116,6 +116,8 @@ const Budget = (props: BudgetProps): JSX.Element => {
   const removeCategory = (catName: string) => {
     if (!family?.budgetId) return;
 
+    if (!window.confirm(`Are you sure you want to delete category ${catName}?`)) return;
+
     const updArr = [...budget.categories];
     const updTransactions = [...budget.transactions];
 
@@ -170,6 +172,8 @@ const Budget = (props: BudgetProps): JSX.Element => {
 
   const removeSubCategory = (catName: string, subCatName: string) => {
     if (!family?.budgetId) return;
+
+    if (!window.confirm(`Are you sure you want to delete subcategory ${subCatName} in category ${catName}?`)) return;
 
     const updArr = [...budget.categories];
     const updTransactions = [...budget.transactions];

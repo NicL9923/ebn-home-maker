@@ -14,14 +14,15 @@ import {
   Typography,
 } from '@mui/material';
 import EditableLabel from './Inputs/EditableLabel';
-import { Add, Close, ContentCopyOutlined, Edit, Logout } from '@mui/icons-material';
+import { Add, Close, ContentCopyOutlined, Logout } from '@mui/icons-material';
 import MapPicker from 'react-google-map-picker';
-import { UserProfile } from 'models/types';
+import { UserProfile, Pet } from 'models/types';
 import { FirebaseContext } from '../Firebase';
 import { AppContext, UserContext } from 'App';
 import copy from 'clipboard-copy';
 import NoFamily from './NoFamily';
 import AddPet from './Forms/AddPet';
+import { deleteObject, getStorage, ref } from 'firebase/storage';
 
 const obtainGmapsApiKeyText = `Obtain and input a Google Maps API key if you would like
 to use the built-in location picker, otherwise manually find/input
@@ -148,6 +149,34 @@ const Family = ({ mergeProfileProperty }: FamilyProps) => {
     });
   };
 
+  const removeFamilyMember = (memberFirstName: string, memberIdx: number) => {
+    if (!profile || !family) return;
+
+    if (window.confirm(`Are you sure you want to remove ${memberFirstName} from the family?`)) {
+      const newMembersArr = [...family.members];
+      newMembersArr.splice(memberIdx, 1);
+
+      firebase.updateFamily(profile.familyId, { members: newMembersArr }).then(getFamily);
+    }
+  };
+
+  const removePet = (pet: Pet, petIdx: number) => {
+    if (!profile || !family) return;
+
+    if (window.confirm(`Are you sure you want to remove ${pet.name} from the family?`)) {
+      const newPetsArr = [...family.pets];
+      newPetsArr.splice(petIdx, 1);
+
+      if (pet.imgLink) {
+        const storage = getStorage();
+        const oldImgRef = ref(storage, pet.imgLink);
+        deleteObject(oldImgRef);
+      }
+
+      firebase.updateFamily(profile.familyId, { pets: newPetsArr }).then(getFamily);
+    }
+  };
+
   const exportFamilyDataJSON = () => {
     if (!family) return;
 
@@ -210,14 +239,20 @@ const Family = ({ mergeProfileProperty }: FamilyProps) => {
         <Typography variant='h5'>Members</Typography>
         <Stack direction='row' mb={3}>
           {familyMemberProfiles &&
-            familyMemberProfiles.map((prof: UserProfile) => (
+            familyMemberProfiles.map((prof: UserProfile, idx: number) => (
               <Stack key={prof.firstName} alignItems='center' justifyContent='center'>
                 <Typography variant='h6'>{prof.firstName}</Typography>
                 <Avatar src={prof.imgLink} alt='family member' sx={{ width: 128, height: 128 }}>
                   {!prof.imgLink && prof.firstName[0].toUpperCase()}
                 </Avatar>
                 {userId === family.headOfFamily && (
-                  <Button variant='outlined' startIcon={<Close />} sx={{ mt: 2 }}>
+                  <Button
+                    variant='outlined'
+                    startIcon={<Close />}
+                    sx={{ mt: 2 }}
+                    size='small'
+                    onClick={() => removeFamilyMember(prof.firstName, idx)}
+                  >
                     Remove
                   </Button>
                 )}
@@ -237,21 +272,22 @@ const Family = ({ mergeProfileProperty }: FamilyProps) => {
         <Typography variant='h5'>Pets</Typography>
         <Stack direction='row' mb={3}>
           {family.pets &&
-            family.pets.map((pet) => (
+            family.pets.map((pet: Pet, idx: number) => (
               <Stack key={pet.name} alignItems='center' justifyContent='center'>
                 <Typography variant='body1'>{pet.name}</Typography>
                 <Avatar src={pet.imgLink} alt='pet' sx={{ width: 96, height: 96 }}>
                   {!pet.imgLink && pet.name[0].toUpperCase()}
                 </Avatar>
                 {userId === family.headOfFamily && (
-                  <Box>
-                    <Button variant='outlined' startIcon={<Edit />}>
-                      Edit
-                    </Button>
-                    <Button variant='outlined' startIcon={<Close />}>
-                      Remove
-                    </Button>
-                  </Box>
+                  <Button
+                    variant='outlined'
+                    startIcon={<Close />}
+                    size='small'
+                    onClick={() => removePet(pet, idx)}
+                    sx={{ mt: 2 }}
+                  >
+                    Remove
+                  </Button>
                 )}
               </Stack>
             ))}
