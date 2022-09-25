@@ -1,7 +1,7 @@
 import React, { useContext, useMemo, useState } from 'react';
 import NoFamily from 'components/NoFamily';
 import { DocTypes, FirebaseContext } from '../Firebase';
-import { UserContext } from 'App';
+import { AppContext, UserContext } from 'App';
 import { Paper, Typography, Box, List, ListItem, Checkbox, Button, FormControlLabel } from '@mui/material';
 import { arrayUnion, doc, onSnapshot } from 'firebase/firestore';
 import NoProfile from 'components/NoProfile';
@@ -10,6 +10,7 @@ import SingleFieldDialog from 'components/Inputs/SingleFieldDialog';
 import { DragDropContext, Draggable, Droppable, DropResult } from 'react-beautiful-dnd';
 
 const GroceryList = () => {
+  const { setSnackbarData } = useContext(AppContext);
   const firebase = useContext(FirebaseContext);
   const { profile, family, setFamily } = useContext(UserContext);
   const [isEditing, setIsEditing] = useState(false);
@@ -33,7 +34,11 @@ const GroceryList = () => {
   const addGroceryItem = (newItemName?: string) => {
     if (!newItemName) return;
 
-    firebase.updateFamily(profile.familyId, { groceryList: arrayUnion({ name: newItemName, isBought: false }) });
+    firebase
+      .updateFamily(profile.familyId, { groceryList: arrayUnion({ name: newItemName, isBought: false }) })
+      .then(() => {
+        setSnackbarData({ msg: 'Successfully added item!', severity: 'success' });
+      });
   };
 
   const editGroceryItem = (idx: number, newName: string | undefined, isBought: boolean) => {

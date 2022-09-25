@@ -2,7 +2,7 @@ import React, { useContext, useState } from 'react';
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, InputLabel, TextField } from '@mui/material';
 import { DropzoneArea } from 'mui-file-dropzone';
 import { FirebaseContext } from '../../Firebase';
-import { UserContext } from 'App';
+import { AppContext, UserContext } from 'App';
 import { getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -12,6 +12,7 @@ interface AddPetProps {
 }
 
 const AddPet = (props: AddPetProps) => {
+  const { setSnackbarData } = useContext(AppContext);
   const firebase = useContext(FirebaseContext);
   const { profile, family, getFamily } = useContext(UserContext);
   const { isOpen, setIsOpen } = props;
@@ -33,6 +34,7 @@ const AddPet = (props: AddPetProps) => {
           firebase.updateFamily(profile.familyId, { pets: newPetsArr }).then(() => {
             getFamily();
             setIsOpen(false);
+            setSnackbarData({ msg: 'Successfully added pet!', severity: 'success' });
           });
         });
       });
@@ -41,6 +43,7 @@ const AddPet = (props: AddPetProps) => {
       firebase.updateFamily(profile.familyId, { pets: newPetsArr }).then(() => {
         getFamily();
         setIsOpen(false);
+        setSnackbarData({ msg: 'Successfully added pet!', severity: 'success' });
       });
     }
   };

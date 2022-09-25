@@ -13,7 +13,7 @@ import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { IBudget, Transaction } from 'models/types';
 import { AdapterLuxon } from '@mui/x-date-pickers/AdapterLuxon';
 import { FirebaseContext } from '../../Firebase';
-import { UserContext } from 'App';
+import { AppContext, UserContext } from 'App';
 
 export const catSubcatKeySeparator = '&%&';
 
@@ -40,6 +40,7 @@ interface AddTransactionProps {
 }
 
 const AddTransaction = (props: AddTransactionProps) => {
+  const { setSnackbarData } = useContext(AppContext);
   const firebase = useContext(FirebaseContext);
   const { family } = useContext(UserContext);
   const { isOpen, setIsOpen, initialCatSubcat, budget, getBudget } = props;
@@ -90,6 +91,7 @@ const AddTransaction = (props: AddTransactionProps) => {
     const updArr = [...budget.transactions, formattedTransaction];
 
     firebase.updateBudget(family.budgetId, { transactions: updArr }).then(() => {
+      setSnackbarData({ msg: 'Successfully added transaction!', severity: 'success' });
       getBudget();
 
       setIsOpen(false);

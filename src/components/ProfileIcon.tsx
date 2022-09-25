@@ -3,9 +3,10 @@ import { signOut } from 'firebase/auth';
 import { Link } from 'react-router-dom';
 import { Avatar, Divider, ListItemText, Menu, MenuItem, Typography } from '@mui/material';
 import { FirebaseContext } from '../Firebase';
-import { UserContext } from '../App';
+import { AppContext, UserContext } from '../App';
 
 const ProfileIcon = (): JSX.Element => {
+  const { setSnackbarData } = useContext(AppContext);
   const { auth } = useContext(FirebaseContext);
   const { profile } = useContext(UserContext);
   const [anchorEl, setAnchorEl] = useState<Element | null>(null);
@@ -13,10 +14,10 @@ const ProfileIcon = (): JSX.Element => {
   const handleSignOut = () =>
     signOut(auth)
       .then(() => {
-        console.log('Successfully signed out');
+        setSnackbarData({ msg: 'Successfully signed out!', severity: 'success' });
       })
       .catch((error) => {
-        console.error('Error signing out: ' + error);
+        setSnackbarData({ msg: `Error signing out: ${error}`, severity: 'error' });
       });
 
   return (
@@ -32,7 +33,7 @@ const ProfileIcon = (): JSX.Element => {
           alt='profile'
           sx={{ cursor: 'pointer' }}
         >
-          {profile?.imgLink ? undefined : <Typography variant='h6'>{profile?.firstName[0].toUpperCase()}</Typography>}
+          {!profile?.imgLink && <Typography variant='h6'>{profile?.firstName[0].toUpperCase()}</Typography>}
         </Avatar>
 
         <Menu

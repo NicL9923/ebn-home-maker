@@ -3,7 +3,7 @@ import { Button, Dialog, DialogActions, DialogContent, DialogTitle, InputLabel, 
 import { DropzoneArea } from 'mui-file-dropzone';
 import { v4 as uuidv4 } from 'uuid';
 import { FirebaseContext } from '../../Firebase';
-import { UserContext } from 'App';
+import { AppContext, UserContext } from 'App';
 import { getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
 
 const defNewRes = {
@@ -21,6 +21,7 @@ interface AddResidenceProps {
 }
 
 const AddResidence = (props: AddResidenceProps) => {
+  const { setSnackbarData } = useContext(AppContext);
   const firebase = useContext(FirebaseContext);
   const { profile, family, getFamily } = useContext(UserContext);
   const { isOpen, setIsOpen, getResidences } = props;
@@ -52,6 +53,7 @@ const AddResidence = (props: AddResidenceProps) => {
             getFamily();
             setIsOpen(false);
             setNewResidence(defNewRes);
+            setSnackbarData({ msg: 'Successfully added residence!', severity: 'success' });
           });
       });
 

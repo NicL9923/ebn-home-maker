@@ -3,7 +3,7 @@ import { Button, Dialog, DialogActions, DialogContent, DialogTitle, InputLabel, 
 import { DropzoneArea } from 'mui-file-dropzone';
 import { v4 as uuidv4 } from 'uuid';
 import { FirebaseContext } from '../../Firebase';
-import { UserContext } from 'App';
+import { AppContext, UserContext } from 'App';
 import { getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
 
 const defNewVeh = {
@@ -26,6 +26,7 @@ interface AddVehicleProps {
 }
 
 const AddVehicle = (props: AddVehicleProps) => {
+  const { setSnackbarData } = useContext(AppContext);
   const firebase = useContext(FirebaseContext);
   const { profile, family, getFamily } = useContext(UserContext);
   const { isOpen, setIsOpen, getVehicles } = props;
@@ -52,6 +53,7 @@ const AddVehicle = (props: AddVehicleProps) => {
           getFamily();
           setIsOpen(false);
           setNewVehicle(defNewVeh);
+          setSnackbarData({ msg: 'Successfully added vehicle!', severity: 'success' });
         });
     });
 

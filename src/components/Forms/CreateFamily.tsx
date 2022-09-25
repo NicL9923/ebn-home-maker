@@ -3,7 +3,7 @@ import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Stack, TextF
 import { Family } from 'models/types';
 import { v4 as uuidv4 } from 'uuid';
 import { FirebaseContext } from '../../Firebase';
-import { UserContext } from 'App';
+import { AppContext, UserContext } from 'App';
 
 interface CreateFamilyProps {
   isOpen: boolean;
@@ -11,6 +11,7 @@ interface CreateFamilyProps {
 }
 
 const CreateFamily = (props: CreateFamilyProps) => {
+  const { setSnackbarData } = useContext(AppContext);
   const firebase = useContext(FirebaseContext);
   const { userId, getProfile, getFamily } = useContext(UserContext);
   const { isOpen, setIsOpen } = props;
@@ -33,6 +34,7 @@ const CreateFamily = (props: CreateFamilyProps) => {
 
     firebase.createFamily(newFamId, newFamObj).then(() => {
       getFamily();
+      setSnackbarData({ msg: 'Successfully created family!', severity: 'success' });
     });
 
     firebase.updateProfile(userId, { familyId: newFamId }).then(() => {
