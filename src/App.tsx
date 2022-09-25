@@ -11,17 +11,22 @@ import Navbar from './components/Navbar';
 import JoinFamily from './pages/JoinFamily';
 import NotLoggedIn from './components/NotLoggedIn';
 import { FirebaseContext } from './Firebase';
-import { Box, CircularProgress } from '@mui/material';
-import { Family, UserContextValue, UserProfile } from 'models/types';
+import { Alert, Box, CircularProgress, Snackbar } from '@mui/material';
+import { AppContextValue, Family, SnackbarData, UserContextValue, UserProfile } from 'models/types';
 import GroceryList from 'pages/GroceryList';
 
+export const AppContext = React.createContext({} as AppContextValue);
 export const UserContext = React.createContext({} as UserContextValue);
 
 const App = (): JSX.Element => {
   const firebase = useContext(FirebaseContext);
+
+  const [snackbarData, setSnackbarData] = useState<SnackbarData | undefined>(undefined);
+
   const [userId, setUserId] = useState<string | undefined>(undefined);
   const [profile, setProfile] = useState<UserProfile | undefined>(undefined);
   const [family, setFamily] = useState<Family | undefined>(undefined);
+
   const [isFetchingUser, setIsFetchingUser] = useState(true);
   const [isFetchingProfile, setIsFetchingProfile] = useState(true);
   const [isFetchingFamily, setIsFetchingFamily] = useState(true);
@@ -62,51 +67,59 @@ const App = (): JSX.Element => {
   useEffect(getFamily, [profile]);
 
   return (
-    <UserContext.Provider
-      value={{
-        userId,
-        profile,
-        family,
-        isFetchingProfile,
-        isFetchingFamily,
-        getProfile,
-        getFamily,
-        setFamily,
-      }}
-    >
-      {isFetchingUser || isFetchingProfile || isFetchingFamily ? (
-        <Box mx='auto' textAlign='center' mt={20}>
-          <CircularProgress size={80} />
-        </Box>
-      ) : userId ? (
-        <Router>
-          <Navbar />
-          <Routes>
-            {profile && (
-              <>
-                <Route path='/profile' element={<Profile />} />
-                <Route path='/joinFamily/:familyId' element={<JoinFamily />} />
-              </>
-            )}
+    <AppContext.Provider value={{ setSnackbarData }}>
+      <UserContext.Provider
+        value={{
+          userId,
+          profile,
+          family,
+          isFetchingProfile,
+          isFetchingFamily,
+          getProfile,
+          getFamily,
+          setFamily,
+        }}
+      >
+        {isFetchingUser || isFetchingProfile || isFetchingFamily ? (
+          <Box mx='auto' textAlign='center' mt={20}>
+            <CircularProgress size={80} />
+          </Box>
+        ) : userId ? (
+          <Router>
+            <Navbar />
+            <Routes>
+              {profile && (
+                <>
+                  <Route path='/profile' element={<Profile />} />
+                  <Route path='/joinFamily/:familyId' element={<JoinFamily />} />
+                </>
+              )}
 
-            {family && (
-              <>
-                <Route path='/finances' element={<Finances />} />
-                <Route path='/smarthome' element={<SmartHome />} />
-                <Route path='/info' element={<Information />} />
-                <Route path='/maintenance' element={<Maintenance />} />
-                <Route path='/grocerylist' element={<GroceryList />} />
-              </>
-            )}
+              {family && (
+                <>
+                  <Route path='/finances' element={<Finances />} />
+                  <Route path='/smarthome' element={<SmartHome />} />
+                  <Route path='/info' element={<Information />} />
+                  <Route path='/maintenance' element={<Maintenance />} />
+                  <Route path='/grocerylist' element={<GroceryList />} />
+                </>
+              )}
 
-            <Route path='/' element={<Home />} />
-            <Route element={<Home />} />
-          </Routes>
-        </Router>
-      ) : (
-        <NotLoggedIn />
-      )}
-    </UserContext.Provider>
+              <Route path='/' element={<Home />} />
+              <Route element={<Home />} />
+            </Routes>
+          </Router>
+        ) : (
+          <NotLoggedIn />
+        )}
+
+        <Snackbar open={!!snackbarData} autoHideDuration={2000} onClose={() => setSnackbarData(undefined)}>
+          <Alert onClose={() => setSnackbarData(undefined)} severity={snackbarData?.severity} sx={{ width: '100%' }}>
+            {snackbarData?.msg}
+          </Alert>
+        </Snackbar>
+      </UserContext.Provider>
+    </AppContext.Provider>
   );
 };
 

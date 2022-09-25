@@ -35,7 +35,7 @@ export interface Family {
 
 export interface Pet {
   name: string;
-  imgLink: string;
+  imgLink?: string;
 }
 
 export interface Vehicle {
@@ -120,4 +120,13 @@ export interface BudgetContextValue {
   setCategoryName: (newName: string | undefined, curCatName: string) => void;
   addNewSubCategory: (catName: string) => void;
   removeCategory: (catName: string) => void;
+}
+
+export interface SnackbarData {
+  msg: string;
+  severity: 'error' | 'warning' | 'info' | 'success';
+}
+
+export interface AppContextValue {
+  setSnackbarData: (snackbarData: SnackbarData | undefined) => void;
 }

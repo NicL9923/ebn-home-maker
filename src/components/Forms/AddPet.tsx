@@ -1,8 +1,10 @@
 import React, { useContext, useState } from 'react';
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, InputLabel, TextField } from '@mui/material';
 import { DropzoneArea } from 'mui-file-dropzone';
-import { FirebaseContext } from 'Firebase';
+import { FirebaseContext } from '../../Firebase';
 import { UserContext } from 'App';
+import { getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
+import { v4 as uuidv4 } from 'uuid';
 
 interface AddPetProps {
   isOpen: boolean;
@@ -11,15 +13,36 @@ interface AddPetProps {
 
 const AddPet = (props: AddPetProps) => {
   const firebase = useContext(FirebaseContext);
-  const { userId, getProfile } = useContext(UserContext);
+  const { profile, family, getFamily } = useContext(UserContext);
   const { isOpen, setIsOpen } = props;
 
   const [newName, setNewName] = useState<string | undefined>(undefined);
-  const [nameError, setNameError] = useState<string | undefined>(undefined);
   const [newPhoto, setNewPhoto] = useState<File | null>(null);
 
   const addPet = () => {
-    setIsOpen(false);
+    if (!profile || !family || !newName) return;
+
+    const newPetsArr = family.pets ? [...family.pets] : [];
+
+    if (newPhoto) {
+      const storage = getStorage();
+      const imgRef = ref(storage, uuidv4());
+      uploadBytes(imgRef, newPhoto).then((snapshot) => {
+        getDownloadURL(snapshot.ref).then((url) => {
+          newPetsArr.push({ name: newName, imgLink: url });
+          firebase.updateFamily(profile.familyId, { pets: newPetsArr }).then(() => {
+            getFamily();
+            setIsOpen(false);
+          });
+        });
+      });
+    } else {
+      newPetsArr.push({ name: newName });
+      firebase.updateFamily(profile.familyId, { pets: newPetsArr }).then(() => {
+        getFamily();
+        setIsOpen(false);
+      });
+    }
   };
 
   return (
@@ -34,8 +57,6 @@ const AddPet = (props: AddPetProps) => {
           value={newName}
           onChange={(event) => setNewName(event.target.value)}
           required
-          error={!!nameError}
-          helperText={nameError}
         />
 
         <InputLabel sx={{ mt: 3 }}>Upload Photo</InputLabel>

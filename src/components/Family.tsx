@@ -10,7 +10,6 @@ import {
   DialogTitle,
   Divider,
   Paper,
-  Snackbar,
   Stack,
   Typography,
 } from '@mui/material';
@@ -19,9 +18,10 @@ import { Add, Close, ContentCopyOutlined, Edit, Logout } from '@mui/icons-materi
 import MapPicker from 'react-google-map-picker';
 import { UserProfile } from 'models/types';
 import { FirebaseContext } from '../Firebase';
-import { UserContext } from 'App';
+import { AppContext, UserContext } from 'App';
 import copy from 'clipboard-copy';
 import NoFamily from './NoFamily';
+import AddPet from './Forms/AddPet';
 
 const obtainGmapsApiKeyText = `Obtain and input a Google Maps API key if you would like
 to use the built-in location picker, otherwise manually find/input
@@ -36,11 +36,12 @@ interface FamilyProps {
 }
 
 const Family = ({ mergeProfileProperty }: FamilyProps) => {
+  const { setSnackbarData } = useContext(AppContext);
   const firebase = useContext(FirebaseContext);
   const { userId, profile, family, getFamily } = useContext(UserContext);
 
   const [familyMemberProfiles, setFamilyMemberProfiles] = useState<UserProfile[]>([]);
-  const [copiedInviteLink, setCopiedInviteLink] = useState(false);
+  const [addingPet, setAddingPet] = useState(false);
   const [deletingFamily, setDeletingFamily] = useState(false);
   const [leavingFamily, setLeavingFamily] = useState(false);
 
@@ -142,8 +143,9 @@ const Family = ({ mergeProfileProperty }: FamilyProps) => {
   const copyInviteLink = () => {
     if (!profile) return;
 
-    copy(`https://our-home-239c1.firebaseapp.com/joinFamily/${profile.familyId}`);
-    setCopiedInviteLink(true);
+    copy(`https://our-home-239c1.firebaseapp.com/joinFamily/${profile.familyId}`).then(() => {
+      setSnackbarData({ msg: 'Copied invite link', severity: 'info' });
+    });
   };
 
   const exportFamilyDataJSON = () => {
@@ -215,7 +217,7 @@ const Family = ({ mergeProfileProperty }: FamilyProps) => {
                   {!prof.imgLink && prof.firstName[0].toUpperCase()}
                 </Avatar>
                 {userId === family.headOfFamily && (
-                  <Button variant='outlined' startIcon={<Close />}>
+                  <Button variant='outlined' startIcon={<Close />} sx={{ mt: 2 }}>
                     Remove
                   </Button>
                 )}
@@ -227,12 +229,6 @@ const Family = ({ mergeProfileProperty }: FamilyProps) => {
             <Button variant='contained' startIcon={<ContentCopyOutlined />} onClick={copyInviteLink}>
               Copy family invite link
             </Button>
-            <Snackbar
-              open={copiedInviteLink}
-              autoHideDuration={2000}
-              onClose={() => setCopiedInviteLink(false)}
-              message='Copied invite link'
-            />
           </Box>
         )}
       </Box>
@@ -261,7 +257,7 @@ const Family = ({ mergeProfileProperty }: FamilyProps) => {
             ))}
         </Stack>
         {userId === family.headOfFamily && (
-          <Button variant='contained' startIcon={<Add />}>
+          <Button variant='contained' startIcon={<Add />} onClick={() => setAddingPet(true)}>
             Add a pet
           </Button>
         )}
@@ -383,6 +379,8 @@ const Family = ({ mergeProfileProperty }: FamilyProps) => {
           </Button>
         </DialogActions>
       </Dialog>
+
+      <AddPet isOpen={addingPet} setIsOpen={setAddingPet} />
     </Paper>
   );
 };

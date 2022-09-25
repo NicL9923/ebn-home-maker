@@ -51,12 +51,14 @@ const CreateProfile = (props: CreateProfileProps) => {
             })
             .then(() => {
               getProfile();
+              setIsOpen(false);
             });
         });
       });
     } else {
       firebase.createProfile(userId, newProfileObj).then(() => {
         getProfile();
+        setIsOpen(false);
       });
     }
   };
