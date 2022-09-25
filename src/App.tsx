@@ -31,11 +31,6 @@ const App = (): JSX.Element => {
   const [isFetchingProfile, setIsFetchingProfile] = useState(true);
   const [isFetchingFamily, setIsFetchingFamily] = useState(true);
 
-  onAuthStateChanged(firebase.auth, (user) => {
-    setUserId(user ? user.uid : undefined);
-    setIsFetchingUser(false);
-  });
-
   const getProfile = () => {
     if (userId) {
       setIsFetchingProfile(true);
@@ -65,6 +60,15 @@ const App = (): JSX.Element => {
   useEffect(getProfile, [userId]);
 
   useEffect(getFamily, [profile]);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(firebase.auth, (user) => {
+      setUserId(user ? user.uid : undefined);
+      setIsFetchingUser(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   return (
     <AppContext.Provider value={{ setSnackbarData }}>

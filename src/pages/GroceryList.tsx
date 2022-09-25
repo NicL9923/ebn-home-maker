@@ -1,4 +1,4 @@
-import React, { useContext, useMemo, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
 import NoFamily from 'components/NoFamily';
 import { DocTypes, FirebaseContext } from '../Firebase';
 import { AppContext, UserContext } from 'App';
@@ -22,14 +22,6 @@ const GroceryList = () => {
   if (!family) {
     return <NoFamily />;
   }
-
-  onSnapshot(doc(firebase.db, DocTypes.family, profile.familyId), (doc) => {
-    const updFam = doc.data() as Family;
-
-    if (updFam) {
-      setFamily(updFam);
-    }
-  });
 
   const addGroceryItem = (newItemName?: string) => {
     if (!newItemName) return;
@@ -77,6 +69,18 @@ const GroceryList = () => {
     () => family.groceryList.length > 0 && family.groceryList.some((item) => item.isBought),
     [family.groceryList]
   );
+
+  useEffect(() => {
+    const unsubscribe = onSnapshot(doc(firebase.db, DocTypes.family, profile.familyId), (doc) => {
+      const updFam = doc.data() as Family;
+
+      if (updFam) {
+        setFamily(updFam);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   return (
     <Box maxWidth='md' mx='auto' mt={2}>
