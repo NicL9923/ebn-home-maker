@@ -237,7 +237,7 @@ const Family = ({ mergeProfileProperty }: FamilyProps) => {
 
       <Box mb={4}>
         <Typography variant='h5'>Members</Typography>
-        <Stack direction='row' mb={3}>
+        <Stack direction='row' mb={3} flexWrap='wrap' spacing={1}>
           {familyMemberProfiles &&
             familyMemberProfiles.map((prof: UserProfile, idx: number) => (
               <Stack key={prof.firstName} alignItems='center' justifyContent='center'>
@@ -270,7 +270,7 @@ const Family = ({ mergeProfileProperty }: FamilyProps) => {
 
       <Box>
         <Typography variant='h5'>Pets</Typography>
-        <Stack direction='row' mb={3}>
+        <Stack direction='row' mb={3} flexWrap='wrap' spacing={1}>
           {family.pets &&
             family.pets.map((pet: Pet, idx: number) => (
               <Stack key={pet.name} alignItems='center' justifyContent='center'>
