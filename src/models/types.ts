@@ -18,9 +18,14 @@ export interface UserProfile {
   imgLink?: string;
 }
 
+export interface LocationAsStr {
+  lat: string;
+  long: string;
+}
+
 export interface Family {
   headOfFamily: string;
-  location?: { lat: string; long: string };
+  location?: LocationAsStr;
   budgetId?: string;
   members: string[];
   name: string;

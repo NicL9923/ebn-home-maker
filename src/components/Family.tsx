@@ -15,7 +15,6 @@ import {
 } from '@mui/material';
 import EditableLabel from './Inputs/EditableLabel';
 import { Add, Close, ContentCopyOutlined, Logout } from '@mui/icons-material';
-import MapPicker from 'react-google-map-picker';
 import { UserProfile, Pet } from 'models/types';
 import { FirebaseContext } from '../Firebase';
 import { AppContext, UserContext } from 'App';
@@ -24,9 +23,9 @@ import NoFamily from './NoFamily';
 import AddPet from './Forms/AddPet';
 import { deleteObject, getStorage, ref } from 'firebase/storage';
 
-const obtainGmapsApiKeyText = `Obtain and input a Google Maps API key if you would like
+/*const obtainGmapsApiKeyText = `Obtain and input a Google Maps API key if you would like
 to use the built-in location picker, otherwise manually find/input
-your location's coordinates`;
+your location's coordinates`;*/
 
 const obtainOwmApiKeyText = `Obtain and input an OpenWeatherMap 'Current Weather' API key,
 and set your family's location below, if you would like to see
@@ -72,11 +71,11 @@ const Family = ({ mergeProfileProperty }: FamilyProps) => {
     firebase.updateFamily(profile.familyId, { name: newFamName }).then(getFamily);
   };
 
-  const updateGmapsApiKey = (newApiKey?: string) => {
+  /*const updateGmapsApiKey = (newApiKey?: string) => {
     if (!profile || !newApiKey) return;
 
     firebase.updateFamily(profile.familyId, { gmaps_api_key: newApiKey }).then(getFamily);
-  };
+  };*/
 
   const updateOwmApiKey = (newApiKey?: string) => {
     if (!profile || !newApiKey) return;
@@ -306,7 +305,7 @@ const Family = ({ mergeProfileProperty }: FamilyProps) => {
             Weather Applet Information
           </Typography>
 
-          <Stack mt={1} mb={2}>
+          {/*<Stack mt={1} mb={2}>
             <Typography variant='h6'>Google Maps API Key</Typography>
 
             <EditableLabel
@@ -316,7 +315,7 @@ const Family = ({ mergeProfileProperty }: FamilyProps) => {
               fieldType='ApiToken'
               onSubmitValue={updateGmapsApiKey}
             />
-          </Stack>
+          </Stack>*/}
 
           <Box mb={2}>
             <Typography variant='h6'>OpenWeatherMap API Key</Typography>
@@ -354,17 +353,16 @@ const Family = ({ mergeProfileProperty }: FamilyProps) => {
                   />
                 </Box>
 
-                {family.gmaps_api_key && (
+                {/*family.gmaps_api_key && (
                   <MapPicker
-                    defaultLocation={{
-                      lat: parseFloat(family.location.lat),
-                      lng: parseFloat(family.location.long),
-                    }}
-                    style={{ height: 500, width: 750 }}
-                    onChangeLocation={(newLat, newLong) => updateFamilyLocation(`${newLat}`, `${newLong}`)}
-                    apiKey={family.gmaps_api_key}
+                    googleMapURL={`https://maps.googleapis.com/maps/api/js?key=${family.gmaps_api_key}&v=3.exp&libraries=geometry,drawing,places`}
+                    loadingElement={<div style={{ height: `100%` }} />}
+                    containerElement={<div style={{ height: 500 }} />}
+                    mapElement={<div style={{ height: `100%` }} />}
+                    familyLocation={family.location}
+                    updateFamilyLocation={updateFamilyLocation}
                   />
-                )}
+                )*/}
               </Box>
             )}
           </Box>
