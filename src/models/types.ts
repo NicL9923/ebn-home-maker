@@ -2,6 +2,7 @@ export type GenericObject<T = any> = { [key: string]: T };
 
 export interface UserContextValue {
   userId?: string;
+  userEmail?: string;
   profile?: UserProfile;
   family?: Family;
   isFetchingProfile: boolean;
@@ -16,6 +17,7 @@ export interface UserProfile {
   familyId: string;
   firstName: string;
   imgLink?: string;
+  theme?: 'light' | 'dark';
 }
 
 export interface LocationAsStr {

@@ -1,16 +1,18 @@
 import React, { useContext } from 'react';
-import { Container, Paper, Stack, Typography } from '@mui/material';
-import { UserContext } from '../App';
+import { Button, Container, FormControlLabel, Paper, Stack, Switch, Typography } from '@mui/material';
+import { AppContext, UserContext } from '../App';
 import { FirebaseContext } from '../Firebase';
 import NoProfile from 'components/NoProfile';
 import { UserProfile } from 'models/types';
 import Family from 'components/Family';
 import EditableLabel from 'components/Inputs/EditableLabel';
 import EditableImage from 'components/Inputs/EditableImage';
+import { sendPasswordResetEmail } from 'firebase/auth';
 
 const Profile = () => {
   const firebase = useContext(FirebaseContext);
-  const { userId, profile, getProfile } = useContext(UserContext);
+  const { userId, userEmail, profile, getProfile } = useContext(UserContext);
+  const { setSnackbarData } = useContext(AppContext);
 
   const mergeProfileProperty = (profObjToMerge: Partial<UserProfile>, profileId = userId, refreshProfile = true) => {
     if (!profileId) return;
@@ -28,6 +30,25 @@ const Profile = () => {
 
   const updateProfileImgLink = (newImgLink: string) => {
     mergeProfileProperty({ imgLink: newImgLink });
+  };
+
+  const updateProfileTheme = (isChecked: boolean) => {
+    mergeProfileProperty({ theme: isChecked ? 'light' : 'dark' });
+  };
+
+  const handlePasswordReset = () => {
+    if (!userEmail) {
+      alert('There is no email tied to this account!');
+      return;
+    }
+
+    sendPasswordResetEmail(firebase.auth, userEmail)
+      .then(() => {
+        setSnackbarData({ msg: `Password reset email sent to ${userEmail}`, severity: 'info' });
+      })
+      .catch((error) => {
+        setSnackbarData({ msg: `Error sending password reset email: ${error.message}`, severity: 'error' });
+      });
   };
 
   return (
@@ -54,6 +75,23 @@ const Profile = () => {
               fieldType='EntityName'
               onSubmitValue={updateProfileName}
             />
+
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={profile.theme && profile.theme === 'light'}
+                  onChange={(_e, checked) => updateProfileTheme(checked)}
+                />
+              }
+              label={profile.theme && profile.theme === 'light' ? 'Light mode' : 'Dark mode'}
+              sx={{ mt: 2 }}
+            />
+
+            <Stack direction='row' justifyContent='space-evenly' sx={{ mt: 3 }}>
+              <Button variant='outlined' onClick={handlePasswordReset}>
+                Reset password (email)
+              </Button>
+            </Stack>
           </Stack>
         </Paper>
       )}

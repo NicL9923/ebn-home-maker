@@ -34,6 +34,7 @@ const App = (): JSX.Element => {
   const [snackbarData, setSnackbarData] = useState<SnackbarData | undefined>(undefined);
 
   const [userId, setUserId] = useState<string | undefined>(undefined);
+  const [userEmail, setUserEmail] = useState<string | undefined>(undefined);
   const [profile, setProfile] = useState<UserProfile | undefined>(undefined);
   const [family, setFamily] = useState<Family | undefined>(undefined);
 
@@ -45,7 +46,7 @@ const App = (): JSX.Element => {
     () =>
       createTheme({
         palette: {
-          mode: prefersDarkMode ? 'dark' : 'light',
+          mode: profile?.theme ? profile.theme : prefersDarkMode ? 'dark' : 'light',
           primary: {
             main: '#1b5e20',
           },
@@ -54,7 +55,7 @@ const App = (): JSX.Element => {
           },
         },
       }),
-    [prefersDarkMode]
+    [prefersDarkMode, profile?.theme]
   );
 
   const getProfile = () => {
@@ -89,7 +90,8 @@ const App = (): JSX.Element => {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(firebase.auth, (user) => {
-      setUserId(user ? user.uid : undefined);
+      setUserId(user?.uid);
+      setUserEmail(user?.email ? user.email : undefined);
       setIsFetchingUser(false);
     });
 
@@ -103,6 +105,7 @@ const App = (): JSX.Element => {
         <UserContext.Provider
           value={{
             userId,
+            userEmail,
             profile,
             family,
             isFetchingProfile,
