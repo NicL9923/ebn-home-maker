@@ -382,7 +382,7 @@ const Budget = (props: BudgetProps): JSX.Element => {
 
       <Box>
         <Paper sx={{ p: 1 }}>
-          <Box sx={{ position: 'sticky', top: 60, backgroundColor: '#fbfbfb', zIndex: 1000 }}>
+          <Box sx={{ position: 'sticky', top: 60, backgroundColor: theme.palette.primary.light, zIndex: 1000 }}>
             <Grid container alignItems='center' sx={{ p: 1 }}>
               <Grid item xs={6}>
                 <Stack direction='row' alignItems='center'>
