@@ -11,7 +11,16 @@ import Navbar from './components/Navbar';
 import JoinFamily from './pages/JoinFamily';
 import NotLoggedIn from './components/NotLoggedIn';
 import { FirebaseContext } from './Firebase';
-import { Alert, Box, CircularProgress, Snackbar } from '@mui/material';
+import {
+  Alert,
+  Box,
+  CircularProgress,
+  createTheme,
+  CssBaseline,
+  Snackbar,
+  ThemeProvider,
+  useMediaQuery,
+} from '@mui/material';
 import { AppContextValue, Family, SnackbarData, UserContextValue, UserProfile } from 'models/types';
 import GroceryList from 'pages/GroceryList';
 
@@ -19,6 +28,7 @@ export const AppContext = React.createContext({} as AppContextValue);
 export const UserContext = React.createContext({} as UserContextValue);
 
 const App = (): JSX.Element => {
+  const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
   const firebase = useContext(FirebaseContext);
 
   const [snackbarData, setSnackbarData] = useState<SnackbarData | undefined>(undefined);
@@ -30,6 +40,22 @@ const App = (): JSX.Element => {
   const [isFetchingUser, setIsFetchingUser] = useState(true);
   const [isFetchingProfile, setIsFetchingProfile] = useState(true);
   const [isFetchingFamily, setIsFetchingFamily] = useState(true);
+
+  const theme = React.useMemo(
+    () =>
+      createTheme({
+        palette: {
+          mode: prefersDarkMode ? 'dark' : 'light',
+          primary: {
+            main: '#1b5e20',
+          },
+          secondary: {
+            main: '#43a047',
+          },
+        },
+      }),
+    [prefersDarkMode]
+  );
 
   const getProfile = () => {
     if (userId) {
@@ -71,59 +97,62 @@ const App = (): JSX.Element => {
   }, []);
 
   return (
-    <AppContext.Provider value={{ setSnackbarData }}>
-      <UserContext.Provider
-        value={{
-          userId,
-          profile,
-          family,
-          isFetchingProfile,
-          isFetchingFamily,
-          getProfile,
-          getFamily,
-          setFamily,
-        }}
-      >
-        {isFetchingUser || isFetchingProfile || isFetchingFamily ? (
-          <Box mx='auto' textAlign='center' mt={20}>
-            <CircularProgress size={80} />
-          </Box>
-        ) : userId ? (
-          <Router>
-            <Navbar />
-            <Routes>
-              {profile && (
-                <>
-                  <Route path='/profile' element={<Profile />} />
-                  <Route path='/joinFamily/:familyId' element={<JoinFamily />} />
-                </>
-              )}
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <AppContext.Provider value={{ setSnackbarData }}>
+        <UserContext.Provider
+          value={{
+            userId,
+            profile,
+            family,
+            isFetchingProfile,
+            isFetchingFamily,
+            getProfile,
+            getFamily,
+            setFamily,
+          }}
+        >
+          {isFetchingUser || isFetchingProfile || isFetchingFamily ? (
+            <Box mx='auto' textAlign='center' mt={20}>
+              <CircularProgress size={80} />
+            </Box>
+          ) : userId ? (
+            <Router>
+              <Navbar />
+              <Routes>
+                {profile && (
+                  <>
+                    <Route path='/profile' element={<Profile />} />
+                    <Route path='/joinFamily/:familyId' element={<JoinFamily />} />
+                  </>
+                )}
 
-              {family && (
-                <>
-                  <Route path='/finances' element={<Finances />} />
-                  <Route path='/smarthome' element={<SmartHome />} />
-                  <Route path='/info' element={<Information />} />
-                  <Route path='/maintenance' element={<Maintenance />} />
-                  <Route path='/grocerylist' element={<GroceryList />} />
-                </>
-              )}
+                {family && (
+                  <>
+                    <Route path='/finances' element={<Finances />} />
+                    <Route path='/smarthome' element={<SmartHome />} />
+                    <Route path='/info' element={<Information />} />
+                    <Route path='/maintenance' element={<Maintenance />} />
+                    <Route path='/grocerylist' element={<GroceryList />} />
+                  </>
+                )}
 
-              <Route path='/' element={<Home />} />
-              <Route element={<Home />} />
-            </Routes>
-          </Router>
-        ) : (
-          <NotLoggedIn />
-        )}
+                <Route path='/' element={<Home />} />
+                <Route element={<Home />} />
+              </Routes>
+            </Router>
+          ) : (
+            <NotLoggedIn />
+          )}
 
-        <Snackbar open={!!snackbarData} autoHideDuration={2000} onClose={() => setSnackbarData(undefined)}>
-          <Alert onClose={() => setSnackbarData(undefined)} severity={snackbarData?.severity} sx={{ width: '100%' }}>
-            {snackbarData?.msg}
-          </Alert>
-        </Snackbar>
-      </UserContext.Provider>
-    </AppContext.Provider>
+          <Snackbar open={!!snackbarData} autoHideDuration={2000} onClose={() => setSnackbarData(undefined)}>
+            <Alert onClose={() => setSnackbarData(undefined)} severity={snackbarData?.severity} sx={{ width: '100%' }}>
+              {snackbarData?.msg}
+            </Alert>
+          </Snackbar>
+        </UserContext.Provider>
+      </AppContext.Provider>
+    </ThemeProvider>
   );
 };
 
