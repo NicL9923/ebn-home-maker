@@ -8,18 +8,36 @@ import {
 } from 'firebase/auth';
 import { Google } from '@mui/icons-material';
 import { FirebaseContext } from '../Firebase';
+import { AppContext } from 'App';
 
 const NotLoggedIn = (): JSX.Element => {
   const { auth } = useContext(FirebaseContext);
+  const { setSnackbarData } = useContext(AppContext);
   const provider = new GoogleAuthProvider();
 
   const [email, setEmail] = useState<string | undefined>(undefined);
   const [password, setPassword] = useState<string | undefined>(undefined);
 
-  const googleSignIn = () => signInWithRedirect(auth, provider);
+  const googleSignIn = () =>
+    signInWithRedirect(auth, provider)
+      .then(() => {
+        setSnackbarData({ msg: 'Successfully signed in with Google!', severity: 'success' });
+      })
+      .catch((error) => {
+        setSnackbarData({ msg: `Error signing in with Google: ${error.message}`, severity: 'error' });
+        console.log(error);
+      });
 
   const emailPassSignIn = () => {
-    if (email && password) signInWithEmailAndPassword(auth, email, password);
+    if (email && password)
+      signInWithEmailAndPassword(auth, email, password)
+        .then(() => {
+          setSnackbarData({ msg: 'Successfully signed in with email/password!', severity: 'success' });
+        })
+        .catch((error) => {
+          setSnackbarData({ msg: `Error signing in with email/password: ${error.message}`, severity: 'error' });
+          console.log(error);
+        });
   };
 
   const createEmailPassAccount = () => {
@@ -28,9 +46,11 @@ const NotLoggedIn = (): JSX.Element => {
     createUserWithEmailAndPassword(auth, email, password)
       .then(() => {
         // Successfully created & signed in
+        setSnackbarData({ msg: 'Successfully created account!', severity: 'success' });
       })
       .catch((error) => {
         // Error creating account
+        setSnackbarData({ msg: `Error creating email/password account: ${error.message}`, severity: 'error' });
         console.error(error);
       });
   };
