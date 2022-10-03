@@ -31,23 +31,17 @@ const Navbar = (): JSX.Element => {
           <MenuIcon />
         </IconButton>
         <Menu id='menu-appbar' anchorEl={anchorEl} open={!!anchorEl} onClose={() => setAnchorEl(null)}>
-          <MenuItem onClick={() => setAnchorEl(null)} component={Link} to='/smarthome'>
+          <MenuItem onClick={() => setAnchorEl(null)} component={Link} to='/grocerylist'>
             <ListItemIcon>
-              <MemoryOutlinedIcon />
+              <ListIcon />
             </ListItemIcon>
-            <ListItemText>Smart Home</ListItemText>
+            <ListItemText>Grocery List</ListItemText>
           </MenuItem>
           <MenuItem onClick={() => setAnchorEl(null)} component={Link} to='/finances'>
             <ListItemIcon>
               <PaymentsOutlinedIcon />
             </ListItemIcon>
             <ListItemText>Finances</ListItemText>
-          </MenuItem>
-          <MenuItem onClick={() => setAnchorEl(null)} component={Link} to='/grocerylist'>
-            <ListItemIcon>
-              <ListIcon />
-            </ListItemIcon>
-            <ListItemText>Grocery List</ListItemText>
           </MenuItem>
           <MenuItem onClick={() => setAnchorEl(null)} component={Link} to='/info'>
             <ListItemIcon>
@@ -59,7 +53,13 @@ const Navbar = (): JSX.Element => {
             <ListItemIcon>
               <SettingsOutlinedIcon />
             </ListItemIcon>
-            <ListItemText>Maintenance</ListItemText>
+            <ListItemText>Home & Auto</ListItemText>
+          </MenuItem>
+          <MenuItem onClick={() => setAnchorEl(null)} component={Link} to='/smarthome'>
+            <ListItemIcon>
+              <MemoryOutlinedIcon />
+            </ListItemIcon>
+            <ListItemText>Smart Home</ListItemText>
           </MenuItem>
         </Menu>
 
