@@ -13,6 +13,7 @@ import {
 } from '@mui/material';
 import { FieldTypes, ValidationErrorMsgs } from '../../constants';
 import { Calculate } from '@mui/icons-material';
+import { evaluate, round } from 'mathjs';
 
 interface SingleFieldDialogProps {
   initialValue?: string;
@@ -82,8 +83,7 @@ const SingleFieldDialog = (props: SingleFieldDialogProps) => {
   const calculateMoneyValue = () => {
     if (!fieldValue) return;
 
-    // Thank god for the eval function - I thought I was about to have to custom-handle all math
-    validateAndSetValue(`${eval(fieldValue)}`);
+    validateAndSetValue(`${round(evaluate(fieldValue), 2)}`);
   };
 
   return (
