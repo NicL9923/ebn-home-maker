@@ -18,7 +18,7 @@ const Category = (props: CategoryProps): JSX.Element => {
   const { budget, setCategoryName, removeCategory, addNewSubCategory } = useContext(BudgetContext);
   const { idx, category, isLastCat } = props;
   const [isHovered, setIsHovered] = useState(false);
-  const [anchorEl, setAnchorEl] = useState<Element | null>(null);
+  const [anchorEl, setAnchorEl] = useState<Element | undefined>(undefined);
 
   const isCategoryNameUnique = (newCatName: string) => {
     return !budget.categories.some((cat) => cat.name === newCatName);
@@ -51,7 +51,12 @@ const Category = (props: CategoryProps): JSX.Element => {
                   >
                     <KeyboardArrowDown sx={{ fontSize: 30 }} />
                   </IconButton>
-                  <Menu id={`cat${idx}-menu`} anchorEl={anchorEl} open={!!anchorEl} onClose={() => setAnchorEl(null)}>
+                  <Menu
+                    id={`cat${idx}-menu`}
+                    anchorEl={anchorEl}
+                    open={!!anchorEl}
+                    onClose={() => setAnchorEl(undefined)}
+                  >
                     <MenuItem onClick={() => addNewSubCategory(category.name)}>Add sub-category</MenuItem>
                     <MenuItem onClick={() => removeCategory(category.name)}>Delete category</MenuItem>
                   </Menu>

@@ -9,7 +9,7 @@ const ProfileIcon = (): JSX.Element => {
   const { setSnackbarData } = useContext(AppContext);
   const { auth } = useContext(FirebaseContext);
   const { profile } = useContext(UserContext);
-  const [anchorEl, setAnchorEl] = useState<Element | null>(null);
+  const [anchorEl, setAnchorEl] = useState<Element | undefined>(undefined);
 
   const handleSignOut = () =>
     signOut(auth)
@@ -40,16 +40,16 @@ const ProfileIcon = (): JSX.Element => {
           id='profile-menu'
           anchorEl={anchorEl}
           open={!!anchorEl}
-          onClose={() => setAnchorEl(null)}
+          onClose={() => setAnchorEl(undefined)}
           MenuListProps={{ 'aria-labelledby': 'profile-button' }}
         >
-          <MenuItem onClick={() => setAnchorEl(null)} component={Link} to='/profile'>
+          <MenuItem onClick={() => setAnchorEl(undefined)} component={Link} to='/profile'>
             <ListItemText>My Profile</ListItemText>
           </MenuItem>
           <Divider />
           <MenuItem
             onClick={() => {
-              setAnchorEl(null);
+              setAnchorEl(undefined);
               handleSignOut();
             }}
           >

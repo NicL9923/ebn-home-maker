@@ -13,7 +13,7 @@ import { UserContext } from '../App';
 
 const Navbar = (): JSX.Element => {
   const { userId, profile } = useContext(UserContext);
-  const [anchorEl, setAnchorEl] = useState<Element | null>(null);
+  const [anchorEl, setAnchorEl] = useState<Element | undefined>(undefined);
 
   return (
     <AppBar position='sticky' sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
@@ -30,32 +30,32 @@ const Navbar = (): JSX.Element => {
         >
           <MenuIcon />
         </IconButton>
-        <Menu id='menu-appbar' anchorEl={anchorEl} open={!!anchorEl} onClose={() => setAnchorEl(null)}>
-          <MenuItem onClick={() => setAnchorEl(null)} component={Link} to='/grocerylist'>
+        <Menu id='menu-appbar' anchorEl={anchorEl} open={!!anchorEl} onClose={() => setAnchorEl(undefined)}>
+          <MenuItem onClick={() => setAnchorEl(undefined)} component={Link} to='/grocerylist'>
             <ListItemIcon>
               <ListIcon />
             </ListItemIcon>
             <ListItemText>Grocery List</ListItemText>
           </MenuItem>
-          <MenuItem onClick={() => setAnchorEl(null)} component={Link} to='/finances'>
+          <MenuItem onClick={() => setAnchorEl(undefined)} component={Link} to='/finances'>
             <ListItemIcon>
               <PaymentsOutlinedIcon />
             </ListItemIcon>
             <ListItemText>Finances</ListItemText>
           </MenuItem>
-          <MenuItem onClick={() => setAnchorEl(null)} component={Link} to='/info'>
+          <MenuItem onClick={() => setAnchorEl(undefined)} component={Link} to='/info'>
             <ListItemIcon>
               <EventNoteOutlinedIcon />
             </ListItemIcon>
             <ListItemText>Information</ListItemText>
           </MenuItem>
-          <MenuItem onClick={() => setAnchorEl(null)} component={Link} to='/maintenance'>
+          <MenuItem onClick={() => setAnchorEl(undefined)} component={Link} to='/maintenance'>
             <ListItemIcon>
               <SettingsOutlinedIcon />
             </ListItemIcon>
             <ListItemText>Home & Auto</ListItemText>
           </MenuItem>
-          <MenuItem onClick={() => setAnchorEl(null)} component={Link} to='/smarthome'>
+          <MenuItem onClick={() => setAnchorEl(undefined)} component={Link} to='/smarthome'>
             <ListItemIcon>
               <MemoryOutlinedIcon />
             </ListItemIcon>

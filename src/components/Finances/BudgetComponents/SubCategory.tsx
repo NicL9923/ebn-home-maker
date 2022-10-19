@@ -17,7 +17,7 @@ const SubCategory = (props: SubCategoryProps): JSX.Element => {
   const { setSubCatProperty, setCatSubcatKey, setAddingTransaction, removeSubCategory } = useContext(BudgetContext);
   const { subidx, category, subcategory } = props;
   const [isHovered, setIsHovered] = useState(false);
-  const [anchorEl, setAnchorEl] = useState<Element | null>(null);
+  const [anchorEl, setAnchorEl] = useState<Element | undefined>(undefined);
 
   // TODO: handle identically named subcat being moved to the same cat as its twin
   const isSubcategoryNameUnique = (category: BudgetCategory, newSubcatName: string) => {
@@ -65,17 +65,23 @@ const SubCategory = (props: SubCategoryProps): JSX.Element => {
                     id={`subcat${subidx}-menu`}
                     anchorEl={anchorEl}
                     open={!!anchorEl}
-                    onClose={() => setAnchorEl(null)}
+                    onClose={() => setAnchorEl(undefined)}
                   >
                     <MenuItem
                       onClick={() => {
                         setCatSubcatKey(`${category.name}${catSubcatKeySeparator}${subcategory.name}`);
                         setAddingTransaction(true);
+                        setAnchorEl(undefined);
                       }}
                     >
                       Add transaction
                     </MenuItem>
-                    <MenuItem onClick={() => removeSubCategory(category.name, subcategory.name)}>
+                    <MenuItem
+                      onClick={() => {
+                        removeSubCategory(category.name, subcategory.name);
+                        setAnchorEl(undefined);
+                      }}
+                    >
                       Delete subcategory
                     </MenuItem>
                   </Menu>
