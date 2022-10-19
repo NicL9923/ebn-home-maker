@@ -201,7 +201,7 @@ const WeatherBox = (): JSX.Element => {
                 alignItems='center'
                 justifyContent='space-evenly'
                 textAlign='center'
-                width='95vw'
+                width={{ xs: '95vw', sm: '60vw', md: '35vw', lg: '25vw' }}
                 key={rpt.hour}
               >
                 <Typography variant='subtitle1'>
@@ -252,7 +252,7 @@ const WeatherBox = (): JSX.Element => {
                 alignItems='center'
                 justifyContent='space-evenly'
                 textAlign='center'
-                width='95vw'
+                width={{ xs: '95vw', sm: '60vw', md: '35vw', lg: '25vw' }}
                 key={rpt.day}
               >
                 <Typography variant='h6'>{rpt.day}</Typography>

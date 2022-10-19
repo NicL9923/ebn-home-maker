@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Button,
   Dialog,
@@ -40,7 +40,7 @@ const SingleFieldDialog = (props: SingleFieldDialogProps) => {
     titleVerb = 'Edit',
   } = props;
   const [valErr, setValErr] = useState<string | undefined>(undefined);
-  const [fieldValue, setFieldValue] = useState<string | undefined>(initialValue);
+  const [fieldValue, setFieldValue] = useState<string>(initialValue ?? '');
 
   if (fieldType === 'ItemName' && !isValUnique) {
     console.error('Field is of type ItemName, but no function was provided to validate uniqueness.');
@@ -48,7 +48,7 @@ const SingleFieldDialog = (props: SingleFieldDialogProps) => {
   }
 
   const validateAndSetValue = (newValue?: string) => {
-    setFieldValue(newValue);
+    setFieldValue(newValue ?? '');
 
     // Check empty/undefined
     if (!newValue) {
@@ -76,7 +76,6 @@ const SingleFieldDialog = (props: SingleFieldDialogProps) => {
       onSubmitValue(fieldValue);
     }
 
-    setFieldValue(initialValue);
     onClosed();
   };
 
@@ -85,6 +84,10 @@ const SingleFieldDialog = (props: SingleFieldDialogProps) => {
 
     validateAndSetValue(`${round(evaluate(fieldValue), 2)}`);
   };
+
+  useEffect(() => {
+    setFieldValue(initialValue ?? '');
+  }, [initialValue]);
 
   return (
     <Dialog open={isOpen} onClose={onClosed} fullWidth style={{ marginBottom: '35vh' }}>
