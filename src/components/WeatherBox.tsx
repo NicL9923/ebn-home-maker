@@ -201,7 +201,7 @@ const WeatherBox = (): JSX.Element => {
                 alignItems='center'
                 justifyContent='space-evenly'
                 textAlign='center'
-                width={450}
+                width='95vw'
                 key={rpt.hour}
               >
                 <Typography variant='subtitle1'>
@@ -243,7 +243,7 @@ const WeatherBox = (): JSX.Element => {
     });
 
     return (
-      <Stack spacing={2} mt={2}>
+      <Stack spacing={2} m={2}>
         {parsedDailyReports.map((rpt) => {
           return (
             <Paper key={rpt.day}>
@@ -252,7 +252,7 @@ const WeatherBox = (): JSX.Element => {
                 alignItems='center'
                 justifyContent='space-evenly'
                 textAlign='center'
-                width={450}
+                width='95vw'
                 key={rpt.day}
               >
                 <Typography variant='h6'>{rpt.day}</Typography>
