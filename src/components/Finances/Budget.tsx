@@ -306,7 +306,7 @@ const Budget = (props: BudgetProps): JSX.Element => {
   };
 
   const formatChartData = (budgetCats: BudgetCategory[]) => {
-    const formattedDataArr: any[][] = [['Category', 'Percent']];
+    const formattedDataArr: (string | number)[][] = [['Category', 'Percent']];
 
     budgetCats.forEach((cat) => {
       if (cat.totalAllotted && budget.totalAllotted) {

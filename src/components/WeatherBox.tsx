@@ -30,16 +30,23 @@ import {
 } from 'react-icons/wi';
 import { UserContext } from 'providers/AppProvider';
 import { FirebaseContext } from 'providers/FirebaseProvider';
-
-// TODO: Make types for retrieved weather data
+import {
+  ICurrentWeatherResponse,
+  IDailyWeatherResponse,
+  IHourlyWeatherResponse,
+  IParsedCurrentWeather,
+  IParsedDailyWeather,
+  IParsedHourlyWeather,
+  IWeatherAlertResponse,
+} from 'models/weatherTypes';
 
 const WeatherBox = (): JSX.Element => {
   const firebase = useContext(FirebaseContext);
   const { profile, family, getFamily } = useContext(UserContext);
-  const [currentWeather, setCurrentWeather] = useState<any>(null);
-  const [weatherAlerts, setWeatherAlerts] = useState<any>(null);
-  const [hourlyWeather, setHourlyWeather] = useState<any>(null);
-  const [dailyWeather, setDailyWeather] = useState<any>(null);
+  const [currentWeather, setCurrentWeather] = useState<IParsedCurrentWeather | undefined>(undefined);
+  const [hourlyWeather, setHourlyWeather] = useState<IParsedHourlyWeather[] | undefined>(undefined);
+  const [dailyWeather, setDailyWeather] = useState<IParsedDailyWeather[] | undefined>(undefined);
+  const [weatherAlerts, setWeatherAlerts] = useState<IWeatherAlertResponse[] | undefined>(undefined);
   const [shownWeather, setShownWeather] = useState(0);
   const [isFetchingWeather, setIsFetchingWeather] = useState(true);
 
@@ -56,20 +63,50 @@ const WeatherBox = (): JSX.Element => {
       .get(url)
       .then((resp) => {
         setIsFetchingWeather(false);
+
         if (resp.data) {
-          // Get current
-          setCurrentWeather(resp.data.current);
+          // Get current weather
+          const currentWeatherResponse = resp.data.current as ICurrentWeatherResponse;
+          const newCurrentWeather: IParsedCurrentWeather = {
+            condition: currentWeatherResponse.weather[0].main,
+            iconCode: currentWeatherResponse.weather[0].id,
+            temp: Math.trunc(currentWeatherResponse.temp),
+            feelsLike: Math.trunc(currentWeatherResponse.feels_like),
+            humidity: currentWeatherResponse.humidity,
+            wind: Math.trunc(currentWeatherResponse.wind_speed),
+          };
+          setCurrentWeather(newCurrentWeather);
 
           // Get alerts (if any)
           if (resp.data.alerts) {
-            setWeatherAlerts(resp.data.alerts);
+            setWeatherAlerts(resp.data.alerts as IWeatherAlertResponse[]);
           }
 
           // Get next 12 hours
-          setHourlyWeather(resp.data.hourly.slice(1, 13));
+          const newHourlyWeather: IParsedHourlyWeather[] = (resp.data.hourly as IHourlyWeatherResponse[])
+            .slice(1, 13)
+            .map((hour) => ({
+              hour: new Date(1000 * hour.dt).getHours(),
+              iconCode: hour.weather[0].id,
+              condition: hour.weather[0].main,
+              temp: Math.trunc(hour.temp),
+              feelsLike: Math.trunc(hour.feels_like),
+              rainChance: hour.pop,
+              humidity: hour.humidity,
+            }));
+          setHourlyWeather(newHourlyWeather);
 
           // Get next 5 days
-          setDailyWeather(resp.data.daily.slice(1, 6));
+          const newDailyWeather: IParsedDailyWeather[] = (resp.data.daily as IDailyWeatherResponse[])
+            .slice(1, 6)
+            .map((day) => ({
+              day: getDayOfWeek(new Date(1000 * day.dt).getDay()),
+              iconCode: day.weather[0].id,
+              condition: day.weather[0].main,
+              tempHigh: Math.trunc(day.temp.max),
+              tempLow: Math.trunc(day.temp.min),
+            }));
+          setDailyWeather(newDailyWeather);
         } else {
           console.error('Error: weather data missing');
         }
@@ -85,7 +122,9 @@ const WeatherBox = (): JSX.Element => {
     if (dayNum >= 0 && dayNum <= 6) {
       return daysOfWeek[dayNum];
     } else {
-      console.error('ERROR: Incorrect day of week');
+      const errStr = 'ERROR: Incorrect day of week';
+      console.error(errStr);
+      return errStr;
     }
   };
 
@@ -110,15 +149,6 @@ const WeatherBox = (): JSX.Element => {
   const parseCurrentWeather = () => {
     if (!currentWeather) return;
 
-    const curWeatherInfo = {
-      condition: currentWeather.weather[0].main,
-      iconCode: currentWeather.weather[0].id,
-      temp: Math.trunc(currentWeather.temp),
-      feelsLike: Math.trunc(currentWeather.feels_like),
-      humidity: currentWeather.humidity,
-      wind: Math.trunc(currentWeather.wind_speed),
-    };
-
     return (
       <Paper>
         <Stack
@@ -132,12 +162,12 @@ const WeatherBox = (): JSX.Element => {
           pt={2}
           pb={2}
         >
-          <Typography variant='h4'>{curWeatherInfo.condition}</Typography>
-          {getWeatherIcon(curWeatherInfo.iconCode, 108)}
-          <Typography variant='h4'>{curWeatherInfo.temp}°F</Typography>
-          <Typography variant='h6'>Feels like {curWeatherInfo.feelsLike}°</Typography>
-          <Typography variant='body1'>Humidity: {curWeatherInfo.humidity}%</Typography>
-          <Typography variant='body1'>Wind: {curWeatherInfo.wind}mph</Typography>
+          <Typography variant='h4'>{currentWeather.condition}</Typography>
+          {getWeatherIcon(currentWeather.iconCode, 108)}
+          <Typography variant='h4'>{currentWeather.temp}°F</Typography>
+          <Typography variant='h6'>Feels like {currentWeather.feelsLike}°</Typography>
+          <Typography variant='body1'>Humidity: {currentWeather.humidity}%</Typography>
+          <Typography variant='body1'>Wind: {currentWeather.wind}mph</Typography>
         </Stack>
       </Paper>
     );
@@ -146,25 +176,13 @@ const WeatherBox = (): JSX.Element => {
   const parseWeatherAlerts = () => {
     if (!weatherAlerts) return;
 
-    const parsedAlerts: any[] = [];
-
-    weatherAlerts.forEach((alert: any) => {
-      parsedAlerts.push({
-        event: alert.event,
-        reporter: alert.sender_name,
-        description: alert.description,
-      });
-    });
-
-    if (!parsedAlerts) return;
-
     return (
       <Stack direction='column' alignContent='center' mb={4} mt={2}>
-        {parsedAlerts.map((alert) => {
+        {weatherAlerts.map((alert) => {
           return (
             <Alert severity='error' key={alert.event}>
               <AlertTitle>{alert.event}</AlertTitle>
-              <h5>{alert.reporter}</h5>
+              <h5>{alert.sender_name}</h5>
               <p>{alert.description}</p>
             </Alert>
           );
@@ -176,23 +194,9 @@ const WeatherBox = (): JSX.Element => {
   const parseHourlyWeather = () => {
     if (!hourlyWeather) return;
 
-    const parsedHourlyReports: any[] = [];
-
-    hourlyWeather.forEach((hour: any) => {
-      parsedHourlyReports.push({
-        hour: new Date(1000 * hour.dt).getHours(),
-        iconCode: hour.weather[0].id,
-        condition: hour.weather[0].main,
-        temp: Math.trunc(hour.temp),
-        feelsLike: Math.trunc(hour.feels_like),
-        rainChance: hour.pop,
-        humidity: hour.humidity,
-      });
-    });
-
     return (
       <Stack spacing={1} mt={2}>
-        {parsedHourlyReports.map((rpt) => {
+        {hourlyWeather.map((rpt) => {
           return (
             <Paper key={rpt.hour}>
               <Stack
@@ -229,21 +233,9 @@ const WeatherBox = (): JSX.Element => {
   const parseDailyWeather = () => {
     if (!dailyWeather) return;
 
-    const parsedDailyReports: any[] = [];
-
-    dailyWeather.forEach((day: any) => {
-      parsedDailyReports.push({
-        day: getDayOfWeek(new Date(1000 * day.dt).getDay()),
-        iconCode: day.weather[0].id,
-        condition: day.weather[0].main,
-        tempHigh: Math.trunc(day.temp.max),
-        tempLow: Math.trunc(day.temp.min),
-      });
-    });
-
     return (
       <Stack spacing={2} m={2}>
-        {parsedDailyReports.map((rpt) => {
+        {dailyWeather.map((rpt) => {
           return (
             <Paper key={rpt.day}>
               <Stack
@@ -279,7 +271,6 @@ const WeatherBox = (): JSX.Element => {
     firebase
       .updateFamily(profile.familyId, {
         openweathermap_api_key: newApiKey,
-        location: { lat: '39.83', long: '-98.58' },
       })
       .then(() => {
         getFamily();
