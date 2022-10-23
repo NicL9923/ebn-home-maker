@@ -1,6 +1,6 @@
 import React, { createContext } from 'react';
 import { FirebaseManager } from '../Firebase';
-import { ProviderProps } from './type';
+import { ProviderProps } from './providerTypes';
 
 export const FirebaseContext = createContext({} as FirebaseManager);
 

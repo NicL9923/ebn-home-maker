@@ -1,17 +1,16 @@
-import { useMediaQuery, createTheme, CssBaseline, ThemeProvider as MuiThemeProvider } from '@mui/material';
-import { UserContext } from 'providers/AppProvider';
+import { createTheme, CssBaseline, ThemeProvider as MuiThemeProvider, PaletteMode } from '@mui/material';
 import React, { useContext } from 'react';
-import { ProviderProps } from './type';
+import { ProviderProps } from './providerTypes';
+import { AppContext } from './AppProvider';
 
 const ThemeProvider = ({ children }: ProviderProps) => {
-  const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
-  const { profile } = useContext(UserContext);
+  const { themePreference } = useContext(AppContext);
 
   const theme = React.useMemo(
     () =>
       createTheme({
         palette: {
-          mode: profile?.theme ? profile.theme : prefersDarkMode ? 'dark' : 'light',
+          mode: themePreference as PaletteMode,
           primary: {
             main: '#1b5e20',
           },
@@ -20,7 +19,7 @@ const ThemeProvider = ({ children }: ProviderProps) => {
           },
         },
       }),
-    [prefersDarkMode, profile?.theme]
+    [themePreference]
   );
 
   return (

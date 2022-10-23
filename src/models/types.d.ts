@@ -1,3 +1,5 @@
+import { ThemeType } from '../constants';
+
 export type GenericObject<T = any> = { [key: string]: T };
 
 export interface UserContextValue {
@@ -17,7 +19,6 @@ export interface UserProfile {
   familyId: string;
   firstName: string;
   imgLink?: string;
-  theme?: 'light' | 'dark';
 }
 
 export interface LocationAsStr {
@@ -135,5 +136,7 @@ export interface SnackbarData {
 }
 
 export interface AppContextValue {
+  themePreference: ThemeType;
+  setThemePreference: (newThemePreference: ThemeType) => void;
   setSnackbarData: (snackbarData: SnackbarData | undefined) => void;
 }

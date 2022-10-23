@@ -41,9 +41,9 @@ import {
 } from 'models/weatherTypes';
 
 enum ShownWeather {
-  Current = 'current',
-  Hourly = 'hourly',
-  Daily = 'daily',
+  Current = 0,
+  Hourly,
+  Daily,
 }
 
 const getDayOfWeek = (dayNum: number) => {

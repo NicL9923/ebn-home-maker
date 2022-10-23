@@ -1,19 +1,22 @@
 import React, { useState, useEffect, useContext, createContext } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
 import NotLoggedIn from '../components/NotLoggedIn';
-import { Alert, Box, CircularProgress, Snackbar } from '@mui/material';
+import { Alert, Box, CircularProgress, Snackbar, useMediaQuery } from '@mui/material';
 import { AppContextValue, Family, SnackbarData, UserContextValue, UserProfile } from '../models/types';
 import { FirebaseContext } from 'providers/FirebaseProvider';
 import ThemeProvider from 'providers/ThemeProvider';
-import { ProviderProps } from 'providers/type';
+import { ProviderProps } from 'providers/providerTypes';
 import Navbar from 'components/Navbar';
+import { ThemeType, localStorageThemeTypeKey } from '../constants';
 
 export const AppContext = createContext({} as AppContextValue);
 export const UserContext = createContext({} as UserContextValue);
 
 const AppProvider = ({ children }: ProviderProps) => {
+  const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
   const firebase = useContext(FirebaseContext);
 
+  const [themePreference, setThemePreference] = useState<ThemeType>(prefersDarkMode ? ThemeType.Dark : ThemeType.Light);
   const [snackbarData, setSnackbarData] = useState<SnackbarData | undefined>(undefined);
 
   const [userId, setUserId] = useState<string | undefined>(undefined);
@@ -65,8 +68,12 @@ const AppProvider = ({ children }: ProviderProps) => {
     return () => unsubscribe();
   }, []);
 
+  useEffect(() => {
+    setThemePreference(localStorage.getItem(localStorageThemeTypeKey) as ThemeType);
+  }, []);
+
   return (
-    <AppContext.Provider value={{ setSnackbarData }}>
+    <AppContext.Provider value={{ themePreference, setThemePreference, setSnackbarData }}>
       <UserContext.Provider
         value={{
           userId,

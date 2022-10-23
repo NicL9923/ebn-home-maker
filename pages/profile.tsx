@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { Button, Container, FormControlLabel, Paper, Stack, Switch, Typography } from '@mui/material';
+import { Button, Container, Paper, Stack, Typography } from '@mui/material';
 import { UserContext, AppContext } from 'providers/AppProvider';
 import { FirebaseContext } from 'providers/FirebaseProvider';
 import NoProfile from 'components/NoProfile';
@@ -30,10 +30,6 @@ const Profile = () => {
 
   const updateProfileImgLink = (newImgLink: string) => {
     mergeProfileProperty({ imgLink: newImgLink });
-  };
-
-  const updateProfileTheme = (isChecked: boolean) => {
-    mergeProfileProperty({ theme: isChecked ? 'light' : 'dark' });
   };
 
   const handlePasswordReset = () => {
@@ -74,17 +70,6 @@ const Profile = () => {
               fieldName='First Name'
               fieldType='EntityName'
               onSubmitValue={updateProfileName}
-            />
-
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={profile.theme && profile.theme === 'light'}
-                  onChange={(_e, checked) => updateProfileTheme(checked)}
-                />
-              }
-              label={profile.theme && profile.theme === 'light' ? 'Light mode' : 'Dark mode'}
-              sx={{ mt: 2 }}
             />
 
             <Stack direction='row' justifyContent='space-evenly' sx={{ mt: 3 }}>

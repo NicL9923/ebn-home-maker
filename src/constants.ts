@@ -1,3 +1,9 @@
+export const localStorageThemeTypeKey = 'themeType';
+export enum ThemeType {
+  Light = 'light',
+  Dark = 'dark',
+}
+
 export const FieldTypes = {
   Email: {
     name: 'email',
