@@ -17,11 +17,20 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "jsx": "react",
-    "esModuleInterop": true
+    "jsx": "preserve",
+    "esModuleInterop": true,
+    "incremental": true
   },
   "include": [
-    "src"
+    "src",
+    "pages/[familyId].tsx",
+    "pages/Profile.tsx",
+    "pages/Finances.tsx",
+    "pages/SmartHome.tsx",
+    "pages/index.tsx",
+    "pages/Information.tsx",
+    "pages/Maintenance.tsx",
+    "pages/GroceryList.tsx"
   ],
   "exclude": [
     "**/*.test.ts",

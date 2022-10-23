@@ -1,14 +1,13 @@
 import React, { useContext, useEffect } from 'react';
 import { Alert, Box, CircularProgress } from '@mui/material';
-import { useParams } from 'react-router-dom';
 import { arrayUnion } from 'firebase/firestore';
-import { FirebaseContext } from '../Firebase';
-import { UserContext } from '../App';
-
-// TODO: flesh this out
+import { UserContext } from '../../src/providers/AppProvider';
+import { FirebaseContext } from '../../src/providers/FirebaseProvider';
+import { useRouter } from 'next/router';
 
 const JoinFamily = () => {
-  const { familyId } = useParams();
+  const router = useRouter();
+  const familyId = router.query['familyId'] as string;
   const firebase = useContext(FirebaseContext);
   const { userId, profile, family, getProfile, getFamily } = useContext(UserContext);
 

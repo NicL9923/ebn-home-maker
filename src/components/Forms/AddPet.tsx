@@ -1,8 +1,8 @@
 import React, { useContext, useState } from 'react';
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, InputLabel, TextField } from '@mui/material';
 import { DropzoneArea } from 'mui-file-dropzone';
-import { FirebaseContext } from '../../Firebase';
-import { AppContext, UserContext } from 'App';
+import { UserContext, AppContext } from 'providers/AppProvider';
+import { FirebaseContext } from 'providers/FirebaseProvider';
 import { getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
 import { v4 as uuidv4 } from 'uuid';
 

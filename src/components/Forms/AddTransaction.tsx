@@ -12,8 +12,8 @@ import {
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { IBudget, Transaction } from 'models/types';
 import { AdapterLuxon } from '@mui/x-date-pickers/AdapterLuxon';
-import { FirebaseContext } from '../../Firebase';
-import { AppContext, UserContext } from 'App';
+import { UserContext, AppContext } from 'providers/AppProvider';
+import { FirebaseContext } from 'providers/FirebaseProvider';
 
 export const catSubcatKeySeparator = '&%&';
 

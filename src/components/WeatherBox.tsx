@@ -9,7 +9,6 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
-  Grid,
   Paper,
   Stack,
   Tab,
@@ -28,9 +27,9 @@ import {
   WiDayCloudy,
   WiCloudy,
   WiNightCloudy,
-} from 'weather-icons-react';
-import { UserContext } from '../App';
-import { FirebaseContext } from '../Firebase';
+} from 'react-icons/wi';
+import { UserContext } from 'providers/AppProvider';
+import { FirebaseContext } from 'providers/FirebaseProvider';
 
 // TODO: Make types for retrieved weather data
 

@@ -2,9 +2,8 @@ import { Add, SubdirectoryArrowRight } from '@mui/icons-material';
 import { Box, Divider, Grid, IconButton, Paper, Stack, Tooltip, Typography, useTheme } from '@mui/material';
 import { BudgetCategory, IBudget, BudgetSubcategory, BudgetContextValue } from 'models/types';
 import React, { useContext, useState } from 'react';
-
-import { FirebaseContext } from '../../Firebase';
-import { UserContext } from '../../App';
+import { FirebaseContext } from 'providers/FirebaseProvider';
+import { UserContext } from 'providers/AppProvider';
 import EditableLabel from '../Inputs/EditableLabel';
 import Chart from 'react-google-charts';
 import AddTransaction from 'components/Forms/AddTransaction';

@@ -31,23 +31,22 @@
     "material-ui-image": "^3.3.2",
     "mathjs": "^11.3.0",
     "mui-file-dropzone": "^4.0.1",
-    "react": "^18.2.0",
+    "next": "latest",
+    "next-remove-imports": "^1.0.8",
+    "react": "latest",
     "react-beautiful-dnd": "^13.1.0",
-    "react-dom": "^18.2.0",
+    "react-dom": "latest",
     "react-google-charts": "^4.0.0",
+    "react-icons": "^4.6.0",
     "react-live-clock": "^6.0.6",
-    "react-router-dom": "^6.3.0",
-    "react-scripts": "^5.0.1",
-    "source-map-explorer": "^2.5.2",
     "typescript": "^4.7.4",
-    "uuid": "^8.3.2",
-    "weather-icons-react": "^1.2.0"
+    "uuid": "^8.3.2"
   },
   "scripts": {
-    "analyze": "source-map-explorer 'build/static/js/*.js'",
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "eject": "react-scripts eject"
+    "dev": "next dev",
+    "build": "next build",
+    "export": "next build && next export",
+    "start": "next start"
   },
   "eslintConfig": {
     "extends": [

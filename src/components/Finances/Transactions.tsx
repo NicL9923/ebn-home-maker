@@ -2,9 +2,8 @@ import React, { useContext, useState } from 'react';
 import { Add, Delete } from '@mui/icons-material';
 import { Button, Stack, Typography, Box } from '@mui/material';
 import { DataGrid, GridRowId } from '@mui/x-data-grid';
-
-import { UserContext } from '../../App';
-import { FirebaseContext } from '../../Firebase';
+import { UserContext } from 'providers/AppProvider';
+import { FirebaseContext } from 'providers/FirebaseProvider';
 import { IBudget, Transaction } from 'models/types';
 import AddTransaction from 'components/Forms/AddTransaction';
 

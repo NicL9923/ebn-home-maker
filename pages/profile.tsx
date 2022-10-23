@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { Button, Container, FormControlLabel, Paper, Stack, Switch, Typography } from '@mui/material';
-import { AppContext, UserContext } from '../App';
-import { FirebaseContext } from '../Firebase';
+import { UserContext, AppContext } from 'providers/AppProvider';
+import { FirebaseContext } from 'providers/FirebaseProvider';
 import NoProfile from 'components/NoProfile';
 import { UserProfile } from 'models/types';
 import Family from 'components/Family';

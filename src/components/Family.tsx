@@ -16,8 +16,8 @@ import {
 import EditableLabel from './Inputs/EditableLabel';
 import { Add, Close, ContentCopyOutlined, Logout } from '@mui/icons-material';
 import { UserProfile, Pet } from 'models/types';
-import { FirebaseContext } from '../Firebase';
-import { AppContext, UserContext } from 'App';
+import { UserContext, AppContext } from 'providers/AppProvider';
+import { FirebaseContext } from 'providers/FirebaseProvider';
 import copy from 'clipboard-copy';
 import NoFamily from './NoFamily';
 import AddPet from './Forms/AddPet';

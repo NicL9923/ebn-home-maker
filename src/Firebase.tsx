@@ -1,7 +1,6 @@
 import { getAuth, Auth } from 'firebase/auth';
 import { deleteDoc, doc, FieldValue, Firestore, getDoc, getFirestore, setDoc, updateDoc } from 'firebase/firestore';
 import { IBudget, Family, GenericObject, Residence, UserProfile, Vehicle } from 'models/types';
-import { createContext } from 'react';
 
 export const firebaseConfig = {
   apiKey: 'AIzaSyBEokTSCPR2Cw-o5pKAUwTK8vlmNaIAASk',
@@ -11,8 +10,6 @@ export const firebaseConfig = {
   messagingSenderId: '613377018757',
   appId: '1:613377018757:web:ebbb3c902c79b01aabd2ec',
 };
-
-export const FirebaseContext = createContext({} as FirebaseManager);
 
 export enum DocTypes {
   budget = 'budgets',

@@ -1,5 +1,4 @@
 import React, { useContext, useState } from 'react';
-import { Link } from 'react-router-dom';
 import MemoryOutlinedIcon from '@mui/icons-material/MemoryOutlined';
 import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
 import PaymentsOutlinedIcon from '@mui/icons-material/PaymentsOutlined';
@@ -9,7 +8,8 @@ import { AppBar, IconButton, ListItemIcon, ListItemText, Menu, MenuItem, Toolbar
 import MenuIcon from '@mui/icons-material/Menu';
 import ListIcon from '@mui/icons-material/List';
 import { Home } from '@mui/icons-material';
-import { UserContext } from '../App';
+import { UserContext } from 'providers/AppProvider';
+import Link from 'next/link';
 
 const Navbar = (): JSX.Element => {
   const { userId, profile } = useContext(UserContext);
@@ -31,41 +31,57 @@ const Navbar = (): JSX.Element => {
           <MenuIcon />
         </IconButton>
         <Menu id='menu-appbar' anchorEl={anchorEl} open={!!anchorEl} onClose={() => setAnchorEl(undefined)}>
-          <MenuItem onClick={() => setAnchorEl(undefined)} component={Link} to='/grocerylist'>
-            <ListItemIcon>
-              <ListIcon />
-            </ListItemIcon>
-            <ListItemText>Grocery List</ListItemText>
-          </MenuItem>
-          <MenuItem onClick={() => setAnchorEl(undefined)} component={Link} to='/finances'>
-            <ListItemIcon>
-              <PaymentsOutlinedIcon />
-            </ListItemIcon>
-            <ListItemText>Finances</ListItemText>
-          </MenuItem>
-          <MenuItem onClick={() => setAnchorEl(undefined)} component={Link} to='/info'>
-            <ListItemIcon>
-              <EventNoteOutlinedIcon />
-            </ListItemIcon>
-            <ListItemText>Information</ListItemText>
-          </MenuItem>
-          <MenuItem onClick={() => setAnchorEl(undefined)} component={Link} to='/maintenance'>
-            <ListItemIcon>
-              <SettingsOutlinedIcon />
-            </ListItemIcon>
-            <ListItemText>Home & Auto</ListItemText>
-          </MenuItem>
-          <MenuItem onClick={() => setAnchorEl(undefined)} component={Link} to='/smarthome'>
-            <ListItemIcon>
-              <MemoryOutlinedIcon />
-            </ListItemIcon>
-            <ListItemText>Smart Home</ListItemText>
-          </MenuItem>
+          <Link href='/groceryList'>
+            <MenuItem onClick={() => setAnchorEl(undefined)}>
+              <ListItemIcon>
+                <ListIcon />
+              </ListItemIcon>
+              <ListItemText>Grocery List</ListItemText>
+            </MenuItem>
+          </Link>
+
+          <Link href='/finances'>
+            <MenuItem onClick={() => setAnchorEl(undefined)}>
+              <ListItemIcon>
+                <PaymentsOutlinedIcon />
+              </ListItemIcon>
+              <ListItemText>Finances</ListItemText>
+            </MenuItem>
+          </Link>
+
+          <Link href='/info'>
+            <MenuItem onClick={() => setAnchorEl(undefined)}>
+              <ListItemIcon>
+                <EventNoteOutlinedIcon />
+              </ListItemIcon>
+              <ListItemText>Information</ListItemText>
+            </MenuItem>
+          </Link>
+
+          <Link href='/maintenance'>
+            <MenuItem onClick={() => setAnchorEl(undefined)}>
+              <ListItemIcon>
+                <SettingsOutlinedIcon />
+              </ListItemIcon>
+              <ListItemText>Home & Auto</ListItemText>
+            </MenuItem>
+          </Link>
+
+          <Link href='/smarthome'>
+            <MenuItem onClick={() => setAnchorEl(undefined)}>
+              <ListItemIcon>
+                <MemoryOutlinedIcon />
+              </ListItemIcon>
+              <ListItemText>Smart Home</ListItemText>
+            </MenuItem>
+          </Link>
         </Menu>
 
-        <IconButton size='large' color='inherit' component={Link} to='/'>
-          <Home />
-        </IconButton>
+        <Link href='/'>
+          <IconButton size='large' color='inherit'>
+            <Home />
+          </IconButton>
+        </Link>
         <Typography variant='h6' component='div' sx={{ flexGrow: 1 }}>
           Our Home
         </Typography>

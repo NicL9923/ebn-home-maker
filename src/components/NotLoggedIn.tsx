@@ -7,8 +7,8 @@ import {
   createUserWithEmailAndPassword,
 } from 'firebase/auth';
 import { Google } from '@mui/icons-material';
-import { FirebaseContext } from '../Firebase';
-import { AppContext } from 'App';
+import { AppContext } from 'providers/AppProvider';
+import { FirebaseContext } from 'providers/FirebaseProvider';
 
 const NotLoggedIn = (): JSX.Element => {
   const { auth } = useContext(FirebaseContext);

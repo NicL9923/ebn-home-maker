@@ -1,12 +1,21 @@
 import React, { useContext, useState } from 'react';
 import { Box, Button, Paper, Typography } from '@mui/material';
-import MDEditor from '@uiw/react-md-editor';
-import { FirebaseContext } from '../Firebase';
-import { UserContext } from '../App';
+import { UserContext } from '../src/providers/AppProvider';
+import { FirebaseContext } from '../src/providers/FirebaseProvider';
 import { Edit, Save } from '@mui/icons-material';
-import NoFamily from 'components/NoFamily';
+import NoFamily from '../src/components/NoFamily';
+import '@uiw/react-md-editor/markdown-editor.css';
+import '@uiw/react-markdown-preview/markdown.css';
+import dynamic from 'next/dynamic';
 
-/* The moral of this page is *drum roll please*... KISS */
+const MDEditor = dynamic(() => import('@uiw/react-md-editor').then((mod) => mod.default), { ssr: false });
+const EditorMarkdown = dynamic(
+  () =>
+    import('@uiw/react-md-editor').then((mod) => {
+      return mod.default.Markdown;
+    }),
+  { ssr: false }
+);
 
 const Information = (): JSX.Element => {
   const firebase = useContext(FirebaseContext);
@@ -55,7 +64,7 @@ const Information = (): JSX.Element => {
           {isEditingMd ? (
             <MDEditor value={editedMd} onChange={setEditedMd} />
           ) : (
-            <MDEditor.Markdown style={{ padding: 15 }} source={family.boardMarkdown} />
+            <EditorMarkdown style={{ padding: 15 }} source={family.boardMarkdown} />
           )}
 
           <Box mt={3}>

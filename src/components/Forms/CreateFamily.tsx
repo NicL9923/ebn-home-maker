@@ -2,8 +2,8 @@ import React, { useContext, useState } from 'react';
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Stack, TextField } from '@mui/material';
 import { Family } from 'models/types';
 import { v4 as uuidv4 } from 'uuid';
-import { FirebaseContext } from '../../Firebase';
-import { AppContext, UserContext } from 'App';
+import { UserContext, AppContext } from 'providers/AppProvider';
+import { FirebaseContext } from 'providers/FirebaseProvider';
 
 interface CreateFamilyProps {
   isOpen: boolean;

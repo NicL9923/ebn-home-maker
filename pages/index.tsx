@@ -2,10 +2,10 @@ import { CircularProgress, Container, Stack, Typography } from '@mui/material';
 import { Box } from '@mui/system';
 import React, { useContext } from 'react';
 import Clock from 'react-live-clock';
-import { UserContext } from '../App';
-import NoFamily from '../components/NoFamily';
-import NoProfile from '../components/NoProfile';
-import WeatherBox from '../components/WeatherBox';
+import { UserContext } from 'providers/AppProvider';
+import NoFamily from '../src/components/NoFamily';
+import NoProfile from '../src/components/NoProfile';
+import WeatherBox from '../src/components/WeatherBox';
 
 const Home = () => {
   const { profile, family, isFetchingProfile, isFetchingFamily } = useContext(UserContext);

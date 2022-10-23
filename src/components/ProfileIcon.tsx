@@ -1,9 +1,9 @@
 import React, { useContext, useState } from 'react';
 import { signOut } from 'firebase/auth';
-import { Link } from 'react-router-dom';
 import { Avatar, Divider, ListItemText, Menu, MenuItem, Typography } from '@mui/material';
-import { FirebaseContext } from '../Firebase';
-import { AppContext, UserContext } from '../App';
+import { UserContext, AppContext } from 'providers/AppProvider';
+import { FirebaseContext } from 'providers/FirebaseProvider';
+import Link from 'next/link';
 
 const ProfileIcon = (): JSX.Element => {
   const { setSnackbarData } = useContext(AppContext);
@@ -43,10 +43,14 @@ const ProfileIcon = (): JSX.Element => {
           onClose={() => setAnchorEl(undefined)}
           MenuListProps={{ 'aria-labelledby': 'profile-button' }}
         >
-          <MenuItem onClick={() => setAnchorEl(undefined)} component={Link} to='/profile'>
-            <ListItemText>My Profile</ListItemText>
-          </MenuItem>
+          <Link href='/profile'>
+            <MenuItem onClick={() => setAnchorEl(undefined)}>
+              <ListItemText>My Profile</ListItemText>
+            </MenuItem>
+          </Link>
+
           <Divider />
+
           <MenuItem
             onClick={() => {
               setAnchorEl(undefined);

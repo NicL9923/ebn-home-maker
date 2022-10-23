@@ -1,7 +1,8 @@
 import React, { useContext, useEffect, useMemo, useState } from 'react';
 import NoFamily from 'components/NoFamily';
-import { DocTypes, FirebaseContext } from '../Firebase';
-import { AppContext, UserContext } from 'App';
+import { UserContext, AppContext } from 'providers/AppProvider';
+import { FirebaseContext } from 'providers/FirebaseProvider';
+import { DocTypes } from '../src/Firebase';
 import { Paper, Typography, Box, List, ListItem, Checkbox, Button, FormControlLabel } from '@mui/material';
 import { arrayUnion, doc, onSnapshot } from 'firebase/firestore';
 import NoProfile from 'components/NoProfile';

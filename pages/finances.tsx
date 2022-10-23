@@ -17,12 +17,12 @@ import {
   Typography,
 } from '@mui/material';
 import React, { useContext, useEffect, useState } from 'react';
-import Budget from '../components/Finances/Budget';
-import Savings from '../components/Finances/Savings';
-import Transactions from '../components/Finances/Transactions';
+import Budget from '../src/components/Finances/Budget';
+import Savings from '../src/components/Finances/Savings';
+import Transactions from '../src/components/Finances/Transactions';
 import { v4 as uuidv4 } from 'uuid';
-import { FirebaseContext } from '../Firebase';
-import { UserContext } from '../App';
+import { UserContext } from 'providers/AppProvider';
+import { FirebaseContext } from 'providers/FirebaseProvider';
 import 'jspdf-autotable';
 import { BudgetCategory, IBudget, BudgetSubcategory, Transaction } from 'models/types';
 

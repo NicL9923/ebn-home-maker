@@ -3,8 +3,8 @@ import { Box, Button, IconButton, Paper, Stack, Typography } from '@mui/material
 import { IBudget, SavingsBlob } from 'models/types';
 import React, { useContext } from 'react';
 import Chart from 'react-google-charts';
-import { FirebaseContext } from '../../Firebase';
-import { UserContext } from '../../App';
+import { UserContext } from 'providers/AppProvider';
+import { FirebaseContext } from 'providers/FirebaseProvider';
 import EditableLabel from '../Inputs/EditableLabel';
 
 const formatChartData = (blobsData: SavingsBlob[]) => {

@@ -1,5 +1,5 @@
-import { UserContext } from 'App';
-import { FirebaseContext } from '../../Firebase';
+import { FirebaseContext } from 'providers/FirebaseProvider';
+import { UserContext } from 'providers/AppProvider';
 import type { Vehicle } from 'models/types';
 import React, { useContext, useEffect, useState } from 'react';
 import { Box, Button, CircularProgress, Container, Grid, Paper, Stack, Typography } from '@mui/material';
