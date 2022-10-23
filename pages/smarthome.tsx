@@ -1,7 +1,7 @@
 import React from 'react';
 import { Box, Paper, Typography } from '@mui/material';
 
-const SmartHome = (): JSX.Element => {
+const SmartHome = () => {
   return (
     <Box maxWidth='sm' mx='auto' textAlign='center' mt={3}>
       <Paper sx={{ p: 2 }}>

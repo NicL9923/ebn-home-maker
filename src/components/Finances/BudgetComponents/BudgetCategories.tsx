@@ -5,7 +5,7 @@ import { Droppable, DropResult } from 'react-beautiful-dnd';
 import { BudgetContext } from '../Budget';
 import Category from './Category';
 
-const BudgetCategories = (): JSX.Element => {
+const BudgetCategories = () => {
   const { budget, moveCategory, moveSubCategory } = useContext(BudgetContext);
 
   const onDragEnd = ({ type, source, destination }: DropResult) => {

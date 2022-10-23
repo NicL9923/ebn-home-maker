@@ -36,7 +36,7 @@ interface NoBudgetProps {
   createAndSaveDefaultBudget: () => void;
 }
 
-const NoBudget = (props: NoBudgetProps): JSX.Element => {
+const NoBudget = (props: NoBudgetProps) => {
   const { createAndSaveDefaultBudget } = props;
 
   return (
@@ -55,7 +55,7 @@ const NoBudget = (props: NoBudgetProps): JSX.Element => {
   );
 };
 
-const Finances = (): JSX.Element => {
+const Finances = () => {
   const firebase = useContext(FirebaseContext);
   const { userId, profile, family, getFamily } = useContext(UserContext);
   const [shownComponent, setShownComponent] = useState(0);

@@ -10,7 +10,7 @@ import { Google } from '@mui/icons-material';
 import { AppContext } from 'providers/AppProvider';
 import { FirebaseContext } from 'providers/FirebaseProvider';
 
-const NotLoggedIn = (): JSX.Element => {
+const NotLoggedIn = () => {
   const { auth } = useContext(FirebaseContext);
   const { setSnackbarData } = useContext(AppContext);
   const provider = new GoogleAuthProvider();

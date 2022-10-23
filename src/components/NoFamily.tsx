@@ -2,7 +2,7 @@ import { Box, Button, Divider, Paper, Stack, Typography } from '@mui/material';
 import React, { useState } from 'react';
 import CreateFamily from './Forms/CreateFamily';
 
-const NoFamily = (): JSX.Element => {
+const NoFamily = () => {
   const [creatingFamily, setCreatingFamily] = useState(false);
 
   return (

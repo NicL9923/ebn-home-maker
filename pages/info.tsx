@@ -17,7 +17,7 @@ const EditorMarkdown = dynamic(
   { ssr: false }
 );
 
-const Information = (): JSX.Element => {
+const Information = () => {
   const firebase = useContext(FirebaseContext);
   const { userId, profile, family, getFamily } = useContext(UserContext);
   const [isEditingMd, setIsEditingMd] = useState(false);

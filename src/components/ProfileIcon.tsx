@@ -5,7 +5,7 @@ import { UserContext, AppContext } from 'providers/AppProvider';
 import { FirebaseContext } from 'providers/FirebaseProvider';
 import Link from 'next/link';
 
-const ProfileIcon = (): JSX.Element => {
+const ProfileIcon = () => {
   const { setSnackbarData } = useContext(AppContext);
   const { auth } = useContext(FirebaseContext);
   const { profile } = useContext(UserContext);

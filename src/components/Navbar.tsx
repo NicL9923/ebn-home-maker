@@ -11,7 +11,7 @@ import { Home } from '@mui/icons-material';
 import { UserContext } from 'providers/AppProvider';
 import Link from 'next/link';
 
-const Navbar = (): JSX.Element => {
+const Navbar = () => {
   const { userId, profile } = useContext(UserContext);
   const [anchorEl, setAnchorEl] = useState<Element | undefined>(undefined);
 

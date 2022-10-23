@@ -40,14 +40,50 @@ import {
   IWeatherAlertResponse,
 } from 'models/weatherTypes';
 
-const WeatherBox = (): JSX.Element => {
+enum ShownWeather {
+  Current = 'current',
+  Hourly = 'hourly',
+  Daily = 'daily',
+}
+
+const getDayOfWeek = (dayNum: number) => {
+  const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+  if (dayNum >= 0 && dayNum <= 6) {
+    return daysOfWeek[dayNum];
+  } else {
+    const errStr = 'ERROR: Incorrect day of week';
+    console.error(errStr);
+    return errStr;
+  }
+};
+
+const getWeatherIcon = (weatherId: number, size = 48) => {
+  if (weatherId >= 200 && weatherId <= 299) return <WiThunderstorm size={size} />;
+  else if (weatherId >= 300 && weatherId <= 399) return <WiRain size={size} />;
+  else if (weatherId >= 500 && weatherId <= 504) return <WiRain size={size} />;
+  else if (weatherId === 511) return <WiSnowflakeCold size={size} />;
+  else if (weatherId >= 520 && weatherId <= 531) return <WiRain size={size} />;
+  else if (weatherId >= 600 && weatherId <= 699) return <WiSnowflakeCold size={size} />;
+  else if (weatherId >= 700 && weatherId <= 799) return <WiFog size={size} />;
+  else if (weatherId === 800 || weatherId === 801) {
+    const curHour = new Date().getHours();
+    const isDaytime = curHour >= 6 && curHour <= 18;
+
+    if (weatherId === 800) return isDaytime ? <WiDaySunny size={size} /> : <WiNightClear size={size} />;
+    else return isDaytime ? <WiDayCloudy size={size} /> : <WiNightCloudy size={size} />;
+  } else if (weatherId === 802) return <WiCloudy size={size} />;
+  else if (weatherId === 803 || weatherId === 804) return <WiCloudy size={size} />;
+};
+
+const WeatherBox = () => {
   const firebase = useContext(FirebaseContext);
   const { profile, family, getFamily } = useContext(UserContext);
   const [currentWeather, setCurrentWeather] = useState<IParsedCurrentWeather | undefined>(undefined);
   const [hourlyWeather, setHourlyWeather] = useState<IParsedHourlyWeather[] | undefined>(undefined);
   const [dailyWeather, setDailyWeather] = useState<IParsedDailyWeather[] | undefined>(undefined);
   const [weatherAlerts, setWeatherAlerts] = useState<IWeatherAlertResponse[] | undefined>(undefined);
-  const [shownWeather, setShownWeather] = useState(0);
+  const [shownWeather, setShownWeather] = useState<ShownWeather>(ShownWeather.Current);
   const [isFetchingWeather, setIsFetchingWeather] = useState(true);
 
   const [settingApiKey, setSettingApiKey] = useState(false);
@@ -57,10 +93,12 @@ const WeatherBox = (): JSX.Element => {
     if (!family?.location || !family?.openweathermap_api_key) return;
 
     setIsFetchingWeather(true);
-    const url = `https://api.openweathermap.org/data/2.5/onecall?lat=${family.location.lat}&lon=${family.location.long}&exclude=minutely&appid=${family.openweathermap_api_key}&units=imperial`; // Exclude minute-ly forecast
+    const baseUrl = `https://api.openweathermap.org/data/2.5/onecall`;
+    // Exclude minute-ly forecast
+    const fullUrl = `${baseUrl}?lat=${family.location.lat}&lon=${family.location.long}&exclude=minutely&appid=${family.openweathermap_api_key}&units=imperial`;
 
     axios
-      .get(url)
+      .get(fullUrl)
       .then((resp) => {
         setIsFetchingWeather(false);
 
@@ -112,157 +150,9 @@ const WeatherBox = (): JSX.Element => {
         }
       })
       .catch((err) => {
+        setIsFetchingWeather(false);
         console.error('Error getting weather: ' + err);
       });
-  };
-
-  const getDayOfWeek = (dayNum: number) => {
-    const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-
-    if (dayNum >= 0 && dayNum <= 6) {
-      return daysOfWeek[dayNum];
-    } else {
-      const errStr = 'ERROR: Incorrect day of week';
-      console.error(errStr);
-      return errStr;
-    }
-  };
-
-  const getWeatherIcon = (weatherId: number, size = 48) => {
-    if (weatherId >= 200 && weatherId <= 299) return <WiThunderstorm size={size} />;
-    else if (weatherId >= 300 && weatherId <= 399) return <WiRain size={size} />;
-    else if (weatherId >= 500 && weatherId <= 504) return <WiRain size={size} />;
-    else if (weatherId === 511) return <WiSnowflakeCold size={size} />;
-    else if (weatherId >= 520 && weatherId <= 531) return <WiRain size={size} />;
-    else if (weatherId >= 600 && weatherId <= 699) return <WiSnowflakeCold size={size} />;
-    else if (weatherId >= 700 && weatherId <= 799) return <WiFog size={size} />;
-    else if (weatherId === 800 || weatherId === 801) {
-      const curHour = new Date().getHours();
-      const isDaytime = curHour >= 6 && curHour <= 18;
-
-      if (weatherId === 800) return isDaytime ? <WiDaySunny size={size} /> : <WiNightClear size={size} />;
-      else return isDaytime ? <WiDayCloudy size={size} /> : <WiNightCloudy size={size} />;
-    } else if (weatherId === 802) return <WiCloudy size={size} />;
-    else if (weatherId === 803 || weatherId === 804) return <WiCloudy size={size} />;
-  };
-
-  const parseCurrentWeather = () => {
-    if (!currentWeather) return;
-
-    return (
-      <Paper>
-        <Stack
-          direction='column'
-          alignItems='center'
-          justifyContent='center'
-          textAlign='center'
-          mt={3}
-          pl={5}
-          pr={5}
-          pt={2}
-          pb={2}
-        >
-          <Typography variant='h4'>{currentWeather.condition}</Typography>
-          {getWeatherIcon(currentWeather.iconCode, 108)}
-          <Typography variant='h4'>{currentWeather.temp}°F</Typography>
-          <Typography variant='h6'>Feels like {currentWeather.feelsLike}°</Typography>
-          <Typography variant='body1'>Humidity: {currentWeather.humidity}%</Typography>
-          <Typography variant='body1'>Wind: {currentWeather.wind}mph</Typography>
-        </Stack>
-      </Paper>
-    );
-  };
-
-  const parseWeatherAlerts = () => {
-    if (!weatherAlerts) return;
-
-    return (
-      <Stack direction='column' alignContent='center' mb={4} mt={2}>
-        {weatherAlerts.map((alert) => {
-          return (
-            <Alert severity='error' key={alert.event}>
-              <AlertTitle>{alert.event}</AlertTitle>
-              <h5>{alert.sender_name}</h5>
-              <p>{alert.description}</p>
-            </Alert>
-          );
-        })}
-      </Stack>
-    );
-  };
-
-  const parseHourlyWeather = () => {
-    if (!hourlyWeather) return;
-
-    return (
-      <Stack spacing={1} mt={2}>
-        {hourlyWeather.map((rpt) => {
-          return (
-            <Paper key={rpt.hour}>
-              <Stack
-                direction='row'
-                alignItems='center'
-                justifyContent='space-evenly'
-                textAlign='center'
-                width={{ xs: '95vw', sm: '60vw', md: '35vw', lg: '25vw' }}
-                key={rpt.hour}
-              >
-                <Typography variant='subtitle1'>
-                  {rpt.hour < 12 ? `${rpt.hour} AM` : `${rpt.hour === 12 ? rpt.hour : rpt.hour - 12} PM`}
-                </Typography>
-
-                <Stack>
-                  {getWeatherIcon(rpt.iconCode)}
-                  <Typography variant='subtitle2'>{rpt.condition}</Typography>
-                </Stack>
-
-                <Typography variant='h6'>{rpt.temp}°F</Typography>
-
-                <Stack>
-                  <Typography variant='subtitle2'>Feels like: {rpt.feelsLike}°</Typography>
-                  <Typography variant='subtitle2'>Humidity: {rpt.humidity}%</Typography>
-                </Stack>
-              </Stack>
-            </Paper>
-          );
-        })}
-      </Stack>
-    );
-  };
-
-  const parseDailyWeather = () => {
-    if (!dailyWeather) return;
-
-    return (
-      <Stack spacing={2} m={2}>
-        {dailyWeather.map((rpt) => {
-          return (
-            <Paper key={rpt.day}>
-              <Stack
-                direction='row'
-                alignItems='center'
-                justifyContent='space-evenly'
-                textAlign='center'
-                width={{ xs: '95vw', sm: '60vw', md: '35vw', lg: '25vw' }}
-                key={rpt.day}
-              >
-                <Typography variant='h6'>{rpt.day}</Typography>
-
-                <Stack>
-                  {getWeatherIcon(rpt.iconCode)}
-                  <Typography variant='subtitle1'>{rpt.condition}</Typography>
-                </Stack>
-
-                <Stack>
-                  <Typography variant='body1'>High: {rpt.tempHigh}°F</Typography>
-                  <Typography variant='body1'>Low: {rpt.tempLow}°F</Typography>
-                </Stack>
-              </Stack>
-            </Paper>
-          );
-        })}
-      </Stack>
-    );
   };
 
   const saveApiKey = () => {
@@ -335,11 +225,101 @@ const WeatherBox = (): JSX.Element => {
         </Box>
       ) : (
         <Box>
-          {shownWeather === 0 && <>{parseCurrentWeather()}</>}
-          {shownWeather === 1 && <>{parseHourlyWeather()}</>}
-          {shownWeather === 2 && <>{parseDailyWeather()}</>}
+          {shownWeather === ShownWeather.Current && currentWeather && (
+            <Paper>
+              <Stack
+                direction='column'
+                alignItems='center'
+                justifyContent='center'
+                textAlign='center'
+                mt={3}
+                pl={5}
+                pr={5}
+                pt={2}
+                pb={2}
+              >
+                <Typography variant='h4'>{currentWeather.condition}</Typography>
+                {getWeatherIcon(currentWeather.iconCode, 108)}
+                <Typography variant='h4'>{currentWeather.temp}°F</Typography>
+                <Typography variant='h6'>Feels like {currentWeather.feelsLike}°</Typography>
+                <Typography variant='body1'>Humidity: {currentWeather.humidity}%</Typography>
+                <Typography variant='body1'>Wind: {currentWeather.wind}mph</Typography>
+              </Stack>
+            </Paper>
+          )}
 
-          {parseWeatherAlerts()}
+          {shownWeather === ShownWeather.Hourly && hourlyWeather && (
+            <Stack spacing={1} mt={2}>
+              {hourlyWeather.map((rpt) => (
+                <Paper key={rpt.hour}>
+                  <Stack
+                    direction='row'
+                    alignItems='center'
+                    justifyContent='space-evenly'
+                    textAlign='center'
+                    width={{ xs: '95vw', sm: '60vw', md: '35vw', lg: '25vw' }}
+                  >
+                    <Typography variant='subtitle1'>
+                      {rpt.hour < 12 ? `${rpt.hour} AM` : `${rpt.hour === 12 ? rpt.hour : rpt.hour - 12} PM`}
+                    </Typography>
+
+                    <Stack>
+                      {getWeatherIcon(rpt.iconCode)}
+                      <Typography variant='subtitle2'>{rpt.condition}</Typography>
+                    </Stack>
+
+                    <Typography variant='h6'>{rpt.temp}°F</Typography>
+
+                    <Stack>
+                      <Typography variant='subtitle2'>Feels like: {rpt.feelsLike}°</Typography>
+                      <Typography variant='subtitle2'>Humidity: {rpt.humidity}%</Typography>
+                    </Stack>
+                  </Stack>
+                </Paper>
+              ))}
+            </Stack>
+          )}
+
+          {shownWeather === ShownWeather.Daily && dailyWeather && (
+            <Stack spacing={2} m={2}>
+              {dailyWeather.map((rpt) => (
+                <Paper key={rpt.day}>
+                  <Stack
+                    direction='row'
+                    alignItems='center'
+                    justifyContent='space-evenly'
+                    textAlign='center'
+                    width={{ xs: '95vw', sm: '60vw', md: '35vw', lg: '25vw' }}
+                    key={rpt.day}
+                  >
+                    <Typography variant='h6'>{rpt.day}</Typography>
+
+                    <Stack>
+                      {getWeatherIcon(rpt.iconCode)}
+                      <Typography variant='subtitle1'>{rpt.condition}</Typography>
+                    </Stack>
+
+                    <Stack>
+                      <Typography variant='body1'>High: {rpt.tempHigh}°F</Typography>
+                      <Typography variant='body1'>Low: {rpt.tempLow}°F</Typography>
+                    </Stack>
+                  </Stack>
+                </Paper>
+              ))}
+            </Stack>
+          )}
+
+          {weatherAlerts && (
+            <Stack direction='column' alignContent='center' mb={4} mt={2}>
+              {weatherAlerts.map((alert) => (
+                <Alert severity='error' key={alert.event}>
+                  <AlertTitle>{alert.event}</AlertTitle>
+                  <h5>{alert.sender_name}</h5>
+                  <p>{alert.description}</p>
+                </Alert>
+              ))}
+            </Stack>
+          )}
         </Box>
       )}
     </Stack>

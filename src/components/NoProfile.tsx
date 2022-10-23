@@ -2,7 +2,7 @@ import { Box, Button, Paper, Stack, Typography } from '@mui/material';
 import React, { useState } from 'react';
 import CreateProfile from './Forms/CreateProfile';
 
-const NoProfile = (): JSX.Element => {
+const NoProfile = () => {
   const [creatingProfile, setCreatingProfile] = useState(false);
 
   return (
