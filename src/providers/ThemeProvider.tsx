@@ -1,13 +1,29 @@
 import { createTheme, CssBaseline, ThemeProvider as MuiThemeProvider, PaletteMode } from '@mui/material';
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { ProviderProps } from './providerTypes';
 import { AppContext } from './AppProvider';
+import { CacheProvider } from '@emotion/react';
+import createCache from '@emotion/cache';
+
+const clientSideEmotionCache = createCache({ key: 'css' });
 
 const ThemeProvider = ({ children }: ProviderProps) => {
   const { themePreference } = useContext(AppContext);
+  const [theme, setTheme] = useState(
+    createTheme({
+      palette: {
+        primary: {
+          main: '#1b5e20',
+        },
+        secondary: {
+          main: '#43a047',
+        },
+      },
+    })
+  );
 
-  const theme = React.useMemo(
-    () =>
+  useEffect(() => {
+    setTheme(
       createTheme({
         palette: {
           mode: themePreference as PaletteMode,
@@ -18,15 +34,17 @@ const ThemeProvider = ({ children }: ProviderProps) => {
             main: '#43a047',
           },
         },
-      }),
-    [themePreference]
-  );
+      })
+    );
+  }, [themePreference]);
 
   return (
-    <MuiThemeProvider theme={theme}>
-      <CssBaseline />
-      {children}
-    </MuiThemeProvider>
+    <CacheProvider value={clientSideEmotionCache}>
+      <MuiThemeProvider theme={theme}>
+        <CssBaseline />
+        {children}
+      </MuiThemeProvider>
+    </CacheProvider>
   );
 };
 

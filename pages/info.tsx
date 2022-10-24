@@ -56,7 +56,7 @@ const Information = () => {
       </Typography>
 
       <Paper sx={{ p: 2, mt: 3 }}>
-        <Box data-color-mode='light'>
+        <Box>
           <Typography variant='h4' mb={2}>
             Family Board
           </Typography>
