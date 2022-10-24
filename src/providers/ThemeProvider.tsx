@@ -6,22 +6,22 @@ import { CacheProvider } from '@emotion/react';
 import createCache from '@emotion/cache';
 
 const clientSideEmotionCache = createCache({ key: 'css' });
+const defaultTheme = createTheme({
+  palette: {
+    primary: {
+      main: '#1b5e20',
+    },
+    secondary: {
+      main: '#43a047',
+    },
+  },
+});
 
 const ThemeProvider = ({ children }: ProviderProps) => {
   const { themePreference } = useContext(AppContext);
-  const [theme, setTheme] = useState(
-    createTheme({
-      palette: {
-        primary: {
-          main: '#1b5e20',
-        },
-        secondary: {
-          main: '#43a047',
-        },
-      },
-    })
-  );
+  const [theme, setTheme] = useState(defaultTheme);
 
+  /* TODO: Figure out why this is causing client-side errors
   useEffect(() => {
     setTheme(
       createTheme({
@@ -36,7 +36,7 @@ const ThemeProvider = ({ children }: ProviderProps) => {
         },
       })
     );
-  }, [themePreference]);
+  }, [themePreference]);*/
 
   return (
     <CacheProvider value={clientSideEmotionCache}>
