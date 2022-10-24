@@ -69,7 +69,7 @@ const AppProvider = ({ children }: ProviderProps) => {
   }, []);
 
   useEffect(() => {
-    setThemePreference(localStorage.getItem(localStorageThemeTypeKey) as ThemeType);
+    setThemePreference((localStorage.getItem(localStorageThemeTypeKey) as ThemeType) ?? ThemeType.Light);
   }, []);
 
   return (

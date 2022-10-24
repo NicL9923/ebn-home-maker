@@ -1,13 +1,28 @@
-import { createTheme, CssBaseline, ThemeProvider as MuiThemeProvider, PaletteMode } from '@mui/material';
-import React, { useContext, useEffect, useState } from 'react';
+import { createTheme, CssBaseline, ThemeProvider as MuiThemeProvider } from '@mui/material';
+import React, { useContext } from 'react';
 import { ProviderProps } from './providerTypes';
 import { AppContext } from './AppProvider';
 import { CacheProvider } from '@emotion/react';
 import createCache from '@emotion/cache';
+import { ThemeType } from '../constants';
 
 const clientSideEmotionCache = createCache({ key: 'css' });
-const defaultTheme = createTheme({
+
+const lightTheme = createTheme({
   palette: {
+    mode: 'light',
+    primary: {
+      main: '#1b5e20',
+    },
+    secondary: {
+      main: '#43a047',
+    },
+  },
+});
+
+const darkTheme = createTheme({
+  palette: {
+    mode: 'dark',
     primary: {
       main: '#1b5e20',
     },
@@ -19,28 +34,10 @@ const defaultTheme = createTheme({
 
 const ThemeProvider = ({ children }: ProviderProps) => {
   const { themePreference } = useContext(AppContext);
-  const [theme, setTheme] = useState(defaultTheme);
-
-  /* TODO: Figure out why this is causing client-side errors
-  useEffect(() => {
-    setTheme(
-      createTheme({
-        palette: {
-          mode: themePreference as PaletteMode,
-          primary: {
-            main: '#1b5e20',
-          },
-          secondary: {
-            main: '#43a047',
-          },
-        },
-      })
-    );
-  }, [themePreference]);*/
 
   return (
     <CacheProvider value={clientSideEmotionCache}>
-      <MuiThemeProvider theme={theme}>
+      <MuiThemeProvider theme={themePreference && themePreference === ThemeType.Dark ? darkTheme : lightTheme}>
         <CssBaseline />
         {children}
       </MuiThemeProvider>
