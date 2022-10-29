@@ -3,7 +3,7 @@ import { deleteDoc, doc, FieldValue, Firestore, getDoc, getFirestore, setDoc, up
 import { IBudget, Family, GenericObject, Residence, UserProfile, Vehicle } from 'models/types';
 
 export const firebaseConfig = {
-  apiKey: 'AIzaSyBEokTSCPR2Cw-o5pKAUwTK8vlmNaIAASk',
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
   authDomain: 'our-home-239c1.firebaseapp.com',
   projectId: 'our-home-239c1',
   storageBucket: 'our-home-239c1.appspot.com',

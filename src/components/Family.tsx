@@ -23,14 +23,6 @@ import NoFamily from './NoFamily';
 import AddPet from './Forms/AddPet';
 import { deleteObject, getStorage, ref } from 'firebase/storage';
 
-/*const obtainGmapsApiKeyText = `Obtain and input a Google Maps API key if you would like
-to use the built-in location picker, otherwise manually find/input
-your location's coordinates`;*/
-
-const obtainOwmApiKeyText = `Obtain and input an OpenWeatherMap 'Current Weather' API key,
-and set your family's location below, if you would like to see
-your local weather forecast on the homepage`;
-
 interface FamilyProps {
   mergeProfileProperty: (profObjToMerge: Partial<UserProfile>, profileId?: string, refreshProfile?: boolean) => void;
 }
@@ -69,18 +61,6 @@ const Family = ({ mergeProfileProperty }: FamilyProps) => {
     if (!profile || !newFamName) return;
 
     firebase.updateFamily(profile.familyId, { name: newFamName }).then(getFamily);
-  };
-
-  /*const updateGmapsApiKey = (newApiKey?: string) => {
-    if (!profile || !newApiKey) return;
-
-    firebase.updateFamily(profile.familyId, { gmaps_api_key: newApiKey }).then(getFamily);
-  };*/
-
-  const updateOwmApiKey = (newApiKey?: string) => {
-    if (!profile || !newApiKey) return;
-
-    firebase.updateFamily(profile.familyId, { openweathermap_api_key: newApiKey }).then(getFamily);
   };
 
   const updateFamilyLocation = (newLat = '', newLong = '') => {
@@ -186,10 +166,6 @@ const Family = ({ mergeProfileProperty }: FamilyProps) => {
       pets: family.pets,
       boardMarkdown: family.boardMarkdown,
       location: family.location,
-      apiKeys: {
-        openWeather: family.openweathermap_api_key,
-        gmaps: family.gmaps_api_key,
-      },
     };
 
     const json = JSON.stringify(familyData, null, 2);
@@ -305,30 +281,6 @@ const Family = ({ mergeProfileProperty }: FamilyProps) => {
             Weather Applet Information
           </Typography>
 
-          {/*<Stack mt={1} mb={2}>
-            <Typography variant='h6'>Google Maps API Key</Typography>
-
-            <EditableLabel
-              textVariant='body1'
-              text={family.gmaps_api_key ?? obtainGmapsApiKeyText}
-              fieldName={'Google Maps API key'}
-              fieldType='ApiToken'
-              onSubmitValue={updateGmapsApiKey}
-            />
-          </Stack>*/}
-
-          <Box mb={2}>
-            <Typography variant='h6'>OpenWeatherMap API Key</Typography>
-
-            <EditableLabel
-              textVariant='body1'
-              text={family.openweathermap_api_key ?? obtainOwmApiKeyText}
-              fieldName='OpenWeatherMap API Key'
-              fieldType='ApiToken'
-              onSubmitValue={updateOwmApiKey}
-            />
-          </Box>
-
           <Box mb={6}>
             <Typography variant='h6'>Location</Typography>
 
@@ -352,17 +304,6 @@ const Family = ({ mergeProfileProperty }: FamilyProps) => {
                     onSubmitValue={(newLong?: string) => updateFamilyLocation('', newLong)}
                   />
                 </Box>
-
-                {/*family.gmaps_api_key && (
-                  <MapPicker
-                    googleMapURL={`https://maps.googleapis.com/maps/api/js?key=${family.gmaps_api_key}&v=3.exp&libraries=geometry,drawing,places`}
-                    loadingElement={<div style={{ height: `100%` }} />}
-                    containerElement={<div style={{ height: 500 }} />}
-                    mapElement={<div style={{ height: `100%` }} />}
-                    familyLocation={family.location}
-                    updateFamilyLocation={updateFamilyLocation}
-                  />
-                )*/}
               </Box>
             )}
           </Box>

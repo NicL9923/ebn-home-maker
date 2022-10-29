@@ -32,8 +32,6 @@ export interface Family {
   budgetId?: string;
   members: string[];
   name: string;
-  openweathermap_api_key?: string;
-  gmaps_api_key?: string;
   pets: Pet[];
   boardMarkdown: string;
   vehicles: string[]; // IDs

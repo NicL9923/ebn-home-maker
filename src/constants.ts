@@ -41,3 +41,7 @@ export const ValidationErrorMsgs = {
   Empty: 'Field cannot be empty',
   ItemNameUnique: 'Item names must be unique',
 };
+
+const openWeatherMapApiVersion = '3.0';
+export const openWeatherMapOneCallApiBaseUrl = `https://api.openweathermap.org/data/${openWeatherMapApiVersion}/onecall`;
+export const daysOfTheWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];

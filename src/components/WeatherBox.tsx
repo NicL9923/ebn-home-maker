@@ -1,22 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import axios from 'axios';
-import {
-  Alert,
-  AlertTitle,
-  Box,
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  Paper,
-  Stack,
-  Tab,
-  Tabs,
-  TextField,
-  Typography,
-  CircularProgress,
-} from '@mui/material';
+import { Alert, AlertTitle, Box, Paper, Stack, Tab, Tabs, Typography, CircularProgress } from '@mui/material';
 import {
   WiRain,
   WiThunderstorm,
@@ -29,7 +13,6 @@ import {
   WiNightCloudy,
 } from 'react-icons/wi';
 import { UserContext } from 'providers/AppProvider';
-import { FirebaseContext } from 'providers/FirebaseProvider';
 import {
   ICurrentWeatherResponse,
   IDailyWeatherResponse,
@@ -39,6 +22,7 @@ import {
   IParsedHourlyWeather,
   IWeatherAlertResponse,
 } from 'models/weatherTypes';
+import { openWeatherMapOneCallApiBaseUrl, daysOfTheWeek } from '../constants';
 
 enum ShownWeather {
   Current = 0,
@@ -47,10 +31,8 @@ enum ShownWeather {
 }
 
 const getDayOfWeek = (dayNum: number) => {
-  const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-
   if (dayNum >= 0 && dayNum <= 6) {
-    return daysOfWeek[dayNum];
+    return daysOfTheWeek[dayNum];
   } else {
     const errStr = 'ERROR: Incorrect day of week';
     console.error(errStr);
@@ -77,8 +59,7 @@ const getWeatherIcon = (weatherId: number, size = 48) => {
 };
 
 const WeatherBox = () => {
-  const firebase = useContext(FirebaseContext);
-  const { profile, family, getFamily } = useContext(UserContext);
+  const { family } = useContext(UserContext);
   const [currentWeather, setCurrentWeather] = useState<IParsedCurrentWeather | undefined>(undefined);
   const [hourlyWeather, setHourlyWeather] = useState<IParsedHourlyWeather[] | undefined>(undefined);
   const [dailyWeather, setDailyWeather] = useState<IParsedDailyWeather[] | undefined>(undefined);
@@ -86,16 +67,12 @@ const WeatherBox = () => {
   const [shownWeather, setShownWeather] = useState<ShownWeather>(ShownWeather.Current);
   const [isFetchingWeather, setIsFetchingWeather] = useState(true);
 
-  const [settingApiKey, setSettingApiKey] = useState(false);
-  const [newApiKey, setNewApiKey] = useState('');
-
   const getWeatherData = () => {
-    if (!family?.location || !family?.openweathermap_api_key) return;
+    if (!family?.location) return;
 
     setIsFetchingWeather(true);
-    const baseUrl = `https://api.openweathermap.org/data/2.5/onecall`;
     // Exclude minute-ly forecast
-    const fullUrl = `${baseUrl}?lat=${family.location.lat}&lon=${family.location.long}&exclude=minutely&appid=${family.openweathermap_api_key}&units=imperial`;
+    const fullUrl = `${openWeatherMapOneCallApiBaseUrl}?lat=${family.location.lat}&lon=${family.location.long}&exclude=minutely&appid=${process.env.NEXT_PUBLIC_OWM_API_KEY}&units=imperial`;
 
     axios
       .get(fullUrl)
@@ -155,60 +132,7 @@ const WeatherBox = () => {
       });
   };
 
-  const saveApiKey = () => {
-    if (!profile) return;
-
-    firebase
-      .updateFamily(profile.familyId, {
-        openweathermap_api_key: newApiKey,
-      })
-      .then(() => {
-        getFamily();
-      });
-  };
-
   useEffect(getWeatherData, [family]);
-
-  if (!family?.openweathermap_api_key) {
-    return (
-      <Box textAlign='center' maxWidth='sm' mx='auto'>
-        <Paper sx={{ p: 2 }}>
-          <Typography variant='h5' mb={1}>
-            Want to see the weather here?
-          </Typography>
-          <Typography variant='subtitle1' mb={3}>
-            Obtain a free &apos;Current Weather&apos; API key from OpenWeatherMap (https://openweathermap.org/price),
-            input it below, then set your family location on your profile page
-          </Typography>
-
-          <Button variant='contained' onClick={() => setSettingApiKey(true)}>
-            Set API Key
-          </Button>
-
-          <Dialog open={settingApiKey} onClose={() => setSettingApiKey(false)} fullWidth>
-            <DialogTitle>Set Weather API Key</DialogTitle>
-
-            <DialogContent>
-              <TextField
-                autoFocus
-                variant='standard'
-                label='API Key'
-                value={newApiKey}
-                onChange={(event) => setNewApiKey(event.target.value)}
-              />
-            </DialogContent>
-
-            <DialogActions>
-              <Button onClick={() => setSettingApiKey(false)}>Cancel</Button>
-              <Button variant='contained' onClick={saveApiKey}>
-                Save
-              </Button>
-            </DialogActions>
-          </Dialog>
-        </Paper>
-      </Box>
-    );
-  }
 
   return (
     <Stack alignItems='center' justifyContent='center' mb={6}>
