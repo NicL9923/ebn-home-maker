@@ -1,13 +1,13 @@
 import { Add, SubdirectoryArrowRight } from '@mui/icons-material';
 import { Box, Divider, Grid, IconButton, Paper, Stack, Tooltip, Typography, useTheme } from '@mui/material';
 import { BudgetCategory, IBudget, BudgetSubcategory, BudgetContextValue } from 'models/types';
-import React, { useContext, useState } from 'react';
-import { FirebaseContext } from 'providers/FirebaseProvider';
-import { UserContext } from 'providers/AppProvider';
+import React, { useState } from 'react';
 import EditableLabel from '../Inputs/EditableLabel';
 import Chart from 'react-google-charts';
 import AddTransaction from 'components/Forms/AddTransaction';
 import BudgetCategories from './BudgetComponents/BudgetCategories';
+import { useAppStore } from 'state/AppStore';
+import { useUserStore } from 'state/UserStore';
 
 export const BudgetContext = React.createContext({} as BudgetContextValue);
 
@@ -18,10 +18,12 @@ interface BudgetProps {
 }
 
 const Budget = (props: BudgetProps): JSX.Element => {
-  const firebase = useContext(FirebaseContext);
-  const { family } = useContext(UserContext);
   const { budget, setBudget, getBudget } = props;
   const theme = useTheme();
+
+  const firebase = useAppStore((state) => state.firebase);
+  const family = useUserStore((state) => state.family);
+
   const [addingTransaction, setAddingTransaction] = useState(false);
   const [catSubcatKey, setCatSubcatKey] = useState('');
 

@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useState } from 'react';
 import {
   Autocomplete,
   Button,
@@ -12,8 +12,8 @@ import {
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { IBudget, Transaction } from 'models/types';
 import { AdapterLuxon } from '@mui/x-date-pickers/AdapterLuxon';
-import { UserContext, AppContext } from 'providers/AppProvider';
-import { FirebaseContext } from 'providers/FirebaseProvider';
+import { useAppStore } from 'state/AppStore';
+import { useUserStore } from 'state/UserStore';
 
 export const catSubcatKeySeparator = '&%&';
 
@@ -40,10 +40,12 @@ interface AddTransactionProps {
 }
 
 const AddTransaction = (props: AddTransactionProps) => {
-  const { setSnackbarData } = useContext(AppContext);
-  const firebase = useContext(FirebaseContext);
-  const { family } = useContext(UserContext);
   const { isOpen, setIsOpen, initialCatSubcat, budget, getBudget } = props;
+
+  const firebase = useAppStore((state) => state.firebase);
+  const setSnackbarData = useAppStore((state) => state.setSnackbarData);
+  const family = useUserStore((state) => state.family);
+
   const [newTransactionName, setNewTransactionName] = useState('');
   const [newTransactionAmt, setNewTransactionAmt] = useState('');
   const [newTransactionCat, setNewTransactionCat] = useState<ICatOpt | undefined>(undefined);

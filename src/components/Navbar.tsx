@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useState } from 'react';
 import MemoryOutlinedIcon from '@mui/icons-material/MemoryOutlined';
 import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
 import PaymentsOutlinedIcon from '@mui/icons-material/PaymentsOutlined';
@@ -20,13 +20,17 @@ import {
 import MenuIcon from '@mui/icons-material/Menu';
 import ListIcon from '@mui/icons-material/List';
 import { Home } from '@mui/icons-material';
-import { AppContext, UserContext } from 'providers/AppProvider';
 import Link from 'next/link';
 import { localStorageThemeTypeKey, ThemeType } from '../constants';
+import { useUserStore } from 'state/UserStore';
+import { useAppStore } from 'state/AppStore';
 
 const Navbar = () => {
-  const { themePreference, setThemePreference } = useContext(AppContext);
-  const { userId, profile } = useContext(UserContext);
+  const themePreference = useAppStore((state) => state.themePreference);
+  const setThemePreference = useAppStore((state) => state.setThemePreference);
+  const userId = useUserStore((state) => state.userId);
+  const profile = useUserStore((state) => state.profile);
+
   const [anchorEl, setAnchorEl] = useState<Element | undefined>(undefined);
 
   const updateThemePreference = (isChecked: boolean) => {

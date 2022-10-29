@@ -1,9 +1,9 @@
-import React, { useContext, useState } from 'react';
+import React, { useState } from 'react';
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Stack, TextField } from '@mui/material';
 import { Family } from 'models/types';
 import { v4 as uuidv4 } from 'uuid';
-import { UserContext, AppContext } from 'providers/AppProvider';
-import { FirebaseContext } from 'providers/FirebaseProvider';
+import { useAppStore } from 'state/AppStore';
+import { useUserStore } from 'state/UserStore';
 
 interface CreateFamilyProps {
   isOpen: boolean;
@@ -11,11 +11,14 @@ interface CreateFamilyProps {
 }
 
 const CreateFamily = (props: CreateFamilyProps) => {
-  const { setSnackbarData } = useContext(AppContext);
-  const firebase = useContext(FirebaseContext);
-  const { userId, getProfile, getFamily } = useContext(UserContext);
   const { isOpen, setIsOpen } = props;
   const [newName, setNewName] = useState<string | undefined>(undefined);
+
+  const firebase = useAppStore((state) => state.firebase);
+  const setSnackbarData = useAppStore((state) => state.setSnackbarData);
+  const userId = useUserStore((state) => state.userId);
+  const getProfile = useUserStore((state) => state.getProfile);
+  const getFamily = useUserStore((state) => state.getFamily);
 
   const createFamily = () => {
     if (!userId || !newName) return;

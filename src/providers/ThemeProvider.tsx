@@ -1,10 +1,10 @@
 import { createTheme, CssBaseline, ThemeProvider as MuiThemeProvider } from '@mui/material';
-import React, { useContext } from 'react';
+import React from 'react';
 import { ProviderProps } from './providerTypes';
-import { AppContext } from './AppProvider';
 import { CacheProvider } from '@emotion/react';
 import createCache from '@emotion/cache';
 import { ThemeType } from '../constants';
+import { useAppStore } from 'state/AppStore';
 
 const clientSideEmotionCache = createCache({ key: 'css' });
 
@@ -33,7 +33,7 @@ const darkTheme = createTheme({
 });
 
 const ThemeProvider = ({ children }: ProviderProps) => {
-  const { themePreference } = useContext(AppContext);
+  const themePreference = useAppStore((state) => state.themePreference);
 
   return (
     <CacheProvider value={clientSideEmotionCache}>

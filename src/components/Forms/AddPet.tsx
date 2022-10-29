@@ -1,10 +1,10 @@
-import React, { useContext, useState } from 'react';
+import React, { useState } from 'react';
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, InputLabel, TextField } from '@mui/material';
 import { DropzoneArea } from 'mui-file-dropzone';
-import { UserContext, AppContext } from 'providers/AppProvider';
-import { FirebaseContext } from 'providers/FirebaseProvider';
 import { getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
 import { v4 as uuidv4 } from 'uuid';
+import { useAppStore } from 'state/AppStore';
+import { useUserStore } from 'state/UserStore';
 
 interface AddPetProps {
   isOpen: boolean;
@@ -12,10 +12,13 @@ interface AddPetProps {
 }
 
 const AddPet = (props: AddPetProps) => {
-  const { setSnackbarData } = useContext(AppContext);
-  const firebase = useContext(FirebaseContext);
-  const { profile, family, getFamily } = useContext(UserContext);
   const { isOpen, setIsOpen } = props;
+
+  const firebase = useAppStore((state) => state.firebase);
+  const setSnackbarData = useAppStore((state) => state.setSnackbarData);
+  const profile = useUserStore((state) => state.profile);
+  const family = useUserStore((state) => state.family);
+  const getFamily = useUserStore((state) => state.getFamily);
 
   const [newName, setNewName] = useState<string | undefined>(undefined);
   const [newPhoto, setNewPhoto] = useState<File | null>(null);

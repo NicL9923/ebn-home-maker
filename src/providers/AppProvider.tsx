@@ -1,58 +1,32 @@
-import React, { useState, useEffect, useContext, createContext } from 'react';
+import React, { useEffect } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
 import NotLoggedIn from '../components/NotLoggedIn';
 import { Alert, Box, CircularProgress, Snackbar, useMediaQuery } from '@mui/material';
-import { AppContextValue, Family, SnackbarData, UserContextValue, UserProfile } from '../models/types';
-import { FirebaseContext } from 'providers/FirebaseProvider';
 import ThemeProvider from 'providers/ThemeProvider';
 import { ProviderProps } from 'providers/providerTypes';
 import Navbar from 'components/Navbar';
 import { ThemeType, localStorageThemeTypeKey } from '../constants';
-
-export const AppContext = createContext({} as AppContextValue);
-export const UserContext = createContext({} as UserContextValue);
+import { useAppStore } from 'state/AppStore';
+import { useUserStore } from 'state/UserStore';
 
 const AppProvider = ({ children }: ProviderProps) => {
   const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
-  const firebase = useContext(FirebaseContext);
 
-  const [themePreference, setThemePreference] = useState<ThemeType>(prefersDarkMode ? ThemeType.Dark : ThemeType.Light);
-  const [snackbarData, setSnackbarData] = useState<SnackbarData | undefined>(undefined);
+  const firebase = useAppStore((state) => state.firebase);
+  const snackbarData = useAppStore((state) => state.snackbarData);
+  const setThemePreference = useAppStore((state) => state.setThemePreference);
+  const setSnackbarData = useAppStore((state) => state.setSnackbarData);
 
-  const [userId, setUserId] = useState<string | undefined>(undefined);
-  const [userEmail, setUserEmail] = useState<string | undefined>(undefined);
-  const [profile, setProfile] = useState<UserProfile | undefined>(undefined);
-  const [family, setFamily] = useState<Family | undefined>(undefined);
-
-  const [isFetchingUser, setIsFetchingUser] = useState(true);
-  const [isFetchingProfile, setIsFetchingProfile] = useState(true);
-  const [isFetchingFamily, setIsFetchingFamily] = useState(true);
-
-  const getProfile = () => {
-    if (userId) {
-      setIsFetchingProfile(true);
-      firebase.getProfile(userId).then((doc) => {
-        setIsFetchingProfile(false);
-        if (doc.exists()) setProfile(doc.data() as UserProfile);
-      });
-    } else {
-      setProfile(undefined);
-      setIsFetchingProfile(false);
-    }
-  };
-
-  const getFamily = () => {
-    if (profile?.familyId) {
-      setIsFetchingFamily(true);
-      firebase.getFamily(profile.familyId).then((doc) => {
-        setIsFetchingFamily(false);
-        if (doc.exists()) setFamily(doc.data() as Family);
-      });
-    } else {
-      setFamily(undefined);
-      setIsFetchingFamily(false);
-    }
-  };
+  const userId = useUserStore((state) => state.userId);
+  const profile = useUserStore((state) => state.profile);
+  const isFetchingUser = useUserStore((state) => state.isFetchingUser);
+  const isFetchingProfile = useUserStore((state) => state.isFetchingProfile);
+  const isFetchingFamily = useUserStore((state) => state.isFetchingFamily);
+  const setUserId = useUserStore((state) => state.setUserId);
+  const setUserEmail = useUserStore((state) => state.setUserEmail);
+  const setIsFetchingUser = useUserStore((state) => state.setIsFetchingUser);
+  const getProfile = useUserStore((state) => state.getProfile);
+  const getFamily = useUserStore((state) => state.getFamily);
 
   useEffect(getProfile, [userId]);
 
@@ -61,7 +35,7 @@ const AppProvider = ({ children }: ProviderProps) => {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(firebase.auth, (user) => {
       setUserId(user?.uid);
-      setUserEmail(user?.email ? user.email : undefined);
+      setUserEmail(user?.email ?? undefined);
       setIsFetchingUser(false);
     });
 
@@ -69,51 +43,33 @@ const AppProvider = ({ children }: ProviderProps) => {
   }, []);
 
   useEffect(() => {
-    setThemePreference((localStorage.getItem(localStorageThemeTypeKey) as ThemeType) ?? ThemeType.Light);
+    setThemePreference(
+      (localStorage.getItem(localStorageThemeTypeKey) as ThemeType) ?? prefersDarkMode
+        ? ThemeType.Dark
+        : ThemeType.Light
+    );
   }, []);
 
   return (
-    <AppContext.Provider value={{ themePreference, setThemePreference, setSnackbarData }}>
-      <UserContext.Provider
-        value={{
-          userId,
-          userEmail,
-          profile,
-          family,
-          isFetchingProfile,
-          isFetchingFamily,
-          getProfile,
-          getFamily,
-          setFamily,
-        }}
-      >
-        <ThemeProvider>
-          <>
-            <Navbar />
+    <ThemeProvider>
+      <Navbar />
 
-            {isFetchingUser || isFetchingProfile || isFetchingFamily ? (
-              <Box mx='auto' textAlign='center' mt={20}>
-                <CircularProgress size={80} />
-              </Box>
-            ) : !userId ? (
-              <NotLoggedIn />
-            ) : (
-              children
-            )}
+      {isFetchingUser || isFetchingProfile || isFetchingFamily ? (
+        <Box mx='auto' textAlign='center' mt={20}>
+          <CircularProgress size={80} />
+        </Box>
+      ) : !userId ? (
+        <NotLoggedIn />
+      ) : (
+        children
+      )}
 
-            <Snackbar open={!!snackbarData} autoHideDuration={2000} onClose={() => setSnackbarData(undefined)}>
-              <Alert
-                onClose={() => setSnackbarData(undefined)}
-                severity={snackbarData?.severity}
-                sx={{ width: '100%' }}
-              >
-                {snackbarData?.msg}
-              </Alert>
-            </Snackbar>
-          </>
-        </ThemeProvider>
-      </UserContext.Provider>
-    </AppContext.Provider>
+      <Snackbar open={!!snackbarData} autoHideDuration={2000} onClose={() => setSnackbarData(undefined)}>
+        <Alert onClose={() => setSnackbarData(undefined)} severity={snackbarData?.severity} sx={{ width: '100%' }}>
+          {snackbarData?.msg}
+        </Alert>
+      </Snackbar>
+    </ThemeProvider>
   );
 };
 

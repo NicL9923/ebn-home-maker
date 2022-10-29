@@ -1,15 +1,20 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { Alert, Box, CircularProgress } from '@mui/material';
 import { arrayUnion } from 'firebase/firestore';
-import { UserContext } from '../../src/providers/AppProvider';
-import { FirebaseContext } from '../../src/providers/FirebaseProvider';
 import { useRouter } from 'next/router';
+import { useAppStore } from '../../src/state/AppStore';
+import { useUserStore } from '../../src/state/UserStore';
 
 const JoinFamily = () => {
   const router = useRouter();
   const familyId = router.query['familyId'] as string;
-  const firebase = useContext(FirebaseContext);
-  const { userId, profile, family, getProfile, getFamily } = useContext(UserContext);
+
+  const firebase = useAppStore((state) => state.firebase);
+  const userId = useUserStore((state) => state.userId);
+  const profile = useUserStore((state) => state.profile);
+  const family = useUserStore((state) => state.family);
+  const getProfile = useUserStore((state) => state.getProfile);
+  const getFamily = useUserStore((state) => state.getFamily);
 
   const addUserToFamily = () => {
     if (!familyId || !userId || profile?.familyId === familyId) {

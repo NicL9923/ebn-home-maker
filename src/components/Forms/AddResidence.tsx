@@ -1,10 +1,10 @@
-import React, { useContext, useState } from 'react';
+import React, { useState } from 'react';
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, InputLabel, TextField } from '@mui/material';
 import { DropzoneArea } from 'mui-file-dropzone';
 import { v4 as uuidv4 } from 'uuid';
-import { UserContext, AppContext } from 'providers/AppProvider';
-import { FirebaseContext } from 'providers/FirebaseProvider';
 import { getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
+import { useAppStore } from 'state/AppStore';
+import { useUserStore } from 'state/UserStore';
 
 const defNewRes = {
   name: '',
@@ -21,10 +21,14 @@ interface AddResidenceProps {
 }
 
 const AddResidence = (props: AddResidenceProps) => {
-  const { setSnackbarData } = useContext(AppContext);
-  const firebase = useContext(FirebaseContext);
-  const { profile, family, getFamily } = useContext(UserContext);
   const { isOpen, setIsOpen, getResidences } = props;
+
+  const firebase = useAppStore((state) => state.firebase);
+  const setSnackbarData = useAppStore((state) => state.setSnackbarData);
+  const profile = useUserStore((state) => state.profile);
+  const family = useUserStore((state) => state.family);
+  const getFamily = useUserStore((state) => state.getFamily);
+
   const [newResidence, setNewResidence] = useState(defNewRes);
   const [newResImgFile, setNewResImgFile] = useState<File | null>(null);
 

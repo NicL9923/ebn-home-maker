@@ -1,10 +1,10 @@
-import React, { useContext, useState } from 'react';
+import React, { useState } from 'react';
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, InputLabel, TextField } from '@mui/material';
 import { DropzoneArea } from 'mui-file-dropzone';
-import { UserContext, AppContext } from 'providers/AppProvider';
-import { FirebaseContext } from 'providers/FirebaseProvider';
 import { getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
 import { v4 as uuidv4 } from 'uuid';
+import { useAppStore } from 'state/AppStore';
+import { useUserStore } from 'state/UserStore';
 
 interface CreateProfileProps {
   isOpen: boolean;
@@ -12,10 +12,12 @@ interface CreateProfileProps {
 }
 
 const CreateProfile = (props: CreateProfileProps) => {
-  const { setSnackbarData } = useContext(AppContext);
-  const firebase = useContext(FirebaseContext);
-  const { userId, getProfile } = useContext(UserContext);
   const { isOpen, setIsOpen } = props;
+
+  const firebase = useAppStore((state) => state.firebase);
+  const setSnackbarData = useAppStore((state) => state.setSnackbarData);
+  const userId = useUserStore((state) => state.userId);
+  const getProfile = useUserStore((state) => state.getProfile);
 
   const [newName, setNewName] = useState<string | undefined>(undefined);
   const [nameError, setNameError] = useState<string | undefined>(undefined);

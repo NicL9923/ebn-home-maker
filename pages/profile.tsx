@@ -1,18 +1,21 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { Button, Container, Paper, Stack, Typography } from '@mui/material';
-import { UserContext, AppContext } from 'providers/AppProvider';
-import { FirebaseContext } from 'providers/FirebaseProvider';
 import NoProfile from 'components/NoProfile';
 import { UserProfile } from 'models/types';
 import Family from 'components/Family';
 import EditableLabel from 'components/Inputs/EditableLabel';
 import EditableImage from 'components/Inputs/EditableImage';
 import { sendPasswordResetEmail } from 'firebase/auth';
+import { useAppStore } from 'state/AppStore';
+import { useUserStore } from 'state/UserStore';
 
 const Profile = () => {
-  const firebase = useContext(FirebaseContext);
-  const { userId, userEmail, profile, getProfile } = useContext(UserContext);
-  const { setSnackbarData } = useContext(AppContext);
+  const firebase = useAppStore((state) => state.firebase);
+  const setSnackbarData = useAppStore((state) => state.setSnackbarData);
+  const userId = useUserStore((state) => state.userId);
+  const userEmail = useUserStore((state) => state.userEmail);
+  const profile = useUserStore((state) => state.profile);
+  const getProfile = useUserStore((state) => state.getProfile);
 
   const mergeProfileProperty = (profObjToMerge: Partial<UserProfile>, profileId = userId, refreshProfile = true) => {
     if (!profileId) return;

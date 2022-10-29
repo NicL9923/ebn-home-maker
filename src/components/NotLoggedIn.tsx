@@ -1,5 +1,5 @@
 import { Box, Button, Divider, Paper, Stack, TextField, Typography } from '@mui/material';
-import React, { useContext, useState } from 'react';
+import React, { useState } from 'react';
 import {
   signInWithRedirect,
   GoogleAuthProvider,
@@ -7,12 +7,11 @@ import {
   createUserWithEmailAndPassword,
 } from 'firebase/auth';
 import { Google } from '@mui/icons-material';
-import { AppContext } from 'providers/AppProvider';
-import { FirebaseContext } from 'providers/FirebaseProvider';
+import { useAppStore } from 'state/AppStore';
 
 const NotLoggedIn = () => {
-  const { auth } = useContext(FirebaseContext);
-  const { setSnackbarData } = useContext(AppContext);
+  const auth = useAppStore((state) => state.firebase.auth);
+  const setSnackbarData = useAppStore((state) => state.setSnackbarData);
   const provider = new GoogleAuthProvider();
 
   const [email, setEmail] = useState<string | undefined>(undefined);

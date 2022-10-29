@@ -1,14 +1,14 @@
 import { Add, Clear } from '@mui/icons-material';
 import { Box, Button, IconButton, Paper, Stack, Typography } from '@mui/material';
 import { IBudget, SavingsBlob } from 'models/types';
-import React, { useContext } from 'react';
+import React from 'react';
 import Chart from 'react-google-charts';
-import { UserContext } from 'providers/AppProvider';
-import { FirebaseContext } from 'providers/FirebaseProvider';
+import { useAppStore } from 'state/AppStore';
+import { useUserStore } from 'state/UserStore';
 import EditableLabel from '../Inputs/EditableLabel';
 
 const formatChartData = (blobsData: SavingsBlob[]) => {
-  const formattedDataArr: any[][] = [['Name', 'Amount']];
+  const formattedDataArr: (string | number)[][] = [['Name', 'Amount']];
 
   blobsData.forEach((blob) => {
     formattedDataArr.push([blob.name, blob.currentAmt]);
@@ -23,9 +23,10 @@ interface SavingsProps {
 }
 
 const Savings = (props: SavingsProps): JSX.Element => {
-  const firebase = useContext(FirebaseContext);
-  const { family } = useContext(UserContext);
   const { budget, getBudget } = props;
+
+  const firebase = useAppStore((state) => state.firebase);
+  const family = useUserStore((state) => state.family);
 
   const isBlobNameUnique = (newBlobName: string) => {
     return !budget.savingsBlobs.some((blob) => blob.name === newBlobName);

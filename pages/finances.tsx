@@ -16,15 +16,15 @@ import {
   Toolbar,
   Typography,
 } from '@mui/material';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Budget from '../src/components/Finances/Budget';
 import Savings from '../src/components/Finances/Savings';
 import Transactions from '../src/components/Finances/Transactions';
 import { v4 as uuidv4 } from 'uuid';
-import { UserContext } from 'providers/AppProvider';
-import { FirebaseContext } from 'providers/FirebaseProvider';
 import 'jspdf-autotable';
 import { BudgetCategory, IBudget, BudgetSubcategory, Transaction } from 'models/types';
+import { useAppStore } from 'state/AppStore';
+import { useUserStore } from 'state/UserStore';
 
 enum COMPONENTS {
   BUDGET,
@@ -56,8 +56,12 @@ const NoBudget = (props: NoBudgetProps) => {
 };
 
 const Finances = () => {
-  const firebase = useContext(FirebaseContext);
-  const { userId, profile, family, getFamily } = useContext(UserContext);
+  const firebase = useAppStore((state) => state.firebase);
+  const userId = useUserStore((state) => state.userId);
+  const profile = useUserStore((state) => state.profile);
+  const family = useUserStore((state) => state.family);
+  const getFamily = useUserStore((state) => getFamily);
+
   const [shownComponent, setShownComponent] = useState(0);
   const [budget, setBudget] = useState<IBudget | undefined>(undefined);
   const [isFetchingBudget, setIsFetchingBudget] = useState(false);

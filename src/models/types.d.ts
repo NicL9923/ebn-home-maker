@@ -1,18 +1,4 @@
-import { ThemeType } from '../constants';
-
 export type GenericObject<T = any> = { [key: string]: T };
-
-export interface UserContextValue {
-  userId?: string;
-  userEmail?: string;
-  profile?: UserProfile;
-  family?: Family;
-  isFetchingProfile: boolean;
-  isFetchingFamily: boolean;
-  getProfile: () => void;
-  getFamily: () => void;
-  setFamily: (newFamily: Family) => void;
-}
 
 // ID === user.uid
 export interface UserProfile {
@@ -21,14 +7,8 @@ export interface UserProfile {
   imgLink?: string;
 }
 
-export interface LocationAsStr {
-  lat: string;
-  long: string;
-}
-
 export interface Family {
   headOfFamily: string;
-  location?: LocationAsStr;
   budgetId?: string;
   members: string[];
   name: string;
@@ -45,6 +25,11 @@ export interface Pet {
   imgLink?: string;
 }
 
+export interface ServiceLogEntry {
+  date: string;
+  note: string;
+}
+
 export interface Vehicle {
   id: string;
   img?: string;
@@ -56,7 +41,7 @@ export interface Vehicle {
   vin: string;
   licensePlate: string;
   miles: number;
-  serviceLogEntries: { date: string; note: string }[];
+  serviceLogEntries: ServiceLogEntry[];
   maintenanceMarkers: { mileage: string; maintenanceReq: string }[];
 }
 
@@ -66,7 +51,7 @@ export interface Residence {
   img?: string;
   yearBuilt: string;
   yearPurchased: string;
-  serviceLogEntries: { date: string; note: string }[];
+  serviceLogEntries: ServiceLogEntry[];
   maintenanceMarkers: { houseAgeYears: number; maintenanceReq: string }[];
 }
 
@@ -132,10 +117,4 @@ export interface BudgetContextValue {
 export interface SnackbarData {
   msg: string;
   severity: 'error' | 'warning' | 'info' | 'success';
-}
-
-export interface AppContextValue {
-  themePreference: ThemeType;
-  setThemePreference: (newThemePreference: ThemeType) => void;
-  setSnackbarData: (snackbarData: SnackbarData | undefined) => void;
 }

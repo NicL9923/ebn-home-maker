@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Avatar,
   Box,
@@ -16,21 +16,24 @@ import {
 import EditableLabel from './Inputs/EditableLabel';
 import { Add, Close, ContentCopyOutlined, Logout } from '@mui/icons-material';
 import { UserProfile, Pet } from 'models/types';
-import { UserContext, AppContext } from 'providers/AppProvider';
-import { FirebaseContext } from 'providers/FirebaseProvider';
 import copy from 'clipboard-copy';
 import NoFamily from './NoFamily';
 import AddPet from './Forms/AddPet';
 import { deleteObject, getStorage, ref } from 'firebase/storage';
+import { useAppStore } from 'state/AppStore';
+import { useUserStore } from 'state/UserStore';
 
 interface FamilyProps {
   mergeProfileProperty: (profObjToMerge: Partial<UserProfile>, profileId?: string, refreshProfile?: boolean) => void;
 }
 
 const Family = ({ mergeProfileProperty }: FamilyProps) => {
-  const { setSnackbarData } = useContext(AppContext);
-  const firebase = useContext(FirebaseContext);
-  const { userId, profile, family, getFamily } = useContext(UserContext);
+  const firebase = useAppStore((state) => state.firebase);
+  const setSnackbarData = useAppStore((state) => state.setSnackbarData);
+  const userId = useUserStore((state) => state.userId);
+  const profile = useUserStore((state) => state.profile);
+  const family = useUserStore((state) => state.family);
+  const getFamily = useUserStore((state) => state.getFamily);
 
   const [familyMemberProfiles, setFamilyMemberProfiles] = useState<UserProfile[]>([]);
   const [addingPet, setAddingPet] = useState(false);
@@ -67,7 +70,7 @@ const Family = ({ mergeProfileProperty }: FamilyProps) => {
     if (!profile || !family) return;
 
     const curLoc = family.cityState.split(',');
-    const newLoc = `${newCity ? newCity : curLoc[0]},${newState ? newState : curLoc[0]}`;
+    const newLoc = `${newCity ? newCity : curLoc[0]},${newState ? newState : curLoc[1]}`;
 
     firebase.updateFamily(profile.familyId, { cityState: newLoc }).then(getFamily);
   };
@@ -163,7 +166,7 @@ const Family = ({ mergeProfileProperty }: FamilyProps) => {
       members: family.members,
       pets: family.pets,
       boardMarkdown: family.boardMarkdown,
-      location: family.location,
+      cityState: family.cityState,
     };
 
     const json = JSON.stringify(familyData, null, 2);

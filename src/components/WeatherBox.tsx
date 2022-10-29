@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Alert, AlertTitle, Box, Paper, Stack, Tab, Tabs, Typography, CircularProgress } from '@mui/material';
 import {
@@ -12,7 +12,6 @@ import {
   WiCloudy,
   WiNightCloudy,
 } from 'react-icons/wi';
-import { UserContext } from 'providers/AppProvider';
 import {
   ICurrentWeatherResponse,
   IDailyWeatherResponse,
@@ -24,6 +23,7 @@ import {
   IWeatherAlertResponse,
 } from 'models/weatherTypes';
 import { openWeatherMapOneCallApiBaseUrl, openWeatherMapGeocodeApiBaseUrl, daysOfTheWeek } from '../constants';
+import { useUserStore } from 'state/UserStore';
 
 enum ShownWeather {
   Current = 0,
@@ -60,7 +60,8 @@ const getWeatherIcon = (weatherId: number, size = 48) => {
 };
 
 const WeatherBox = () => {
-  const { family } = useContext(UserContext);
+  const family = useUserStore((state) => state.family);
+
   const [weatherLocation, setWeatherLocation] = useState<string | undefined>(undefined);
   const [currentWeather, setCurrentWeather] = useState<IParsedCurrentWeather | undefined>(undefined);
   const [hourlyWeather, setHourlyWeather] = useState<IParsedHourlyWeather[] | undefined>(undefined);
@@ -150,7 +151,7 @@ const WeatherBox = () => {
   return (
     <Stack alignItems='center' justifyContent='center' mb={6}>
       <Typography variant='h4'>Weather</Typography>
-      <Typography variant='h6'>{weatherLocation}</Typography>
+      <Typography variant='subtitle1'>{weatherLocation}</Typography>
 
       <Tabs value={shownWeather} onChange={(e, newVal) => setShownWeather(newVal)}>
         <Tab label='Current' />

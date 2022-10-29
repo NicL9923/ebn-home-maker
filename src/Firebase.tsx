@@ -1,8 +1,9 @@
+import { initializeApp } from 'firebase/app';
 import { getAuth, Auth } from 'firebase/auth';
 import { deleteDoc, doc, FieldValue, Firestore, getDoc, getFirestore, setDoc, updateDoc } from 'firebase/firestore';
 import { IBudget, Family, GenericObject, Residence, UserProfile, Vehicle } from 'models/types';
 
-export const firebaseConfig = {
+const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
   authDomain: 'our-home-239c1.firebaseapp.com',
   projectId: 'our-home-239c1',
@@ -10,6 +11,8 @@ export const firebaseConfig = {
   messagingSenderId: '613377018757',
   appId: '1:613377018757:web:ebbb3c902c79b01aabd2ec',
 };
+
+initializeApp(firebaseConfig);
 
 export enum DocTypes {
   budget = 'budgets',

@@ -1,7 +1,5 @@
-import React, { useContext, useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import NoFamily from 'components/NoFamily';
-import { UserContext, AppContext } from 'providers/AppProvider';
-import { FirebaseContext } from 'providers/FirebaseProvider';
 import { DocTypes } from '../src/Firebase';
 import { Paper, Typography, Box, List, ListItem, Checkbox, Button, FormControlLabel } from '@mui/material';
 import { arrayUnion, doc, onSnapshot } from 'firebase/firestore';
@@ -9,11 +7,16 @@ import NoProfile from 'components/NoProfile';
 import { Family } from 'models/types';
 import SingleFieldDialog from 'components/Inputs/SingleFieldDialog';
 import { DragDropContext, Draggable, Droppable, DropResult } from 'react-beautiful-dnd';
+import { useAppStore } from 'state/AppStore';
+import { useUserStore } from 'state/UserStore';
 
 const GroceryList = () => {
-  const { setSnackbarData } = useContext(AppContext);
-  const firebase = useContext(FirebaseContext);
-  const { profile, family, setFamily } = useContext(UserContext);
+  const firebase = useAppStore((state) => state.firebase);
+  const setSnackbarData = useAppStore((state) => state.setSnackbarData);
+  const profile = useUserStore((state) => state.profile);
+  const family = useUserStore((state) => state.family);
+  const setFamily = useUserStore((state) => state.setFamily);
+
   const [isEditing, setIsEditing] = useState(false);
 
   if (!profile) {

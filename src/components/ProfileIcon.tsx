@@ -1,14 +1,14 @@
-import React, { useContext, useState } from 'react';
+import React, { useState } from 'react';
 import { signOut } from 'firebase/auth';
 import { Avatar, Divider, ListItemText, Menu, MenuItem, Typography } from '@mui/material';
-import { UserContext, AppContext } from 'providers/AppProvider';
-import { FirebaseContext } from 'providers/FirebaseProvider';
 import Link from 'next/link';
+import { useAppStore } from 'state/AppStore';
+import { useUserStore } from 'state/UserStore';
 
 const ProfileIcon = () => {
-  const { setSnackbarData } = useContext(AppContext);
-  const { auth } = useContext(FirebaseContext);
-  const { profile } = useContext(UserContext);
+  const setSnackbarData = useAppStore((state) => state.setSnackbarData);
+  const auth = useAppStore((state) => state.firebase.auth);
+  const profile = useUserStore((state) => state.profile);
 
   const [anchorEl, setAnchorEl] = useState<Element | undefined>(undefined);
 

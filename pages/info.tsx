@@ -1,12 +1,12 @@
-import React, { useContext, useState } from 'react';
+import React, { useState } from 'react';
 import { Box, Button, Paper, Typography } from '@mui/material';
-import { UserContext } from '../src/providers/AppProvider';
-import { FirebaseContext } from '../src/providers/FirebaseProvider';
 import { Edit, Save } from '@mui/icons-material';
 import NoFamily from '../src/components/NoFamily';
 import '@uiw/react-md-editor/markdown-editor.css';
 import '@uiw/react-markdown-preview/markdown.css';
 import dynamic from 'next/dynamic';
+import { useAppStore } from '../src/state/AppStore';
+import { useUserStore } from '../src/state/UserStore';
 
 const MDEditor = dynamic(() => import('@uiw/react-md-editor').then((mod) => mod.default), { ssr: false });
 const EditorMarkdown = dynamic(
@@ -18,8 +18,12 @@ const EditorMarkdown = dynamic(
 );
 
 const Information = () => {
-  const firebase = useContext(FirebaseContext);
-  const { userId, profile, family, getFamily } = useContext(UserContext);
+  const firebase = useAppStore((state) => state.firebase);
+  const userId = useUserStore((state) => state.userId);
+  const profile = useUserStore((state) => state.profile);
+  const family = useUserStore((state) => state.family);
+  const getFamily = useUserStore((state) => state.getFamily);
+
   const [isEditingMd, setIsEditingMd] = useState(false);
   const [editedMd, setEditedMd] = useState<string | undefined>(undefined);
 

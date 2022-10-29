@@ -1,16 +1,18 @@
-import { UserContext } from 'providers/AppProvider';
-import { FirebaseContext } from 'providers/FirebaseProvider';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Box, Button, CircularProgress, Container, Grid, Paper, Stack, Typography } from '@mui/material';
-import type { Residence } from 'models/types';
+import type { Residence, ServiceLogEntry } from 'models/types';
 import AddResidence from 'components/Forms/AddResidence';
 import { DataGrid } from '@mui/x-data-grid';
 import { Add, House } from '@mui/icons-material';
 import Image from 'material-ui-image';
+import { useAppStore } from 'state/AppStore';
+import { useUserStore } from 'state/UserStore';
 
 export const Residences = () => {
-  const firebase = useContext(FirebaseContext);
-  const { profile, family, getFamily } = useContext(UserContext);
+  const firebase = useAppStore((state) => state.firebase);
+  const profile = useUserStore((state) => state.profile);
+  const family = useUserStore((state) => state.family);
+  const getFamily = useUserStore((state) => state.getFamily);
 
   const [residences, setResidences] = useState<Residence[]>([]);
   const [isFetchingResidences, setIsFetchingResidences] = useState(false);
@@ -26,9 +28,8 @@ export const Residences = () => {
       firebase.getResidence(residence).then((resDoc) => {
         if (resDoc.exists()) {
           const docData = resDoc.data();
-          docData.serviceLogEntries.forEach((entry: any, index: number) => {
+          docData.serviceLogEntries.forEach((entry: ServiceLogEntry) => {
             entry.date = new Date(entry.date).toLocaleDateString();
-            entry.id = index;
           });
           residencesArr.push(docData as Residence);
           setResidences(residencesArr);

@@ -1,11 +1,11 @@
-import React, { useContext, useState } from 'react';
+import React, { useState } from 'react';
 import { Add, Delete } from '@mui/icons-material';
 import { Button, Stack, Typography, Box } from '@mui/material';
 import { DataGrid, GridRowId } from '@mui/x-data-grid';
-import { UserContext } from 'providers/AppProvider';
-import { FirebaseContext } from 'providers/FirebaseProvider';
 import { IBudget, Transaction } from 'models/types';
 import AddTransaction from 'components/Forms/AddTransaction';
+import { useAppStore } from 'state/AppStore';
+import { useUserStore } from 'state/UserStore';
 
 const dgColumns = [
   {
@@ -15,8 +15,8 @@ const dgColumns = [
     type: 'number',
     flex: 1,
     editable: true,
-    valueFormatter: (params: any) => {
-      if (params.value === null) return '';
+    valueFormatter: (params: { value?: number }) => {
+      if (!params.value) return '';
       return `$${params.value.toLocaleString(undefined, {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
@@ -44,7 +44,7 @@ const dgColumns = [
     flex: 1,
     width: 100,
     editable: true,
-    valueGetter: (params: any) => new Date(params.value),
+    valueGetter: (params: { value?: string }) => new Date(params.value ?? ''),
   },
 ];
 
@@ -55,8 +55,10 @@ interface TransactionsProps {
 
 const Transactions = (props: TransactionsProps): JSX.Element => {
   const { budget, getBudget } = props;
-  const firebase = useContext(FirebaseContext);
-  const { family } = useContext(UserContext);
+
+  const firebase = useAppStore((state) => state.firebase);
+  const family = useUserStore((state) => state.family);
+
   const [addingTransaction, setAddingTransaction] = useState(false);
   const [selection, setSelection] = useState<GridRowId[]>([]);
   const [pageSize, setPageSize] = useState(20);

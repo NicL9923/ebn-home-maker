@@ -1,16 +1,18 @@
-import { FirebaseContext } from 'providers/FirebaseProvider';
-import { UserContext } from 'providers/AppProvider';
-import type { Vehicle } from 'models/types';
-import React, { useContext, useEffect, useState } from 'react';
+import type { ServiceLogEntry, Vehicle } from 'models/types';
+import React, { useEffect, useState } from 'react';
 import { Box, Button, CircularProgress, Container, Grid, Paper, Stack, Typography } from '@mui/material';
 import AddVehicle from 'components/Forms/AddVehicle';
 import { DataGrid } from '@mui/x-data-grid';
 import { Add, DirectionsCar } from '@mui/icons-material';
 import Image from 'material-ui-image';
+import { useAppStore } from 'state/AppStore';
+import { useUserStore } from 'state/UserStore';
 
 export const Vehicles = () => {
-  const firebase = useContext(FirebaseContext);
-  const { profile, family, getFamily } = useContext(UserContext);
+  const firebase = useAppStore((state) => state.firebase);
+  const profile = useUserStore((state) => state.profile);
+  const family = useUserStore((state) => state.family);
+  const getFamily = useUserStore((state) => state.getFamily);
 
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [isFetchingVehicles, setIsFetchingVehicles] = useState(false);
@@ -26,9 +28,8 @@ export const Vehicles = () => {
       firebase.getVehicle(vehicle).then((vehDoc) => {
         if (vehDoc.exists()) {
           const docData = vehDoc.data();
-          docData.serviceLogEntries.forEach((entry: any, index: number) => {
+          docData.serviceLogEntries.forEach((entry: ServiceLogEntry) => {
             entry.date = new Date(entry.date).toLocaleDateString();
-            entry.id = index;
           });
           vehiclesArr.push(docData as Vehicle);
           setVehicles(vehiclesArr);
