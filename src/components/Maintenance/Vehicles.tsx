@@ -107,7 +107,7 @@ export const Vehicles = () => {
                       { field: 'date', headerName: 'Date' },
                       { field: 'note', headerName: 'Note' },
                     ]}
-                    rows={vehicle.serviceLogEntries}
+                    rows={vehicle.serviceLogEntries.map((entry, idx) => ({ ...entry, id: idx }))}
                     pageSize={5}
                     rowsPerPageOptions={[5, 10, 20]}
                     getRowId={(row) => row.date}

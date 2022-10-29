@@ -103,7 +103,7 @@ export const Residences = () => {
                       { field: 'date', headerName: 'Date' },
                       { field: 'note', headerName: 'Note', flex: 1 },
                     ]}
-                    rows={residence.serviceLogEntries}
+                    rows={residence.serviceLogEntries.map((entry, idx) => ({ ...entry, id: idx }))}
                     pageSize={5}
                     rowsPerPageOptions={[5, 10, 20]}
                   />
