@@ -4,7 +4,6 @@ import type { Residence, ServiceLogEntry } from 'models/types';
 import AddResidence from 'components/Forms/AddResidence';
 import { DataGrid } from '@mui/x-data-grid';
 import { Add, House } from '@mui/icons-material';
-import Image from 'material-ui-image';
 import { useAppStore } from 'state/AppStore';
 import { useUserStore } from 'state/UserStore';
 
@@ -83,7 +82,7 @@ export const Residences = () => {
             <Grid container item xs={12} md={6} lg={4} key={residence.name}>
               <Paper sx={{ p: 2 }}>
                 {residence.img ? (
-                  <Image height='250' src={residence.img} />
+                  <img height='250' src={residence.img} />
                 ) : (
                   <Container>
                     <House sx={{ fontSize: 200 }} />

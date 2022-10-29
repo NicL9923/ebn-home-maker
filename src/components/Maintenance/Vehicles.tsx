@@ -4,7 +4,6 @@ import { Box, Button, CircularProgress, Container, Grid, Paper, Stack, Typograph
 import AddVehicle from 'components/Forms/AddVehicle';
 import { DataGrid } from '@mui/x-data-grid';
 import { Add, DirectionsCar } from '@mui/icons-material';
-import Image from 'material-ui-image';
 import { useAppStore } from 'state/AppStore';
 import { useUserStore } from 'state/UserStore';
 
@@ -83,7 +82,7 @@ export const Vehicles = () => {
             <Grid container item xs={12} md={6} lg={4} key={vehicle.vin}>
               <Paper sx={{ p: 2 }}>
                 {vehicle.img ? (
-                  <Image height='250' src={vehicle.img} />
+                  <img height='250' src={vehicle.img} />
                 ) : (
                   <Container>
                     <DirectionsCar sx={{ fontSize: 200 }} />
