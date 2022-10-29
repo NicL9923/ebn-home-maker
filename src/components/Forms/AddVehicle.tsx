@@ -32,7 +32,6 @@ const AddVehicle = (props: AddVehicleProps) => {
   const setSnackbarData = useAppStore((state) => state.setSnackbarData);
   const profile = useUserStore((state) => state.profile);
   const family = useUserStore((state) => state.family);
-  const getFamily = useUserStore((state) => state.getFamily);
 
   const [newVehicle, setNewVehicle] = useState(defNewVeh);
   const [newVehImgFile, setNewVehImgFile] = useState<File | null>(null);
@@ -54,7 +53,6 @@ const AddVehicle = (props: AddVehicleProps) => {
           vehicles: newVehIdArr,
         })
         .then(() => {
-          getFamily();
           setIsOpen(false);
           setNewVehicle(defNewVeh);
           setSnackbarData({ msg: 'Successfully added vehicle!', severity: 'success' });

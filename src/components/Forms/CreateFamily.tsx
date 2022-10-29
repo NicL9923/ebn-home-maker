@@ -17,8 +17,6 @@ const CreateFamily = (props: CreateFamilyProps) => {
   const firebase = useAppStore((state) => state.firebase);
   const setSnackbarData = useAppStore((state) => state.setSnackbarData);
   const userId = useUserStore((state) => state.userId);
-  const getProfile = useUserStore((state) => state.getProfile);
-  const getFamily = useUserStore((state) => state.getFamily);
 
   const createFamily = () => {
     if (!userId || !newName) return;
@@ -37,13 +35,10 @@ const CreateFamily = (props: CreateFamilyProps) => {
     };
 
     firebase.createFamily(newFamId, newFamObj).then(() => {
-      getFamily();
       setSnackbarData({ msg: 'Successfully created family!', severity: 'success' });
     });
 
-    firebase.updateProfile(userId, { familyId: newFamId }).then(() => {
-      getProfile();
-    });
+    firebase.updateProfile(userId, { familyId: newFamId });
 
     setIsOpen(false);
   };

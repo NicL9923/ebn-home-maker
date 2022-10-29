@@ -60,7 +60,6 @@ const Finances = () => {
   const userId = useUserStore((state) => state.userId);
   const profile = useUserStore((state) => state.profile);
   const family = useUserStore((state) => state.family);
-  const getFamily = useUserStore((state) => state.getFamily);
 
   const [shownComponent, setShownComponent] = useState(0);
   const [budget, setBudget] = useState<IBudget | undefined>(undefined);
@@ -116,9 +115,7 @@ const Finances = () => {
     };
 
     firebase.updateFamily(profile.familyId, { budgetId: newBudgetUuid }).then(() => {
-      firebase.createBudget(newBudgetUuid, newBudgetTemplate).then(() => {
-        getFamily();
-      });
+      firebase.createBudget(newBudgetUuid, newBudgetTemplate);
     });
   };
 

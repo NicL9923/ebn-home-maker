@@ -24,16 +24,16 @@ import { useAppStore } from 'state/AppStore';
 import { useUserStore } from 'state/UserStore';
 
 interface FamilyProps {
-  mergeProfileProperty: (profObjToMerge: Partial<UserProfile>, profileId?: string, refreshProfile?: boolean) => void;
+  mergeProfileProperty: (profObjToMerge: Partial<UserProfile>, profileId?: string) => void;
 }
 
 const Family = ({ mergeProfileProperty }: FamilyProps) => {
   const firebase = useAppStore((state) => state.firebase);
   const setSnackbarData = useAppStore((state) => state.setSnackbarData);
+
   const userId = useUserStore((state) => state.userId);
   const profile = useUserStore((state) => state.profile);
   const family = useUserStore((state) => state.family);
-  const getFamily = useUserStore((state) => state.getFamily);
 
   const [familyMemberProfiles, setFamilyMemberProfiles] = useState<UserProfile[]>([]);
   const [addingPet, setAddingPet] = useState(false);
@@ -63,7 +63,7 @@ const Family = ({ mergeProfileProperty }: FamilyProps) => {
   const updateFamilyName = (newFamName?: string) => {
     if (!profile || !newFamName) return;
 
-    firebase.updateFamily(profile.familyId, { name: newFamName }).then(getFamily);
+    firebase.updateFamily(profile.familyId, { name: newFamName });
   };
 
   const updateFamilyLocation = (newCity = '', newState = '') => {
@@ -72,7 +72,7 @@ const Family = ({ mergeProfileProperty }: FamilyProps) => {
     const curLoc = family.cityState.split(',');
     const newLoc = `${newCity ? newCity : curLoc[0]},${newState ? newState : curLoc[1]}`;
 
-    firebase.updateFamily(profile.familyId, { cityState: newLoc }).then(getFamily);
+    firebase.updateFamily(profile.familyId, { cityState: newLoc });
   };
 
   const deleteFamily = () => {
@@ -81,7 +81,7 @@ const Family = ({ mergeProfileProperty }: FamilyProps) => {
     // Set each profile in family.members familyId property to ''
     if (family.members) {
       family.members.forEach((member) => {
-        mergeProfileProperty({ familyId: '' }, member, false);
+        mergeProfileProperty({ familyId: '' }, member);
       });
     }
 
@@ -136,7 +136,7 @@ const Family = ({ mergeProfileProperty }: FamilyProps) => {
       const newMembersArr = [...family.members];
       newMembersArr.splice(memberIdx, 1);
 
-      firebase.updateFamily(profile.familyId, { members: newMembersArr }).then(getFamily);
+      firebase.updateFamily(profile.familyId, { members: newMembersArr });
     }
   };
 
@@ -153,7 +153,7 @@ const Family = ({ mergeProfileProperty }: FamilyProps) => {
         deleteObject(oldImgRef);
       }
 
-      firebase.updateFamily(profile.familyId, { pets: newPetsArr }).then(getFamily);
+      firebase.updateFamily(profile.familyId, { pets: newPetsArr });
     }
   };
 

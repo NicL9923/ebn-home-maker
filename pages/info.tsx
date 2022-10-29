@@ -22,7 +22,6 @@ const Information = () => {
   const userId = useUserStore((state) => state.userId);
   const profile = useUserStore((state) => state.profile);
   const family = useUserStore((state) => state.family);
-  const getFamily = useUserStore((state) => state.getFamily);
 
   const [isEditingMd, setIsEditingMd] = useState(false);
   const [editedMd, setEditedMd] = useState<string | undefined>(undefined);
@@ -48,7 +47,6 @@ const Information = () => {
         boardMarkdown: editedMd,
       })
       .then(() => {
-        getFamily();
         setEditedMd(undefined);
       });
   };

@@ -1,10 +1,8 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import NoFamily from 'components/NoFamily';
-import { DocTypes } from '../src/Firebase';
 import { Paper, Typography, Box, List, ListItem, Checkbox, Button, FormControlLabel } from '@mui/material';
-import { arrayUnion, doc, onSnapshot } from 'firebase/firestore';
+import { arrayUnion } from 'firebase/firestore';
 import NoProfile from 'components/NoProfile';
-import { Family } from 'models/types';
 import SingleFieldDialog from 'components/Inputs/SingleFieldDialog';
 import { DragDropContext, Draggable, Droppable, DropResult } from 'react-beautiful-dnd';
 import { useAppStore } from 'state/AppStore';
@@ -15,7 +13,6 @@ const GroceryList = () => {
   const setSnackbarData = useAppStore((state) => state.setSnackbarData);
   const profile = useUserStore((state) => state.profile);
   const family = useUserStore((state) => state.family);
-  const setFamily = useUserStore((state) => state.setFamily);
 
   const [isEditing, setIsEditing] = useState(false);
 
@@ -73,18 +70,6 @@ const GroceryList = () => {
     () => family.groceryList.length > 0 && family.groceryList.some((item) => item.isBought),
     [family.groceryList]
   );
-
-  useEffect(() => {
-    const unsubscribe = onSnapshot(doc(firebase.db, DocTypes.family, profile.familyId), (doc) => {
-      const updFam = doc.data() as Family;
-
-      if (updFam) {
-        setFamily(updFam);
-      }
-    });
-
-    return () => unsubscribe();
-  }, []);
 
   return (
     <Box maxWidth='md' mx='auto' mt={2}>

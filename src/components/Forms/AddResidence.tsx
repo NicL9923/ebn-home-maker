@@ -27,7 +27,6 @@ const AddResidence = (props: AddResidenceProps) => {
   const setSnackbarData = useAppStore((state) => state.setSnackbarData);
   const profile = useUserStore((state) => state.profile);
   const family = useUserStore((state) => state.family);
-  const getFamily = useUserStore((state) => state.getFamily);
 
   const [newResidence, setNewResidence] = useState(defNewRes);
   const [newResImgFile, setNewResImgFile] = useState<File | null>(null);
@@ -54,7 +53,6 @@ const AddResidence = (props: AddResidenceProps) => {
             residences: newResIdArr,
           })
           .then(() => {
-            getFamily();
             setIsOpen(false);
             setNewResidence(defNewRes);
             setSnackbarData({ msg: 'Successfully added residence!', severity: 'success' });

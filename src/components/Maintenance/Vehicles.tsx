@@ -11,7 +11,6 @@ export const Vehicles = () => {
   const firebase = useAppStore((state) => state.firebase);
   const profile = useUserStore((state) => state.profile);
   const family = useUserStore((state) => state.family);
-  const getFamily = useUserStore((state) => state.getFamily);
 
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [isFetchingVehicles, setIsFetchingVehicles] = useState(false);
@@ -51,11 +50,9 @@ export const Vehicles = () => {
         1
       );
 
-      firebase
-        .updateFamily(profile.familyId, {
-          vehicles: newVehIdArr,
-        })
-        .then(() => getFamily());
+      firebase.updateFamily(profile.familyId, {
+        vehicles: newVehIdArr,
+      });
     });
   };
 

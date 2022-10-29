@@ -18,7 +18,6 @@ const AddPet = (props: AddPetProps) => {
   const setSnackbarData = useAppStore((state) => state.setSnackbarData);
   const profile = useUserStore((state) => state.profile);
   const family = useUserStore((state) => state.family);
-  const getFamily = useUserStore((state) => state.getFamily);
 
   const [newName, setNewName] = useState<string | undefined>(undefined);
   const [newPhoto, setNewPhoto] = useState<File | null>(null);
@@ -35,7 +34,6 @@ const AddPet = (props: AddPetProps) => {
         getDownloadURL(snapshot.ref).then((url) => {
           newPetsArr.push({ name: newName, imgLink: url });
           firebase.updateFamily(profile.familyId, { pets: newPetsArr }).then(() => {
-            getFamily();
             setIsOpen(false);
             setSnackbarData({ msg: 'Successfully added pet!', severity: 'success' });
           });
@@ -44,7 +42,6 @@ const AddPet = (props: AddPetProps) => {
     } else {
       newPetsArr.push({ name: newName });
       firebase.updateFamily(profile.familyId, { pets: newPetsArr }).then(() => {
-        getFamily();
         setIsOpen(false);
         setSnackbarData({ msg: 'Successfully added pet!', severity: 'success' });
       });

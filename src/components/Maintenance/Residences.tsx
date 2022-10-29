@@ -11,7 +11,6 @@ export const Residences = () => {
   const firebase = useAppStore((state) => state.firebase);
   const profile = useUserStore((state) => state.profile);
   const family = useUserStore((state) => state.family);
-  const getFamily = useUserStore((state) => state.getFamily);
 
   const [residences, setResidences] = useState<Residence[]>([]);
   const [isFetchingResidences, setIsFetchingResidences] = useState(false);
@@ -51,11 +50,9 @@ export const Residences = () => {
         1
       );
 
-      firebase
-        .updateFamily(profile.familyId, {
-          residences: newResIdArr,
-        })
-        .then(() => getFamily());
+      firebase.updateFamily(profile.familyId, {
+        residences: newResIdArr,
+      });
     });
   };
 

@@ -15,14 +15,11 @@ const Profile = () => {
   const userId = useUserStore((state) => state.userId);
   const userEmail = useUserStore((state) => state.userEmail);
   const profile = useUserStore((state) => state.profile);
-  const getProfile = useUserStore((state) => state.getProfile);
 
-  const mergeProfileProperty = (profObjToMerge: Partial<UserProfile>, profileId = userId, refreshProfile = true) => {
+  const mergeProfileProperty = (profObjToMerge: Partial<UserProfile>, profileId = userId) => {
     if (!profileId) return;
 
-    firebase.updateProfile(profileId, profObjToMerge).then(() => {
-      if (refreshProfile) getProfile();
-    });
+    firebase.updateProfile(profileId, profObjToMerge);
   };
 
   const updateProfileName = (newName?: string) => {

@@ -13,21 +13,14 @@ const JoinFamily = () => {
   const userId = useUserStore((state) => state.userId);
   const profile = useUserStore((state) => state.profile);
   const family = useUserStore((state) => state.family);
-  const getProfile = useUserStore((state) => state.getProfile);
-  const getFamily = useUserStore((state) => state.getFamily);
 
   const addUserToFamily = () => {
     if (!familyId || !userId || profile?.familyId === familyId) {
       return;
     }
 
-    // Add familyId to profile(user.uid).familyId, getFamily, and show success message
     firebase.updateFamily(familyId, { members: arrayUnion(userId) });
-
-    firebase.updateProfile(userId, { familyId }).then(() => {
-      getProfile();
-      getFamily();
-    });
+    firebase.updateProfile(userId, { familyId });
   };
 
   useEffect(() => {

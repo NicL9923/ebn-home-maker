@@ -17,7 +17,6 @@ const CreateProfile = (props: CreateProfileProps) => {
   const firebase = useAppStore((state) => state.firebase);
   const setSnackbarData = useAppStore((state) => state.setSnackbarData);
   const userId = useUserStore((state) => state.userId);
-  const getProfile = useUserStore((state) => state.getProfile);
 
   const [newName, setNewName] = useState<string | undefined>(undefined);
   const [nameError, setNameError] = useState<string | undefined>(undefined);
@@ -53,14 +52,12 @@ const CreateProfile = (props: CreateProfileProps) => {
               imgLink: url,
             })
             .then(() => {
-              getProfile();
               setIsOpen(false);
             });
         });
       });
     } else {
       firebase.createProfile(userId, newProfileObj).then(() => {
-        getProfile();
         setIsOpen(false);
         setSnackbarData({ msg: 'Successfully created profile!', severity: 'success' });
       });
