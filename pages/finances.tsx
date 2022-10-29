@@ -60,7 +60,7 @@ const Finances = () => {
   const userId = useUserStore((state) => state.userId);
   const profile = useUserStore((state) => state.profile);
   const family = useUserStore((state) => state.family);
-  const getFamily = useUserStore((state) => getFamily);
+  const getFamily = useUserStore((state) => state.getFamily);
 
   const [shownComponent, setShownComponent] = useState(0);
   const [budget, setBudget] = useState<IBudget | undefined>(undefined);
