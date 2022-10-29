@@ -3,6 +3,14 @@ interface WeatherCondition {
   main: string;
 }
 
+export interface IGeocodeResponse {
+  name: string;
+  state?: string;
+  country: string;
+  lat: number;
+  lon: number;
+}
+
 // Only included the ones I currently utilize - there's a few other good ones not captured here
 export interface ICurrentWeatherResponse {
   dt: number;

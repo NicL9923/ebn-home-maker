@@ -63,15 +63,13 @@ const Family = ({ mergeProfileProperty }: FamilyProps) => {
     firebase.updateFamily(profile.familyId, { name: newFamName }).then(getFamily);
   };
 
-  const updateFamilyLocation = (newLat = '', newLong = '') => {
+  const updateFamilyLocation = (newCity = '', newState = '') => {
     if (!profile || !family) return;
 
-    const newLoc = {
-      lat: newLat ?? family.location?.lat,
-      long: newLong ?? family.location?.long,
-    };
+    const curLoc = family.cityState.split(',');
+    const newLoc = `${newCity ? newCity : curLoc[0]},${newState ? newState : curLoc[0]}`;
 
-    firebase.updateFamily(profile.familyId, { location: newLoc }).then(getFamily);
+    firebase.updateFamily(profile.familyId, { cityState: newLoc }).then(getFamily);
   };
 
   const deleteFamily = () => {
@@ -284,28 +282,25 @@ const Family = ({ mergeProfileProperty }: FamilyProps) => {
           <Box mb={6}>
             <Typography variant='h6'>Location</Typography>
 
-            {family.location && (
-              <Box>
-                <Box>
-                  <Typography variant='body1'>Latitude:</Typography>
-                  <EditableLabel
-                    textVariant='body1'
-                    text={family.location.lat}
-                    fieldName='Latitude'
-                    fieldType='DecimalNum'
-                    onSubmitValue={updateFamilyLocation}
-                  />
-                  <Typography variant='body1'>Longitude:</Typography>
-                  <EditableLabel
-                    textVariant='body1'
-                    text={family.location.long}
-                    fieldName='Longitude'
-                    fieldType='DecimalNum'
-                    onSubmitValue={(newLong?: string) => updateFamilyLocation('', newLong)}
-                  />
-                </Box>
-              </Box>
-            )}
+            <Box>
+              <Typography variant='body1'>City</Typography>
+
+              <EditableLabel
+                textVariant='body1'
+                text={family.cityState ? family.cityState.split(',')[0] : ''}
+                fieldName='City'
+                fieldType='EntityName'
+                onSubmitValue={updateFamilyLocation}
+              />
+              <Typography variant='body1'>State</Typography>
+              <EditableLabel
+                textVariant='body1'
+                text={family.cityState ? family.cityState.split(',')[1] : ''}
+                fieldName='State'
+                fieldType='EntityName'
+                onSubmitValue={(newState?: string) => updateFamilyLocation('', newState)}
+              />
+            </Box>
           </Box>
         </Box>
       )}

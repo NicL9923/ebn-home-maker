@@ -20,15 +20,11 @@ export const FieldTypes = {
     regex: /^[\s\S]{1,50}$/, // Any (whitespace/non-whitespace) characters, 1-50 chars
     valErrMsg: 'Entity names have a max length of 50 characters',
   },
+  // Must be unique
   ItemName: {
     name: 'itemName',
     regex: /^[\s\S]{1,100}$/, // Any (whitespace/non-whitespace) characters, 1-100 chars
     valErrMsg: 'Item names have a max length of 100 characters',
-  },
-  ApiToken: {
-    name: 'apiToken',
-    regex: /^[A-Za-z0-9_-]*$/, // Only letters, numbers, hyphens, and underscores
-    valErrMsg: 'API tokens can only contain letters, numbers, hyphens, and underscores',
   },
   DecimalNum: {
     name: 'decimalNum',
@@ -42,6 +38,8 @@ export const ValidationErrorMsgs = {
   ItemNameUnique: 'Item names must be unique',
 };
 
-const openWeatherMapApiVersion = '3.0';
-export const openWeatherMapOneCallApiBaseUrl = `https://api.openweathermap.org/data/${openWeatherMapApiVersion}/onecall`;
+const openWeatherMapOneCallApiVersion = '2.5';
+export const openWeatherMapOneCallApiBaseUrl = `https://api.openweathermap.org/data/${openWeatherMapOneCallApiVersion}/onecall`;
+const openWeatherMapGeocodeApiVersion = '1.0';
+export const openWeatherMapGeocodeApiBaseUrl = `http://api.openweathermap.org/geo/${openWeatherMapGeocodeApiVersion}/direct`;
 export const daysOfTheWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];

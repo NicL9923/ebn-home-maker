@@ -37,6 +37,7 @@ export interface Family {
   vehicles: string[]; // IDs
   residences: string[]; // IDs
   groceryList: GroceryItem[];
+  cityState: string; // Format: 'cityName,stateCode'
 }
 
 export interface Pet {

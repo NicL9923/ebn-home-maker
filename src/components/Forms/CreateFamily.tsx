@@ -30,6 +30,7 @@ const CreateFamily = (props: CreateFamilyProps) => {
       vehicles: [],
       residences: [],
       groceryList: [],
+      cityState: 'Seattle,WA', // This'll be the default, because why not!
     };
 
     firebase.createFamily(newFamId, newFamObj).then(() => {

@@ -16,13 +16,14 @@ import { UserContext } from 'providers/AppProvider';
 import {
   ICurrentWeatherResponse,
   IDailyWeatherResponse,
+  IGeocodeResponse,
   IHourlyWeatherResponse,
   IParsedCurrentWeather,
   IParsedDailyWeather,
   IParsedHourlyWeather,
   IWeatherAlertResponse,
 } from 'models/weatherTypes';
-import { openWeatherMapOneCallApiBaseUrl, daysOfTheWeek } from '../constants';
+import { openWeatherMapOneCallApiBaseUrl, openWeatherMapGeocodeApiBaseUrl, daysOfTheWeek } from '../constants';
 
 enum ShownWeather {
   Current = 0,
@@ -60,6 +61,7 @@ const getWeatherIcon = (weatherId: number, size = 48) => {
 
 const WeatherBox = () => {
   const { family } = useContext(UserContext);
+  const [weatherLocation, setWeatherLocation] = useState<string | undefined>(undefined);
   const [currentWeather, setCurrentWeather] = useState<IParsedCurrentWeather | undefined>(undefined);
   const [hourlyWeather, setHourlyWeather] = useState<IParsedHourlyWeather[] | undefined>(undefined);
   const [dailyWeather, setDailyWeather] = useState<IParsedDailyWeather[] | undefined>(undefined);
@@ -67,12 +69,21 @@ const WeatherBox = () => {
   const [shownWeather, setShownWeather] = useState<ShownWeather>(ShownWeather.Current);
   const [isFetchingWeather, setIsFetchingWeather] = useState(true);
 
-  const getWeatherData = () => {
-    if (!family?.location) return;
+  const getWeatherData = async () => {
+    if (!family?.cityState) return;
 
     setIsFetchingWeather(true);
+
+    const geocodeResponseLimit = 1;
+    const defaultCountryCode = 'US'; // Currently just supports United States (US)
+    const geocodeUrl = `${openWeatherMapGeocodeApiBaseUrl}?q=${family.cityState},${defaultCountryCode}&limit=${geocodeResponseLimit}&appid=${process.env.NEXT_PUBLIC_OWM_API_KEY}`;
+    const geocodeResponse = await axios.get(geocodeUrl);
+    const geocodeData = geocodeResponse.data[0] as IGeocodeResponse;
+
+    setWeatherLocation(`${geocodeData.name}${geocodeData.state ? `, ${geocodeData.state}` : ''}`);
+
     // Exclude minute-ly forecast
-    const fullUrl = `${openWeatherMapOneCallApiBaseUrl}?lat=${family.location.lat}&lon=${family.location.long}&exclude=minutely&appid=${process.env.NEXT_PUBLIC_OWM_API_KEY}&units=imperial`;
+    const fullUrl = `${openWeatherMapOneCallApiBaseUrl}?lat=${geocodeData.lat}&lon=${geocodeData.lon}&exclude=minutely&appid=${process.env.NEXT_PUBLIC_OWM_API_KEY}&units=imperial`;
 
     axios
       .get(fullUrl)
@@ -128,15 +139,19 @@ const WeatherBox = () => {
       })
       .catch((err) => {
         setIsFetchingWeather(false);
-        console.error('Error getting weather: ' + err);
+        console.error(`Error getting weather data: ${err.message} - ${err.response.data.message}`);
       });
   };
 
-  useEffect(getWeatherData, [family]);
+  useEffect(() => {
+    getWeatherData();
+  }, [family]);
 
   return (
     <Stack alignItems='center' justifyContent='center' mb={6}>
       <Typography variant='h4'>Weather</Typography>
+      <Typography variant='h6'>{weatherLocation}</Typography>
+
       <Tabs value={shownWeather} onChange={(e, newVal) => setShownWeather(newVal)}>
         <Tab label='Current' />
         <Tab label='Hourly' />
