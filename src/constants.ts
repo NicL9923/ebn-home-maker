@@ -41,5 +41,5 @@ export const ValidationErrorMsgs = {
 const openWeatherMapOneCallApiVersion = '2.5';
 export const openWeatherMapOneCallApiBaseUrl = `https://api.openweathermap.org/data/${openWeatherMapOneCallApiVersion}/onecall`;
 const openWeatherMapGeocodeApiVersion = '1.0';
-export const openWeatherMapGeocodeApiBaseUrl = `http://api.openweathermap.org/geo/${openWeatherMapGeocodeApiVersion}/direct`;
+export const openWeatherMapGeocodeApiBaseUrl = `https://api.openweathermap.org/geo/${openWeatherMapGeocodeApiVersion}/direct`;
 export const daysOfTheWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
