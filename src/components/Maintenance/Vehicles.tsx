@@ -5,6 +5,9 @@ import AddVehicle from 'components/Forms/AddVehicle';
 import { DataGrid } from '@mui/x-data-grid';
 import { Add, DirectionsCar } from '@mui/icons-material';
 import { useUserStore } from 'state/UserStore';
+import { doc, getDoc, writeBatch } from 'firebase/firestore';
+import { db, FsCol } from '../../firebase';
+import { useFirestoreWriteBatch } from '@react-query-firebase/firestore';
 
 export const Vehicles = () => {
   const profile = useUserStore((state) => state.profile);
@@ -14,6 +17,9 @@ export const Vehicles = () => {
   const [isFetchingVehicles, setIsFetchingVehicles] = useState(false);
   const [addingVehicle, setAddingVehicle] = useState(false);
 
+  const batch = writeBatch(db);
+  const batchMutation = useFirestoreWriteBatch(batch);
+
   const getVehicles = () => {
     if (!family?.vehicles) return;
 
@@ -21,7 +27,7 @@ export const Vehicles = () => {
     const vehiclesArr: Vehicle[] = [];
 
     family.vehicles.forEach((vehicle) => {
-      firebase.getVehicle(vehicle).then((vehDoc) => {
+      getDoc(doc(db, FsCol.Vehicles, vehicle)).then((vehDoc) => {
         if (vehDoc.exists()) {
           const docData = vehDoc.data();
           docData.serviceLogEntries.forEach((entry: ServiceLogEntry) => {
@@ -29,8 +35,6 @@ export const Vehicles = () => {
           });
           vehiclesArr.push(docData as Vehicle);
           setVehicles(vehiclesArr);
-        } else {
-          // No vehicles found
         }
       });
     });
@@ -41,17 +45,12 @@ export const Vehicles = () => {
   const deleteVehicle = (vehId: string) => {
     if (!family || !profile) return;
 
-    firebase.deleteVehicle(vehId).then(() => {
-      const newVehIdArr = [...family.vehicles];
-      newVehIdArr.splice(
-        newVehIdArr.findIndex((veh) => veh === vehId),
-        1
-      );
+    const newVehIdArr = family.vehicles.filter((res) => res !== vehId);
 
-      firebase.updateFamily(profile.familyId, {
-        vehicles: newVehIdArr,
-      });
-    });
+    batch.update(doc(db, FsCol.Families, profile.familyId), { residences: newVehIdArr });
+    batch.delete(doc(db, FsCol.Residences, vehId));
+
+    batchMutation.mutate();
   };
 
   // const addLogEntry = () => {};

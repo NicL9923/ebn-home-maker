@@ -5,6 +5,9 @@ import AddResidence from 'components/Forms/AddResidence';
 import { DataGrid } from '@mui/x-data-grid';
 import { Add, House } from '@mui/icons-material';
 import { useUserStore } from 'state/UserStore';
+import { doc, getDoc, writeBatch } from 'firebase/firestore';
+import { db, FsCol } from '../../firebase';
+import { useFirestoreWriteBatch } from '@react-query-firebase/firestore';
 
 export const Residences = () => {
   const profile = useUserStore((state) => state.profile);
@@ -14,6 +17,9 @@ export const Residences = () => {
   const [isFetchingResidences, setIsFetchingResidences] = useState(false);
   const [addingResidence, setAddingResidence] = useState(false);
 
+  const batch = writeBatch(db);
+  const batchMutation = useFirestoreWriteBatch(batch);
+
   const getResidences = () => {
     if (!family?.residences) return;
 
@@ -21,7 +27,7 @@ export const Residences = () => {
     const residencesArr: Residence[] = [];
 
     family.residences.forEach((residence) => {
-      firebase.getResidence(residence).then((resDoc) => {
+      getDoc(doc(db, FsCol.Residences, residence)).then((resDoc) => {
         if (resDoc.exists()) {
           const docData = resDoc.data();
           docData.serviceLogEntries.forEach((entry: ServiceLogEntry) => {
@@ -29,8 +35,6 @@ export const Residences = () => {
           });
           residencesArr.push(docData as Residence);
           setResidences(residencesArr);
-        } else {
-          // No residences found
         }
       });
     });
@@ -41,17 +45,12 @@ export const Residences = () => {
   const deleteResidence = (resId: string) => {
     if (!family || !profile) return;
 
-    firebase.deleteResidence(resId).then(() => {
-      const newResIdArr = [...family.residences];
-      newResIdArr.splice(
-        newResIdArr.findIndex((res) => res === resId),
-        1
-      );
+    const newResIdArr = family.residences.filter((res) => res !== resId);
 
-      firebase.updateFamily(profile.familyId, {
-        residences: newResIdArr,
-      });
-    });
+    batch.update(doc(db, FsCol.Families, profile.familyId), { residences: newResIdArr });
+    batch.delete(doc(db, FsCol.Residences, resId));
+
+    batchMutation.mutate();
   };
 
   // const addLogEntry = () => {};
