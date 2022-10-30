@@ -4,10 +4,10 @@ import { Avatar, Divider, ListItemText, Menu, MenuItem, Typography } from '@mui/
 import Link from 'next/link';
 import { useAppStore } from 'state/AppStore';
 import { useUserStore } from 'state/UserStore';
+import { auth } from '../firebase';
 
 const ProfileIcon = () => {
   const setSnackbarData = useAppStore((state) => state.setSnackbarData);
-  const auth = useAppStore((state) => state.firebase.auth);
   const profile = useUserStore((state) => state.profile);
 
   const [anchorEl, setAnchorEl] = useState<Element | undefined>(undefined);

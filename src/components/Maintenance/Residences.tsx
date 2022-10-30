@@ -4,11 +4,9 @@ import type { Residence, ServiceLogEntry } from 'models/types';
 import AddResidence from 'components/Forms/AddResidence';
 import { DataGrid } from '@mui/x-data-grid';
 import { Add, House } from '@mui/icons-material';
-import { useAppStore } from 'state/AppStore';
 import { useUserStore } from 'state/UserStore';
 
 export const Residences = () => {
-  const firebase = useAppStore((state) => state.firebase);
   const profile = useUserStore((state) => state.profile);
   const family = useUserStore((state) => state.family);
 
@@ -130,7 +128,7 @@ export const Residences = () => {
         Add residence
       </Button>
 
-      <AddResidence isOpen={addingResidence} setIsOpen={setAddingResidence} getResidences={getResidences} />
+      <AddResidence isOpen={addingResidence} setIsOpen={setAddingResidence} />
     </Box>
   );
 };

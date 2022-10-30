@@ -1,20 +1,25 @@
 import React, { useMemo, useState } from 'react';
 import NoFamily from 'components/NoFamily';
 import { Paper, Typography, Box, List, ListItem, Checkbox, Button, FormControlLabel } from '@mui/material';
-import { arrayUnion } from 'firebase/firestore';
+import { doc } from 'firebase/firestore';
 import NoProfile from 'components/NoProfile';
 import SingleFieldDialog from 'components/Inputs/SingleFieldDialog';
 import { DragDropContext, Draggable, Droppable, DropResult } from 'react-beautiful-dnd';
 import { useAppStore } from 'state/AppStore';
 import { useUserStore } from 'state/UserStore';
+import { useFirestoreDocumentMutation } from '@react-query-firebase/firestore';
+import { db, FsCol } from '../src/firebase';
 
 const GroceryList = () => {
-  const firebase = useAppStore((state) => state.firebase);
   const setSnackbarData = useAppStore((state) => state.setSnackbarData);
   const profile = useUserStore((state) => state.profile);
   const family = useUserStore((state) => state.family);
 
   const [isEditing, setIsEditing] = useState(false);
+
+  const familyDocMutation = useFirestoreDocumentMutation(doc(db, FsCol.Families, profile?.familyId ?? 'undefined'), {
+    merge: true,
+  });
 
   if (!profile) {
     return <NoProfile />;
@@ -27,11 +32,16 @@ const GroceryList = () => {
   const addGroceryItem = (newItemName?: string) => {
     if (!newItemName) return;
 
-    firebase
-      .updateFamily(profile.familyId, { groceryList: arrayUnion({ name: newItemName, isBought: false }) })
-      .then(() => {
-        setSnackbarData({ msg: 'Successfully added item!', severity: 'success' });
-      });
+    const newList = [...family.groceryList, { name: newItemName, isBought: false }];
+
+    familyDocMutation.mutate(
+      { groceryList: newList },
+      {
+        onSuccess() {
+          setSnackbarData({ msg: 'Successfully added item!', severity: 'success' });
+        },
+      }
+    );
   };
 
   const editGroceryItem = (idx: number, newName: string | undefined, isBought: boolean) => {
@@ -43,13 +53,13 @@ const GroceryList = () => {
 
     updGroceryList[idx].isBought = isBought;
 
-    firebase.updateFamily(profile.familyId, { groceryList: updGroceryList });
+    familyDocMutation.mutate({ groceryList: updGroceryList });
   };
 
   const removeGroceryItems = () => {
     const updGroceryList = family.groceryList.filter((val) => val.isBought === false);
 
-    firebase.updateFamily(profile.familyId, { groceryList: updGroceryList });
+    familyDocMutation.mutate({ groceryList: updGroceryList });
   };
 
   const onDragEnd = ({ type, source, destination }: DropResult) => {
@@ -62,7 +72,7 @@ const GroceryList = () => {
       newGList.splice(source.index, 1);
       newGList.splice(destination.index, 0, listItem);
 
-      firebase.updateFamily(profile.familyId, { groceryList: newGList });
+      familyDocMutation.mutate({ groceryList: newGList });
     }
   };
 

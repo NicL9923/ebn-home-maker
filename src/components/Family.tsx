@@ -15,97 +15,94 @@ import {
 } from '@mui/material';
 import EditableLabel from './Inputs/EditableLabel';
 import { Add, Close, ContentCopyOutlined, Logout } from '@mui/icons-material';
-import { UserProfile, Pet } from 'models/types';
+import { Profile, Pet } from 'models/types';
 import copy from 'clipboard-copy';
 import NoFamily from './NoFamily';
 import AddPet from './Forms/AddPet';
 import { deleteObject, getStorage, ref } from 'firebase/storage';
 import { useAppStore } from 'state/AppStore';
 import { useUserStore } from 'state/UserStore';
+import { useFirestoreDocumentMutation, useFirestoreWriteBatch } from '@react-query-firebase/firestore';
+import { doc, getDoc, writeBatch } from 'firebase/firestore';
+import { db, FsCol } from '../firebase';
 
-interface FamilyProps {
-  mergeProfileProperty: (profObjToMerge: Partial<UserProfile>, profileId?: string) => void;
-}
-
-const Family = ({ mergeProfileProperty }: FamilyProps) => {
-  const firebase = useAppStore((state) => state.firebase);
+const Family = () => {
   const setSnackbarData = useAppStore((state) => state.setSnackbarData);
 
   const userId = useUserStore((state) => state.userId);
   const profile = useUserStore((state) => state.profile);
   const family = useUserStore((state) => state.family);
 
-  const [familyMemberProfiles, setFamilyMemberProfiles] = useState<UserProfile[]>([]);
+  const [familyMemberProfiles, setFamilyMemberProfiles] = useState<Profile[]>([]);
   const [addingPet, setAddingPet] = useState(false);
   const [deletingFamily, setDeletingFamily] = useState(false);
   const [leavingFamily, setLeavingFamily] = useState(false);
 
+  const familyDocMutation = useFirestoreDocumentMutation(doc(db, FsCol.Families, profile?.familyId ?? 'undefined'), {
+    merge: true,
+  });
+
+  const batch = writeBatch(db);
+  const batchMutation = useFirestoreWriteBatch(batch);
+
   const getFamilyMemberProfiles = () => {
     if (!family?.members) return;
 
-    const famMemProfs: UserProfile[] = [];
+    const famMemProfs: Profile[] = [];
 
     family.members.forEach((member) => {
-      if (member === userId) return;
-
-      firebase.getProfile(member).then((doc) => {
-        if (doc.exists()) {
-          const profileData = doc.data() as UserProfile;
-          famMemProfs.push(profileData);
-          setFamilyMemberProfiles(famMemProfs);
-        } else {
-          // Specified family member doesn't exist
-        }
-      });
+      if (member !== userId) {
+        getDoc(doc(db, FsCol.Profiles, member)).then((doc) => {
+          if (doc.exists()) {
+            famMemProfs.push(doc.data() as Profile);
+            setFamilyMemberProfiles(famMemProfs);
+          }
+        });
+      }
     });
   };
 
   const updateFamilyName = (newFamName?: string) => {
-    if (!profile || !newFamName) return;
-
-    firebase.updateFamily(profile.familyId, { name: newFamName });
+    if (newFamName) {
+      familyDocMutation.mutate({ name: newFamName });
+    }
   };
 
   const updateFamilyLocation = (newCity = '', newState = '') => {
-    if (!profile || !family) return;
+    if (!family) return;
 
     const curLoc = family.cityState.split(',');
     const newLoc = `${newCity ? newCity : curLoc[0]},${newState ? newState : curLoc[1]}`;
 
-    firebase.updateFamily(profile.familyId, { cityState: newLoc });
+    familyDocMutation.mutate({ cityState: newLoc });
   };
 
   const deleteFamily = () => {
-    if (!profile || !family) return;
+    if (!userId || !profile || !family) return;
 
     // Set each profile in family.members familyId property to ''
-    if (family.members) {
-      family.members.forEach((member) => {
-        mergeProfileProperty({ familyId: '' }, member);
-      });
-    }
+    family.members.forEach((member) => {
+      batch.update(doc(db, FsCol.Profiles, member), { familyId: '' });
+    });
 
     // Delete residences and vehicles
-    if (family.residences) {
-      family.residences.forEach((res) => {
-        firebase.deleteResidence(res);
-      });
-    }
+    family.residences.forEach((res) => {
+      batch.delete(doc(db, FsCol.Residences, res));
+    });
 
-    if (family.vehicles) {
-      family.vehicles.forEach((veh) => {
-        firebase.deleteVehicle(veh);
-      });
-    }
+    family.vehicles.forEach((veh) => {
+      batch.delete(doc(db, FsCol.Vehicles, veh));
+    });
 
     // Delete family doc
-    firebase.deleteFamily(profile.familyId).then(() => {
-      mergeProfileProperty({ familyId: '' });
-    });
+    batch.delete(doc(db, FsCol.Families, profile.familyId));
+    batch.update(doc(db, FsCol.Profiles, userId), { familyId: '' });
+
+    batchMutation.mutate();
   };
 
   const leaveFamily = () => {
-    if (!profile || !family) return;
+    if (!userId || !profile || !family) return;
 
     const newMembers = [...family.members];
     const curUserIdx = newMembers.findIndex((mem) => mem === userId);
@@ -117,8 +114,10 @@ const Family = ({ mergeProfileProperty }: FamilyProps) => {
       mergeFam.headOfFamily = newMembers[0];
     }
 
-    firebase.updateFamily(profile.familyId, mergeFam);
-    mergeProfileProperty({ familyId: '' });
+    batch.update(doc(db, FsCol.Families, profile.familyId), mergeFam);
+    batch.update(doc(db, FsCol.Profiles, userId), { familyId: '' });
+
+    batchMutation.mutate();
   };
 
   const copyInviteLink = () => {
@@ -136,7 +135,7 @@ const Family = ({ mergeProfileProperty }: FamilyProps) => {
       const newMembersArr = [...family.members];
       newMembersArr.splice(memberIdx, 1);
 
-      firebase.updateFamily(profile.familyId, { members: newMembersArr });
+      familyDocMutation.mutate({ members: newMembersArr });
     }
   };
 
@@ -153,7 +152,7 @@ const Family = ({ mergeProfileProperty }: FamilyProps) => {
         deleteObject(oldImgRef);
       }
 
-      firebase.updateFamily(profile.familyId, { pets: newPetsArr });
+      familyDocMutation.mutate({ pets: newPetsArr });
     }
   };
 
@@ -215,7 +214,7 @@ const Family = ({ mergeProfileProperty }: FamilyProps) => {
         <Typography variant='h5'>Members</Typography>
         <Stack direction='row' mb={3} flexWrap='wrap' spacing={1}>
           {familyMemberProfiles &&
-            familyMemberProfiles.map((prof: UserProfile, idx: number) => (
+            familyMemberProfiles.map((prof: Profile, idx: number) => (
               <Stack key={prof.firstName} alignItems='center' justifyContent='center'>
                 <Typography variant='h6'>{prof.firstName}</Typography>
                 <Avatar src={prof.imgLink} alt='family member' sx={{ width: 128, height: 128 }}>

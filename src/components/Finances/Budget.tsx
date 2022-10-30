@@ -1,40 +1,55 @@
 import { Add, SubdirectoryArrowRight } from '@mui/icons-material';
 import { Box, Divider, Grid, IconButton, Paper, Stack, Tooltip, Typography, useTheme } from '@mui/material';
-import { BudgetCategory, IBudget, BudgetSubcategory, BudgetContextValue } from 'models/types';
+import { BudgetCategory, IBudget, BudgetSubcategory, BudgetContextValue, Transaction } from 'models/types';
 import React, { useState } from 'react';
 import EditableLabel from '../Inputs/EditableLabel';
 import Chart from 'react-google-charts';
 import AddTransaction from 'components/Forms/AddTransaction';
 import BudgetCategories from './BudgetComponents/BudgetCategories';
-import { useAppStore } from 'state/AppStore';
 import { useUserStore } from 'state/UserStore';
+import { useFirestoreDocumentMutation } from '@react-query-firebase/firestore';
+import { doc } from 'firebase/firestore';
+import { db, FsCol } from '../../firebase';
 
 export const BudgetContext = React.createContext({} as BudgetContextValue);
 
 interface BudgetProps {
   budget: IBudget;
   setBudget: (newBudget: IBudget) => void;
-  getBudget: () => void;
 }
 
 const Budget = (props: BudgetProps): JSX.Element => {
-  const { budget, setBudget, getBudget } = props;
+  const { budget, setBudget } = props;
   const theme = useTheme();
 
-  const firebase = useAppStore((state) => state.firebase);
   const family = useUserStore((state) => state.family);
 
   const [addingTransaction, setAddingTransaction] = useState(false);
   const [catSubcatKey, setCatSubcatKey] = useState('');
 
+  const budgetDocMutation = useFirestoreDocumentMutation(doc(db, FsCol.Budgets, family?.budgetId ?? 'undefined'), {
+    merge: true,
+  });
+
+  const saveUpdatedCategories = (categories: BudgetCategory[], transactions?: Transaction[]) => {
+    budgetDocMutation.mutate({
+      categories,
+      transactions,
+    });
+  };
+
+  const setBudgetName = (newName: string | undefined) => {
+    if (!family?.budgetId || !newName) return;
+
+    budgetDocMutation.mutate({ name: newName });
+  };
+
   const setMonthlyNetIncome = (newValue: string | undefined) => {
     if (!family?.budgetId || !newValue) return;
 
-    firebase
-      .updateBudget(family.budgetId, {
-        monthlyNetIncome: parseFloat(newValue),
-      })
-      .then(() => getBudget());
+    budgetDocMutation.mutate({
+      monthlyNetIncome: parseFloat(newValue),
+    });
   };
 
   const setCategoryName = (newValue: string | undefined, oldName: string) => {
@@ -52,12 +67,7 @@ const Budget = (props: BudgetProps): JSX.Element => {
       }
     });
 
-    firebase
-      .updateBudget(family.budgetId, {
-        categories: updArr,
-        transactions: updTransactions,
-      })
-      .then(() => getBudget());
+    saveUpdatedCategories(updArr, updTransactions);
   };
 
   const setSubCatProperty = (newValue: string | undefined, oldName: string, catName: string, propName: string) => {
@@ -88,12 +98,7 @@ const Budget = (props: BudgetProps): JSX.Element => {
       }
     });
 
-    firebase
-      .updateBudget(family.budgetId, {
-        categories: updArr,
-        transactions: updTransactions,
-      })
-      .then(() => getBudget());
+    saveUpdatedCategories(updArr, updTransactions);
   };
 
   const addNewCategory = () => {
@@ -107,11 +112,7 @@ const Budget = (props: BudgetProps): JSX.Element => {
       nameIterator++;
     }
 
-    firebase
-      .updateBudget(family.budgetId, {
-        categories: [...budget.categories, { name: newCatName, subcategories: [] }],
-      })
-      .then(() => getBudget());
+    saveUpdatedCategories([...budget.categories, { name: newCatName, subcategories: [] }]);
   };
 
   const removeCategory = (catName: string) => {
@@ -133,12 +134,7 @@ const Budget = (props: BudgetProps): JSX.Element => {
       }
     });
 
-    firebase
-      .updateBudget(family.budgetId, {
-        categories: updArr,
-        transactions: updTransactions,
-      })
-      .then(() => getBudget());
+    saveUpdatedCategories(updArr, updTransactions);
   };
 
   const addNewSubCategory = (catName: string) => {
@@ -164,11 +160,7 @@ const Budget = (props: BudgetProps): JSX.Element => {
       }
     });
 
-    firebase
-      .updateBudget(family.budgetId, {
-        categories: updArr,
-      })
-      .then(() => getBudget());
+    saveUpdatedCategories(updArr);
   };
 
   const removeSubCategory = (catName: string, subCatName: string) => {
@@ -194,12 +186,7 @@ const Budget = (props: BudgetProps): JSX.Element => {
       }
     });
 
-    firebase
-      .updateBudget(family.budgetId, {
-        categories: updArr,
-        transactions: updTransactions,
-      })
-      .then(() => getBudget());
+    saveUpdatedCategories(updArr, updTransactions);
   };
 
   const moveCategory = (dragIdx: number, dropIdx: number) => {
@@ -215,11 +202,7 @@ const Budget = (props: BudgetProps): JSX.Element => {
     newBudget.categories = updArr;
     setBudget(newBudget);
 
-    firebase
-      .updateBudget(family.budgetId, {
-        categories: updArr,
-      })
-      .then(() => getBudget());
+    saveUpdatedCategories(updArr);
   };
 
   const moveSubCategory = (srcCatName: string, destCatName: string, dragIdx: number, dropIdx: number) => {
@@ -238,17 +221,7 @@ const Budget = (props: BudgetProps): JSX.Element => {
     newBudget.categories = updArr;
     setBudget(newBudget);
 
-    firebase
-      .updateBudget(family.budgetId, {
-        categories: updArr,
-      })
-      .then(() => getBudget());
-  };
-
-  const setBudgetName = (newName: string | undefined) => {
-    if (!family?.budgetId || !newName) return;
-
-    firebase.updateBudget(family.budgetId, { name: newName }).then(() => getBudget());
+    saveUpdatedCategories(updArr);
   };
 
   const getAllottedRemainder = () => {
@@ -453,7 +426,6 @@ const Budget = (props: BudgetProps): JSX.Element => {
         isOpen={addingTransaction}
         setIsOpen={setAddingTransaction}
         budget={budget}
-        getBudget={getBudget}
         initialCatSubcat={catSubcatKey}
       />
     </Box>

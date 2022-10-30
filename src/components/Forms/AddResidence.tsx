@@ -2,9 +2,12 @@ import React, { useState } from 'react';
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, InputLabel, TextField } from '@mui/material';
 import { DropzoneArea } from 'mui-file-dropzone';
 import { v4 as uuidv4 } from 'uuid';
-import { getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
+import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import { useAppStore } from 'state/AppStore';
 import { useUserStore } from 'state/UserStore';
+import { db, FsCol, storage } from '../../firebase';
+import { doc, writeBatch } from 'firebase/firestore';
+import { useFirestoreWriteBatch } from '@react-query-firebase/firestore';
 
 const defNewRes = {
   name: '',
@@ -17,13 +20,9 @@ const defNewRes = {
 interface AddResidenceProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
-  getResidences: () => void;
 }
 
-const AddResidence = (props: AddResidenceProps) => {
-  const { isOpen, setIsOpen, getResidences } = props;
-
-  const firebase = useAppStore((state) => state.firebase);
+const AddResidence = ({ isOpen, setIsOpen }: AddResidenceProps) => {
   const setSnackbarData = useAppStore((state) => state.setSnackbarData);
   const profile = useUserStore((state) => state.profile);
   const family = useUserStore((state) => state.family);
@@ -31,7 +30,10 @@ const AddResidence = (props: AddResidenceProps) => {
   const [newResidence, setNewResidence] = useState(defNewRes);
   const [newResImgFile, setNewResImgFile] = useState<File | null>(null);
 
-  const addNewResidence = () => {
+  const batch = writeBatch(db);
+  const batchMutation = useFirestoreWriteBatch(batch);
+
+  const addNewResidence = async () => {
     if (!family || !profile) return;
 
     const newResId = uuidv4();
@@ -42,35 +44,29 @@ const AddResidence = (props: AddResidenceProps) => {
     }
     newResIdArr.push(newResId);
 
-    firebase
-      .createResidence(newResId, {
-        ...newResidence,
-        id: newResId,
-      })
-      .then(() => {
-        firebase
-          .updateFamily(profile.familyId, {
-            residences: newResIdArr,
-          })
-          .then(() => {
-            setIsOpen(false);
-            setNewResidence(defNewRes);
-            setSnackbarData({ msg: 'Successfully added residence!', severity: 'success' });
-          });
-      });
-
+    let imgUrl: string | undefined = undefined;
     if (newResImgFile) {
-      const storage = getStorage();
-      const imgRef = ref(storage, uuidv4());
-      uploadBytes(imgRef, newResImgFile).then((snapshot) => {
-        getDownloadURL(snapshot.ref).then((url) => {
-          firebase.updateResidence(newResId, { img: url }).then(() => {
-            getResidences();
-            setNewResImgFile(null);
-          });
-        });
-      });
+      imgUrl = await getDownloadURL((await uploadBytes(ref(storage, uuidv4()), newResImgFile)).ref);
     }
+
+    batch.set(doc(db, FsCol.Residences, newResId), {
+      ...newResidence,
+      id: newResId,
+      img: imgUrl,
+    });
+    batch.update(doc(db, FsCol.Families, profile.familyId), {
+      residences: newResIdArr,
+    });
+
+    batchMutation.mutate(undefined, {
+      onSuccess() {
+        setNewResImgFile(null);
+        setNewResidence(defNewRes);
+        setSnackbarData({ msg: 'Successfully added residence!', severity: 'success' });
+      },
+    });
+
+    setIsOpen(false);
   };
 
   return (

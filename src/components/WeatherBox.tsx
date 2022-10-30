@@ -13,17 +13,16 @@ import {
   WiNightCloudy,
 } from 'react-icons/wi';
 import {
-  ICurrentWeatherResponse,
-  IDailyWeatherResponse,
   IGeocodeResponse,
-  IHourlyWeatherResponse,
   IParsedCurrentWeather,
   IParsedDailyWeather,
   IParsedHourlyWeather,
   IWeatherAlertResponse,
+  IWeatherResponse,
 } from 'models/weatherTypes';
 import { openWeatherMapOneCallApiBaseUrl, openWeatherMapGeocodeApiBaseUrl, daysOfTheWeek } from '../constants';
 import { useUserStore } from 'state/UserStore';
+import { useQuery } from 'react-query';
 
 enum ShownWeather {
   Current = 0,
@@ -31,15 +30,8 @@ enum ShownWeather {
   Daily,
 }
 
-const getDayOfWeek = (dayNum: number) => {
-  if (dayNum >= 0 && dayNum <= 6) {
-    return daysOfTheWeek[dayNum];
-  } else {
-    const errStr = 'ERROR: Incorrect day of week';
-    console.error(errStr);
-    return errStr;
-  }
-};
+type DayNum = 0 | 1 | 2 | 3 | 4 | 5 | 6;
+const getDayOfWeek = (dayNum: DayNum) => daysOfTheWeek[dayNum];
 
 const getWeatherIcon = (weatherId: number, size = 48) => {
   if (weatherId >= 200 && weatherId <= 299) return <WiThunderstorm size={size} />;
@@ -68,85 +60,97 @@ const WeatherBox = () => {
   const [dailyWeather, setDailyWeather] = useState<IParsedDailyWeather[] | undefined>(undefined);
   const [weatherAlerts, setWeatherAlerts] = useState<IWeatherAlertResponse[] | undefined>(undefined);
   const [shownWeather, setShownWeather] = useState<ShownWeather>(ShownWeather.Current);
-  const [isFetchingWeather, setIsFetchingWeather] = useState(true);
 
-  const getWeatherData = async () => {
-    if (!family?.cityState) return;
-
-    setIsFetchingWeather(true);
+  const getGeoDataFromCityState = async (): Promise<IGeocodeResponse | undefined> => {
+    if (!family?.cityState) {
+      return undefined;
+    }
 
     const geocodeResponseLimit = 1;
     const defaultCountryCode = 'US'; // Currently just supports United States (US)
     const geocodeUrl = `${openWeatherMapGeocodeApiBaseUrl}?q=${family.cityState},${defaultCountryCode}&limit=${geocodeResponseLimit}&appid=${process.env.NEXT_PUBLIC_OWM_API_KEY}`;
+
     const geocodeResponse = await axios.get(geocodeUrl);
     const geocodeData = geocodeResponse.data[0] as IGeocodeResponse;
 
-    setWeatherLocation(`${geocodeData.name}${geocodeData.state ? `, ${geocodeData.state}` : ''}`);
+    return geocodeData;
+  };
+
+  const getWeatherData = async (geocodeData?: IGeocodeResponse): Promise<IWeatherResponse | undefined> => {
+    if (!geocodeData) {
+      return undefined;
+    }
 
     // Exclude minute-ly forecast
     const fullUrl = `${openWeatherMapOneCallApiBaseUrl}?lat=${geocodeData.lat}&lon=${geocodeData.lon}&exclude=minutely&appid=${process.env.NEXT_PUBLIC_OWM_API_KEY}&units=imperial`;
 
-    axios
-      .get(fullUrl)
-      .then((resp) => {
-        setIsFetchingWeather(false);
+    return (await axios.get(fullUrl)).data as IWeatherResponse;
+  };
 
-        if (resp.data) {
-          // Get current weather
-          const currentWeatherResponse = resp.data.current as ICurrentWeatherResponse;
-          const newCurrentWeather: IParsedCurrentWeather = {
-            condition: currentWeatherResponse.weather[0].main,
-            iconCode: currentWeatherResponse.weather[0].id,
-            temp: Math.trunc(currentWeatherResponse.temp),
-            feelsLike: Math.trunc(currentWeatherResponse.feels_like),
-            humidity: currentWeatherResponse.humidity,
-            wind: Math.trunc(currentWeatherResponse.wind_speed),
-          };
-          setCurrentWeather(newCurrentWeather);
+  const geocodeDataQuery = useQuery(['geocodeData-', family?.cityState ?? 'undefined'], getGeoDataFromCityState, {
+    enabled: !!family?.cityState,
+  });
+  const weatherDataQuery = useQuery(
+    ['weatherData-', family?.cityState ?? 'undefined'],
+    () => getWeatherData(geocodeDataQuery.data),
+    { enabled: !!family?.cityState && !!geocodeDataQuery.data }
+  );
 
-          // Get alerts (if any)
-          if (resp.data.alerts) {
-            setWeatherAlerts(resp.data.alerts as IWeatherAlertResponse[]);
-          }
+  const processAndSetWeather = async () => {
+    const geocodeData = geocodeDataQuery.data;
 
-          // Get next 12 hours
-          const newHourlyWeather: IParsedHourlyWeather[] = (resp.data.hourly as IHourlyWeatherResponse[])
-            .slice(1, 13)
-            .map((hour) => ({
-              hour: new Date(1000 * hour.dt).getHours(),
-              iconCode: hour.weather[0].id,
-              condition: hour.weather[0].main,
-              temp: Math.trunc(hour.temp),
-              feelsLike: Math.trunc(hour.feels_like),
-              rainChance: hour.pop,
-              humidity: hour.humidity,
-            }));
-          setHourlyWeather(newHourlyWeather);
+    if (!geocodeData) return;
 
-          // Get next 5 days
-          const newDailyWeather: IParsedDailyWeather[] = (resp.data.daily as IDailyWeatherResponse[])
-            .slice(1, 6)
-            .map((day) => ({
-              day: getDayOfWeek(new Date(1000 * day.dt).getDay()),
-              iconCode: day.weather[0].id,
-              condition: day.weather[0].main,
-              tempHigh: Math.trunc(day.temp.max),
-              tempLow: Math.trunc(day.temp.min),
-            }));
-          setDailyWeather(newDailyWeather);
-        } else {
-          console.error('Error: weather data missing');
-        }
-      })
-      .catch((err) => {
-        setIsFetchingWeather(false);
-        console.error(`Error getting weather data: ${err.message} - ${err.response.data.message}`);
-      });
+    setWeatherLocation(`${geocodeData.name}${geocodeData.state ? `, ${geocodeData.state}` : ''}`);
+
+    const weatherData = weatherDataQuery.data;
+
+    if (!weatherData) return;
+
+    // Compile current weather
+    const currentWeatherResponse = weatherData.current;
+    const newCurrentWeather: IParsedCurrentWeather = {
+      condition: currentWeatherResponse.weather[0].main,
+      iconCode: currentWeatherResponse.weather[0].id,
+      temp: Math.trunc(currentWeatherResponse.temp),
+      feelsLike: Math.trunc(currentWeatherResponse.feels_like),
+      humidity: currentWeatherResponse.humidity,
+      wind: Math.trunc(currentWeatherResponse.wind_speed),
+    };
+    setCurrentWeather(newCurrentWeather);
+
+    // Compile alerts (if any)
+    if (weatherData.alerts) {
+      setWeatherAlerts(weatherData.alerts);
+    }
+
+    // Compile next 12 hours
+    const newHourlyWeather: IParsedHourlyWeather[] = weatherData.hourly.slice(1, 13).map((hour) => ({
+      hour: new Date(1000 * hour.dt).getHours(),
+      iconCode: hour.weather[0].id,
+      condition: hour.weather[0].main,
+      temp: Math.trunc(hour.temp),
+      feelsLike: Math.trunc(hour.feels_like),
+      rainChance: hour.pop,
+      humidity: hour.humidity,
+    }));
+    setHourlyWeather(newHourlyWeather);
+
+    // Compile next 5 days
+    const newDailyWeather: IParsedDailyWeather[] = weatherData.daily.slice(1, 6).map((day) => ({
+      day: getDayOfWeek(new Date(1000 * day.dt).getDay() as DayNum),
+      iconCode: day.weather[0].id,
+      condition: day.weather[0].main,
+      tempHigh: Math.trunc(day.temp.max),
+      tempLow: Math.trunc(day.temp.min),
+    }));
+    setDailyWeather(newDailyWeather);
   };
 
   useEffect(() => {
-    getWeatherData();
-  }, [family]);
+    processAndSetWeather();
+    console.log('fired');
+  }, [weatherDataQuery.data]);
 
   return (
     <Stack alignItems='center' justifyContent='center' mb={6}>
@@ -159,7 +163,7 @@ const WeatherBox = () => {
         <Tab label='Daily' />
       </Tabs>
 
-      {isFetchingWeather ? (
+      {geocodeDataQuery.isLoading || weatherDataQuery.isLoading ? (
         <Box mx='auto' textAlign='center' mt={20}>
           <CircularProgress />
         </Box>

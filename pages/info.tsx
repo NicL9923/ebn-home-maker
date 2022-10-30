@@ -5,8 +5,10 @@ import NoFamily from '../src/components/NoFamily';
 import '@uiw/react-md-editor/markdown-editor.css';
 import '@uiw/react-markdown-preview/markdown.css';
 import dynamic from 'next/dynamic';
-import { useAppStore } from '../src/state/AppStore';
 import { useUserStore } from '../src/state/UserStore';
+import { useFirestoreDocumentMutation } from '@react-query-firebase/firestore';
+import { doc } from 'firebase/firestore';
+import { db, FsCol } from '../src/firebase';
 
 const MDEditor = dynamic(() => import('@uiw/react-md-editor').then((mod) => mod.default), { ssr: false });
 const EditorMarkdown = dynamic(
@@ -18,13 +20,16 @@ const EditorMarkdown = dynamic(
 );
 
 const Information = () => {
-  const firebase = useAppStore((state) => state.firebase);
   const userId = useUserStore((state) => state.userId);
   const profile = useUserStore((state) => state.profile);
   const family = useUserStore((state) => state.family);
 
   const [isEditingMd, setIsEditingMd] = useState(false);
   const [editedMd, setEditedMd] = useState<string | undefined>(undefined);
+
+  const familyDocMutation = useFirestoreDocumentMutation(doc(db, FsCol.Families, profile?.familyId ?? 'undefined'), {
+    merge: true,
+  });
 
   if (!family) {
     return <NoFamily />;
@@ -36,19 +41,18 @@ const Information = () => {
   };
 
   const endEditingBoard = () => {
-    if (!profile) return;
+    if (profile && editedMd !== family.boardMarkdown) {
+      familyDocMutation.mutate(
+        { boardMarkdown: editedMd },
+        {
+          onSuccess() {
+            setEditedMd(undefined);
+          },
+        }
+      );
+    }
 
     setIsEditingMd(false);
-
-    if (editedMd === family.boardMarkdown) return;
-
-    firebase
-      .updateFamily(profile.familyId, {
-        boardMarkdown: editedMd,
-      })
-      .then(() => {
-        setEditedMd(undefined);
-      });
   };
 
   return (

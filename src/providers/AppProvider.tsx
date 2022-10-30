@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { onAuthStateChanged } from 'firebase/auth';
+import { getAuth } from 'firebase/auth';
 import NotLoggedIn from '../components/NotLoggedIn';
 import { Alert, Box, CircularProgress, Snackbar, useMediaQuery } from '@mui/material';
 import ThemeProvider from 'providers/ThemeProvider';
@@ -8,16 +8,20 @@ import Navbar from 'components/Navbar';
 import { ThemeType, localStorageThemeTypeKey } from '../constants';
 import { useAppStore } from 'state/AppStore';
 import { useUserStore } from 'state/UserStore';
-import { doc, onSnapshot } from 'firebase/firestore';
-import { DocTypes } from '../Firebase';
-import { Family, UserProfile } from 'models/types';
+import { doc } from 'firebase/firestore';
+import { db, FsCol } from '../firebase';
+import { Family, Profile } from 'models/types';
 import NoProfile from 'components/NoProfile';
 import NoFamily from 'components/NoFamily';
+import { useAuthUser } from '@react-query-firebase/auth';
+import { useFirestoreDocument } from '@react-query-firebase/firestore';
+
+// TODO: Properly type useFirestoreDocuments because doc method of explicit generics is not playing nice
+// TODO: Snackbar/console-error errors for mutation onErrors
 
 const AppProvider = ({ children }: ProviderProps) => {
   const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
 
-  const firebase = useAppStore((state) => state.firebase);
   const snackbarData = useAppStore((state) => state.snackbarData);
   const setThemePreference = useAppStore((state) => state.setThemePreference);
   const setSnackbarData = useAppStore((state) => state.setSnackbarData);
@@ -25,16 +29,26 @@ const AppProvider = ({ children }: ProviderProps) => {
   const userId = useUserStore((state) => state.userId);
   const profile = useUserStore((state) => state.profile);
   const family = useUserStore((state) => state.family);
-  const isFetchingUser = useUserStore((state) => state.isFetchingUser);
-  const isFetchingProfile = useUserStore((state) => state.isFetchingProfile);
-  const isFetchingFamily = useUserStore((state) => state.isFetchingFamily);
   const setUserId = useUserStore((state) => state.setUserId);
   const setUserEmail = useUserStore((state) => state.setUserEmail);
-  const setIsFetchingUser = useUserStore((state) => state.setIsFetchingUser);
-  const setIsFetchingProfile = useUserStore((state) => state.setIsFetchingProfile);
-  const setIsFetchingFamily = useUserStore((state) => state.setIsFetchingFamily);
   const setProfile = useUserStore((state) => state.setProfile);
   const setFamily = useUserStore((state) => state.setFamily);
+
+  const userAuth = useAuthUser(['user'], getAuth());
+  const profileDoc = useFirestoreDocument(
+    [FsCol.Profiles, userId ?? 'undefined'],
+    doc(db, FsCol.Profiles, userId ?? 'undefined'),
+    {
+      subscribe: true,
+    }
+  );
+  const familyDoc = useFirestoreDocument(
+    [FsCol.Families, profile?.familyId ?? 'undefined'],
+    doc(db, FsCol.Families, profile?.familyId ?? 'undefined'),
+    {
+      subscribe: true,
+    }
+  );
 
   useEffect(() => {
     setThemePreference(
@@ -46,54 +60,25 @@ const AppProvider = ({ children }: ProviderProps) => {
 
   // Auth listener
   useEffect(() => {
-    const unsubscribeAuth = onAuthStateChanged(firebase.auth, (user) => {
-      setUserId(user?.uid);
-      setUserEmail(user?.email ?? undefined);
-      setIsFetchingUser(false);
-    });
-
-    return () => unsubscribeAuth();
-  }, []);
+    setUserId(userAuth?.data?.uid);
+    setUserEmail(userAuth?.data?.email ?? undefined);
+  }, [userAuth.data]);
 
   // Profile listener
   useEffect(() => {
-    if (userId) {
-      setIsFetchingProfile(true);
-
-      const unsubscribeProfileDoc = onSnapshot(doc(firebase.db, DocTypes.profile, userId), (doc) => {
-        setProfile(doc.data() as UserProfile);
-        setIsFetchingProfile(false);
-      });
-
-      return () => unsubscribeProfileDoc();
-    } else {
-      setProfile(undefined);
-      setIsFetchingProfile(false);
-    }
-  }, [userId]);
+    setProfile(profileDoc.data ? (profileDoc.data.data() as Profile) : undefined);
+  }, [profileDoc.data]);
 
   // Family listener
   useEffect(() => {
-    if (profile?.familyId) {
-      setIsFetchingFamily(true);
-
-      const unsubscribeFamilyDoc = onSnapshot(doc(firebase.db, DocTypes.family, profile.familyId), (doc) => {
-        setFamily(doc.data() as Family);
-        setIsFetchingFamily(false);
-      });
-
-      return () => unsubscribeFamilyDoc();
-    } else {
-      setFamily(undefined);
-      setIsFetchingFamily(false);
-    }
-  }, [profile?.familyId]);
+    setFamily(familyDoc.data ? (familyDoc.data.data() as Family) : undefined);
+  }, [familyDoc.data]);
 
   return (
     <ThemeProvider>
       <Navbar />
 
-      {isFetchingUser || isFetchingProfile || isFetchingFamily ? (
+      {userAuth.isLoading || profileDoc.isLoading || familyDoc.isLoading ? (
         <Box mx='auto' textAlign='center' mt={20}>
           <CircularProgress size={80} />
         </Box>

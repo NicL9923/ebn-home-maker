@@ -14,6 +14,9 @@ import { IBudget, Transaction } from 'models/types';
 import { AdapterLuxon } from '@mui/x-date-pickers/AdapterLuxon';
 import { useAppStore } from 'state/AppStore';
 import { useUserStore } from 'state/UserStore';
+import { useFirestoreDocumentMutation } from '@react-query-firebase/firestore';
+import { doc } from 'firebase/firestore';
+import { db, FsCol } from '../../firebase';
 
 export const catSubcatKeySeparator = '&%&';
 
@@ -36,13 +39,9 @@ interface AddTransactionProps {
   setIsOpen: (isOpen: boolean) => void;
   initialCatSubcat?: string;
   budget: IBudget;
-  getBudget: () => void;
 }
 
-const AddTransaction = (props: AddTransactionProps) => {
-  const { isOpen, setIsOpen, initialCatSubcat, budget, getBudget } = props;
-
-  const firebase = useAppStore((state) => state.firebase);
+const AddTransaction = ({ isOpen, setIsOpen, initialCatSubcat, budget }: AddTransactionProps) => {
   const setSnackbarData = useAppStore((state) => state.setSnackbarData);
   const family = useUserStore((state) => state.family);
 
@@ -51,6 +50,10 @@ const AddTransaction = (props: AddTransactionProps) => {
   const [newTransactionCat, setNewTransactionCat] = useState<ICatOpt | undefined>(undefined);
   const [catInputValue, setCatInputValue] = useState('');
   const [newTransactionDate, setNewTransactionDate] = useState<Date | undefined | null>(new Date());
+
+  const budgetDocMutation = useFirestoreDocumentMutation(doc(db, FsCol.Budgets, family?.budgetId ?? 'undefined'), {
+    merge: true,
+  });
 
   const getCatOptions = () => {
     const catOptions: ICatOpt[] = [];
@@ -92,16 +95,20 @@ const AddTransaction = (props: AddTransactionProps) => {
 
     const updArr = [...budget.transactions, formattedTransaction];
 
-    firebase.updateBudget(family.budgetId, { transactions: updArr }).then(() => {
-      setSnackbarData({ msg: 'Successfully added transaction!', severity: 'success' });
-      getBudget();
+    budgetDocMutation.mutate(
+      { transactions: updArr },
+      {
+        onSuccess() {
+          setSnackbarData({ msg: 'Successfully added transaction!', severity: 'success' });
 
-      setIsOpen(false);
-      setNewTransactionName('');
-      setNewTransactionAmt('');
-      setNewTransactionCat(undefined);
-      setNewTransactionDate(new Date());
-    });
+          setIsOpen(false);
+          setNewTransactionName('');
+          setNewTransactionAmt('');
+          setNewTransactionCat(undefined);
+          setNewTransactionDate(new Date());
+        },
+      }
+    );
   };
 
   return (

@@ -1,35 +1,34 @@
 import React from 'react';
 import { Button, Container, Paper, Stack, Typography } from '@mui/material';
 import NoProfile from 'components/NoProfile';
-import { UserProfile } from 'models/types';
 import Family from 'components/Family';
 import EditableLabel from 'components/Inputs/EditableLabel';
 import EditableImage from 'components/Inputs/EditableImage';
 import { sendPasswordResetEmail } from 'firebase/auth';
 import { useAppStore } from 'state/AppStore';
 import { useUserStore } from 'state/UserStore';
+import { auth, db, FsCol } from '../src/firebase';
+import { useFirestoreDocumentMutation } from '@react-query-firebase/firestore';
+import { doc } from 'firebase/firestore';
 
-const Profile = () => {
-  const firebase = useAppStore((state) => state.firebase);
+const ProfilePage = () => {
   const setSnackbarData = useAppStore((state) => state.setSnackbarData);
   const userId = useUserStore((state) => state.userId);
   const userEmail = useUserStore((state) => state.userEmail);
   const profile = useUserStore((state) => state.profile);
 
-  const mergeProfileProperty = (profObjToMerge: Partial<UserProfile>, profileId = userId) => {
-    if (!profileId) return;
-
-    firebase.updateProfile(profileId, profObjToMerge);
-  };
+  const familyDocMutation = useFirestoreDocumentMutation(doc(db, FsCol.Profiles, userId ?? 'undefined'), {
+    merge: true,
+  });
 
   const updateProfileName = (newName?: string) => {
-    if (!newName) return;
-
-    mergeProfileProperty({ firstName: newName });
+    if (newName) {
+      familyDocMutation.mutate({ firstName: newName });
+    }
   };
 
   const updateProfileImgLink = (newImgLink: string) => {
-    mergeProfileProperty({ imgLink: newImgLink });
+    familyDocMutation.mutate({ imgLink: newImgLink });
   };
 
   const handlePasswordReset = () => {
@@ -38,7 +37,7 @@ const Profile = () => {
       return;
     }
 
-    sendPasswordResetEmail(firebase.auth, userEmail)
+    sendPasswordResetEmail(auth, userEmail)
       .then(() => {
         setSnackbarData({ msg: `Password reset email sent to ${userEmail}`, severity: 'info' });
       })
@@ -81,9 +80,9 @@ const Profile = () => {
         </Paper>
       )}
 
-      <Family mergeProfileProperty={mergeProfileProperty} />
+      <Family />
     </Container>
   );
 };
 
-export default Profile;
+export default ProfilePage;

@@ -59,3 +59,10 @@ export interface IParsedDailyWeather {
   tempHigh: number;
   tempLow: number;
 }
+
+export interface IWeatherResponse {
+  current: ICurrentWeatherResponse;
+  alerts: IWeatherAlertResponse[];
+  daily: IDailyWeatherResponse[];
+  hourly: IHourlyWeatherResponse[];
+}

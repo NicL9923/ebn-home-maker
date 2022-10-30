@@ -2,9 +2,12 @@ import React, { useState } from 'react';
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, InputLabel, TextField } from '@mui/material';
 import { DropzoneArea } from 'mui-file-dropzone';
 import { v4 as uuidv4 } from 'uuid';
-import { getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
+import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import { useAppStore } from 'state/AppStore';
 import { useUserStore } from 'state/UserStore';
+import { doc, writeBatch } from 'firebase/firestore';
+import { db, FsCol, storage } from '../../firebase';
+import { useFirestoreWriteBatch } from '@react-query-firebase/firestore';
 
 const defNewVeh = {
   year: '',
@@ -22,13 +25,9 @@ const defNewVeh = {
 interface AddVehicleProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
-  getVehicles: () => void;
 }
 
-const AddVehicle = (props: AddVehicleProps) => {
-  const { isOpen, setIsOpen, getVehicles } = props;
-
-  const firebase = useAppStore((state) => state.firebase);
+const AddVehicle = ({ isOpen, setIsOpen }: AddVehicleProps) => {
   const setSnackbarData = useAppStore((state) => state.setSnackbarData);
   const profile = useUserStore((state) => state.profile);
   const family = useUserStore((state) => state.family);
@@ -36,7 +35,10 @@ const AddVehicle = (props: AddVehicleProps) => {
   const [newVehicle, setNewVehicle] = useState(defNewVeh);
   const [newVehImgFile, setNewVehImgFile] = useState<File | null>(null);
 
-  const addNewVehicle = () => {
+  const batch = writeBatch(db);
+  const batchMutation = useFirestoreWriteBatch(batch);
+
+  const addNewVehicle = async () => {
     if (!family || !profile) return;
 
     const newVehId = uuidv4();
@@ -47,30 +49,29 @@ const AddVehicle = (props: AddVehicleProps) => {
     }
     newVehIdArr.push(newVehId);
 
-    firebase.createVehicle(newVehId, { ...newVehicle, id: newVehId }).then(() => {
-      firebase
-        .updateFamily(profile.familyId, {
-          vehicles: newVehIdArr,
-        })
-        .then(() => {
-          setIsOpen(false);
-          setNewVehicle(defNewVeh);
-          setSnackbarData({ msg: 'Successfully added vehicle!', severity: 'success' });
-        });
+    let imgUrl: string | undefined = undefined;
+    if (newVehImgFile) {
+      imgUrl = await getDownloadURL((await uploadBytes(ref(storage, uuidv4()), newVehImgFile)).ref);
+    }
+
+    batch.set(doc(db, FsCol.Vehicles, newVehId), {
+      ...newVehicle,
+      id: newVehId,
+      img: imgUrl,
+    });
+    batch.update(doc(db, FsCol.Families, profile.familyId), {
+      residences: newVehIdArr,
     });
 
-    if (newVehImgFile) {
-      const storage = getStorage();
-      const imgRef = ref(storage, uuidv4());
-      uploadBytes(imgRef, newVehImgFile).then((snapshot) => {
-        getDownloadURL(snapshot.ref).then((url) => {
-          firebase.updateVehicle(newVehId, { img: url }).then(() => {
-            getVehicles();
-            setNewVehImgFile(null);
-          });
-        });
-      });
-    }
+    batchMutation.mutate(undefined, {
+      onSuccess() {
+        setNewVehImgFile(null);
+        setNewVehicle(defNewVeh);
+        setSnackbarData({ msg: 'Successfully added residence!', severity: 'success' });
+      },
+    });
+
+    setIsOpen(false);
   };
 
   return (

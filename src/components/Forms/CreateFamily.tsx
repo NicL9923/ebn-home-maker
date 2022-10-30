@@ -4,19 +4,23 @@ import { Family } from 'models/types';
 import { v4 as uuidv4 } from 'uuid';
 import { useAppStore } from 'state/AppStore';
 import { useUserStore } from 'state/UserStore';
+import { doc, writeBatch } from 'firebase/firestore';
+import { useFirestoreWriteBatch } from '@react-query-firebase/firestore';
+import { db, FsCol } from '../../firebase';
 
 interface CreateFamilyProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
 }
 
-const CreateFamily = (props: CreateFamilyProps) => {
-  const { isOpen, setIsOpen } = props;
+const CreateFamily = ({ isOpen, setIsOpen }: CreateFamilyProps) => {
   const [newName, setNewName] = useState<string | undefined>(undefined);
 
-  const firebase = useAppStore((state) => state.firebase);
   const setSnackbarData = useAppStore((state) => state.setSnackbarData);
   const userId = useUserStore((state) => state.userId);
+
+  const batch = writeBatch(db);
+  const batchMutation = useFirestoreWriteBatch(batch);
 
   const createFamily = () => {
     if (!userId || !newName) return;
@@ -34,11 +38,14 @@ const CreateFamily = (props: CreateFamilyProps) => {
       cityState: 'Seattle,WA', // This'll be the default, because why not!
     };
 
-    firebase.createFamily(newFamId, newFamObj).then(() => {
-      setSnackbarData({ msg: 'Successfully created family!', severity: 'success' });
-    });
+    batch.set(doc(db, FsCol.Families, newFamId), newFamObj);
+    batch.update(doc(db, FsCol.Profiles, userId), { familyId: newFamId });
 
-    firebase.updateProfile(userId, { familyId: newFamId });
+    batchMutation.mutate(undefined, {
+      onSuccess() {
+        setSnackbarData({ msg: 'Successfully created family!', severity: 'success' });
+      },
+    });
 
     setIsOpen(false);
   };

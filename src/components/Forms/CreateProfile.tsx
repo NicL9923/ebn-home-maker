@@ -1,26 +1,30 @@
 import React, { useState } from 'react';
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, InputLabel, TextField } from '@mui/material';
 import { DropzoneArea } from 'mui-file-dropzone';
-import { getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
+import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import { v4 as uuidv4 } from 'uuid';
 import { useAppStore } from 'state/AppStore';
 import { useUserStore } from 'state/UserStore';
+import { doc, writeBatch } from 'firebase/firestore';
+import { db, FsCol, storage } from '../../firebase';
+import { useFirestoreWriteBatch } from '@react-query-firebase/firestore';
+import { GenericObject } from 'models/types';
 
 interface CreateProfileProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
 }
 
-const CreateProfile = (props: CreateProfileProps) => {
-  const { isOpen, setIsOpen } = props;
-
-  const firebase = useAppStore((state) => state.firebase);
+const CreateProfile = ({ isOpen, setIsOpen }: CreateProfileProps) => {
   const setSnackbarData = useAppStore((state) => state.setSnackbarData);
   const userId = useUserStore((state) => state.userId);
 
   const [newName, setNewName] = useState<string | undefined>(undefined);
   const [nameError, setNameError] = useState<string | undefined>(undefined);
   const [newPhoto, setNewPhoto] = useState<File | null>(null);
+
+  const batch = writeBatch(db);
+  const batchMutation = useFirestoreWriteBatch(batch);
 
   // TODO: Replace this w/ new validation
   const isNameValid = (): boolean => {
@@ -36,32 +40,24 @@ const CreateProfile = (props: CreateProfileProps) => {
     }
   };
 
-  const createProfile = () => {
+  const createProfile = async () => {
     if (!isNameValid() || !userId || !newName) return;
 
-    const newProfileObj = { firstName: newName, familyId: '' };
+    const newProfileObj: GenericObject = { firstName: newName, familyId: '' };
 
     if (newPhoto) {
-      const storage = getStorage();
-      const imgRef = ref(storage, uuidv4());
-      uploadBytes(imgRef, newPhoto).then((snapshot) => {
-        getDownloadURL(snapshot.ref).then((url) => {
-          firebase
-            .createProfile(userId, {
-              ...newProfileObj,
-              imgLink: url,
-            })
-            .then(() => {
-              setIsOpen(false);
-            });
-        });
-      });
-    } else {
-      firebase.createProfile(userId, newProfileObj).then(() => {
-        setIsOpen(false);
-        setSnackbarData({ msg: 'Successfully created profile!', severity: 'success' });
-      });
+      newProfileObj.imgLink = await getDownloadURL((await uploadBytes(ref(storage, uuidv4()), newPhoto)).ref);
     }
+
+    batch.set(doc(db, FsCol.Profiles, userId), newProfileObj);
+
+    batchMutation.mutate(undefined, {
+      onSuccess() {
+        setSnackbarData({ msg: 'Successfully created profile!', severity: 'success' });
+      },
+    });
+
+    setIsOpen(false);
   };
 
   return (

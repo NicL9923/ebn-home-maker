@@ -4,8 +4,10 @@ import { Button, Stack, Typography, Box } from '@mui/material';
 import { DataGrid, GridRowId } from '@mui/x-data-grid';
 import { IBudget, Transaction } from 'models/types';
 import AddTransaction from 'components/Forms/AddTransaction';
-import { useAppStore } from 'state/AppStore';
 import { useUserStore } from 'state/UserStore';
+import { useFirestoreDocumentMutation } from '@react-query-firebase/firestore';
+import { doc } from 'firebase/firestore';
+import { db, FsCol } from '../../firebase';
 
 const dgColumns = [
   {
@@ -50,18 +52,18 @@ const dgColumns = [
 
 interface TransactionsProps {
   budget: IBudget;
-  getBudget: () => void;
 }
 
-const Transactions = (props: TransactionsProps): JSX.Element => {
-  const { budget, getBudget } = props;
-
-  const firebase = useAppStore((state) => state.firebase);
+const Transactions = ({ budget }: TransactionsProps): JSX.Element => {
   const family = useUserStore((state) => state.family);
 
   const [addingTransaction, setAddingTransaction] = useState(false);
   const [selection, setSelection] = useState<GridRowId[]>([]);
   const [pageSize, setPageSize] = useState(20);
+
+  const budgetDocMutation = useFirestoreDocumentMutation(doc(db, FsCol.Budgets, family?.budgetId ?? 'undefined'), {
+    merge: true,
+  });
 
   const removeTransactions = () => {
     if (!family?.budgetId) return;
@@ -70,10 +72,8 @@ const Transactions = (props: TransactionsProps): JSX.Element => {
 
     updArr = updArr.filter((_val, idx) => selection.indexOf(idx) === -1); // Efficient way to remove transaction(s) from array
 
-    firebase.updateBudget(family.budgetId, { transactions: updArr }).then(() => {
-      getBudget();
-      setSelection([]);
-    });
+    budgetDocMutation.mutate({ transactions: updArr });
+    setSelection([]);
   };
 
   const processTransactionUpdate = (newRow: Transaction, oldRow: Transaction) => {
@@ -83,7 +83,7 @@ const Transactions = (props: TransactionsProps): JSX.Element => {
     const updArr = [...budget.transactions];
     updArr[updArr.findIndex((transaction) => transaction.id === oldRow.id)] = newRow;
 
-    firebase.updateBudget(family.budgetId, { transactions: updArr }).then(getBudget);
+    budgetDocMutation.mutate({ transactions: updArr });
 
     return newRow;
   };
@@ -121,12 +121,7 @@ const Transactions = (props: TransactionsProps): JSX.Element => {
         </Button>
       )}
 
-      <AddTransaction
-        isOpen={addingTransaction}
-        setIsOpen={setAddingTransaction}
-        budget={budget}
-        getBudget={getBudget}
-      />
+      <AddTransaction isOpen={addingTransaction} setIsOpen={setAddingTransaction} budget={budget} />
     </Box>
   );
 };

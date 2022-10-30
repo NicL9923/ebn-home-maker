@@ -1,9 +1,7 @@
-import { FirebaseManager } from '../Firebase';
 import { SnackbarData } from 'models/types';
 import create from 'zustand';
 
 interface IAppStore {
-  firebase: FirebaseManager;
   themePreference: ThemeType;
   snackbarData?: SnackbarData | undefined;
   setThemePreference: (newThemePreference: ThemeType) => void;
@@ -11,7 +9,6 @@ interface IAppStore {
 }
 
 export const useAppStore = create<IAppStore>((set) => ({
-  firebase: new FirebaseManager(),
   themePreference: ThemeType.Light,
   snackbarData: undefined,
   setThemePreference: (newThemePreference: ThemeType) => set({ themePreference: newThemePreference }),

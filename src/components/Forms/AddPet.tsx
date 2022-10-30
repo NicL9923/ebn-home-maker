@@ -5,22 +5,26 @@ import { getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
 import { v4 as uuidv4 } from 'uuid';
 import { useAppStore } from 'state/AppStore';
 import { useUserStore } from 'state/UserStore';
+import { useFirestoreDocumentMutation } from '@react-query-firebase/firestore';
+import { doc } from 'firebase/firestore';
+import { db, FsCol } from '../../firebase';
 
 interface AddPetProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
 }
 
-const AddPet = (props: AddPetProps) => {
-  const { isOpen, setIsOpen } = props;
-
-  const firebase = useAppStore((state) => state.firebase);
+const AddPet = ({ isOpen, setIsOpen }: AddPetProps) => {
   const setSnackbarData = useAppStore((state) => state.setSnackbarData);
   const profile = useUserStore((state) => state.profile);
   const family = useUserStore((state) => state.family);
 
   const [newName, setNewName] = useState<string | undefined>(undefined);
   const [newPhoto, setNewPhoto] = useState<File | null>(null);
+
+  const familyDocMutation = useFirestoreDocumentMutation(doc(db, FsCol.Budgets, profile?.familyId ?? 'undefined'), {
+    merge: true,
+  });
 
   const addPet = () => {
     if (!profile || !family || !newName) return;
@@ -33,19 +37,29 @@ const AddPet = (props: AddPetProps) => {
       uploadBytes(imgRef, newPhoto).then((snapshot) => {
         getDownloadURL(snapshot.ref).then((url) => {
           newPetsArr.push({ name: newName, imgLink: url });
-          firebase.updateFamily(profile.familyId, { pets: newPetsArr }).then(() => {
-            setIsOpen(false);
-            setSnackbarData({ msg: 'Successfully added pet!', severity: 'success' });
-          });
+          familyDocMutation.mutate(
+            { pets: newPetsArr },
+            {
+              onSuccess() {
+                setSnackbarData({ msg: 'Successfully added pet!', severity: 'success' });
+              },
+            }
+          );
         });
       });
     } else {
       newPetsArr.push({ name: newName });
-      firebase.updateFamily(profile.familyId, { pets: newPetsArr }).then(() => {
-        setIsOpen(false);
-        setSnackbarData({ msg: 'Successfully added pet!', severity: 'success' });
-      });
+      familyDocMutation.mutate(
+        { pets: newPetsArr },
+        {
+          onSuccess() {
+            setSnackbarData({ msg: 'Successfully added pet!', severity: 'success' });
+          },
+        }
+      );
     }
+
+    setIsOpen(false);
   };
 
   return (

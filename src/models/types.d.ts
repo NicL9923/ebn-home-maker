@@ -1,7 +1,7 @@
 export type GenericObject<T = any> = { [key: string]: T };
 
 // ID === user.uid
-export interface UserProfile {
+export interface Profile {
   familyId: string;
   firstName: string;
   imgLink?: string;

@@ -4,11 +4,9 @@ import { Box, Button, CircularProgress, Container, Grid, Paper, Stack, Typograph
 import AddVehicle from 'components/Forms/AddVehicle';
 import { DataGrid } from '@mui/x-data-grid';
 import { Add, DirectionsCar } from '@mui/icons-material';
-import { useAppStore } from 'state/AppStore';
 import { useUserStore } from 'state/UserStore';
 
 export const Vehicles = () => {
-  const firebase = useAppStore((state) => state.firebase);
   const profile = useUserStore((state) => state.profile);
   const family = useUserStore((state) => state.family);
 
@@ -135,7 +133,7 @@ export const Vehicles = () => {
         Add vehicle
       </Button>
 
-      <AddVehicle isOpen={addingVehicle} setIsOpen={setAddingVehicle} getVehicles={getVehicles} />
+      <AddVehicle isOpen={addingVehicle} setIsOpen={setAddingVehicle} />
     </Box>
   );
 };

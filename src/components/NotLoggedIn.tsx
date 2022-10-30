@@ -8,9 +8,9 @@ import {
 } from 'firebase/auth';
 import { Google } from '@mui/icons-material';
 import { useAppStore } from 'state/AppStore';
+import { auth } from '../firebase';
 
 const NotLoggedIn = () => {
-  const auth = useAppStore((state) => state.firebase.auth);
   const setSnackbarData = useAppStore((state) => state.setSnackbarData);
   const provider = new GoogleAuthProvider();
 
