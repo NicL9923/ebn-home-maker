@@ -6,14 +6,12 @@ import EventNoteOutlinedIcon from '@mui/icons-material/EventNoteOutlined';
 import ProfileIcon from './ProfileIcon';
 import {
   AppBar,
-  FormControlLabel,
   IconButton,
   ListItemIcon,
   ListItemText,
   Menu,
   MenuItem,
   Stack,
-  Switch,
   Toolbar,
   Typography,
 } from '@mui/material';
@@ -21,27 +19,17 @@ import MenuIcon from '@mui/icons-material/Menu';
 import ListIcon from '@mui/icons-material/List';
 import { Home } from '@mui/icons-material';
 import Link from 'next/link';
-import { localStorageThemeTypeKey, ThemeType } from '../constants';
 import { useUserStore } from 'state/UserStore';
-import { useAppStore } from 'state/AppStore';
+import { useColorMode } from '@chakra-ui/react';
+import { SunIcon, MoonIcon } from '@chakra-ui/icons';
 
 const Navbar = () => {
-  const themePreference = useAppStore((state) => state.themePreference);
-  const setThemePreference = useAppStore((state) => state.setThemePreference);
+  const { colorMode, toggleColorMode } = useColorMode();
+
   const userId = useUserStore((state) => state.userId);
   const profile = useUserStore((state) => state.profile);
 
   const [anchorEl, setAnchorEl] = useState<Element | undefined>(undefined);
-
-  const updateThemePreference = (isChecked: boolean) => {
-    const newThemePreference = isChecked ? ThemeType.Light : ThemeType.Dark;
-
-    if (typeof window !== 'undefined') {
-      localStorage.setItem(localStorageThemeTypeKey, newThemePreference);
-    }
-
-    setThemePreference(newThemePreference);
-  };
 
   return (
     <AppBar position='sticky' sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
@@ -115,15 +103,7 @@ const Navbar = () => {
         </Typography>
 
         <Stack direction='row' alignItems='center'>
-          <FormControlLabel
-            control={
-              <Switch
-                checked={themePreference === ThemeType.Light ? true : false}
-                onChange={(_e, checked) => updateThemePreference(checked)}
-              />
-            }
-            label={themePreference && themePreference === ThemeType.Light ? 'Light mode' : 'Dark mode'}
-          />
+          <IconButton onClick={toggleColorMode} icon={colorMode === 'light' ? <MoonIcon /> : <SunIcon />} />
 
           {userId && profile && <ProfileIcon />}
         </Stack>

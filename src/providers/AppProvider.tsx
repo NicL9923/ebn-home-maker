@@ -1,11 +1,10 @@
 import React, { useEffect } from 'react';
 import { getAuth } from 'firebase/auth';
 import NotLoggedIn from '../components/NotLoggedIn';
-import { Alert, Box, CircularProgress, Snackbar, useMediaQuery } from '@mui/material';
+import { Alert, Box, CircularProgress, Snackbar } from '@mui/material';
 import ThemeProvider from 'providers/ThemeProvider';
 import { ProviderProps } from 'providers/providerTypes';
 import Navbar from 'components/Navbar';
-import { ThemeType, localStorageThemeTypeKey } from '../constants';
 import { useAppStore } from 'state/AppStore';
 import { useUserStore } from 'state/UserStore';
 import { doc } from 'firebase/firestore';
@@ -20,10 +19,7 @@ import { useFirestoreDocument } from '@react-query-firebase/firestore';
 // TODO: Snackbar/console-error errors for mutation onErrors
 
 const AppProvider = ({ children }: ProviderProps) => {
-  const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
-
   const snackbarData = useAppStore((state) => state.snackbarData);
-  const setThemePreference = useAppStore((state) => state.setThemePreference);
   const setSnackbarData = useAppStore((state) => state.setSnackbarData);
 
   const userId = useUserStore((state) => state.userId);
@@ -49,14 +45,6 @@ const AppProvider = ({ children }: ProviderProps) => {
       subscribe: true,
     }
   );
-
-  useEffect(() => {
-    setThemePreference(
-      (localStorage.getItem(localStorageThemeTypeKey) as ThemeType) ?? prefersDarkMode
-        ? ThemeType.Dark
-        : ThemeType.Light
-    );
-  }, []);
 
   // Auth listener
   useEffect(() => {

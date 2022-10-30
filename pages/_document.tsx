@@ -1,5 +1,7 @@
 import React from 'react';
 import { Html, Head, Main, NextScript } from 'next/document';
+import { ColorModeScript } from '@chakra-ui/react';
+import { theme } from '../src/providers/ThemeProvider';
 
 const Document = () => {
   return (
@@ -11,6 +13,7 @@ const Document = () => {
       </Head>
 
       <body>
+        <ColorModeScript initialColorMode={theme.config.initialColorMode} />
         <Main />
         <NextScript />
       </body>
