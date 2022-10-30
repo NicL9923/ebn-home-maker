@@ -11,6 +11,8 @@ import { useUserStore } from 'state/UserStore';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { DocTypes } from '../Firebase';
 import { Family, UserProfile } from 'models/types';
+import NoProfile from 'components/NoProfile';
+import NoFamily from 'components/NoFamily';
 
 const AppProvider = ({ children }: ProviderProps) => {
   const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
@@ -22,6 +24,7 @@ const AppProvider = ({ children }: ProviderProps) => {
 
   const userId = useUserStore((state) => state.userId);
   const profile = useUserStore((state) => state.profile);
+  const family = useUserStore((state) => state.family);
   const isFetchingUser = useUserStore((state) => state.isFetchingUser);
   const isFetchingProfile = useUserStore((state) => state.isFetchingProfile);
   const isFetchingFamily = useUserStore((state) => state.isFetchingFamily);
@@ -96,6 +99,10 @@ const AppProvider = ({ children }: ProviderProps) => {
         </Box>
       ) : !userId ? (
         <NotLoggedIn />
+      ) : !profile ? (
+        <NoProfile />
+      ) : !family ? (
+        <NoFamily />
       ) : (
         children
       )}
