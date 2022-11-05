@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { IBudget, Transaction } from 'models/types';
 import { useUserStore } from 'state/UserStore';
 import { useFirestoreDocumentMutation } from '@react-query-firebase/firestore';
@@ -6,6 +6,8 @@ import { doc } from 'firebase/firestore';
 import { db, FsCol } from '../../firebase';
 import {
   Button,
+  FormControl,
+  FormLabel,
   Input,
   Modal,
   ModalContent,
@@ -15,6 +17,7 @@ import {
   Stack,
   useToast,
 } from '@chakra-ui/react';
+import { useForm } from 'react-hook-form';
 
 // TODO: Date picker
 
@@ -45,11 +48,11 @@ const AddTransaction = ({ isOpen, setIsOpen, initialCatSubcat, budget }: AddTran
   const toast = useToast();
   const family = useUserStore((state) => state.family);
 
-  const [newTransactionName, setNewTransactionName] = useState('');
-  const [newTransactionAmt, setNewTransactionAmt] = useState('');
-  const [newTransactionCat, setNewTransactionCat] = useState<ICatOpt | undefined>(undefined);
-  const [catInputValue, setCatInputValue] = useState('');
-  const [newTransactionDate, setNewTransactionDate] = useState<Date | undefined | null>(new Date());
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
 
   const budgetDocMutation = useFirestoreDocumentMutation(doc(db, FsCol.Budgets, family?.budgetId ?? 'undefined'), {
     merge: true,
@@ -106,10 +109,6 @@ const AddTransaction = ({ isOpen, setIsOpen, initialCatSubcat, budget }: AddTran
           });
 
           setIsOpen(false);
-          setNewTransactionName('');
-          setNewTransactionAmt('');
-          setNewTransactionCat(undefined);
-          setNewTransactionDate(new Date());
         },
       }
     );
@@ -122,59 +121,47 @@ const AddTransaction = ({ isOpen, setIsOpen, initialCatSubcat, budget }: AddTran
         <ModalHeader>Add Transaction</ModalHeader>
 
         <Stack>
-          <Input
-            autoFocus
-            variant='standard'
-            label='Amount'
-            type='number'
-            value={newTransactionAmt}
-            onChange={(event) => setNewTransactionAmt(event.target.value)}
-          />
+          <form onSubmit={handleSubmit(submitNewTransaction)}>
+            <FormControl>
+              <FormLabel>Amount</FormLabel>
+              <Input type='number' {...register('amount')} />
+            </FormControl>
 
-          <Input
-            type='text'
-            variant='standard'
-            label='Description'
-            value={newTransactionName}
-            onChange={(event) => setNewTransactionName(event.target.value)}
-          />
+            <FormControl>
+              <FormLabel>Description</FormLabel>
+              <Input type='text' {...register('description')} />
+            </FormControl>
 
-          {initialCatSubcat ? (
-            <Input
-              type='text'
-              variant='standard'
-              label='Category'
-              value={convertConcatToCatOpt(initialCatSubcat).subcategory}
-              InputProps={{
-                readOnly: true,
-              }}
-              sx={{ mt: 2, mb: 2 }}
-            />
-          ) : (
-            <Autocomplete
-              options={getCatOptions()}
-              groupBy={(option) => option.category}
-              getOptionLabel={(option) => option.subcategory}
-              value={newTransactionCat}
-              onChange={(_e, newValue) => setNewTransactionCat(newValue ?? undefined)}
-              inputValue={catInputValue}
-              onInputChange={(_event, newValue) => setCatInputValue(newValue)}
-              sx={{ mt: 2, mb: 2 }}
-              renderInput={(params) => <TextField {...params} label='Category' variant='standard' />}
-            />
-          )}
+            <FormControl>
+              <FormLabel>Category</FormLabel>
+              {initialCatSubcat ? (
+                <Input
+                  type='text'
+                  defaultValue={convertConcatToCatOpt(initialCatSubcat).subcategory}
+                  {...register('category')}
+                  sx={{ mt: 2, mb: 2 }}
+                />
+              ) : (
+                <Autocomplete
+                  options={getCatOptions()}
+                  groupBy={(option) => option.category}
+                  getOptionLabel={(option) => option.subcategory}
+                  sx={{ mt: 2, mb: 2 }}
+                  renderInput={(params) => <Input type='text' {...params} {...register('category')} />}
+                />
+              )}
+            </FormControl>
 
-          <DatePicker
-            label='Date'
-            value={newTransactionDate}
-            onChange={(newDate: Date | null) => setNewTransactionDate(newDate)}
-            renderInput={(params) => <TextField {...params} variant='standard' />}
-          />
+            <FormControl>
+              <FormLabel>Date</FormLabel>
+              <Input type='date' defaultValue={new Date().toLocaleDateString()} {...register('date')} />
+            </FormControl>
+          </form>
         </Stack>
 
         <ModalFooter>
           <Button onClick={() => setIsOpen(false)}>Cancel</Button>
-          <Button variant='contained' onClick={submitNewTransaction}>
+          <Button type='submit' variant='contained' onClick={submitNewTransaction}>
             Save
           </Button>
         </ModalFooter>
