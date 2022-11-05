@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { BaseSyntheticEvent } from 'react';
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import { v4 as uuidv4 } from 'uuid';
 import { useUserStore } from 'state/UserStore';
@@ -6,9 +6,36 @@ import { doc, writeBatch } from 'firebase/firestore';
 import { db, FsCol, storage } from '../../firebase';
 import { useFirestoreWriteBatch } from '@react-query-firebase/firestore';
 import { GenericObject } from 'models/types';
-import { Button, Input, Modal, ModalContent, ModalFooter, ModalHeader, ModalOverlay, useToast } from '@chakra-ui/react';
+import {
+  Button,
+  FormControl,
+  FormErrorMessage,
+  FormLabel,
+  Input,
+  Modal,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
+  useToast,
+} from '@chakra-ui/react';
+import * as yup from 'yup';
+import { Controller, useForm } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
 
 // TODO: File dropzone
+
+const createProfileSchema = yup
+  .object({
+    name: yup.string().required(`You must provide your first name`),
+    photo: yup.mixed(),
+  })
+  .required();
+
+interface CreateProfileFormSchema {
+  name: string;
+  photo: File | null;
+}
 
 interface CreateProfileProps {
   isOpen: boolean;
@@ -19,34 +46,30 @@ const CreateProfile = ({ isOpen, setIsOpen }: CreateProfileProps) => {
   const toast = useToast();
   const userId = useUserStore((state) => state.userId);
 
-  const [newName, setNewName] = useState<string | undefined>(undefined);
-  const [nameError, setNameError] = useState<string | undefined>(undefined);
-  const [newPhoto, setNewPhoto] = useState<File | null>(null);
+  const {
+    register,
+    handleSubmit,
+    control,
+    formState: { errors },
+  } = useForm<CreateProfileFormSchema>({
+    resolver: yupResolver(createProfileSchema),
+  });
 
   const batch = writeBatch(db);
   const batchMutation = useFirestoreWriteBatch(batch);
 
-  // TODO: Replace this w/ new validation
-  const isNameValid = (): boolean => {
-    if (!newName) {
-      setNameError('You must input a name!');
-      return false;
-    } else if (newName.includes(' ')) {
-      setNameError('The name cannot contain spaces!');
-      return false;
-    } else {
-      setNameError(undefined);
-      return true;
-    }
-  };
+  const createProfile = async (createProfileData: CreateProfileFormSchema, event?: BaseSyntheticEvent) => {
+    event?.preventDefault();
+    if (!userId) return;
 
-  const createProfile = async () => {
-    if (!isNameValid() || !userId || !newName) return;
+    const newProfileObj: GenericObject = { firstName: createProfileData.name, familyId: '' };
 
-    const newProfileObj: GenericObject = { firstName: newName, familyId: '' };
-
-    if (newPhoto) {
-      newProfileObj.imgLink = await getDownloadURL((await uploadBytes(ref(storage, uuidv4()), newPhoto)).ref);
+    if (createProfileData.photo) {
+      newProfileObj.imgLink = await getDownloadURL(
+        (
+          await uploadBytes(ref(storage, uuidv4()), createProfileData.photo)
+        ).ref
+      );
     }
 
     batch.set(doc(db, FsCol.Profiles, userId), newProfileObj);
@@ -70,32 +93,38 @@ const CreateProfile = ({ isOpen, setIsOpen }: CreateProfileProps) => {
       <ModalContent>
         <ModalHeader>Create Profile</ModalHeader>
 
-        <Input
-          type='text'
-          autoFocus
-          variant='standard'
-          label='First Name'
-          value={newName}
-          onChange={(event) => setNewName(event.target.value)}
-          required
-          error={!!nameError}
-          helperText={nameError}
-        />
+        <form onSubmit={handleSubmit(createProfile)}>
+          <FormControl>
+            <FormLabel>First Name</FormLabel>
+            <Input type='text' {...register('name')} />
+            <FormErrorMessage>{errors.name?.message}</FormErrorMessage>
+          </FormControl>
 
-        <InputLabel sx={{ mt: 3 }}>Upload Photo</InputLabel>
-        <DropzoneArea
-          acceptedFiles={['image/jpeg', 'image/png']}
-          filesLimit={1}
-          onChange={(files) => setNewPhoto(files[0])}
-          fileObjects={[]}
-        />
+          <FormControl>
+            <FormLabel>Photo</FormLabel>
+            <Controller
+              name='photo'
+              control={control}
+              render={({ field }) => (
+                <DropzoneArea
+                  acceptedFiles={['image/jpeg', 'image/png']}
+                  filesLimit={1}
+                  value={field.value}
+                  onChange={field.onChange}
+                  fileObjects={[]}
+                />
+              )}
+            />
+            <FormErrorMessage>{errors.photo?.message}</FormErrorMessage>
+          </FormControl>
 
-        <ModalFooter>
-          <Button onClick={() => setIsOpen(false)}>Cancel</Button>
-          <Button variant='contained' onClick={createProfile}>
-            Create
-          </Button>
-        </ModalFooter>
+          <ModalFooter>
+            <Button onClick={() => setIsOpen(false)}>Cancel</Button>
+            <Button type='submit' variant='contained'>
+              Create
+            </Button>
+          </ModalFooter>
+        </form>
       </ModalContent>
     </Modal>
   );

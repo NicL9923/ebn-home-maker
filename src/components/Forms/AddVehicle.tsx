@@ -1,26 +1,54 @@
-import React, { useState } from 'react';
+import React, { BaseSyntheticEvent } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import { useUserStore } from 'state/UserStore';
 import { doc, writeBatch } from 'firebase/firestore';
 import { db, FsCol, storage } from '../../firebase';
 import { useFirestoreWriteBatch } from '@react-query-firebase/firestore';
-import { Button, Input, Modal, ModalContent, ModalFooter, ModalHeader, ModalOverlay, useToast } from '@chakra-ui/react';
+import {
+  Button,
+  FormControl,
+  FormErrorMessage,
+  FormLabel,
+  Input,
+  Modal,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
+  useToast,
+} from '@chakra-ui/react';
+import * as yup from 'yup';
+import { yupResolver } from '@hookform/resolvers/yup';
+import { Controller, useForm } from 'react-hook-form';
 
 // TODO: File dropdown
 
-const defNewVeh = {
-  year: '',
-  make: '',
-  model: '',
-  trim: '',
-  engine: '',
-  vin: '',
-  licensePlate: '',
-  miles: 0,
-  maintenanceMarkers: [],
-  serviceLogEntries: [],
-};
+const addVehicleSchema = yup
+  .object({
+    year: yup.string().required(`You must give your vehicle a name`),
+    make: yup.string().required(`You must provide your vehicle's make`),
+    model: yup.string().required(`You must provide your vehicle's model`),
+    trim: yup.string(),
+    engine: yup.string(),
+    vin: yup.string(),
+    licensePlate: yup.string(),
+    miles: yup.number().required(`You must provide your vehicle's mileage`),
+    photo: yup.mixed(),
+  })
+  .required();
+
+interface AddVehicleFormSchema {
+  year: string;
+  make: string;
+  model: string;
+  trim: string;
+  engine: string;
+  vin: string;
+  licensePlate: string;
+  miles: number;
+  photo: File | null;
+}
 
 interface AddVehicleProps {
   isOpen: boolean;
@@ -32,13 +60,20 @@ const AddVehicle = ({ isOpen, setIsOpen }: AddVehicleProps) => {
   const profile = useUserStore((state) => state.profile);
   const family = useUserStore((state) => state.family);
 
-  const [newVehicle, setNewVehicle] = useState(defNewVeh);
-  const [newVehImgFile, setNewVehImgFile] = useState<File | null>(null);
+  const {
+    register,
+    handleSubmit,
+    control,
+    formState: { errors },
+  } = useForm<AddVehicleFormSchema>({
+    resolver: yupResolver(addVehicleSchema),
+  });
 
   const batch = writeBatch(db);
   const batchMutation = useFirestoreWriteBatch(batch);
 
-  const addNewVehicle = async () => {
+  const addNewVehicle = async (newVehicleData: AddVehicleFormSchema, event?: BaseSyntheticEvent) => {
+    event?.preventDefault();
     if (!family || !profile) return;
 
     const newVehId = uuidv4();
@@ -50,14 +85,16 @@ const AddVehicle = ({ isOpen, setIsOpen }: AddVehicleProps) => {
     newVehIdArr.push(newVehId);
 
     let imgUrl: string | undefined = undefined;
-    if (newVehImgFile) {
-      imgUrl = await getDownloadURL((await uploadBytes(ref(storage, uuidv4()), newVehImgFile)).ref);
+    if (newVehicleData.photo) {
+      imgUrl = await getDownloadURL((await uploadBytes(ref(storage, uuidv4()), newVehicleData.photo)).ref);
     }
 
     batch.set(doc(db, FsCol.Vehicles, newVehId), {
-      ...newVehicle,
       id: newVehId,
       img: imgUrl,
+      maintenanceMarkers: [],
+      serviceLogEntries: [],
+      ...newVehicleData,
     });
     batch.update(doc(db, FsCol.Families, profile.familyId), {
       residences: newVehIdArr,
@@ -65,8 +102,6 @@ const AddVehicle = ({ isOpen, setIsOpen }: AddVehicleProps) => {
 
     batchMutation.mutate(undefined, {
       onSuccess() {
-        setNewVehImgFile(null);
-        setNewVehicle(defNewVeh);
         toast({
           title: 'Successfully added vehicle!',
           status: 'success',
@@ -83,94 +118,81 @@ const AddVehicle = ({ isOpen, setIsOpen }: AddVehicleProps) => {
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>Add Vehicle</ModalHeader>
-        <Input
-          type='text'
-          autoFocus
-          variant='standard'
-          label='Model Year'
-          value={newVehicle.year}
-          onChange={(event) => setNewVehicle({ ...newVehicle, year: event.target.value })}
-        />
 
-        <Input
-          type='text'
-          variant='standard'
-          label='Make'
-          placeholder='Chevrolet, Ford, Dodge, Toyota...'
-          value={newVehicle.make}
-          onChange={(event) => setNewVehicle({ ...newVehicle, make: event.target.value })}
-        />
+        <form onSubmit={handleSubmit(addNewVehicle)}>
+          <FormControl>
+            <FormLabel>Model Year</FormLabel>
+            <Input type='text' {...register('year')} />
+            <FormErrorMessage>{errors.year?.message}</FormErrorMessage>
+          </FormControl>
 
-        <Input
-          type='text'
-          variant='standard'
-          label='Model'
-          placeholder='F150, Corolla, Tacoma, Tahoe...'
-          value={newVehicle.model}
-          onChange={(event) => setNewVehicle({ ...newVehicle, model: event.target.value })}
-        />
+          <FormControl>
+            <FormLabel>Make</FormLabel>
+            <Input type='text' placeholder='Chevrolet, Ford, Dodge, Toyota...' {...register('make')} />
+            <FormErrorMessage>{errors.make?.message}</FormErrorMessage>
+          </FormControl>
 
-        <Input
-          type='text'
-          variant='standard'
-          label='Trim'
-          placeholder='SE, Limited...'
-          value={newVehicle.trim}
-          onChange={(event) => setNewVehicle({ ...newVehicle, trim: event.target.value })}
-        />
+          <FormControl>
+            <FormLabel>Model</FormLabel>
+            <Input type='text' placeholder='F150, Corolla, Tacoma, Tahoe...' {...register('model')} />
+            <FormErrorMessage>{errors.make?.message}</FormErrorMessage>
+          </FormControl>
 
-        <Input
-          type='text'
-          variant='standard'
-          label='Engine'
-          placeholder='3.5L V6...'
-          value={newVehicle.engine}
-          onChange={(event) => setNewVehicle({ ...newVehicle, engine: event.target.value })}
-        />
+          <FormControl>
+            <FormLabel>Trim</FormLabel>
+            <Input type='text' placeholder='SE, Ultimate, Limited, Lariat...' {...register('trim')} />
+            <FormErrorMessage>{errors.make?.message}</FormErrorMessage>
+          </FormControl>
 
-        <Input
-          type='text'
-          variant='standard'
-          label='VIN (Vehicle Identification Number)'
-          value={newVehicle.vin}
-          onChange={(event) => setNewVehicle({ ...newVehicle, vin: event.target.value })}
-        />
+          <FormControl>
+            <FormLabel>Engine</FormLabel>
+            <Input type='text' placeholder='3.5L V6...' {...register('engine')} />
+            <FormErrorMessage>{errors.make?.message}</FormErrorMessage>
+          </FormControl>
 
-        <Input
-          type='text'
-          variant='standard'
-          label='License Plate'
-          value={newVehicle.licensePlate}
-          onChange={(event) => setNewVehicle({ ...newVehicle, licensePlate: event.target.value })}
-        />
+          <FormControl>
+            <FormLabel>VIN (Vehicle Identification Number)</FormLabel>
+            <Input type='text' {...register('vin')} />
+            <FormErrorMessage>{errors.make?.message}</FormErrorMessage>
+          </FormControl>
 
-        <Input
-          type='text'
-          variant='standard'
-          label='Odometer (miles)'
-          value={newVehicle.miles}
-          onChange={(event) =>
-            setNewVehicle({
-              ...newVehicle,
-              miles: parseInt(event.target.value),
-            })
-          }
-        />
+          <FormControl>
+            <FormLabel>License Plate</FormLabel>
+            <Input type='text' {...register('licensePlate')} />
+            <FormErrorMessage>{errors.make?.message}</FormErrorMessage>
+          </FormControl>
 
-        <InputLabel>Upload Photo</InputLabel>
-        <DropzoneArea
-          acceptedFiles={['image/jpeg', 'image/png']}
-          filesLimit={1}
-          onChange={(files) => setNewVehImgFile(files[0])}
-          fileObjects={[]}
-        />
+          <FormControl>
+            <FormLabel>Odometer (miles)</FormLabel>
+            <Input type='number' {...register('miles')} />
+            <FormErrorMessage>{errors.make?.message}</FormErrorMessage>
+          </FormControl>
 
-        <ModalFooter>
-          <Button onClick={() => setIsOpen(false)}>Cancel</Button>
-          <Button variant='contained' onClick={addNewVehicle}>
-            Add
-          </Button>
-        </ModalFooter>
+          <FormControl>
+            <FormLabel>Photo</FormLabel>
+            <Controller
+              name='photo'
+              control={control}
+              render={({ field }) => (
+                <DropzoneArea
+                  acceptedFiles={['image/jpeg', 'image/png']}
+                  filesLimit={1}
+                  value={field.value}
+                  onChange={field.onChange}
+                  fileObjects={[]}
+                />
+              )}
+            />
+            <FormErrorMessage>{errors.photo?.message}</FormErrorMessage>
+          </FormControl>
+
+          <ModalFooter>
+            <Button onClick={() => setIsOpen(false)}>Cancel</Button>
+            <Button type='submit' variant='contained'>
+              Add
+            </Button>
+          </ModalFooter>
+        </form>
       </ModalContent>
     </Modal>
   );

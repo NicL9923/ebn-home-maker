@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { BaseSyntheticEvent } from 'react';
 import { Family } from 'models/types';
 import { v4 as uuidv4 } from 'uuid';
 import { useUserStore } from 'state/UserStore';
@@ -7,15 +7,30 @@ import { useFirestoreWriteBatch } from '@react-query-firebase/firestore';
 import { db, FsCol } from '../../firebase';
 import {
   Button,
+  FormControl,
+  FormErrorMessage,
+  FormLabel,
   Input,
   Modal,
   ModalContent,
   ModalFooter,
   ModalHeader,
   ModalOverlay,
-  Stack,
   useToast,
 } from '@chakra-ui/react';
+import * as yup from 'yup';
+import { yupResolver } from '@hookform/resolvers/yup';
+import { useForm } from 'react-hook-form';
+
+const createFamilySchema = yup
+  .object({
+    name: yup.string().required(`A name is required for your family`),
+  })
+  .required();
+
+interface CreateFamilyFormSchema {
+  name: string;
+}
 
 interface CreateFamilyProps {
   isOpen: boolean;
@@ -24,20 +39,26 @@ interface CreateFamilyProps {
 
 const CreateFamily = ({ isOpen, setIsOpen }: CreateFamilyProps) => {
   const toast = useToast();
-
   const userId = useUserStore((state) => state.userId);
 
-  const [newName, setNewName] = useState<string | undefined>(undefined);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<CreateFamilyFormSchema>({
+    resolver: yupResolver(createFamilySchema),
+  });
 
   const batch = writeBatch(db);
   const batchMutation = useFirestoreWriteBatch(batch);
 
-  const createFamily = () => {
-    if (!userId || !newName) return;
+  const createFamily = (createFamilyData: CreateFamilyFormSchema, event?: BaseSyntheticEvent) => {
+    event?.preventDefault();
+    if (!userId) return;
 
     const newFamId = uuidv4();
     const newFamObj: Family = {
-      name: newName,
+      name: createFamilyData.name,
       headOfFamily: userId,
       members: [userId],
       boardMarkdown: 'This is the family board!',
@@ -69,24 +90,21 @@ const CreateFamily = ({ isOpen, setIsOpen }: CreateFamilyProps) => {
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>Create Family</ModalHeader>
-        <Stack>
-          <Input
-            type='text'
-            autoFocus
-            variant='standard'
-            label='Family (Last) Name'
-            value={newName}
-            onChange={(event) => setNewName(event.target.value)}
-            required
-          />
-        </Stack>
 
-        <ModalFooter>
-          <Button onClick={() => setIsOpen(false)}>Cancel</Button>
-          <Button variant='contained' onClick={createFamily}>
-            Create
-          </Button>
-        </ModalFooter>
+        <form onSubmit={handleSubmit(createFamily)}>
+          <FormControl>
+            <FormLabel>Family (Last) Name</FormLabel>
+            <Input type='text' {...register('name')} />
+            <FormErrorMessage>{errors.name?.message}</FormErrorMessage>
+          </FormControl>
+
+          <ModalFooter>
+            <Button onClick={() => setIsOpen(false)}>Cancel</Button>
+            <Button type='submit' variant='contained'>
+              Create
+            </Button>
+          </ModalFooter>
+        </form>
       </ModalContent>
     </Modal>
   );

@@ -1,21 +1,44 @@
-import React, { useState } from 'react';
+import React, { BaseSyntheticEvent } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import { useUserStore } from 'state/UserStore';
 import { db, FsCol, storage } from '../../firebase';
 import { doc, writeBatch } from 'firebase/firestore';
 import { useFirestoreWriteBatch } from '@react-query-firebase/firestore';
-import { Button, Input, Modal, ModalContent, ModalFooter, ModalHeader, ModalOverlay, useToast } from '@chakra-ui/react';
+import {
+  Button,
+  FormControl,
+  FormErrorMessage,
+  FormLabel,
+  Input,
+  Modal,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
+  useToast,
+} from '@chakra-ui/react';
+import * as yup from 'yup';
+import { Controller, useForm } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
 
 // TODO: File dropzone
 
-const defNewRes = {
-  name: '',
-  yearBuilt: '',
-  yearPurchased: '',
-  maintenanceMarkers: [],
-  serviceLogEntries: [],
-};
+const addResidenceSchema = yup
+  .object({
+    name: yup.string().required(`You must give your residence a name`),
+    yearBuilt: yup.string().required('You must provide the year your residence was built'),
+    yearPurchased: yup.string().required('You must provide the year your residence was purchased'),
+    photo: yup.mixed(),
+  })
+  .required();
+
+interface AddResidenceFormSchema {
+  name: string;
+  yearBuilt: string;
+  yearPurchased: string;
+  photo: File | null;
+}
 
 interface AddResidenceProps {
   isOpen: boolean;
@@ -27,13 +50,20 @@ const AddResidence = ({ isOpen, setIsOpen }: AddResidenceProps) => {
   const profile = useUserStore((state) => state.profile);
   const family = useUserStore((state) => state.family);
 
-  const [newResidence, setNewResidence] = useState(defNewRes);
-  const [newResImgFile, setNewResImgFile] = useState<File | null>(null);
+  const {
+    register,
+    handleSubmit,
+    control,
+    formState: { errors },
+  } = useForm<AddResidenceFormSchema>({
+    resolver: yupResolver(addResidenceSchema),
+  });
 
   const batch = writeBatch(db);
   const batchMutation = useFirestoreWriteBatch(batch);
 
-  const addNewResidence = async () => {
+  const addNewResidence = async (newResidenceData: AddResidenceFormSchema, event?: BaseSyntheticEvent) => {
+    event?.preventDefault();
     if (!family || !profile) return;
 
     const newResId = uuidv4();
@@ -45,14 +75,16 @@ const AddResidence = ({ isOpen, setIsOpen }: AddResidenceProps) => {
     newResIdArr.push(newResId);
 
     let imgUrl: string | undefined = undefined;
-    if (newResImgFile) {
-      imgUrl = await getDownloadURL((await uploadBytes(ref(storage, uuidv4()), newResImgFile)).ref);
+    if (newResidenceData.photo) {
+      imgUrl = await getDownloadURL((await uploadBytes(ref(storage, uuidv4()), newResidenceData.photo)).ref);
     }
 
     batch.set(doc(db, FsCol.Residences, newResId), {
-      ...newResidence,
       id: newResId,
       img: imgUrl,
+      maintenanceMarkers: [],
+      serviceLogEntries: [],
+      ...newResidenceData,
     });
     batch.update(doc(db, FsCol.Families, profile.familyId), {
       residences: newResIdArr,
@@ -60,8 +92,6 @@ const AddResidence = ({ isOpen, setIsOpen }: AddResidenceProps) => {
 
     batchMutation.mutate(undefined, {
       onSuccess() {
-        setNewResImgFile(null);
-        setNewResidence(defNewRes);
         toast({
           title: 'Successfully added residence!',
           status: 'success',
@@ -79,56 +109,50 @@ const AddResidence = ({ isOpen, setIsOpen }: AddResidenceProps) => {
       <ModalContent>
         <ModalHeader>Add Residence</ModalHeader>
 
-        <Input
-          type='text'
-          autoFocus
-          variant='standard'
-          label='Name'
-          placeholder='My House!'
-          value={newResidence.name}
-          onChange={(event) => setNewResidence({ ...newResidence, name: event.target.value })}
-        />
+        <form onSubmit={handleSubmit(addNewResidence)}>
+          <FormControl>
+            <FormLabel>Name</FormLabel>
+            <Input type='text' placeholder='My house!' {...register('name')} />
+            <FormErrorMessage>{errors.name?.message}</FormErrorMessage>
+          </FormControl>
 
-        <InputLabel>Upload Photo</InputLabel>
-        <DropzoneArea
-          acceptedFiles={['image/jpeg', 'image/png']}
-          filesLimit={1}
-          onChange={(files) => setNewResImgFile(files[0])}
-          fileObjects={[]}
-        />
+          <FormControl>
+            <FormLabel>Photo</FormLabel>
+            <Controller
+              name='photo'
+              control={control}
+              render={({ field }) => (
+                <DropzoneArea
+                  acceptedFiles={['image/jpeg', 'image/png']}
+                  filesLimit={1}
+                  value={field.value}
+                  onChange={field.onChange}
+                  fileObjects={[]}
+                />
+              )}
+            />
+            <FormErrorMessage>{errors.photo?.message}</FormErrorMessage>
+          </FormControl>
 
-        <Input
-          type='text'
-          variant='standard'
-          label='Year Built'
-          value={newResidence.yearBuilt}
-          onChange={(event) =>
-            setNewResidence({
-              ...newResidence,
-              yearBuilt: event.target.value,
-            })
-          }
-        />
+          <FormControl>
+            <FormLabel>Year Built</FormLabel>
+            <Input type='text' {...register('yearBuilt')} />
+            <FormErrorMessage>{errors.name?.message}</FormErrorMessage>
+          </FormControl>
 
-        <Input
-          type='text'
-          variant='standard'
-          label='Year Purchased'
-          value={newResidence.yearPurchased}
-          onChange={(event) =>
-            setNewResidence({
-              ...newResidence,
-              yearPurchased: event.target.value,
-            })
-          }
-        />
+          <FormControl>
+            <FormLabel>Year Purchased</FormLabel>
+            <Input type='text' {...register('yearPurchased')} />
+            <FormErrorMessage>{errors.name?.message}</FormErrorMessage>
+          </FormControl>
 
-        <ModalFooter>
-          <Button onClick={() => setIsOpen(false)}>Cancel</Button>
-          <Button variant='contained' onClick={addNewResidence}>
-            Add
-          </Button>
-        </ModalFooter>
+          <ModalFooter>
+            <Button onClick={() => setIsOpen(false)}>Cancel</Button>
+            <Button type='submit' variant='contained'>
+              Add
+            </Button>
+          </ModalFooter>
+        </form>
       </ModalContent>
     </Modal>
   );

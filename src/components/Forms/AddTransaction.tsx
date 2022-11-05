@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { BaseSyntheticEvent, useMemo } from 'react';
 import { IBudget, Transaction } from 'models/types';
 import { useUserStore } from 'state/UserStore';
 import { useFirestoreDocumentMutation } from '@react-query-firebase/firestore';
@@ -7,6 +7,7 @@ import { db, FsCol } from '../../firebase';
 import {
   Button,
   FormControl,
+  FormErrorMessage,
   FormLabel,
   Input,
   Modal,
@@ -14,27 +15,45 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
-  Stack,
   useToast,
 } from '@chakra-ui/react';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
+import { ReactDatePicker } from 'react-datepicker';
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as yup from 'yup';
+import { Select, OptionBase, GroupBase } from 'chakra-react-select';
 
-// TODO: Date picker
+// TODO: Disable form buttons while submitting
+// TODO: Dropzone for file (image) inputs ['image/jpeg', 'image/png']
+
+// NOTE/TODO: If DatePicker ever gets reused, it'd probably be worth to write own wrapper for consistency
 
 export const catSubcatKeySeparator = '&%&';
 
-const convertConcatToCatOpt = (concatCats: string) => {
-  const splitCats = concatCats.split(catSubcatKeySeparator);
+const addTransactionSchema = yup
+  .object({
+    amount: yup.number().required('The transaction amount is required'),
+    description: yup.string().required('A description of the transaction is required'),
+    category: yup.mixed().required('The (sub)category that the transaction falls under is required'),
+    date: yup.date().required('The date of the transaction is required'),
+  })
+  .required();
 
-  return {
-    category: splitCats[0],
-    subcategory: splitCats[1],
-  };
-};
+interface IGroupOpt extends GroupBase<ICatOpt> {
+  label: string;
+  options: ICatOpt[];
+}
 
-interface ICatOpt {
-  category: string;
-  subcategory: string;
+interface ICatOpt extends OptionBase {
+  label: string; // Subcategory
+  value: string; // category-subcategory
+}
+
+interface AddTransactionFormSchema {
+  amount: number;
+  description: string;
+  catSubcat: ICatOpt;
+  date: Date;
 }
 
 interface AddTransactionProps {
@@ -51,50 +70,43 @@ const AddTransaction = ({ isOpen, setIsOpen, initialCatSubcat, budget }: AddTran
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors },
-  } = useForm();
+  } = useForm<AddTransactionFormSchema>({
+    resolver: yupResolver(addTransactionSchema),
+  });
 
   const budgetDocMutation = useFirestoreDocumentMutation(doc(db, FsCol.Budgets, family?.budgetId ?? 'undefined'), {
     merge: true,
   });
 
-  const getCatOptions = () => {
-    const catOptions: ICatOpt[] = [];
-
-    budget.categories.forEach((category) => {
-      category.subcategories.forEach((subcat) => {
-        catOptions.push({
-          category: category.name,
-          subcategory: subcat.name,
-        });
-      });
-    });
+  const categoryOptions = useMemo(() => {
+    const catOptions: IGroupOpt[] = budget.categories.map((category) => ({
+      label: category.name,
+      options: category.subcategories.map((subcategory) => ({
+        label: subcategory.name,
+        value: `${category.name}${catSubcatKeySeparator}${subcategory.name}`,
+      })),
+    }));
 
     return catOptions;
-  };
+  }, []);
 
-  const submitNewTransaction = () => {
-    if (!family?.budgetId || !newTransactionDate) {
+  const submitNewTransaction = (newTransactionData: AddTransactionFormSchema, event?: BaseSyntheticEvent) => {
+    event?.preventDefault();
+    if (!family?.budgetId) {
       return;
     }
 
+    const splitCatSubcat = newTransactionData.catSubcat.value.split(catSubcatKeySeparator);
+
     const formattedTransaction: Transaction = {
-      amt: parseFloat(newTransactionAmt),
-      name: newTransactionName,
-      timestamp: newTransactionDate.toString(),
-      category: '',
-      subcategory: '',
+      amt: newTransactionData.amount,
+      name: newTransactionData.description,
+      timestamp: newTransactionData.date.toString(),
+      category: splitCatSubcat[0],
+      subcategory: splitCatSubcat[1],
     };
-
-    if (initialCatSubcat) {
-      const catOpt = convertConcatToCatOpt(initialCatSubcat);
-
-      formattedTransaction.category = catOpt.category;
-      formattedTransaction.subcategory = catOpt.subcategory;
-    } else if (newTransactionCat) {
-      formattedTransaction.category = newTransactionCat.category;
-      formattedTransaction.subcategory = newTransactionCat.subcategory;
-    }
 
     const updArr = [...budget.transactions, formattedTransaction];
 
@@ -120,51 +132,56 @@ const AddTransaction = ({ isOpen, setIsOpen, initialCatSubcat, budget }: AddTran
       <ModalContent>
         <ModalHeader>Add Transaction</ModalHeader>
 
-        <Stack>
-          <form onSubmit={handleSubmit(submitNewTransaction)}>
-            <FormControl>
-              <FormLabel>Amount</FormLabel>
-              <Input type='number' {...register('amount')} />
-            </FormControl>
+        <form onSubmit={handleSubmit(submitNewTransaction)}>
+          <FormControl>
+            <FormLabel>Amount</FormLabel>
+            <Input type='number' {...register('amount')} />
+            <FormErrorMessage>{errors.amount?.message}</FormErrorMessage>
+          </FormControl>
 
-            <FormControl>
-              <FormLabel>Description</FormLabel>
-              <Input type='text' {...register('description')} />
-            </FormControl>
+          <FormControl>
+            <FormLabel>Description</FormLabel>
+            <Input type='text' {...register('description')} />
+            <FormErrorMessage>{errors.description?.message}</FormErrorMessage>
+          </FormControl>
 
-            <FormControl>
-              <FormLabel>Category</FormLabel>
-              {initialCatSubcat ? (
-                <Input
-                  type='text'
-                  defaultValue={convertConcatToCatOpt(initialCatSubcat).subcategory}
-                  {...register('category')}
-                  sx={{ mt: 2, mb: 2 }}
-                />
-              ) : (
-                <Autocomplete
-                  options={getCatOptions()}
-                  groupBy={(option) => option.category}
-                  getOptionLabel={(option) => option.subcategory}
-                  sx={{ mt: 2, mb: 2 }}
-                  renderInput={(params) => <Input type='text' {...params} {...register('category')} />}
+          <FormControl>
+            <FormLabel>Category</FormLabel>
+            <Controller
+              name='catSubcat'
+              control={control}
+              render={({ field }) => (
+                <Select
+                  value={field.value}
+                  onChange={field.onChange}
+                  options={categoryOptions}
+                  isClearable
+                  isSearchable
+                  isReadOnly={!!initialCatSubcat}
                 />
               )}
-            </FormControl>
+            />
+            <FormErrorMessage>{errors.catSubcat?.message}</FormErrorMessage>
+          </FormControl>
 
-            <FormControl>
-              <FormLabel>Date</FormLabel>
-              <Input type='date' defaultValue={new Date().toLocaleDateString()} {...register('date')} />
-            </FormControl>
-          </form>
-        </Stack>
+          <FormControl>
+            <FormLabel>Date</FormLabel>
+            <Input type='date' defaultValue={new Date().toLocaleDateString()} {...register('date')} />
+            <Controller
+              name='date'
+              control={control}
+              render={({ field }) => <ReactDatePicker selected={field.value} onChange={field.onChange} />}
+            />
+            <FormErrorMessage>{errors.date?.message}</FormErrorMessage>
+          </FormControl>
 
-        <ModalFooter>
-          <Button onClick={() => setIsOpen(false)}>Cancel</Button>
-          <Button type='submit' variant='contained' onClick={submitNewTransaction}>
-            Save
-          </Button>
-        </ModalFooter>
+          <ModalFooter>
+            <Button onClick={() => setIsOpen(false)}>Cancel</Button>
+            <Button type='submit' variant='contained'>
+              Save
+            </Button>
+          </ModalFooter>
+        </form>
       </ModalContent>
     </Modal>
   );

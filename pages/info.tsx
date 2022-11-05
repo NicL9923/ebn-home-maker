@@ -67,9 +67,9 @@ const Information = () => {
         </Text>
 
         {isEditingMd ? (
-          <MDEditor value={editedMd} onChange={setEditedMd} />
+          <MDEditor value={editedMd} onChange={setEditedMd} style={{ height: '80vh' }} />
         ) : (
-          <EditorMarkdown style={{ padding: 15 }} source={family.boardMarkdown} />
+          <EditorMarkdown style={{ padding: 15, height: '80vh' }} source={family.boardMarkdown} />
         )}
 
         <Box mt={3}>
