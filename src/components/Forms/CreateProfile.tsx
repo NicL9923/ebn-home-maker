@@ -3,12 +3,12 @@ import { Button, Dialog, DialogActions, DialogContent, DialogTitle, InputLabel, 
 import { DropzoneArea } from 'mui-file-dropzone';
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import { v4 as uuidv4 } from 'uuid';
-import { useAppStore } from 'state/AppStore';
 import { useUserStore } from 'state/UserStore';
 import { doc, writeBatch } from 'firebase/firestore';
 import { db, FsCol, storage } from '../../firebase';
 import { useFirestoreWriteBatch } from '@react-query-firebase/firestore';
 import { GenericObject } from 'models/types';
+import { useToast } from '@chakra-ui/react';
 
 interface CreateProfileProps {
   isOpen: boolean;
@@ -16,7 +16,7 @@ interface CreateProfileProps {
 }
 
 const CreateProfile = ({ isOpen, setIsOpen }: CreateProfileProps) => {
-  const setSnackbarData = useAppStore((state) => state.setSnackbarData);
+  const toast = useToast();
   const userId = useUserStore((state) => state.userId);
 
   const [newName, setNewName] = useState<string | undefined>(undefined);
@@ -53,7 +53,11 @@ const CreateProfile = ({ isOpen, setIsOpen }: CreateProfileProps) => {
 
     batchMutation.mutate(undefined, {
       onSuccess() {
-        setSnackbarData({ msg: 'Successfully created profile!', severity: 'success' });
+        toast({
+          title: 'Successfully created profile!',
+          status: 'success',
+          isClosable: true,
+        });
       },
     });
 

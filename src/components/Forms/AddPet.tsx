@@ -3,11 +3,11 @@ import { Button, Dialog, DialogActions, DialogContent, DialogTitle, InputLabel, 
 import { DropzoneArea } from 'mui-file-dropzone';
 import { getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
 import { v4 as uuidv4 } from 'uuid';
-import { useAppStore } from 'state/AppStore';
 import { useUserStore } from 'state/UserStore';
 import { useFirestoreDocumentMutation } from '@react-query-firebase/firestore';
 import { doc } from 'firebase/firestore';
 import { db, FsCol } from '../../firebase';
+import { useToast } from '@chakra-ui/react';
 
 interface AddPetProps {
   isOpen: boolean;
@@ -15,7 +15,7 @@ interface AddPetProps {
 }
 
 const AddPet = ({ isOpen, setIsOpen }: AddPetProps) => {
-  const setSnackbarData = useAppStore((state) => state.setSnackbarData);
+  const toast = useToast();
   const profile = useUserStore((state) => state.profile);
   const family = useUserStore((state) => state.family);
 
@@ -31,6 +31,7 @@ const AddPet = ({ isOpen, setIsOpen }: AddPetProps) => {
 
     const newPetsArr = family.pets ? [...family.pets] : [];
 
+    // TODO: Refactor this similar to Residence/Vehicle (batch write I believe)
     if (newPhoto) {
       const storage = getStorage();
       const imgRef = ref(storage, uuidv4());
@@ -41,7 +42,11 @@ const AddPet = ({ isOpen, setIsOpen }: AddPetProps) => {
             { pets: newPetsArr },
             {
               onSuccess() {
-                setSnackbarData({ msg: 'Successfully added pet!', severity: 'success' });
+                toast({
+                  title: 'Successfully added pet!',
+                  status: 'success',
+                  isClosable: true,
+                });
               },
             }
           );
@@ -53,7 +58,11 @@ const AddPet = ({ isOpen, setIsOpen }: AddPetProps) => {
         { pets: newPetsArr },
         {
           onSuccess() {
-            setSnackbarData({ msg: 'Successfully added pet!', severity: 'success' });
+            toast({
+              title: 'Successfully added pet!',
+              status: 'success',
+              isClosable: true,
+            });
           },
         }
       );

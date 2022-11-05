@@ -3,11 +3,11 @@ import { Button, Dialog, DialogActions, DialogContent, DialogTitle, InputLabel, 
 import { DropzoneArea } from 'mui-file-dropzone';
 import { v4 as uuidv4 } from 'uuid';
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
-import { useAppStore } from 'state/AppStore';
 import { useUserStore } from 'state/UserStore';
 import { doc, writeBatch } from 'firebase/firestore';
 import { db, FsCol, storage } from '../../firebase';
 import { useFirestoreWriteBatch } from '@react-query-firebase/firestore';
+import { useToast } from '@chakra-ui/react';
 
 const defNewVeh = {
   year: '',
@@ -28,7 +28,7 @@ interface AddVehicleProps {
 }
 
 const AddVehicle = ({ isOpen, setIsOpen }: AddVehicleProps) => {
-  const setSnackbarData = useAppStore((state) => state.setSnackbarData);
+  const toast = useToast();
   const profile = useUserStore((state) => state.profile);
   const family = useUserStore((state) => state.family);
 
@@ -67,7 +67,11 @@ const AddVehicle = ({ isOpen, setIsOpen }: AddVehicleProps) => {
       onSuccess() {
         setNewVehImgFile(null);
         setNewVehicle(defNewVeh);
-        setSnackbarData({ msg: 'Successfully added residence!', severity: 'success' });
+        toast({
+          title: 'Successfully added vehicle!',
+          status: 'success',
+          isClosable: true,
+        });
       },
     });
 

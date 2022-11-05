@@ -7,6 +7,7 @@ import { useUserStore } from 'state/UserStore';
 import { doc, writeBatch } from 'firebase/firestore';
 import { useFirestoreWriteBatch } from '@react-query-firebase/firestore';
 import { db, FsCol } from '../../firebase';
+import { useToast } from '@chakra-ui/react';
 
 interface CreateFamilyProps {
   isOpen: boolean;
@@ -14,10 +15,11 @@ interface CreateFamilyProps {
 }
 
 const CreateFamily = ({ isOpen, setIsOpen }: CreateFamilyProps) => {
-  const [newName, setNewName] = useState<string | undefined>(undefined);
+  const toast = useToast();
 
-  const setSnackbarData = useAppStore((state) => state.setSnackbarData);
   const userId = useUserStore((state) => state.userId);
+
+  const [newName, setNewName] = useState<string | undefined>(undefined);
 
   const batch = writeBatch(db);
   const batchMutation = useFirestoreWriteBatch(batch);
@@ -43,7 +45,11 @@ const CreateFamily = ({ isOpen, setIsOpen }: CreateFamilyProps) => {
 
     batchMutation.mutate(undefined, {
       onSuccess() {
-        setSnackbarData({ msg: 'Successfully created family!', severity: 'success' });
+        toast({
+          title: 'Successfully created family!',
+          status: 'success',
+          isClosable: true,
+        });
       },
     });
 

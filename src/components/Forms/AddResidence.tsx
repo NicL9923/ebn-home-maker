@@ -3,11 +3,11 @@ import { Button, Dialog, DialogActions, DialogContent, DialogTitle, InputLabel, 
 import { DropzoneArea } from 'mui-file-dropzone';
 import { v4 as uuidv4 } from 'uuid';
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
-import { useAppStore } from 'state/AppStore';
 import { useUserStore } from 'state/UserStore';
 import { db, FsCol, storage } from '../../firebase';
 import { doc, writeBatch } from 'firebase/firestore';
 import { useFirestoreWriteBatch } from '@react-query-firebase/firestore';
+import { useToast } from '@chakra-ui/react';
 
 const defNewRes = {
   name: '',
@@ -23,7 +23,7 @@ interface AddResidenceProps {
 }
 
 const AddResidence = ({ isOpen, setIsOpen }: AddResidenceProps) => {
-  const setSnackbarData = useAppStore((state) => state.setSnackbarData);
+  const toast = useToast();
   const profile = useUserStore((state) => state.profile);
   const family = useUserStore((state) => state.family);
 
@@ -62,7 +62,11 @@ const AddResidence = ({ isOpen, setIsOpen }: AddResidenceProps) => {
       onSuccess() {
         setNewResImgFile(null);
         setNewResidence(defNewRes);
-        setSnackbarData({ msg: 'Successfully added residence!', severity: 'success' });
+        toast({
+          title: 'Successfully added residence!',
+          status: 'success',
+          isClosable: true,
+        });
       },
     });
 

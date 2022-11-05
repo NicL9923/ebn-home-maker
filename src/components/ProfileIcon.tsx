@@ -2,12 +2,12 @@ import React, { useState } from 'react';
 import { signOut } from 'firebase/auth';
 import { Avatar, Divider, ListItemText, Menu, MenuItem, Typography } from '@mui/material';
 import Link from 'next/link';
-import { useAppStore } from 'state/AppStore';
 import { useUserStore } from 'state/UserStore';
 import { auth } from '../firebase';
+import { useToast } from '@chakra-ui/react';
 
 const ProfileIcon = () => {
-  const setSnackbarData = useAppStore((state) => state.setSnackbarData);
+  const toast = useToast();
   const profile = useUserStore((state) => state.profile);
 
   const [anchorEl, setAnchorEl] = useState<Element | undefined>(undefined);
@@ -15,10 +15,18 @@ const ProfileIcon = () => {
   const handleSignOut = () =>
     signOut(auth)
       .then(() => {
-        setSnackbarData({ msg: 'Successfully signed out!', severity: 'success' });
+        toast({
+          title: 'Successfully signed out!',
+          status: 'success',
+          isClosable: true,
+        });
       })
       .catch((error) => {
-        setSnackbarData({ msg: `Error signing out: ${error}`, severity: 'error' });
+        toast({
+          title: `Error signing out: ${error}`,
+          status: 'error',
+          isClosable: true,
+        });
       });
 
   return (

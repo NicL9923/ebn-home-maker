@@ -5,13 +5,13 @@ import { doc } from 'firebase/firestore';
 import NoProfile from 'components/NoProfile';
 import SingleFieldDialog from 'components/Inputs/SingleFieldDialog';
 import { DragDropContext, Draggable, Droppable, DropResult } from 'react-beautiful-dnd';
-import { useAppStore } from 'state/AppStore';
 import { useUserStore } from 'state/UserStore';
 import { useFirestoreDocumentMutation } from '@react-query-firebase/firestore';
 import { db, FsCol } from '../src/firebase';
+import { useToast } from '@chakra-ui/react';
 
 const GroceryList = () => {
-  const setSnackbarData = useAppStore((state) => state.setSnackbarData);
+  const toast = useToast();
   const profile = useUserStore((state) => state.profile);
   const family = useUserStore((state) => state.family);
 
@@ -38,7 +38,11 @@ const GroceryList = () => {
       { groceryList: newList },
       {
         onSuccess() {
-          setSnackbarData({ msg: 'Successfully added item!', severity: 'success' });
+          toast({
+            title: 'Successfully added item!',
+            status: 'success',
+            isClosable: true,
+          });
         },
       }
     );

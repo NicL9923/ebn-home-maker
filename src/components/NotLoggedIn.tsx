@@ -7,11 +7,11 @@ import {
   createUserWithEmailAndPassword,
 } from 'firebase/auth';
 import { Google } from '@mui/icons-material';
-import { useAppStore } from 'state/AppStore';
 import { auth } from '../firebase';
+import { useToast } from '@chakra-ui/react';
 
 const NotLoggedIn = () => {
-  const setSnackbarData = useAppStore((state) => state.setSnackbarData);
+  const toast = useToast();
   const provider = new GoogleAuthProvider();
 
   const [email, setEmail] = useState<string | undefined>(undefined);
@@ -20,10 +20,18 @@ const NotLoggedIn = () => {
   const googleSignIn = () =>
     signInWithRedirect(auth, provider)
       .then(() => {
-        setSnackbarData({ msg: 'Successfully signed in with Google!', severity: 'success' });
+        toast({
+          title: 'Successfully signed in with Google!',
+          status: 'success',
+          isClosable: true,
+        });
       })
       .catch((error) => {
-        setSnackbarData({ msg: `Error signing in with Google: ${error.message}`, severity: 'error' });
+        toast({
+          title: `Error signing in with Google: ${error.message}`,
+          status: 'error',
+          isClosable: true,
+        });
         console.log(error);
       });
 
@@ -31,10 +39,18 @@ const NotLoggedIn = () => {
     if (email && password)
       signInWithEmailAndPassword(auth, email, password)
         .then(() => {
-          setSnackbarData({ msg: 'Successfully signed in with email/password!', severity: 'success' });
+          toast({
+            title: 'Successfully signed in with email/password!',
+            status: 'success',
+            isClosable: true,
+          });
         })
         .catch((error) => {
-          setSnackbarData({ msg: `Error signing in with email/password: ${error.message}`, severity: 'error' });
+          toast({
+            title: `Error signing in with email/password: ${error.message}`,
+            status: 'error',
+            isClosable: true,
+          });
           console.log(error);
         });
   };
@@ -45,11 +61,19 @@ const NotLoggedIn = () => {
     createUserWithEmailAndPassword(auth, email, password)
       .then(() => {
         // Successfully created & signed in
-        setSnackbarData({ msg: 'Successfully created account!', severity: 'success' });
+        toast({
+          title: 'Successfully created account!',
+          status: 'success',
+          isClosable: true,
+        });
       })
       .catch((error) => {
         // Error creating account
-        setSnackbarData({ msg: `Error creating email/password account: ${error.message}`, severity: 'error' });
+        toast({
+          title: `Error creating email/password account: ${error.message}`,
+          status: 'error',
+          isClosable: true,
+        });
         console.error(error);
       });
   };

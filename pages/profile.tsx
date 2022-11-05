@@ -5,14 +5,14 @@ import Family from 'components/Family';
 import EditableLabel from 'components/Inputs/EditableLabel';
 import EditableImage from 'components/Inputs/EditableImage';
 import { sendPasswordResetEmail } from 'firebase/auth';
-import { useAppStore } from 'state/AppStore';
 import { useUserStore } from 'state/UserStore';
 import { auth, db, FsCol } from '../src/firebase';
 import { useFirestoreDocumentMutation } from '@react-query-firebase/firestore';
 import { doc } from 'firebase/firestore';
+import { useToast } from '@chakra-ui/react';
 
 const ProfilePage = () => {
-  const setSnackbarData = useAppStore((state) => state.setSnackbarData);
+  const toast = useToast();
   const userId = useUserStore((state) => state.userId);
   const userEmail = useUserStore((state) => state.userEmail);
   const profile = useUserStore((state) => state.profile);
@@ -39,10 +39,18 @@ const ProfilePage = () => {
 
     sendPasswordResetEmail(auth, userEmail)
       .then(() => {
-        setSnackbarData({ msg: `Password reset email sent to ${userEmail}`, severity: 'info' });
+        toast({
+          title: `Password reset email sent to ${userEmail}`,
+          status: 'info',
+          isClosable: true,
+        });
       })
       .catch((error) => {
-        setSnackbarData({ msg: `Error sending password reset email: ${error.message}`, severity: 'error' });
+        toast({
+          title: `Error sending password reset email: ${error.message}`,
+          status: 'error',
+          isClosable: true,
+        });
       });
   };
 

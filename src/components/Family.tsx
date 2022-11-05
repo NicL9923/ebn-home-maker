@@ -20,14 +20,14 @@ import copy from 'clipboard-copy';
 import NoFamily from './NoFamily';
 import AddPet from './Forms/AddPet';
 import { deleteObject, getStorage, ref } from 'firebase/storage';
-import { useAppStore } from 'state/AppStore';
 import { useUserStore } from 'state/UserStore';
 import { useFirestoreDocumentMutation, useFirestoreWriteBatch } from '@react-query-firebase/firestore';
 import { doc, getDoc, writeBatch } from 'firebase/firestore';
 import { db, FsCol } from '../firebase';
+import { useToast } from '@chakra-ui/react';
 
 const Family = () => {
-  const setSnackbarData = useAppStore((state) => state.setSnackbarData);
+  const toast = useToast();
 
   const userId = useUserStore((state) => state.userId);
   const profile = useUserStore((state) => state.profile);
@@ -124,7 +124,11 @@ const Family = () => {
     if (!profile) return;
 
     copy(`https://our-home-239c1.firebaseapp.com/joinFamily/${profile.familyId}`).then(() => {
-      setSnackbarData({ msg: 'Copied invite link', severity: 'info' });
+      toast({
+        title: `Copied invite link`,
+        status: 'info',
+        isClosable: true,
+      });
     });
   };
 

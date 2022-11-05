@@ -17,6 +17,7 @@ import { useUserStore } from 'state/UserStore';
 import { useFirestoreDocumentMutation } from '@react-query-firebase/firestore';
 import { doc } from 'firebase/firestore';
 import { db, FsCol } from '../../firebase';
+import { useToast } from '@chakra-ui/react';
 
 export const catSubcatKeySeparator = '&%&';
 
@@ -42,7 +43,7 @@ interface AddTransactionProps {
 }
 
 const AddTransaction = ({ isOpen, setIsOpen, initialCatSubcat, budget }: AddTransactionProps) => {
-  const setSnackbarData = useAppStore((state) => state.setSnackbarData);
+  const toast = useToast();
   const family = useUserStore((state) => state.family);
 
   const [newTransactionName, setNewTransactionName] = useState('');
@@ -99,7 +100,11 @@ const AddTransaction = ({ isOpen, setIsOpen, initialCatSubcat, budget }: AddTran
       { transactions: updArr },
       {
         onSuccess() {
-          setSnackbarData({ msg: 'Successfully added transaction!', severity: 'success' });
+          toast({
+            title: 'Successfully added transaction!',
+            status: 'success',
+            isClosable: true,
+          });
 
           setIsOpen(false);
           setNewTransactionName('');

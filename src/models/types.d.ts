@@ -113,8 +113,3 @@ export interface BudgetContextValue {
   addNewSubCategory: (catName: string) => void;
   removeCategory: (catName: string) => void;
 }
-
-export interface SnackbarData {
-  msg: string;
-  severity: 'error' | 'warning' | 'info' | 'success';
-}
