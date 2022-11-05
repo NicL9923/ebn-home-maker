@@ -1,10 +1,10 @@
-import { Box, Button, Paper, Typography } from '@mui/material';
 import { useFirestoreWriteBatch } from '@react-query-firebase/firestore';
 import { db, FsCol } from '../../../firebase';
 import { doc, writeBatch } from 'firebase/firestore';
 import { IBudget } from 'models/types';
 import { useUserStore } from 'state/UserStore';
 import { v4 as uuidv4 } from 'uuid';
+import { Box, Button, Text } from '@chakra-ui/react';
 
 const NoBudget = () => {
   const userId = useUserStore((state) => state.userId);
@@ -69,17 +69,15 @@ const NoBudget = () => {
   };
 
   return (
-    <Box maxWidth='sm' textAlign='center' mt={4} mx='auto'>
-      <Paper sx={{ p: 2 }}>
-        <Typography variant='h6'>You don&apos;t have a budget yet!</Typography>
-        <Typography variant='subtitle1' mb={4}>
-          Create one?
-        </Typography>
+    <Box p={2} maxWidth='sm' textAlign='center' mt={4} mx='auto'>
+      <Text variant='h6'>You don&apos;t have a budget yet!</Text>
+      <Text variant='subtitle1' mb={4}>
+        Create one?
+      </Text>
 
-        <Button variant='contained' onClick={createAndSaveDefaultBudget} disabled={batchMutation.isLoading}>
-          Create Budget
-        </Button>
-      </Paper>
+      <Button variant='contained' onClick={createAndSaveDefaultBudget} disabled={batchMutation.isLoading}>
+        Create Budget
+      </Button>
     </Box>
   );
 };

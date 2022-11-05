@@ -1,21 +1,21 @@
 import React, { useState } from 'react';
+import { deleteObject, getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
+import { v4 as uuidv4 } from 'uuid';
+import { MdEdit } from 'react-icons/md';
 import {
   Avatar,
   Box,
   Button,
   Checkbox,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  FormControlLabel,
   IconButton,
-} from '@mui/material';
-import { DropzoneArea } from 'mui-file-dropzone';
-import { deleteObject, getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
-import { v4 as uuidv4 } from 'uuid';
-import { Edit } from '@mui/icons-material';
+  Modal,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
+} from '@chakra-ui/react';
 
+// TODO: File dropzone
 // TODO: On image hover -> grey background + Edit icon overlay on image (and cursor pointer)
 
 interface EditableImageProps {
@@ -57,34 +57,34 @@ const EditableImage = ({ curImgLink, updateCurImgLink, imgPlaceholder, height, w
 
   return (
     <Box>
-      <IconButton
-        onClick={() => setIsEditingPhoto(true)}
-        sx={{ position: 'relative', borderRadius: '50%' }}
-        onMouseOver={() => setIsHoveringImg(true)}
-        onMouseOut={() => setIsHoveringImg(false)}
-      >
+      <Avatar src={curImgLink} sx={{ height, width, position: 'relative' }}>
+        {!curImgLink && imgPlaceholder}
+
         {isHoveringImg && (
-          <Edit
+          <IconButton
+            icon={<MdEdit />}
+            onClick={() => setIsEditingPhoto(true)}
             sx={{
+              borderRadius: '50%',
               position: 'absolute',
-              top: '27%',
-              left: '29%',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
               zIndex: 100,
               color: '#eaeaea',
-              height: height / 2,
-              width: width / 2,
             }}
+            onMouseOver={() => setIsHoveringImg(true)}
+            onMouseOut={() => setIsHoveringImg(false)}
+            aria-label='Edit image'
           />
         )}
-        <Avatar src={curImgLink} sx={{ height, width }}>
-          {!curImgLink && imgPlaceholder}
-        </Avatar>
-      </IconButton>
+      </Avatar>
 
-      <Dialog open={isEditingPhoto} onClose={() => setIsEditingPhoto(false)} fullWidth>
-        <DialogTitle>Update/Delete image</DialogTitle>
+      <Modal isOpen={isEditingPhoto} onClose={() => setIsEditingPhoto(false)}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Update/Delete image</ModalHeader>
 
-        <DialogContent>
           {!deleteExistingPhoto && (
             <DropzoneArea
               acceptedFiles={['image/jpeg', 'image/png']}
@@ -94,22 +94,19 @@ const EditableImage = ({ curImgLink, updateCurImgLink, imgPlaceholder, height, w
             />
           )}
           {curImgLink && (
-            <FormControlLabel
-              control={
-                <Checkbox checked={deleteExistingPhoto} onChange={() => setDeleteExistingPhoto(!deleteExistingPhoto)} />
-              }
-              label='Only delete existing photo'
-            />
+            <Checkbox checked={deleteExistingPhoto} onChange={() => setDeleteExistingPhoto(!deleteExistingPhoto)}>
+              Only delete existing photo
+            </Checkbox>
           )}
-        </DialogContent>
 
-        <DialogActions>
-          <Button onClick={() => setIsEditingPhoto(false)}>Cancel</Button>
-          <Button variant='contained' onClick={updateImg} disabled={!newImgFile && !deleteExistingPhoto}>
-            Save
-          </Button>
-        </DialogActions>
-      </Dialog>
+          <ModalFooter>
+            <Button onClick={() => setIsEditingPhoto(false)}>Cancel</Button>
+            <Button variant='contained' onClick={updateImg} disabled={!newImgFile && !deleteExistingPhoto}>
+              Save
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </Box>
   );
 };

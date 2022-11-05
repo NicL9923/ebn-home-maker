@@ -1,6 +1,5 @@
 import React, { useMemo, useState } from 'react';
 import NoFamily from 'components/NoFamily';
-import { Paper, Typography, Box, List, ListItem, Checkbox, Button, FormControlLabel } from '@mui/material';
 import { doc } from 'firebase/firestore';
 import NoProfile from 'components/NoProfile';
 import SingleFieldDialog from 'components/Inputs/SingleFieldDialog';
@@ -8,7 +7,7 @@ import { DragDropContext, Draggable, Droppable, DropResult } from 'react-beautif
 import { useUserStore } from 'state/UserStore';
 import { useFirestoreDocumentMutation } from '@react-query-firebase/firestore';
 import { db, FsCol } from '../src/firebase';
-import { useToast } from '@chakra-ui/react';
+import { Box, Button, Checkbox, List, ListItem, Text, useToast } from '@chakra-ui/react';
 
 const GroceryList = () => {
   const toast = useToast();
@@ -86,50 +85,45 @@ const GroceryList = () => {
   );
 
   return (
-    <Box maxWidth='md' mx='auto' mt={2}>
-      <Paper sx={{ p: 2 }}>
-        <Typography variant='h3' mb={2}>
-          Grocery List
-        </Typography>
+    <Box maxWidth='md' mx='auto' mt={2} p={2}>
+      <Text variant='h3' mb={2}>
+        Grocery List
+      </Text>
 
-        <Button variant='contained' onClick={() => setIsEditing(true)}>
-          Add item
+      <Button variant='contained' onClick={() => setIsEditing(true)}>
+        Add item
+      </Button>
+
+      <DragDropContext onDragEnd={onDragEnd}>
+        <Droppable droppableId='groceryList' type='gListItem'>
+          {(provided) => (
+            <List {...provided.droppableProps} ref={provided.innerRef} sx={{ mt: 2 }}>
+              {family.groceryList.map((groceryItem, idx) => (
+                <Draggable draggableId={`${idx}`} index={idx} key={idx}>
+                  {(provided) => (
+                    <ListItem {...provided.draggableProps} {...provided.dragHandleProps} ref={provided.innerRef}>
+                      <Checkbox
+                        size='lg'
+                        checked={groceryItem.isBought}
+                        onChange={(e) => editGroceryItem(idx, undefined, e.target.checked)}
+                      >
+                        {groceryItem.name}
+                      </Checkbox>
+                    </ListItem>
+                  )}
+                </Draggable>
+              ))}
+              {provided.placeholder}
+            </List>
+          )}
+        </Droppable>
+      </DragDropContext>
+
+      {isItemSelected && (
+        <Button variant='outlined' onClick={removeGroceryItems} sx={{ mt: 8 }}>
+          Remove checked items
         </Button>
-
-        <DragDropContext onDragEnd={onDragEnd}>
-          <Droppable droppableId='groceryList' type='gListItem'>
-            {(provided) => (
-              <List {...provided.droppableProps} ref={provided.innerRef} sx={{ mt: 2 }}>
-                {family.groceryList.map((groceryItem, idx) => (
-                  <Draggable draggableId={`${idx}`} index={idx} key={idx}>
-                    {(provided) => (
-                      <ListItem {...provided.draggableProps} {...provided.dragHandleProps} ref={provided.innerRef}>
-                        <FormControlLabel
-                          control={
-                            <Checkbox
-                              sx={{ '& .MuiSvgIcon-root': { fontSize: 28 } }}
-                              checked={groceryItem.isBought}
-                              onChange={(e) => editGroceryItem(idx, undefined, e.target.checked)}
-                            />
-                          }
-                          label={groceryItem.name}
-                        />
-                      </ListItem>
-                    )}
-                  </Draggable>
-                ))}
-                {provided.placeholder}
-              </List>
-            )}
-          </Droppable>
-        </DragDropContext>
-
-        {isItemSelected && (
-          <Button variant='outlined' onClick={removeGroceryItems} sx={{ mt: 8 }}>
-            Remove checked items
-          </Button>
-        )}
-      </Paper>
+      )}
 
       <SingleFieldDialog
         initialValue={''}

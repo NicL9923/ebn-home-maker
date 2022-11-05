@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, InputLabel, TextField } from '@mui/material';
-import { DropzoneArea } from 'mui-file-dropzone';
 import { v4 as uuidv4 } from 'uuid';
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import { useUserStore } from 'state/UserStore';
 import { doc, writeBatch } from 'firebase/firestore';
 import { db, FsCol, storage } from '../../firebase';
 import { useFirestoreWriteBatch } from '@react-query-firebase/firestore';
-import { useToast } from '@chakra-ui/react';
+import { Button, Input, Modal, ModalContent, ModalFooter, ModalHeader, ModalOverlay, useToast } from '@chakra-ui/react';
+
+// TODO: File dropdown
 
 const defNewVeh = {
   year: '',
@@ -79,11 +79,12 @@ const AddVehicle = ({ isOpen, setIsOpen }: AddVehicleProps) => {
   };
 
   return (
-    <Dialog open={isOpen} onClose={() => setIsOpen(false)}>
-      <DialogTitle>Add Vehicle</DialogTitle>
-
-      <DialogContent>
-        <TextField
+    <Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>
+      <ModalOverlay />
+      <ModalContent>
+        <ModalHeader>Add Vehicle</ModalHeader>
+        <Input
+          type='text'
           autoFocus
           variant='standard'
           label='Model Year'
@@ -91,7 +92,8 @@ const AddVehicle = ({ isOpen, setIsOpen }: AddVehicleProps) => {
           onChange={(event) => setNewVehicle({ ...newVehicle, year: event.target.value })}
         />
 
-        <TextField
+        <Input
+          type='text'
           variant='standard'
           label='Make'
           placeholder='Chevrolet, Ford, Dodge, Toyota...'
@@ -99,7 +101,8 @@ const AddVehicle = ({ isOpen, setIsOpen }: AddVehicleProps) => {
           onChange={(event) => setNewVehicle({ ...newVehicle, make: event.target.value })}
         />
 
-        <TextField
+        <Input
+          type='text'
           variant='standard'
           label='Model'
           placeholder='F150, Corolla, Tacoma, Tahoe...'
@@ -107,7 +110,8 @@ const AddVehicle = ({ isOpen, setIsOpen }: AddVehicleProps) => {
           onChange={(event) => setNewVehicle({ ...newVehicle, model: event.target.value })}
         />
 
-        <TextField
+        <Input
+          type='text'
           variant='standard'
           label='Trim'
           placeholder='SE, Limited...'
@@ -115,7 +119,8 @@ const AddVehicle = ({ isOpen, setIsOpen }: AddVehicleProps) => {
           onChange={(event) => setNewVehicle({ ...newVehicle, trim: event.target.value })}
         />
 
-        <TextField
+        <Input
+          type='text'
           variant='standard'
           label='Engine'
           placeholder='3.5L V6...'
@@ -123,21 +128,24 @@ const AddVehicle = ({ isOpen, setIsOpen }: AddVehicleProps) => {
           onChange={(event) => setNewVehicle({ ...newVehicle, engine: event.target.value })}
         />
 
-        <TextField
+        <Input
+          type='text'
           variant='standard'
           label='VIN (Vehicle Identification Number)'
           value={newVehicle.vin}
           onChange={(event) => setNewVehicle({ ...newVehicle, vin: event.target.value })}
         />
 
-        <TextField
+        <Input
+          type='text'
           variant='standard'
           label='License Plate'
           value={newVehicle.licensePlate}
           onChange={(event) => setNewVehicle({ ...newVehicle, licensePlate: event.target.value })}
         />
 
-        <TextField
+        <Input
+          type='text'
           variant='standard'
           label='Odometer (miles)'
           value={newVehicle.miles}
@@ -156,15 +164,15 @@ const AddVehicle = ({ isOpen, setIsOpen }: AddVehicleProps) => {
           onChange={(files) => setNewVehImgFile(files[0])}
           fileObjects={[]}
         />
-      </DialogContent>
 
-      <DialogActions>
-        <Button onClick={() => setIsOpen(false)}>Cancel</Button>
-        <Button variant='contained' onClick={addNewVehicle}>
-          Add
-        </Button>
-      </DialogActions>
-    </Dialog>
+        <ModalFooter>
+          <Button onClick={() => setIsOpen(false)}>Cancel</Button>
+          <Button variant='contained' onClick={addNewVehicle}>
+            Add
+          </Button>
+        </ModalFooter>
+      </ModalContent>
+    </Modal>
   );
 };
 

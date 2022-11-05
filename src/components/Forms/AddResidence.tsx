@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, InputLabel, TextField } from '@mui/material';
-import { DropzoneArea } from 'mui-file-dropzone';
 import { v4 as uuidv4 } from 'uuid';
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import { useUserStore } from 'state/UserStore';
 import { db, FsCol, storage } from '../../firebase';
 import { doc, writeBatch } from 'firebase/firestore';
 import { useFirestoreWriteBatch } from '@react-query-firebase/firestore';
-import { useToast } from '@chakra-ui/react';
+import { Button, Input, Modal, ModalContent, ModalFooter, ModalHeader, ModalOverlay, useToast } from '@chakra-ui/react';
+
+// TODO: File dropzone
 
 const defNewRes = {
   name: '',
@@ -74,11 +74,13 @@ const AddResidence = ({ isOpen, setIsOpen }: AddResidenceProps) => {
   };
 
   return (
-    <Dialog open={isOpen} onClose={() => setIsOpen(false)} fullWidth>
-      <DialogTitle>Add Residence</DialogTitle>
+    <Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>
+      <ModalOverlay />
+      <ModalContent>
+        <ModalHeader>Add Residence</ModalHeader>
 
-      <DialogContent>
-        <TextField
+        <Input
+          type='text'
           autoFocus
           variant='standard'
           label='Name'
@@ -95,7 +97,8 @@ const AddResidence = ({ isOpen, setIsOpen }: AddResidenceProps) => {
           fileObjects={[]}
         />
 
-        <TextField
+        <Input
+          type='text'
           variant='standard'
           label='Year Built'
           value={newResidence.yearBuilt}
@@ -107,7 +110,8 @@ const AddResidence = ({ isOpen, setIsOpen }: AddResidenceProps) => {
           }
         />
 
-        <TextField
+        <Input
+          type='text'
           variant='standard'
           label='Year Purchased'
           value={newResidence.yearPurchased}
@@ -118,15 +122,15 @@ const AddResidence = ({ isOpen, setIsOpen }: AddResidenceProps) => {
             })
           }
         />
-      </DialogContent>
 
-      <DialogActions>
-        <Button onClick={() => setIsOpen(false)}>Cancel</Button>
-        <Button variant='contained' onClick={addNewResidence}>
-          Add
-        </Button>
-      </DialogActions>
-    </Dialog>
+        <ModalFooter>
+          <Button onClick={() => setIsOpen(false)}>Cancel</Button>
+          <Button variant='contained' onClick={addNewResidence}>
+            Add
+          </Button>
+        </ModalFooter>
+      </ModalContent>
+    </Modal>
   );
 };
 

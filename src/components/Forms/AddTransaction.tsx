@@ -1,23 +1,22 @@
 import React, { useState } from 'react';
-import {
-  Autocomplete,
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  Stack,
-  TextField,
-} from '@mui/material';
-import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { IBudget, Transaction } from 'models/types';
-import { AdapterLuxon } from '@mui/x-date-pickers/AdapterLuxon';
-import { useAppStore } from 'state/AppStore';
 import { useUserStore } from 'state/UserStore';
 import { useFirestoreDocumentMutation } from '@react-query-firebase/firestore';
 import { doc } from 'firebase/firestore';
 import { db, FsCol } from '../../firebase';
-import { useToast } from '@chakra-ui/react';
+import {
+  Button,
+  Input,
+  Modal,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
+  Stack,
+  useToast,
+} from '@chakra-ui/react';
+
+// TODO: Date picker
 
 export const catSubcatKeySeparator = '&%&';
 
@@ -117,12 +116,13 @@ const AddTransaction = ({ isOpen, setIsOpen, initialCatSubcat, budget }: AddTran
   };
 
   return (
-    <Dialog open={isOpen} onClose={() => setIsOpen(false)} fullWidth>
-      <DialogTitle>Add Transaction</DialogTitle>
+    <Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>
+      <ModalOverlay />
+      <ModalContent>
+        <ModalHeader>Add Transaction</ModalHeader>
 
-      <DialogContent>
         <Stack>
-          <TextField
+          <Input
             autoFocus
             variant='standard'
             label='Amount'
@@ -131,7 +131,8 @@ const AddTransaction = ({ isOpen, setIsOpen, initialCatSubcat, budget }: AddTran
             onChange={(event) => setNewTransactionAmt(event.target.value)}
           />
 
-          <TextField
+          <Input
+            type='text'
             variant='standard'
             label='Description'
             value={newTransactionName}
@@ -139,7 +140,8 @@ const AddTransaction = ({ isOpen, setIsOpen, initialCatSubcat, budget }: AddTran
           />
 
           {initialCatSubcat ? (
-            <TextField
+            <Input
+              type='text'
               variant='standard'
               label='Category'
               value={convertConcatToCatOpt(initialCatSubcat).subcategory}
@@ -162,24 +164,22 @@ const AddTransaction = ({ isOpen, setIsOpen, initialCatSubcat, budget }: AddTran
             />
           )}
 
-          <LocalizationProvider dateAdapter={AdapterLuxon}>
-            <DatePicker
-              label='Date'
-              value={newTransactionDate}
-              onChange={(newDate: Date | null) => setNewTransactionDate(newDate)}
-              renderInput={(params) => <TextField {...params} variant='standard' />}
-            />
-          </LocalizationProvider>
+          <DatePicker
+            label='Date'
+            value={newTransactionDate}
+            onChange={(newDate: Date | null) => setNewTransactionDate(newDate)}
+            renderInput={(params) => <TextField {...params} variant='standard' />}
+          />
         </Stack>
-      </DialogContent>
 
-      <DialogActions>
-        <Button onClick={() => setIsOpen(false)}>Cancel</Button>
-        <Button variant='contained' onClick={submitNewTransaction}>
-          Save
-        </Button>
-      </DialogActions>
-    </Dialog>
+        <ModalFooter>
+          <Button onClick={() => setIsOpen(false)}>Cancel</Button>
+          <Button variant='contained' onClick={submitNewTransaction}>
+            Save
+          </Button>
+        </ModalFooter>
+      </ModalContent>
+    </Modal>
   );
 };
 

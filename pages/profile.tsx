@@ -1,5 +1,4 @@
 import React from 'react';
-import { Button, Container, Paper, Stack, Typography } from '@mui/material';
 import NoProfile from 'components/NoProfile';
 import Family from 'components/Family';
 import EditableLabel from 'components/Inputs/EditableLabel';
@@ -9,7 +8,7 @@ import { useUserStore } from 'state/UserStore';
 import { auth, db, FsCol } from '../src/firebase';
 import { useFirestoreDocumentMutation } from '@react-query-firebase/firestore';
 import { doc } from 'firebase/firestore';
-import { useToast } from '@chakra-ui/react';
+import { Box, Button, Container, Stack, Text, useToast } from '@chakra-ui/react';
 
 const ProfilePage = () => {
   const toast = useToast();
@@ -59,14 +58,14 @@ const ProfilePage = () => {
       {!profile ? (
         <NoProfile />
       ) : (
-        <Paper sx={{ mb: 4, p: 3 }}>
-          <Typography variant='h2'>My Profile</Typography>
+        <Box mb={4} p={3}>
+          <Text variant='h2'>My Profile</Text>
 
           <Stack alignItems='center' justifyContent='center'>
             <EditableImage
               curImgLink={profile.imgLink}
               updateCurImgLink={updateProfileImgLink}
-              imgPlaceholder={<Typography variant='h1'>{profile.firstName[0].toUpperCase()}</Typography>}
+              imgPlaceholder={<Text variant='h1'>{profile.firstName[0].toUpperCase()}</Text>}
               height={164}
               width={164}
             />
@@ -85,7 +84,7 @@ const ProfilePage = () => {
               </Button>
             </Stack>
           </Stack>
-        </Paper>
+        </Box>
       )}
 
       <Family />

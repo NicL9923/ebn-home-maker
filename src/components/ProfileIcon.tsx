@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import { signOut } from 'firebase/auth';
-import { Avatar, Divider, ListItemText, Menu, MenuItem, Typography } from '@mui/material';
 import Link from 'next/link';
 import { useUserStore } from 'state/UserStore';
 import { auth } from '../firebase';
-import { useToast } from '@chakra-ui/react';
+import { Avatar, Divider, Menu, MenuItem, Text, useToast } from '@chakra-ui/react';
 
 const ProfileIcon = () => {
   const toast = useToast();
@@ -38,22 +37,15 @@ const ProfileIcon = () => {
         aria-expanded={anchorEl ? 'true' : undefined}
         aria-controls='profile-menu'
         src={profile?.imgLink ? profile.imgLink : undefined}
-        alt='profile'
         sx={{ cursor: 'pointer' }}
       >
-        {!profile?.imgLink && <Typography variant='h6'>{profile?.firstName[0].toUpperCase()}</Typography>}
+        {!profile?.imgLink && <Text variant='h6'>{profile?.firstName[0].toUpperCase()}</Text>}
       </Avatar>
 
-      <Menu
-        id='profile-menu'
-        anchorEl={anchorEl}
-        open={!!anchorEl}
-        onClose={() => setAnchorEl(undefined)}
-        MenuListProps={{ 'aria-labelledby': 'profile-button' }}
-      >
+      <Menu id='profile-menu' isOpen={!!anchorEl} onClose={() => setAnchorEl(undefined)}>
         <Link href='/profile'>
           <MenuItem onClick={() => setAnchorEl(undefined)}>
-            <ListItemText>My Profile</ListItemText>
+            <Text>My Profile</Text>
           </MenuItem>
         </Link>
 
@@ -65,7 +57,7 @@ const ProfileIcon = () => {
             handleSignOut();
           }}
         >
-          <ListItemText>Logout</ListItemText>
+          <Text>Logout</Text>
         </MenuItem>
       </Menu>
     </div>

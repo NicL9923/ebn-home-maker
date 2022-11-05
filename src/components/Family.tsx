@@ -1,20 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import {
-  Avatar,
-  Box,
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
-  Divider,
-  Paper,
-  Stack,
-  Typography,
-} from '@mui/material';
 import EditableLabel from './Inputs/EditableLabel';
-import { Add, Close, ContentCopyOutlined, Logout } from '@mui/icons-material';
+import { MdAdd, MdClose, MdContentCopy, MdLogout } from 'react-icons/md';
 import { Profile, Pet } from 'models/types';
 import copy from 'clipboard-copy';
 import NoFamily from './NoFamily';
@@ -24,7 +10,20 @@ import { useUserStore } from 'state/UserStore';
 import { useFirestoreDocumentMutation, useFirestoreWriteBatch } from '@react-query-firebase/firestore';
 import { doc, getDoc, writeBatch } from 'firebase/firestore';
 import { db, FsCol } from '../firebase';
-import { useToast } from '@chakra-ui/react';
+import {
+  Avatar,
+  Box,
+  Button,
+  Divider,
+  Modal,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
+  Stack,
+  Text,
+  useToast,
+} from '@chakra-ui/react';
 
 const Family = () => {
   const toast = useToast();
@@ -195,11 +194,11 @@ const Family = () => {
   }
 
   return (
-    <Paper sx={{ p: 3 }}>
-      <Typography variant='h3'>My Family</Typography>
+    <Box p={3}>
+      <Text variant='h3'>My Family</Text>
 
       <Box mt={1} mb={4}>
-        <Typography variant='h5'>Family Name</Typography>
+        <Text variant='h5'>Family Name</Text>
 
         {userId === family.headOfFamily ? (
           <EditableLabel
@@ -210,24 +209,24 @@ const Family = () => {
             onSubmitValue={updateFamilyName}
           />
         ) : (
-          <Typography variant='h6'>{family.name}</Typography>
+          <Text variant='h6'>{family.name}</Text>
         )}
       </Box>
 
       <Box mb={4}>
-        <Typography variant='h5'>Members</Typography>
+        <Text variant='h5'>Members</Text>
         <Stack direction='row' mb={3} flexWrap='wrap' spacing={1}>
           {familyMemberProfiles &&
             familyMemberProfiles.map((prof: Profile, idx: number) => (
               <Stack key={prof.firstName} alignItems='center' justifyContent='center'>
-                <Typography variant='h6'>{prof.firstName}</Typography>
-                <Avatar src={prof.imgLink} alt='family member' sx={{ width: 128, height: 128 }}>
+                <Text variant='h6'>{prof.firstName}</Text>
+                <Avatar src={prof.imgLink} sx={{ width: 128, height: 128 }}>
                   {!prof.imgLink && prof.firstName[0].toUpperCase()}
                 </Avatar>
                 {userId === family.headOfFamily && (
                   <Button
                     variant='outlined'
-                    startIcon={<Close />}
+                    leftIcon={<MdClose />}
                     sx={{ mt: 2 }}
                     size='small'
                     onClick={() => removeFamilyMember(prof.firstName, idx)}
@@ -240,7 +239,7 @@ const Family = () => {
         </Stack>
         {userId === family.headOfFamily && (
           <Box width='100%' mx='auto'>
-            <Button variant='contained' startIcon={<ContentCopyOutlined />} onClick={copyInviteLink}>
+            <Button variant='contained' leftIcon={<MdContentCopy />} onClick={copyInviteLink}>
               Copy family invite link
             </Button>
           </Box>
@@ -248,19 +247,19 @@ const Family = () => {
       </Box>
 
       <Box>
-        <Typography variant='h5'>Pets</Typography>
+        <Text variant='h5'>Pets</Text>
         <Stack direction='row' mb={3} flexWrap='wrap' spacing={1}>
           {family.pets &&
             family.pets.map((pet: Pet, idx: number) => (
               <Stack key={pet.name} alignItems='center' justifyContent='center'>
-                <Typography variant='body1'>{pet.name}</Typography>
-                <Avatar src={pet.imgLink} alt='pet' sx={{ width: 96, height: 96 }}>
+                <Text variant='body1'>{pet.name}</Text>
+                <Avatar src={pet.imgLink} sx={{ width: 96, height: 96 }}>
                   {!pet.imgLink && pet.name[0].toUpperCase()}
                 </Avatar>
                 {userId === family.headOfFamily && (
                   <Button
                     variant='outlined'
-                    startIcon={<Close />}
+                    leftIcon={<MdClose />}
                     size='small'
                     onClick={() => removePet(pet, idx)}
                     sx={{ mt: 2 }}
@@ -272,7 +271,7 @@ const Family = () => {
             ))}
         </Stack>
         {userId === family.headOfFamily && (
-          <Button variant='contained' startIcon={<Add />} onClick={() => setAddingPet(true)}>
+          <Button variant='contained' leftIcon={<MdAdd />} onClick={() => setAddingPet(true)}>
             Add a pet
           </Button>
         )}
@@ -281,15 +280,16 @@ const Family = () => {
       {userId === family.headOfFamily && (
         <Box mt={4}>
           <Divider />
-          <Typography variant='h5' mt={2}>
+
+          <Text variant='h5' mt={2}>
             Weather Applet Information
-          </Typography>
+          </Text>
 
           <Box mb={6}>
-            <Typography variant='h6'>Location</Typography>
+            <Text variant='h6'>Location</Text>
 
             <Box>
-              <Typography variant='body1'>City</Typography>
+              <Text variant='body1'>City</Text>
 
               <EditableLabel
                 textVariant='body1'
@@ -298,7 +298,7 @@ const Family = () => {
                 fieldType='EntityName'
                 onSubmitValue={updateFamilyLocation}
               />
-              <Typography variant='body1'>State</Typography>
+              <Text variant='body1'>State</Text>
               <EditableLabel
                 textVariant='body1'
                 text={family.cityState ? family.cityState.split(',')[1] : ''}
@@ -316,48 +316,51 @@ const Family = () => {
           <Button variant='contained' onClick={exportFamilyDataJSON}>
             Export family data
           </Button>
-          <Button variant='contained' color='error' startIcon={<Close />} onClick={() => setDeletingFamily(true)}>
+          <Button variant='contained' color='error' leftIcon={<MdClose />} onClick={() => setDeletingFamily(true)}>
             Delete Family
           </Button>
         </Stack>
       ) : (
-        <Button variant='contained' color='error' startIcon={<Logout />} onClick={() => setLeavingFamily(true)}>
+        <Button variant='contained' color='error' leftIcon={<MdLogout />} onClick={() => setLeavingFamily(true)}>
           Leave Family
         </Button>
       )}
 
-      <Dialog open={deletingFamily} onClose={() => setDeletingFamily(false)} fullWidth>
-        <DialogTitle>Delete family?</DialogTitle>
-        <DialogContent>
-          <DialogContentText>Are you sure you want to delete the {family.name} family?</DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button variant='text' onClick={() => setDeletingFamily(false)}>
-            Cancel
-          </Button>
-          <Button variant='contained' onClick={deleteFamily}>
-            Delete
-          </Button>
-        </DialogActions>
-      </Dialog>
+      <Modal isOpen={deletingFamily} onClose={() => setDeletingFamily(false)}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Delete family?</ModalHeader>
+          <Text>Are you sure you want to delete the {family.name} family?</Text>
 
-      <Dialog open={leavingFamily} onClose={() => setLeavingFamily(false)} fullWidth>
-        <DialogTitle>Leave family?</DialogTitle>
-        <DialogContent>
-          <DialogContentText>Are you sure you want to leave the {family.name} family?</DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button variant='text' onClick={() => setLeavingFamily(false)}>
-            Cancel
-          </Button>
-          <Button variant='contained' onClick={leaveFamily}>
-            Leave
-          </Button>
-        </DialogActions>
-      </Dialog>
+          <ModalFooter>
+            <Button variant='text' onClick={() => setDeletingFamily(false)}>
+              Cancel
+            </Button>
+            <Button variant='contained' onClick={deleteFamily}>
+              Delete
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+
+      <Modal isOpen={leavingFamily} onClose={() => setLeavingFamily(false)}>
+        <ModalHeader>Leave family?</ModalHeader>
+        <ModalContent>
+          <Text>Are you sure you want to leave the {family.name} family?</Text>
+
+          <ModalFooter>
+            <Button variant='text' onClick={() => setLeavingFamily(false)}>
+              Cancel
+            </Button>
+            <Button variant='contained' onClick={leaveFamily}>
+              Leave
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
 
       <AddPet isOpen={addingPet} setIsOpen={setAddingPet} />
-    </Paper>
+    </Box>
   );
 };
 

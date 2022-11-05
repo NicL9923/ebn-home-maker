@@ -1,11 +1,11 @@
-import { KeyboardArrowDown } from '@mui/icons-material';
-import { Box, Divider, Grid, IconButton, Menu, MenuItem, Stack, Typography } from '@mui/material';
+import { MdKeyboardArrowDown } from 'react-icons/md';
 import EditableLabel from 'components/Inputs/EditableLabel';
 import { BudgetCategory, IBudget } from 'models/types';
 import React, { useContext, useState } from 'react';
 import { Draggable, Droppable } from 'react-beautiful-dnd';
 import { BudgetContext } from '../Budget';
 import SubCategory from './SubCategory';
+import { Box, Divider, Grid, GridItem, IconButton, Menu, MenuItem, Stack, Text } from '@chakra-ui/react';
 
 interface CategoryProps {
   idx: number;
@@ -29,8 +29,8 @@ const Category = (props: CategoryProps): JSX.Element => {
       {(provided) => (
         <div {...provided.draggableProps} {...provided.dragHandleProps} ref={provided.innerRef}>
           <Box mb={1}>
-            <Grid container alignItems='center'>
-              <Grid item xs={6} onMouseOver={() => setIsHovered(true)} onMouseOut={() => setIsHovered(false)}>
+            <Grid alignItems='center'>
+              <GridItem onMouseOver={() => setIsHovered(true)} onMouseOut={() => setIsHovered(false)}>
                 <Stack direction='row' alignItems='center'>
                   <EditableLabel
                     fieldName='Category'
@@ -42,44 +42,39 @@ const Category = (props: CategoryProps): JSX.Element => {
                   />
 
                   <IconButton
+                    icon={<MdKeyboardArrowDown />}
                     onClick={(event) => setAnchorEl(event.currentTarget)}
                     sx={{
                       display: isHovered ? 'inherit' : 'none',
                       p: 0,
                       ml: 1,
                     }}
-                  >
-                    <KeyboardArrowDown sx={{ fontSize: 30 }} />
-                  </IconButton>
-                  <Menu
-                    id={`cat${idx}-menu`}
-                    anchorEl={anchorEl}
-                    open={!!anchorEl}
-                    onClose={() => setAnchorEl(undefined)}
-                  >
+                    aria-label='Category menu'
+                  />
+                  <Menu id={`cat${idx}-menu`} isOpen={!!anchorEl} onClose={() => setAnchorEl(undefined)}>
                     <MenuItem onClick={() => addNewSubCategory(category.name)}>Add sub-category</MenuItem>
                     <MenuItem onClick={() => removeCategory(category.name)}>Delete category</MenuItem>
                   </Menu>
                 </Stack>
-              </Grid>
-              <Grid item xs={3}>
-                <Typography variant='body1' ml={1} sx={{ fontWeight: 'bold' }}>
+              </GridItem>
+              <GridItem>
+                <Text variant='body1' ml={1} sx={{ fontWeight: 'bold' }}>
                   $
                   {category.totalAllotted?.toLocaleString(undefined, {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2,
                   })}
-                </Typography>
-              </Grid>
-              <Grid item xs={2} ml={1}>
-                <Typography variant='body1' ml={1} sx={{ fontWeight: 'bold' }}>
+                </Text>
+              </GridItem>
+              <GridItem>
+                <Text variant='body1' ml={1} sx={{ fontWeight: 'bold' }}>
                   $
                   {category.currentSpent?.toLocaleString(undefined, {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2,
                   })}
-                </Typography>
-              </Grid>
+                </Text>
+              </GridItem>
             </Grid>
 
             <Droppable droppableId={`subcats-${category.name}`} type='subcategory'>

@@ -1,11 +1,11 @@
 import React, { useContext, useState } from 'react';
 import { BudgetCategory, BudgetSubcategory } from 'models/types';
 import { BudgetContext } from '../Budget';
-import { Box, Grid, IconButton, LinearProgress, Menu, MenuItem, Stack, Typography } from '@mui/material';
 import { Draggable } from 'react-beautiful-dnd';
 import EditableLabel from 'components/Inputs/EditableLabel';
-import { KeyboardArrowDown } from '@mui/icons-material';
+import { MdKeyboardArrowDown } from 'react-icons/md';
 import { catSubcatKeySeparator } from 'components/Forms/AddTransaction';
+import { Box, Grid, GridItem, IconButton, Menu, MenuItem, Progress, Stack, Text } from '@chakra-ui/react';
 
 interface SubCategoryProps {
   subidx: number;
@@ -40,8 +40,8 @@ const SubCategory = (props: SubCategoryProps): JSX.Element => {
       {(provided) => (
         <div {...provided.draggableProps} {...provided.dragHandleProps} ref={provided.innerRef}>
           <Box ml={2} mb={1}>
-            <Grid container alignItems='center'>
-              <Grid item xs={6} onMouseOver={() => setIsHovered(true)} onMouseOut={() => setIsHovered(false)}>
+            <Grid alignItems='center'>
+              <GridItem onMouseOver={() => setIsHovered(true)} onMouseOut={() => setIsHovered(false)}>
                 <Stack direction='row' alignItems='center'>
                   <EditableLabel
                     fieldName='Subcategory'
@@ -52,21 +52,16 @@ const SubCategory = (props: SubCategoryProps): JSX.Element => {
                   />
 
                   <IconButton
+                    icon={<MdKeyboardArrowDown />}
                     onClick={(event) => setAnchorEl(event.currentTarget)}
                     sx={{
                       display: isHovered ? 'inherit' : 'hidden',
                       p: 0,
                       ml: 1,
                     }}
-                  >
-                    <KeyboardArrowDown sx={{ fontSize: 30 }} />
-                  </IconButton>
-                  <Menu
-                    id={`subcat${subidx}-menu`}
-                    anchorEl={anchorEl}
-                    open={!!anchorEl}
-                    onClose={() => setAnchorEl(undefined)}
-                  >
+                    aria-label='Subcategory menu'
+                  />
+                  <Menu id={`subcat${subidx}-menu`} isOpen={!!anchorEl} onClose={() => setAnchorEl(undefined)}>
                     <MenuItem
                       onClick={() => {
                         setCatSubcatKey(`${category.name}${catSubcatKeySeparator}${subcategory.name}`);
@@ -86,15 +81,15 @@ const SubCategory = (props: SubCategoryProps): JSX.Element => {
                     </MenuItem>
                   </Menu>
                 </Stack>
-                <LinearProgress
+
+                <Progress
                   value={getLinearProgressValue(subcategory.currentSpent, subcategory.totalAllotted)}
                   color={getLinearProgressColor(subcategory.currentSpent, subcategory.totalAllotted)}
-                  variant='determinate'
                   sx={{ width: '85%', mt: 1 }}
                 />
-              </Grid>
+              </GridItem>
 
-              <Grid item xs={3}>
+              <GridItem>
                 <EditableLabel
                   fieldName='Total allotted'
                   fieldType='DecimalNum'
@@ -106,16 +101,16 @@ const SubCategory = (props: SubCategoryProps): JSX.Element => {
                   })}
                   onSubmitValue={(newValue) => setSubCatProperty(newValue, subcategory.name, category.name, 'allotted')}
                 />
-              </Grid>
-              <Grid item xs={2} ml={1.5}>
-                <Typography variant='body1'>
+              </GridItem>
+              <GridItem>
+                <Text variant='body1'>
                   $
                   {subcategory.currentSpent.toLocaleString(undefined, {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2,
                   })}
-                </Typography>
-              </Grid>
+                </Text>
+              </GridItem>
             </Grid>
           </Box>
         </div>

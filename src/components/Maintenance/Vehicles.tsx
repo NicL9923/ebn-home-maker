@@ -1,13 +1,14 @@
 import type { ServiceLogEntry, Vehicle } from 'models/types';
 import React, { useEffect, useState } from 'react';
-import { Box, Button, CircularProgress, Container, Grid, Paper, Stack, Typography } from '@mui/material';
 import AddVehicle from 'components/Forms/AddVehicle';
-import { DataGrid } from '@mui/x-data-grid';
-import { Add, DirectionsCar } from '@mui/icons-material';
+import { MdAdd, MdDirectionsCar, MdEdit } from 'react-icons/md';
 import { useUserStore } from 'state/UserStore';
 import { doc, getDoc, writeBatch } from 'firebase/firestore';
 import { db, FsCol } from '../../firebase';
 import { useFirestoreWriteBatch } from '@react-query-firebase/firestore';
+import { Box, Button, CircularProgress, Container, Grid, GridItem, Stack, Text } from '@chakra-ui/react';
+
+// TODO: Data grid
 
 export const Vehicles = () => {
   const profile = useUserStore((state) => state.profile);
@@ -63,37 +64,37 @@ export const Vehicles = () => {
 
   return (
     <Box mt={4}>
-      <Typography variant='h4'>Vehicles</Typography>
+      <Text variant='h4'>Vehicles</Text>
       {!vehicles ? (
         isFetchingVehicles && (
           <Box mx='auto' textAlign='center' mt={20}>
-            <CircularProgress />
+            <CircularProgress isIndeterminate />
           </Box>
         )
       ) : (
-        <Grid container mt={2} mb={2} gap={2}>
+        <Grid mt={2} mb={2} gap={2}>
           {vehicles.map((vehicle) => (
-            <Grid container item xs={12} md={6} lg={4} key={vehicle.vin}>
-              <Paper sx={{ p: 2 }}>
+            <GridItem key={vehicle.vin}>
+              <Box p={2}>
                 {vehicle.img ? (
                   <img height='250' src={vehicle.img} />
                 ) : (
                   <Container>
-                    <DirectionsCar sx={{ fontSize: 200 }} />
+                    <MdDirectionsCar />
                   </Container>
                 )}
 
-                <Typography variant='h5'>
+                <Text variant='h5'>
                   {vehicle.year} {vehicle.make} {vehicle.model} {vehicle.trim}
-                </Typography>
-                <Typography variant='body1'>Engine: {vehicle.engine}</Typography>
-                <Typography variant='body1'>Odometer: {vehicle.miles} mi</Typography>
-                <Typography variant='body1'>VIN: {vehicle.vin}</Typography>
-                <Typography variant='body1'>License Plate: {vehicle.licensePlate}</Typography>
+                </Text>
+                <Text variant='body1'>Engine: {vehicle.engine}</Text>
+                <Text variant='body1'>Odometer: {vehicle.miles} mi</Text>
+                <Text variant='body1'>VIN: {vehicle.vin}</Text>
+                <Text variant='body1'>License Plate: {vehicle.licensePlate}</Text>
 
-                <Typography variant='h6' mt={2}>
+                <Text variant='h6' mt={2}>
                   Service Log
-                </Typography>
+                </Text>
                 <Box height={300}>
                   <DataGrid
                     columns={[
@@ -106,14 +107,14 @@ export const Vehicles = () => {
                     getRowId={(row) => row.date}
                   />
                 </Box>
-                <Button variant='contained' startIcon={<Add />} sx={{ mt: 1 }}>
+                <Button variant='contained' leftIcon={<MdAdd />} sx={{ mt: 1 }}>
                   Add to log
                 </Button>
 
-                <Typography variant='h6' mt={2}>
+                <Text variant='h6' mt={2}>
                   Maintenance
-                </Typography>
-                <Button variant='contained' startIcon={<Add />} sx={{ mt: 1 }}>
+                </Text>
+                <Button variant='contained' leftIcon={<MdEdit />} sx={{ mt: 1 }}>
                   Edit maintenance schedule
                 </Button>
 
@@ -123,8 +124,8 @@ export const Vehicles = () => {
                     Delete
                   </Button>
                 </Stack>
-              </Paper>
-            </Grid>
+              </Box>
+            </GridItem>
           ))}
         </Grid>
       )}

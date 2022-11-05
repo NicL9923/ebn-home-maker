@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, InputLabel, TextField } from '@mui/material';
-import { DropzoneArea } from 'mui-file-dropzone';
 import { getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
 import { v4 as uuidv4 } from 'uuid';
 import { useUserStore } from 'state/UserStore';
 import { useFirestoreDocumentMutation } from '@react-query-firebase/firestore';
 import { doc } from 'firebase/firestore';
 import { db, FsCol } from '../../firebase';
-import { useToast } from '@chakra-ui/react';
+import { Button, Input, Modal, ModalContent, ModalFooter, ModalHeader, ModalOverlay, useToast } from '@chakra-ui/react';
+
+// TODO: All these forms (FormControl, Formik, etc)
+// TODO: File dropzone
 
 interface AddPetProps {
   isOpen: boolean;
@@ -72,11 +73,13 @@ const AddPet = ({ isOpen, setIsOpen }: AddPetProps) => {
   };
 
   return (
-    <Dialog open={isOpen} onClose={() => setIsOpen(false)} fullWidth>
-      <DialogTitle>Add Pet</DialogTitle>
+    <Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>
+      <ModalOverlay />
+      <ModalContent>
+        <ModalHeader>Add Pet</ModalHeader>
 
-      <DialogContent>
-        <TextField
+        <Input
+          type='text'
           autoFocus
           variant='standard'
           label='Name'
@@ -92,15 +95,15 @@ const AddPet = ({ isOpen, setIsOpen }: AddPetProps) => {
           onChange={(files) => setNewPhoto(files[0])}
           fileObjects={[]}
         />
-      </DialogContent>
 
-      <DialogActions>
-        <Button onClick={() => setIsOpen(false)}>Cancel</Button>
-        <Button variant='contained' onClick={addPet}>
-          Add
-        </Button>
-      </DialogActions>
-    </Dialog>
+        <ModalFooter>
+          <Button onClick={() => setIsOpen(false)}>Cancel</Button>
+          <Button variant='contained' onClick={addPet}>
+            Add
+          </Button>
+        </ModalFooter>
+      </ModalContent>
+    </Modal>
   );
 };
 

@@ -1,6 +1,4 @@
 import React, { useState } from 'react';
-import { Box, Button, Paper, Typography } from '@mui/material';
-import { Edit, Save } from '@mui/icons-material';
 import NoFamily from '../src/components/NoFamily';
 import '@uiw/react-md-editor/markdown-editor.css';
 import '@uiw/react-markdown-preview/markdown.css';
@@ -9,6 +7,8 @@ import { useUserStore } from '../src/state/UserStore';
 import { useFirestoreDocumentMutation } from '@react-query-firebase/firestore';
 import { doc } from 'firebase/firestore';
 import { db, FsCol } from '../src/firebase';
+import { Box, Button, Text } from '@chakra-ui/react';
+import { MdEdit, MdSave } from 'react-icons/md';
 
 const MDEditor = dynamic(() => import('@uiw/react-md-editor').then((mod) => mod.default), { ssr: false });
 const EditorMarkdown = dynamic(
@@ -57,36 +57,34 @@ const Information = () => {
 
   return (
     <Box maxWidth='lg' mx='auto' mt={2}>
-      <Typography variant='h3' mb={2}>
+      <Text variant='h3' mb={2}>
         Information
-      </Typography>
+      </Text>
 
-      <Paper sx={{ p: 2, mt: 3 }}>
-        <Box>
-          <Typography variant='h4' mb={2}>
-            Family Board
-          </Typography>
+      <Box p={2} mt={3}>
+        <Text variant='h4' mb={2}>
+          Family Board
+        </Text>
 
-          {isEditingMd ? (
-            <MDEditor value={editedMd} onChange={setEditedMd} />
-          ) : (
-            <EditorMarkdown style={{ padding: 15 }} source={family.boardMarkdown} />
+        {isEditingMd ? (
+          <MDEditor value={editedMd} onChange={setEditedMd} />
+        ) : (
+          <EditorMarkdown style={{ padding: 15 }} source={family.boardMarkdown} />
+        )}
+
+        <Box mt={3}>
+          {userId === family.headOfFamily && !isEditingMd && (
+            <Button variant='contained' leftIcon={<MdEdit />} onClick={beginEditingBoard}>
+              Edit Board
+            </Button>
           )}
-
-          <Box mt={3}>
-            {userId === family.headOfFamily && !isEditingMd && (
-              <Button variant='contained' startIcon={<Edit />} onClick={beginEditingBoard}>
-                Edit Board
-              </Button>
-            )}
-            {userId === family.headOfFamily && isEditingMd && (
-              <Button variant='contained' startIcon={<Save />} onClick={endEditingBoard}>
-                Save Changes
-              </Button>
-            )}
-          </Box>
+          {userId === family.headOfFamily && isEditingMd && (
+            <Button variant='contained' leftIcon={<MdSave />} onClick={endEditingBoard}>
+              Save Changes
+            </Button>
+          )}
         </Box>
-      </Paper>
+      </Box>
     </Box>
   );
 };

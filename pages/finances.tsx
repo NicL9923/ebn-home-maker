@@ -1,20 +1,4 @@
-import { AccountBalance, Article, AttachMoney, CreditCard } from '@mui/icons-material';
-import {
-  BottomNavigation,
-  BottomNavigationAction,
-  Box,
-  CircularProgress,
-  Divider,
-  Drawer,
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
-  Paper,
-  Toolbar,
-  Typography,
-} from '@mui/material';
+import { MdAccountBalance, MdArticle, MdAttachMoney, MdCreditCard } from 'react-icons/md';
 import React, { useEffect, useState } from 'react';
 import Budget from '../src/components/Finances/Budget';
 import Savings from '../src/components/Finances/Savings';
@@ -26,6 +10,7 @@ import { useFirestoreDocument } from '@react-query-firebase/firestore';
 import { db, FsCol } from '../src/firebase';
 import { doc } from 'firebase/firestore';
 import NoBudget from 'components/Finances/BudgetComponents/NoBudget';
+import { Box, CircularProgress, Divider, Drawer, DrawerBody, DrawerHeader, MenuItem, MenuList } from '@chakra-ui/react';
 
 enum COMPONENTS {
   BUDGET,
@@ -160,59 +145,10 @@ const Finances = () => {
     }
   };
 
-  const drawerContents = (
-    <>
-      <Toolbar />
-      <Typography variant='h6' mt={2} mb={1} mx='auto'>
-        Finance Dashboard
-      </Typography>
-      <Divider />
-      <List>
-        <ListItem>
-          <ListItemButton onClick={() => setShownComponent(COMPONENTS.BUDGET)} selected={shownComponent === 0}>
-            <ListItemIcon>
-              <AttachMoney />
-            </ListItemIcon>
-            <ListItemText>Budget</ListItemText>
-          </ListItemButton>
-        </ListItem>
-        <ListItem>
-          <ListItemButton onClick={() => setShownComponent(COMPONENTS.SAVINGS)} selected={shownComponent === 1}>
-            <ListItemIcon>
-              <AccountBalance />
-            </ListItemIcon>
-            <ListItemText>Savings</ListItemText>
-          </ListItemButton>
-        </ListItem>
-        <ListItem>
-          <ListItemButton onClick={() => setShownComponent(COMPONENTS.TRANSACTIONS)} selected={shownComponent === 3}>
-            <ListItemIcon>
-              <CreditCard />
-            </ListItemIcon>
-            <ListItemText>Transactions</ListItemText>
-          </ListItemButton>
-        </ListItem>
-      </List>
-
-      <Divider />
-
-      <List>
-        <ListItem>
-          <ListItemButton onClick={exportBudgetDataJSON}>
-            <ListItemIcon>
-              <Article />
-            </ListItemIcon>
-            <ListItemText>Export budget data</ListItemText>
-          </ListItemButton>
-        </ListItem>
-      </List>
-    </>
-  );
-
   if (budgetDoc.isLoading) {
     return (
       <Box mx='auto' textAlign='center' mt={20}>
-        <CircularProgress size={60} />
+        <CircularProgress size={60} isIndeterminate />
       </Box>
     );
   }
@@ -223,38 +159,34 @@ const Finances = () => {
 
   return (
     <Box display='flex'>
-      <Paper
-        sx={{
-          position: 'fixed',
-          bottom: 0,
-          left: 0,
-          right: 0,
-          zIndex: 100,
-          pb: 2,
-        }}
-        elevation={5}
-      >
-        <BottomNavigation
-          showLabels
-          value={shownComponent}
-          onChange={(event, newValue) => setShownComponent(newValue)}
-          sx={{ display: { xs: 'normal', sm: 'none' } }}
-        >
-          <BottomNavigationAction label='Budget' icon={<AttachMoney />} />
-          <BottomNavigationAction label='Savings' icon={<AccountBalance />} />
-          <BottomNavigationAction label='Transactions' icon={<CreditCard />} />
-        </BottomNavigation>
-      </Paper>
-
       <Drawer
-        variant='permanent'
-        sx={{
-          display: { xs: 'none', sm: 'block' },
-          flexShrink: 0,
-          width: 250,
+        isOpen={true}
+        onClose={() => {
+          return;
         }}
       >
-        {drawerContents}
+        <DrawerHeader>Finance Dashboard</DrawerHeader>
+        <DrawerBody>
+          <MenuList>
+            <MenuItem icon={<MdAttachMoney />} onClick={() => setShownComponent(COMPONENTS.BUDGET)}>
+              Budget
+            </MenuItem>
+            <MenuItem icon={<MdAccountBalance />} onClick={() => setShownComponent(COMPONENTS.SAVINGS)}>
+              Savings
+            </MenuItem>
+            <MenuItem icon={<MdCreditCard />} onClick={() => setShownComponent(COMPONENTS.TRANSACTIONS)}>
+              Transactions
+            </MenuItem>
+          </MenuList>
+
+          <Divider />
+
+          <MenuList>
+            <MenuItem icon={<MdArticle />} onClick={exportBudgetDataJSON}>
+              Export budget data
+            </MenuItem>
+          </MenuList>
+        </DrawerBody>
       </Drawer>
 
       <Box flexGrow={1} p={1} pb={6}>

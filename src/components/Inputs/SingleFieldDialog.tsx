@@ -1,19 +1,21 @@
 import React, { useState, useEffect } from 'react';
+import { FieldTypes, ValidationErrorMsgs } from '../../constants';
+import { MdCalculate } from 'react-icons/md';
+import { evaluate, round } from 'mathjs';
 import {
   Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
   IconButton,
-  InputAdornment,
+  Input,
+  InputGroup,
+  InputLeftElement,
+  Modal,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
   Stack,
-  TextField,
   Tooltip,
-} from '@mui/material';
-import { FieldTypes, ValidationErrorMsgs } from '../../constants';
-import { Calculate } from '@mui/icons-material';
-import { evaluate, round } from 'mathjs';
+} from '@chakra-ui/react';
 
 interface SingleFieldDialogProps {
   initialValue?: string;
@@ -90,41 +92,47 @@ const SingleFieldDialog = (props: SingleFieldDialogProps) => {
   }, [initialValue]);
 
   return (
-    <Dialog open={isOpen} onClose={onClosed} fullWidth style={{ marginBottom: '35vh' }}>
-      <DialogTitle>{`${titleVerb} ${fieldName}`}</DialogTitle>
+    <Modal isOpen={isOpen} onClose={onClosed}>
+      <ModalOverlay />
+      <ModalContent>
+        <ModalHeader>{`${titleVerb} ${fieldName}`}</ModalHeader>
 
-      <DialogContent>
         <Stack direction='row' alignItems='center' spacing={1}>
-          <TextField
-            variant='standard'
-            label={fieldName}
-            value={fieldValue}
-            onChange={(event: React.ChangeEvent<HTMLInputElement>) => validateAndSetValue(event.target.value)}
-            error={!!valErr}
-            helperText={valErr}
-            InputProps={{
-              startAdornment: isMonetaryValue ? <InputAdornment position='start'>$</InputAdornment> : undefined,
-            }}
-            required
-            autoFocus
-          />
+          <InputGroup>
+            {isMonetaryValue && <InputLeftElement>$</InputLeftElement>}
+            <Input
+              type='text'
+              variant='standard'
+              label={fieldName}
+              value={fieldValue}
+              onChange={(event: React.ChangeEvent<HTMLInputElement>) => validateAndSetValue(event.target.value)}
+              error={!!valErr}
+              helperText={valErr}
+              required
+              autoFocus
+            />
+          </InputGroup>
+
           {isMonetaryValue && (
             <Tooltip title='Calculate value'>
-              <IconButton onClick={calculateMoneyValue} sx={{ height: '50%' }}>
-                <Calculate />
-              </IconButton>
+              <IconButton
+                icon={<MdCalculate />}
+                onClick={calculateMoneyValue}
+                sx={{ height: '50%' }}
+                aria-label='Calculate expression value'
+              />
             </Tooltip>
           )}
         </Stack>
-      </DialogContent>
 
-      <DialogActions>
-        <Button onClick={onClosed}>Cancel</Button>
-        <Button variant='contained' disabled={!!valErr} onClick={saveValue}>
-          Save
-        </Button>
-      </DialogActions>
-    </Dialog>
+        <ModalFooter>
+          <Button onClick={onClosed}>Cancel</Button>
+          <Button variant='contained' disabled={!!valErr} onClick={saveValue}>
+            Save
+          </Button>
+        </ModalFooter>
+      </ModalContent>
+    </Modal>
   );
 };
 

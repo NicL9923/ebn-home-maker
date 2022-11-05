@@ -1,5 +1,4 @@
-import { Add, SubdirectoryArrowRight } from '@mui/icons-material';
-import { Box, Divider, Grid, IconButton, Paper, Stack, Tooltip, Typography, useTheme } from '@mui/material';
+import { MdAdd, MdSubdirectoryArrowRight } from 'react-icons/md';
 import { BudgetCategory, IBudget, BudgetSubcategory, BudgetContextValue, Transaction } from 'models/types';
 import React, { useState } from 'react';
 import EditableLabel from '../Inputs/EditableLabel';
@@ -10,6 +9,7 @@ import { useUserStore } from 'state/UserStore';
 import { useFirestoreDocumentMutation } from '@react-query-firebase/firestore';
 import { doc } from 'firebase/firestore';
 import { db, FsCol } from '../../firebase';
+import { Box, Divider, Grid, GridItem, IconButton, Stack, Text, Tooltip, useToken } from '@chakra-ui/react';
 
 export const BudgetContext = React.createContext({} as BudgetContextValue);
 
@@ -20,7 +20,7 @@ interface BudgetProps {
 
 const Budget = (props: BudgetProps): JSX.Element => {
   const { budget, setBudget } = props;
-  const theme = useTheme();
+  const [red500, green400, yellow300] = useToken('colors', ['red.500', 'green.400', 'yellow.300']);
 
   const family = useUserStore((state) => state.family);
 
@@ -232,23 +232,23 @@ const Budget = (props: BudgetProps): JSX.Element => {
     let helperText = 'to allot';
 
     if (difference > 0) {
-      helperColor = theme.palette.warning.main;
+      helperColor = yellow300;
     } else if (difference === 0) {
       helperColor = undefined;
     } else {
       helperText = 'over-allotted';
-      helperColor = theme.palette.error.main;
+      helperColor = red500;
     }
 
     return (
-      <Typography variant='subtitle1' ml={3} color={helperColor}>
+      <Text variant='subtitle1' ml={3} color={helperColor}>
         $
         {Math.abs(difference).toLocaleString(undefined, {
           minimumFractionDigits: 2,
           maximumFractionDigits: 2,
         })}{' '}
         {helperText}
-      </Typography>
+      </Text>
     );
   };
 
@@ -260,23 +260,23 @@ const Budget = (props: BudgetProps): JSX.Element => {
     let helperText = 'remaining';
 
     if (difference > 0) {
-      helperColor = theme.palette.success.main;
+      helperColor = green400;
     } else if (difference === 0) {
       helperColor = undefined;
     } else {
       helperText = 'over-budget';
-      helperColor = theme.palette.error.main;
+      helperColor = red500;
     }
 
     return (
-      <Typography variant='subtitle1' ml={3} color={helperColor}>
+      <Text variant='subtitle1' ml={3} color={helperColor}>
         $
         {Math.abs(difference).toLocaleString(undefined, {
           minimumFractionDigits: 2,
           maximumFractionDigits: 2,
         })}{' '}
         {helperText}
-      </Typography>
+      </Text>
     );
   };
 
@@ -303,18 +303,18 @@ const Budget = (props: BudgetProps): JSX.Element => {
           text={budget.name}
           onSubmitValue={setBudgetName}
         />
-        <Typography variant='h5'>
+        <Text variant='h5'>
           {new Date().toLocaleDateString('en-US', {
             month: 'long',
             year: 'numeric',
           })}
-        </Typography>
+        </Text>
       </Box>
 
       <Box mb={4} width={325} mx='auto'>
-        <Paper sx={{ p: 2 }}>
+        <Box sx={{ p: 2 }}>
           <Stack direction='row' alignContent='center' spacing={2} mb={2}>
-            <Typography variant='h6'>Net Income</Typography>
+            <Text variant='h6'>Net Income</Text>
             <EditableLabel
               fieldName='Monthly net income'
               fieldType='DecimalNum'
@@ -329,84 +329,80 @@ const Budget = (props: BudgetProps): JSX.Element => {
           </Stack>
 
           <Stack direction='row' alignContent='center' spacing={2}>
-            <Typography variant='h6'>Total Allotted</Typography>
-            <Typography variant='h5'>
+            <Text variant='h6'>Total Allotted</Text>
+            <Text variant='h5'>
               $
               {budget.totalAllotted?.toLocaleString(undefined, {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2,
               })}
-            </Typography>
+            </Text>
           </Stack>
           {getAllottedRemainder()}
 
           <Stack direction='row' alignContent='center' spacing={2} mt={1}>
-            <Typography variant='h6'>Total Spent</Typography>
-            <Typography variant='h5'>
+            <Text variant='h6'>Total Spent</Text>
+            <Text variant='h5'>
               $
               {budget.totalSpent?.toLocaleString(undefined, {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2,
               })}
-            </Typography>
+            </Text>
           </Stack>
           {getSpendingRemainder()}
-        </Paper>
+        </Box>
       </Box>
 
       <Box>
-        <Paper sx={{ p: 1 }}>
-          <Box sx={{ position: 'sticky', top: 60, backgroundColor: theme.palette.primary.light, zIndex: 1000 }}>
-            <Grid container alignItems='center' sx={{ p: 1 }}>
-              <Grid item xs={6}>
-                <Stack direction='row' alignItems='center'>
-                  <Tooltip title='Add category'>
-                    <IconButton onClick={addNewCategory}>
-                      <Add />
-                    </IconButton>
-                  </Tooltip>
+        <Box p={1} sx={{ position: 'sticky', top: 60, zIndex: 1000 }}>
+          <Grid alignItems='center' sx={{ p: 1 }}>
+            <GridItem>
+              <Stack direction='row' alignItems='center'>
+                <Tooltip title='Add category'>
+                  <IconButton icon={<MdAdd />} onClick={addNewCategory} aria-label='Add category' />
+                </Tooltip>
 
-                  <Stack>
-                    <Typography variant='body1'>Category</Typography>
-                    <Stack direction='row' alignItems='end'>
-                      <SubdirectoryArrowRight />
-                      <Typography variant='body2'>Sub-category</Typography>
-                    </Stack>
+                <Stack>
+                  <Text variant='body1'>Category</Text>
+                  <Stack direction='row' alignItems='end'>
+                    <MdSubdirectoryArrowRight />
+                    <Text variant='body2'>Sub-category</Text>
                   </Stack>
                 </Stack>
-              </Grid>
+              </Stack>
+            </GridItem>
 
-              <Grid item xs={3} ml={1}>
-                <Typography variant='body1'>Allotted</Typography>
-              </Grid>
-              <Grid item xs={2}>
-                <Typography variant='body1'>Spent</Typography>
-              </Grid>
-            </Grid>
+            <GridItem ml={1}>
+              <Text variant='body1'>Allotted</Text>
+            </GridItem>
+            <GridItem>
+              <Text variant='body1'>Spent</Text>
+            </GridItem>
+          </Grid>
 
-            <Divider />
-          </Box>
+          <Divider />
+        </Box>
 
-          <BudgetContext.Provider
-            value={{
-              budget,
-              moveCategory,
-              moveSubCategory,
-              setCategoryName,
-              addNewSubCategory,
-              removeCategory,
-              setSubCatProperty,
-              removeSubCategory,
-              setAddingTransaction,
-              setCatSubcatKey,
-            }}
-          >
-            <BudgetCategories />
-          </BudgetContext.Provider>
-        </Paper>
+        <BudgetContext.Provider
+          value={{
+            budget,
+            moveCategory,
+            moveSubCategory,
+            setCategoryName,
+            addNewSubCategory,
+            removeCategory,
+            setSubCatProperty,
+            removeSubCategory,
+            setAddingTransaction,
+            setCatSubcatKey,
+          }}
+        >
+          <BudgetCategories />
+        </BudgetContext.Provider>
       </Box>
 
-      <Paper
+      <Box
         sx={{
           mt: 4,
           height: '25vw',
@@ -420,7 +416,7 @@ const Budget = (props: BudgetProps): JSX.Element => {
           data={formatChartData(budget.categories)}
           options={{ title: 'Percent of Allotted Budget', is3D: false }}
         />
-      </Paper>
+      </Box>
 
       <AddTransaction
         isOpen={addingTransaction}

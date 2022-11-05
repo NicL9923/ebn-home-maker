@@ -1,4 +1,4 @@
-import { Box } from '@mui/material';
+import { Box } from '@chakra-ui/react';
 import React, { useContext } from 'react';
 import { DragDropContext } from 'react-beautiful-dnd';
 import { Droppable, DropResult } from 'react-beautiful-dnd';

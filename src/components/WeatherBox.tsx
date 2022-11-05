@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Alert, AlertTitle, Box, Paper, Stack, Tab, Tabs, Typography, CircularProgress } from '@mui/material';
 import {
   WiRain,
   WiThunderstorm,
@@ -23,12 +22,20 @@ import {
 import { openWeatherMapOneCallApiBaseUrl, openWeatherMapGeocodeApiBaseUrl, daysOfTheWeek } from '../constants';
 import { useUserStore } from 'state/UserStore';
 import { useQuery } from 'react-query';
-
-enum ShownWeather {
-  Current = 0,
-  Hourly,
-  Daily,
-}
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+  Box,
+  CircularProgress,
+  Stack,
+  Tab,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Tabs,
+  Text,
+} from '@chakra-ui/react';
 
 type DayNum = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 const getDayOfWeek = (dayNum: DayNum) => daysOfTheWeek[dayNum];
@@ -59,7 +66,6 @@ const WeatherBox = () => {
   const [hourlyWeather, setHourlyWeather] = useState<IParsedHourlyWeather[] | undefined>(undefined);
   const [dailyWeather, setDailyWeather] = useState<IParsedDailyWeather[] | undefined>(undefined);
   const [weatherAlerts, setWeatherAlerts] = useState<IWeatherAlertResponse[] | undefined>(undefined);
-  const [shownWeather, setShownWeather] = useState<ShownWeather>(ShownWeather.Current);
 
   const getGeoDataFromCityState = async (): Promise<IGeocodeResponse | undefined> => {
     if (!family?.cityState) {
@@ -154,117 +160,121 @@ const WeatherBox = () => {
 
   return (
     <Stack alignItems='center' justifyContent='center' mb={6}>
-      <Typography variant='h4'>Weather</Typography>
-      <Typography variant='subtitle1'>{weatherLocation}</Typography>
-
-      <Tabs value={shownWeather} onChange={(e, newVal) => setShownWeather(newVal)}>
-        <Tab label='Current' />
-        <Tab label='Hourly' />
-        <Tab label='Daily' />
-      </Tabs>
+      <Text variant='h4'>Weather</Text>
+      <Text variant='subtitle1'>{weatherLocation}</Text>
 
       {geocodeDataQuery.isLoading || weatherDataQuery.isLoading ? (
         <Box mx='auto' textAlign='center' mt={20}>
-          <CircularProgress />
+          <CircularProgress isIndeterminate />
         </Box>
       ) : (
-        <Box>
-          {shownWeather === ShownWeather.Current && currentWeather && (
-            <Paper>
-              <Stack
-                direction='column'
-                alignItems='center'
-                justifyContent='center'
-                textAlign='center'
-                mt={3}
-                pl={5}
-                pr={5}
-                pt={2}
-                pb={2}
-              >
-                <Typography variant='h4'>{currentWeather.condition}</Typography>
-                {getWeatherIcon(currentWeather.iconCode, 108)}
-                <Typography variant='h4'>{currentWeather.temp}°F</Typography>
-                <Typography variant='h6'>Feels like {currentWeather.feelsLike}°</Typography>
-                <Typography variant='body1'>Humidity: {currentWeather.humidity}%</Typography>
-                <Typography variant='body1'>Wind: {currentWeather.wind}mph</Typography>
+        <Tabs>
+          <TabList>
+            <Tab>Current</Tab>
+            <Tab>Hourly</Tab>
+            <Tab>Daily</Tab>
+          </TabList>
+          <TabPanels>
+            <TabPanel>
+              {currentWeather && (
+                <Box>
+                  <Stack
+                    direction='column'
+                    alignItems='center'
+                    justifyContent='center'
+                    textAlign='center'
+                    mt={3}
+                    pl={5}
+                    pr={5}
+                    pt={2}
+                    pb={2}
+                  >
+                    <Text variant='h4'>{currentWeather.condition}</Text>
+                    {getWeatherIcon(currentWeather.iconCode, 108)}
+                    <Text variant='h4'>{currentWeather.temp}°F</Text>
+                    <Text variant='h6'>Feels like {currentWeather.feelsLike}°</Text>
+                    <Text variant='body1'>Humidity: {currentWeather.humidity}%</Text>
+                    <Text variant='body1'>Wind: {currentWeather.wind}mph</Text>
+                  </Stack>
+                </Box>
+              )}
+            </TabPanel>
+
+            <TabPanel>
+              <Stack spacing={1} mt={2}>
+                {hourlyWeather?.map((rpt) => (
+                  <Box key={rpt.hour}>
+                    <Stack
+                      direction='row'
+                      alignItems='center'
+                      justifyContent='space-evenly'
+                      textAlign='center'
+                      width={{ xs: '95vw', sm: '60vw', md: '35vw', lg: '25vw' }}
+                    >
+                      <Text variant='subtitle1'>
+                        {rpt.hour < 12 ? `${rpt.hour} AM` : `${rpt.hour === 12 ? rpt.hour : rpt.hour - 12} PM`}
+                      </Text>
+
+                      <Stack>
+                        {getWeatherIcon(rpt.iconCode)}
+                        <Text variant='subtitle2'>{rpt.condition}</Text>
+                      </Stack>
+
+                      <Text variant='h6'>{rpt.temp}°F</Text>
+
+                      <Stack>
+                        <Text variant='subtitle2'>Feels like: {rpt.feelsLike}°</Text>
+                        <Text variant='subtitle2'>Humidity: {rpt.humidity}%</Text>
+                      </Stack>
+                    </Stack>
+                  </Box>
+                ))}
               </Stack>
-            </Paper>
-          )}
+            </TabPanel>
 
-          {shownWeather === ShownWeather.Hourly && hourlyWeather && (
-            <Stack spacing={1} mt={2}>
-              {hourlyWeather.map((rpt) => (
-                <Paper key={rpt.hour}>
-                  <Stack
-                    direction='row'
-                    alignItems='center'
-                    justifyContent='space-evenly'
-                    textAlign='center'
-                    width={{ xs: '95vw', sm: '60vw', md: '35vw', lg: '25vw' }}
-                  >
-                    <Typography variant='subtitle1'>
-                      {rpt.hour < 12 ? `${rpt.hour} AM` : `${rpt.hour === 12 ? rpt.hour : rpt.hour - 12} PM`}
-                    </Typography>
+            <TabPanel>
+              <Stack spacing={2} m={2}>
+                {dailyWeather?.map((rpt) => (
+                  <Box key={rpt.day}>
+                    <Stack
+                      direction='row'
+                      alignItems='center'
+                      justifyContent='space-evenly'
+                      textAlign='center'
+                      width={{ xs: '95vw', sm: '60vw', md: '35vw', lg: '25vw' }}
+                      key={rpt.day}
+                    >
+                      <Text variant='h6'>{rpt.day}</Text>
 
-                    <Stack>
-                      {getWeatherIcon(rpt.iconCode)}
-                      <Typography variant='subtitle2'>{rpt.condition}</Typography>
+                      <Stack>
+                        {getWeatherIcon(rpt.iconCode)}
+                        <Text variant='subtitle1'>{rpt.condition}</Text>
+                      </Stack>
+
+                      <Stack>
+                        <Text variant='body1'>High: {rpt.tempHigh}°F</Text>
+                        <Text variant='body1'>Low: {rpt.tempLow}°F</Text>
+                      </Stack>
                     </Stack>
+                  </Box>
+                ))}
+              </Stack>
+            </TabPanel>
 
-                    <Typography variant='h6'>{rpt.temp}°F</Typography>
+            {weatherAlerts && (
+              <Stack direction='column' alignContent='center' mb={4} mt={2}>
+                {weatherAlerts.map((alert) => (
+                  <Alert status='error' key={alert.event}>
+                    <AlertTitle>{alert.event}</AlertTitle>
+                    <h5>{alert.sender_name}</h5>
 
-                    <Stack>
-                      <Typography variant='subtitle2'>Feels like: {rpt.feelsLike}°</Typography>
-                      <Typography variant='subtitle2'>Humidity: {rpt.humidity}%</Typography>
-                    </Stack>
-                  </Stack>
-                </Paper>
-              ))}
-            </Stack>
-          )}
-
-          {shownWeather === ShownWeather.Daily && dailyWeather && (
-            <Stack spacing={2} m={2}>
-              {dailyWeather.map((rpt) => (
-                <Paper key={rpt.day}>
-                  <Stack
-                    direction='row'
-                    alignItems='center'
-                    justifyContent='space-evenly'
-                    textAlign='center'
-                    width={{ xs: '95vw', sm: '60vw', md: '35vw', lg: '25vw' }}
-                    key={rpt.day}
-                  >
-                    <Typography variant='h6'>{rpt.day}</Typography>
-
-                    <Stack>
-                      {getWeatherIcon(rpt.iconCode)}
-                      <Typography variant='subtitle1'>{rpt.condition}</Typography>
-                    </Stack>
-
-                    <Stack>
-                      <Typography variant='body1'>High: {rpt.tempHigh}°F</Typography>
-                      <Typography variant='body1'>Low: {rpt.tempLow}°F</Typography>
-                    </Stack>
-                  </Stack>
-                </Paper>
-              ))}
-            </Stack>
-          )}
-
-          {weatherAlerts && (
-            <Stack direction='column' alignContent='center' mb={4} mt={2}>
-              {weatherAlerts.map((alert) => (
-                <Alert severity='error' key={alert.event}>
-                  <AlertTitle>{alert.event}</AlertTitle>
-                  <h5>{alert.sender_name}</h5>
-                  <p>{alert.description}</p>
-                </Alert>
-              ))}
-            </Stack>
-          )}
-        </Box>
+                    <AlertDescription>{alert.description}</AlertDescription>
+                  </Alert>
+                ))}
+              </Stack>
+            )}
+          </TabPanels>
+        </Tabs>
       )}
     </Stack>
   );

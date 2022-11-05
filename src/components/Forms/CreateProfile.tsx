@@ -1,6 +1,4 @@
 import React, { useState } from 'react';
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, InputLabel, TextField } from '@mui/material';
-import { DropzoneArea } from 'mui-file-dropzone';
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import { v4 as uuidv4 } from 'uuid';
 import { useUserStore } from 'state/UserStore';
@@ -8,7 +6,9 @@ import { doc, writeBatch } from 'firebase/firestore';
 import { db, FsCol, storage } from '../../firebase';
 import { useFirestoreWriteBatch } from '@react-query-firebase/firestore';
 import { GenericObject } from 'models/types';
-import { useToast } from '@chakra-ui/react';
+import { Button, Input, Modal, ModalContent, ModalFooter, ModalHeader, ModalOverlay, useToast } from '@chakra-ui/react';
+
+// TODO: File dropzone
 
 interface CreateProfileProps {
   isOpen: boolean;
@@ -65,11 +65,13 @@ const CreateProfile = ({ isOpen, setIsOpen }: CreateProfileProps) => {
   };
 
   return (
-    <Dialog open={isOpen} onClose={() => setIsOpen(false)} fullWidth>
-      <DialogTitle>Create Profile</DialogTitle>
+    <Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>
+      <ModalOverlay />
+      <ModalContent>
+        <ModalHeader>Create Profile</ModalHeader>
 
-      <DialogContent>
-        <TextField
+        <Input
+          type='text'
           autoFocus
           variant='standard'
           label='First Name'
@@ -87,15 +89,15 @@ const CreateProfile = ({ isOpen, setIsOpen }: CreateProfileProps) => {
           onChange={(files) => setNewPhoto(files[0])}
           fileObjects={[]}
         />
-      </DialogContent>
 
-      <DialogActions>
-        <Button onClick={() => setIsOpen(false)}>Cancel</Button>
-        <Button variant='contained' onClick={createProfile}>
-          Create
-        </Button>
-      </DialogActions>
-    </Dialog>
+        <ModalFooter>
+          <Button onClick={() => setIsOpen(false)}>Cancel</Button>
+          <Button variant='contained' onClick={createProfile}>
+            Create
+          </Button>
+        </ModalFooter>
+      </ModalContent>
+    </Modal>
   );
 };
 

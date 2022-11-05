@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
-import { Typography, TypographyTypeMap } from '@mui/material';
 import SingleFieldDialog from './SingleFieldDialog';
 import { FieldTypes } from '../../constants';
+import { Text } from '@chakra-ui/react';
+
+// TODO: Switch this to the Chakra Editable component
 
 interface EditableLabelPropTypes {
   text: string;
-  textVariant?: TypographyTypeMap['props']['variant'];
+  textVariant?: string;
   isMonetaryValue?: boolean;
   fieldName: string;
   fieldType: keyof typeof FieldTypes;
@@ -25,7 +27,7 @@ const EditableLabel = (props: EditableLabelPropTypes) => {
 
   return (
     <>
-      <Typography
+      <Text
         variant={textVariant ?? 'h6'}
         onClick={startEditing}
         onMouseOver={() => setIsHovered(true)}
@@ -36,7 +38,7 @@ const EditableLabel = (props: EditableLabelPropTypes) => {
       >
         {isMonetaryValue && '$'}
         {text}
-      </Typography>
+      </Text>
 
       <SingleFieldDialog
         initialValue={isMonetaryValue ? text.replaceAll(',', '') : text} // If monetary value w/ commas, replace them when editing

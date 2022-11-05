@@ -1,13 +1,21 @@
 import React, { useState } from 'react';
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Stack, TextField } from '@mui/material';
 import { Family } from 'models/types';
 import { v4 as uuidv4 } from 'uuid';
-import { useAppStore } from 'state/AppStore';
 import { useUserStore } from 'state/UserStore';
 import { doc, writeBatch } from 'firebase/firestore';
 import { useFirestoreWriteBatch } from '@react-query-firebase/firestore';
 import { db, FsCol } from '../../firebase';
-import { useToast } from '@chakra-ui/react';
+import {
+  Button,
+  Input,
+  Modal,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
+  Stack,
+  useToast,
+} from '@chakra-ui/react';
 
 interface CreateFamilyProps {
   isOpen: boolean;
@@ -57,12 +65,13 @@ const CreateFamily = ({ isOpen, setIsOpen }: CreateFamilyProps) => {
   };
 
   return (
-    <Dialog open={isOpen} onClose={() => setIsOpen(false)} fullWidth>
-      <DialogTitle>Create Family</DialogTitle>
-
-      <DialogContent>
+    <Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>
+      <ModalOverlay />
+      <ModalContent>
+        <ModalHeader>Create Family</ModalHeader>
         <Stack>
-          <TextField
+          <Input
+            type='text'
             autoFocus
             variant='standard'
             label='Family (Last) Name'
@@ -71,15 +80,15 @@ const CreateFamily = ({ isOpen, setIsOpen }: CreateFamilyProps) => {
             required
           />
         </Stack>
-      </DialogContent>
 
-      <DialogActions>
-        <Button onClick={() => setIsOpen(false)}>Cancel</Button>
-        <Button variant='contained' onClick={createFamily}>
-          Create
-        </Button>
-      </DialogActions>
-    </Dialog>
+        <ModalFooter>
+          <Button onClick={() => setIsOpen(false)}>Cancel</Button>
+          <Button variant='contained' onClick={createFamily}>
+            Create
+          </Button>
+        </ModalFooter>
+      </ModalContent>
+    </Modal>
   );
 };
 

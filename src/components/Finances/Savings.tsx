@@ -1,5 +1,4 @@
-import { Add, Clear } from '@mui/icons-material';
-import { Box, Button, IconButton, Paper, Stack, Typography } from '@mui/material';
+import { MdAdd, MdClear } from 'react-icons/md';
 import { useFirestoreDocumentMutation } from '@react-query-firebase/firestore';
 import { db, FsCol } from '../../firebase';
 import { doc } from 'firebase/firestore';
@@ -8,6 +7,7 @@ import React from 'react';
 import Chart from 'react-google-charts';
 import { useUserStore } from 'state/UserStore';
 import EditableLabel from '../Inputs/EditableLabel';
+import { Box, Button, IconButton, Stack, Text } from '@chakra-ui/react';
 
 const formatChartData = (blobsData: SavingsBlob[]) => {
   const formattedDataArr: (string | number)[][] = [['Name', 'Amount']];
@@ -88,13 +88,13 @@ const Savings = ({ budget }: SavingsProps): JSX.Element => {
 
   return (
     <Box mt={2} ml={1} mr={1}>
-      <Typography variant='h3' mb={2}>
+      <Text variant='h3' mb={2}>
         Savings Blobs
-      </Typography>
+      </Text>
 
-      <Paper sx={{ p: 1, maxWidth: 'auto', mb: 2 }}>
-        <Typography variant='h4'>Total Saved:</Typography>
-        <Typography variant='h5'>
+      <Box sx={{ p: 1, maxWidth: 'auto', mb: 2 }}>
+        <Text variant='h4'>Total Saved:</Text>
+        <Text variant='h5'>
           $
           {budget.savingsBlobs
             .reduce((sum, { currentAmt }) => sum + currentAmt, 0)
@@ -102,16 +102,16 @@ const Savings = ({ budget }: SavingsProps): JSX.Element => {
               minimumFractionDigits: 2,
               maximumFractionDigits: 2,
             })}
-        </Typography>
-      </Paper>
+        </Text>
+      </Box>
 
-      <Button variant='contained' startIcon={<Add />} onClick={createSavingsBlob}>
+      <Button variant='contained' leftIcon={<MdAdd />} onClick={createSavingsBlob}>
         Create New Blob
       </Button>
 
       <Stack mb={4} spacing={1} mt={2}>
         {budget.savingsBlobs.map((blob) => (
-          <Paper sx={{ p: 1 }} key={blob.name}>
+          <Box sx={{ p: 1 }} key={blob.name}>
             <Stack direction='row' alignItems='center' justifyContent='space-between'>
               <EditableLabel
                 fieldName='Blob name'
@@ -121,9 +121,12 @@ const Savings = ({ budget }: SavingsProps): JSX.Element => {
                 isValUnique={isBlobNameUnique}
                 onSubmitValue={(newValue) => updateSavingsBlobName(blob.name, newValue)}
               />
-              <IconButton sx={{ ml: 4 }} onClick={() => deleteSavingsBlob(blob.name)}>
-                <Clear />
-              </IconButton>
+              <IconButton
+                icon={<MdClear />}
+                sx={{ ml: 4 }}
+                onClick={() => deleteSavingsBlob(blob.name)}
+                aria-label='Delete savings blob'
+              />
             </Stack>
             <EditableLabel
               fieldName='Amount'
@@ -136,11 +139,11 @@ const Savings = ({ budget }: SavingsProps): JSX.Element => {
               isMonetaryValue
               onSubmitValue={(newValue) => updateSavingsBlobAmt(blob.name, newValue)}
             />
-          </Paper>
+          </Box>
         ))}
       </Stack>
 
-      <Paper
+      <Box
         sx={{
           mb: 4,
           height: '25vw',
@@ -154,7 +157,7 @@ const Savings = ({ budget }: SavingsProps): JSX.Element => {
           data={formatChartData(budget.savingsBlobs)}
           options={{ title: 'Savings Breakdown', pieHole: 0.5, is3D: false }}
         />
-      </Paper>
+      </Box>
     </Box>
   );
 };

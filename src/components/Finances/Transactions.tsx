@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
-import { Add, Delete } from '@mui/icons-material';
-import { Button, Stack, Typography, Box } from '@mui/material';
-import { DataGrid, GridRowId } from '@mui/x-data-grid';
 import { IBudget, Transaction } from 'models/types';
 import AddTransaction from 'components/Forms/AddTransaction';
 import { useUserStore } from 'state/UserStore';
 import { useFirestoreDocumentMutation } from '@react-query-firebase/firestore';
 import { doc } from 'firebase/firestore';
 import { db, FsCol } from '../../firebase';
+import { MdAdd, MdDelete } from 'react-icons/md';
+import { Box, Button, Stack, Text } from '@chakra-ui/react';
+
+// TODO: Data grid
 
 const dgColumns = [
   {
@@ -90,10 +91,10 @@ const Transactions = ({ budget }: TransactionsProps): JSX.Element => {
 
   return (
     <Box mt={2} ml={1} mr={1}>
-      <Typography variant='h3' mb={2}>
+      <Text variant='h3' mb={2}>
         Transactions
-      </Typography>
-      <Button startIcon={<Add />} variant='contained' onClick={() => setAddingTransaction(true)}>
+      </Text>
+      <Button leftIcon={<MdAdd />} variant='contained' onClick={() => setAddingTransaction(true)}>
         Add transaction
       </Button>
       <Stack height={500} mt={3} mb={2}>
@@ -116,7 +117,7 @@ const Transactions = ({ budget }: TransactionsProps): JSX.Element => {
       </Stack>
 
       {selection.length > 0 && (
-        <Button startIcon={<Delete />} variant='contained' color='error' onClick={removeTransactions} sx={{ mb: 3 }}>
+        <Button leftIcon={<MdDelete />} variant='contained' color='error' onClick={removeTransactions} sx={{ mb: 3 }}>
           Remove transaction{selection.length > 1 && 's'}
         </Button>
       )}

@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Button, CircularProgress, Container, Grid, Paper, Stack, Typography } from '@mui/material';
 import type { Residence, ServiceLogEntry } from 'models/types';
 import AddResidence from 'components/Forms/AddResidence';
-import { DataGrid } from '@mui/x-data-grid';
-import { Add, House } from '@mui/icons-material';
+import { MdAdd, MdEdit, MdHouse } from 'react-icons/md';
 import { useUserStore } from 'state/UserStore';
 import { doc, getDoc, writeBatch } from 'firebase/firestore';
 import { db, FsCol } from '../../firebase';
 import { useFirestoreWriteBatch } from '@react-query-firebase/firestore';
+import { Box, Button, CircularProgress, Container, Grid, GridItem, Stack, Text } from '@chakra-ui/react';
+
+// TODO: Data grid
 
 export const Residences = () => {
   const profile = useUserStore((state) => state.profile);
@@ -63,33 +64,33 @@ export const Residences = () => {
 
   return (
     <Box mt={2}>
-      <Typography variant='h4'>Residences</Typography>
+      <Text variant='h4'>Residences</Text>
       {!residences ? (
         isFetchingResidences && (
           <Box mx='auto' textAlign='center' mt={20}>
-            <CircularProgress />
+            <CircularProgress isIndeterminate />
           </Box>
         )
       ) : (
-        <Grid container mt={2} mb={2} gap={2}>
+        <Grid mt={2} mb={2} gap={2}>
           {residences.map((residence) => (
-            <Grid container item xs={12} md={6} lg={4} key={residence.name}>
-              <Paper sx={{ p: 2 }}>
+            <GridItem key={residence.name}>
+              <Box p={2}>
                 {residence.img ? (
                   <img height='250' src={residence.img} />
                 ) : (
                   <Container>
-                    <House sx={{ fontSize: 200 }} />
+                    <MdHouse />
                   </Container>
                 )}
 
-                <Typography variant='h5'>{residence.name}</Typography>
-                <Typography variant='body1'>Built: {residence.yearBuilt}</Typography>
-                <Typography variant='body1'>Purchased: {residence.yearPurchased}</Typography>
+                <Text variant='h5'>{residence.name}</Text>
+                <Text variant='body1'>Built: {residence.yearBuilt}</Text>
+                <Text variant='body1'>Purchased: {residence.yearPurchased}</Text>
 
-                <Typography variant='h6' mt={2}>
+                <Text variant='h6' mt={2}>
                   Service Log
-                </Typography>
+                </Text>
                 <Box height={300}>
                   <DataGrid
                     columns={[
@@ -101,14 +102,14 @@ export const Residences = () => {
                     rowsPerPageOptions={[5, 10, 20]}
                   />
                 </Box>
-                <Button variant='contained' startIcon={<Add />} sx={{ mt: 1 }}>
+                <Button variant='contained' leftIcon={<MdAdd />} sx={{ mt: 1 }}>
                   Add to log
                 </Button>
 
-                <Typography variant='h6' mt={2}>
+                <Text variant='h6' mt={2}>
                   Maintenance
-                </Typography>
-                <Button variant='contained' startIcon={<Add />} sx={{ mt: 1 }}>
+                </Text>
+                <Button variant='contained' leftIcon={<MdEdit />} sx={{ mt: 1 }}>
                   Edit maintenance schedule
                 </Button>
 
@@ -118,8 +119,8 @@ export const Residences = () => {
                     Delete
                   </Button>
                 </Stack>
-              </Paper>
-            </Grid>
+              </Box>
+            </GridItem>
           ))}
         </Grid>
       )}
