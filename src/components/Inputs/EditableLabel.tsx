@@ -3,8 +3,6 @@ import SingleFieldDialog from './SingleFieldDialog';
 import { FieldTypes } from '../../constants';
 import { Text } from '@chakra-ui/react';
 
-// TODO: Switch this to the Chakra Editable component
-
 interface EditableLabelPropTypes {
   text: string;
   textVariant?: string;
