@@ -69,9 +69,7 @@ const Navbar = () => {
       <Link href='/'>
         <IconButton icon={<MdHome />} size='large' color='inherit' aria-label='Homepage' />
       </Link>
-      <Text variant='h6' sx={{ flexGrow: 1 }}>
-        Our Home
-      </Text>
+      <Text sx={{ flexGrow: 1 }}>Our Home</Text>
 
       <Stack direction='row' alignItems='center'>
         <IconButton

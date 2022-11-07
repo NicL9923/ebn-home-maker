@@ -70,12 +70,10 @@ const NoBudget = () => {
 
   return (
     <Box p={2} maxWidth='sm' textAlign='center' mt={4} mx='auto'>
-      <Text variant='h6'>You don&apos;t have a budget yet!</Text>
-      <Text variant='subtitle1' mb={4}>
-        Create one?
-      </Text>
+      <Text>You don&apos;t have a budget yet!</Text>
+      <Text mb={4}>Create one?</Text>
 
-      <Button variant='contained' onClick={createAndSaveDefaultBudget} disabled={batchMutation.isLoading}>
+      <Button onClick={createAndSaveDefaultBudget} disabled={batchMutation.isLoading}>
         Create Budget
       </Button>
     </Box>

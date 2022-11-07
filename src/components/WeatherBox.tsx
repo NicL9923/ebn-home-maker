@@ -28,6 +28,7 @@ import {
   AlertTitle,
   Box,
   CircularProgress,
+  Heading,
   Stack,
   Tab,
   TabList,
@@ -160,8 +161,8 @@ const WeatherBox = () => {
 
   return (
     <Stack alignItems='center' justifyContent='center' mb={6}>
-      <Text variant='h4'>Weather</Text>
-      <Text variant='subtitle1'>{weatherLocation}</Text>
+      <Heading>Weather</Heading>
+      <Text>{weatherLocation}</Text>
 
       {geocodeDataQuery.isLoading || weatherDataQuery.isLoading ? (
         <Box mx='auto' textAlign='center' mt={20}>
@@ -189,12 +190,12 @@ const WeatherBox = () => {
                     pt={2}
                     pb={2}
                   >
-                    <Text variant='h4'>{currentWeather.condition}</Text>
+                    <Text>{currentWeather.condition}</Text>
                     {getWeatherIcon(currentWeather.iconCode, 108)}
-                    <Text variant='h4'>{currentWeather.temp}°F</Text>
-                    <Text variant='h6'>Feels like {currentWeather.feelsLike}°</Text>
-                    <Text variant='body1'>Humidity: {currentWeather.humidity}%</Text>
-                    <Text variant='body1'>Wind: {currentWeather.wind}mph</Text>
+                    <Text>{currentWeather.temp}°F</Text>
+                    <Text>Feels like {currentWeather.feelsLike}°</Text>
+                    <Text>Humidity: {currentWeather.humidity}%</Text>
+                    <Text>Wind: {currentWeather.wind}mph</Text>
                   </Stack>
                 </Box>
               )}
@@ -211,20 +212,20 @@ const WeatherBox = () => {
                       textAlign='center'
                       width={{ xs: '95vw', sm: '60vw', md: '35vw', lg: '25vw' }}
                     >
-                      <Text variant='subtitle1'>
+                      <Text>
                         {rpt.hour < 12 ? `${rpt.hour} AM` : `${rpt.hour === 12 ? rpt.hour : rpt.hour - 12} PM`}
                       </Text>
 
                       <Stack>
                         {getWeatherIcon(rpt.iconCode)}
-                        <Text variant='subtitle2'>{rpt.condition}</Text>
+                        <Text>{rpt.condition}</Text>
                       </Stack>
 
-                      <Text variant='h6'>{rpt.temp}°F</Text>
+                      <Text>{rpt.temp}°F</Text>
 
                       <Stack>
-                        <Text variant='subtitle2'>Feels like: {rpt.feelsLike}°</Text>
-                        <Text variant='subtitle2'>Humidity: {rpt.humidity}%</Text>
+                        <Text>Feels like: {rpt.feelsLike}°</Text>
+                        <Text>Humidity: {rpt.humidity}%</Text>
                       </Stack>
                     </Stack>
                   </Box>
@@ -244,16 +245,16 @@ const WeatherBox = () => {
                       width={{ xs: '95vw', sm: '60vw', md: '35vw', lg: '25vw' }}
                       key={rpt.day}
                     >
-                      <Text variant='h6'>{rpt.day}</Text>
+                      <Text>{rpt.day}</Text>
 
                       <Stack>
                         {getWeatherIcon(rpt.iconCode)}
-                        <Text variant='subtitle1'>{rpt.condition}</Text>
+                        <Text>{rpt.condition}</Text>
                       </Stack>
 
                       <Stack>
-                        <Text variant='body1'>High: {rpt.tempHigh}°F</Text>
-                        <Text variant='body1'>Low: {rpt.tempLow}°F</Text>
+                        <Text>High: {rpt.tempHigh}°F</Text>
+                        <Text>Low: {rpt.tempLow}°F</Text>
                       </Stack>
                     </Stack>
                   </Box>

@@ -179,9 +179,7 @@ const AddTransaction = ({ isOpen, setIsOpen, initialCatSubcat, budget }: AddTran
 
           <ModalFooter>
             <Button onClick={() => setIsOpen(false)}>Cancel</Button>
-            <Button type='submit' variant='contained'>
-              Save
-            </Button>
+            <Button type='submit'>Save</Button>
           </ModalFooter>
         </form>
       </ModalContent>

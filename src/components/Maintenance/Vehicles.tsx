@@ -6,7 +6,7 @@ import { useUserStore } from 'state/UserStore';
 import { doc, getDoc, writeBatch } from 'firebase/firestore';
 import { db, FsCol } from '../../firebase';
 import { useFirestoreWriteBatch } from '@react-query-firebase/firestore';
-import { Box, Button, CircularProgress, Container, Grid, GridItem, Stack, Text } from '@chakra-ui/react';
+import { Box, Button, CircularProgress, Container, Grid, GridItem, Heading, Stack, Text } from '@chakra-ui/react';
 
 export const Vehicles = () => {
   const profile = useUserStore((state) => state.profile);
@@ -62,7 +62,7 @@ export const Vehicles = () => {
 
   return (
     <Box mt={4}>
-      <Text variant='h4'>Vehicles</Text>
+      <Heading>Vehicles</Heading>
       {!vehicles ? (
         isFetchingVehicles && (
           <Box mx='auto' textAlign='center' mt={20}>
@@ -82,17 +82,15 @@ export const Vehicles = () => {
                   </Container>
                 )}
 
-                <Text variant='h5'>
+                <Text>
                   {vehicle.year} {vehicle.make} {vehicle.model} {vehicle.trim}
                 </Text>
-                <Text variant='body1'>Engine: {vehicle.engine}</Text>
-                <Text variant='body1'>Odometer: {vehicle.miles} mi</Text>
-                <Text variant='body1'>VIN: {vehicle.vin}</Text>
-                <Text variant='body1'>License Plate: {vehicle.licensePlate}</Text>
+                <Text>Engine: {vehicle.engine}</Text>
+                <Text>Odometer: {vehicle.miles} mi</Text>
+                <Text>VIN: {vehicle.vin}</Text>
+                <Text>License Plate: {vehicle.licensePlate}</Text>
 
-                <Text variant='h6' mt={2}>
-                  Service Log
-                </Text>
+                <Text mt={2}>Service Log</Text>
                 <Box height={300}>
                   {/*}
                   <DataGrid
@@ -107,31 +105,25 @@ export const Vehicles = () => {
                   />
                   */}
                 </Box>
-                <Button variant='contained' leftIcon={<MdAdd />} sx={{ mt: 1 }}>
+                <Button leftIcon={<MdAdd />} sx={{ mt: 1 }}>
                   Add to log
                 </Button>
 
-                <Text variant='h6' mt={2}>
-                  Maintenance
-                </Text>
-                <Button variant='contained' leftIcon={<MdEdit />} sx={{ mt: 1 }}>
+                <Text mt={2}>Maintenance</Text>
+                <Button leftIcon={<MdEdit />} sx={{ mt: 1 }}>
                   Edit maintenance schedule
                 </Button>
 
                 <Stack direction='row' justifyContent='right' spacing={1} mt={3}>
-                  <Button variant='outlined'>Edit</Button>
-                  <Button variant='text' onClick={() => deleteVehicle(vehicle.id)}>
-                    Delete
-                  </Button>
+                  <Button>Edit</Button>
+                  <Button onClick={() => deleteVehicle(vehicle.id)}>Delete</Button>
                 </Stack>
               </Box>
             </GridItem>
           ))}
         </Grid>
       )}
-      <Button variant='contained' onClick={() => setAddingVehicle(true)}>
-        Add vehicle
-      </Button>
+      <Button onClick={() => setAddingVehicle(true)}>Add vehicle</Button>
 
       <AddVehicle isOpen={addingVehicle} setIsOpen={setAddingVehicle} />
     </Box>

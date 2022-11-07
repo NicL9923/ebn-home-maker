@@ -102,12 +102,8 @@ const SingleFieldDialog = (props: SingleFieldDialogProps) => {
             {isMonetaryValue && <InputLeftElement>$</InputLeftElement>}
             <Input
               type='text'
-              variant='standard'
-              label={fieldName}
               value={fieldValue}
               onChange={(event: React.ChangeEvent<HTMLInputElement>) => validateAndSetValue(event.target.value)}
-              error={!!valErr}
-              helperText={valErr}
               required
               autoFocus
             />
@@ -127,7 +123,7 @@ const SingleFieldDialog = (props: SingleFieldDialogProps) => {
 
         <ModalFooter>
           <Button onClick={onClosed}>Cancel</Button>
-          <Button variant='contained' disabled={!!valErr} onClick={saveValue}>
+          <Button disabled={!!valErr} onClick={saveValue}>
             Save
           </Button>
         </ModalFooter>

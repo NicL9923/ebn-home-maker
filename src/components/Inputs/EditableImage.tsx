@@ -14,8 +14,8 @@ import {
   ModalHeader,
   ModalOverlay,
 } from '@chakra-ui/react';
+import Dropzone from 'react-dropzone';
 
-// TODO: File dropzone
 // TODO: On image hover -> grey background + Edit icon overlay on image (and cursor pointer)
 
 interface EditableImageProps {
@@ -86,11 +86,10 @@ const EditableImage = ({ curImgLink, updateCurImgLink, imgPlaceholder, height, w
           <ModalHeader>Update/Delete image</ModalHeader>
 
           {!deleteExistingPhoto && (
-            <DropzoneArea
-              acceptedFiles={['image/jpeg', 'image/png']}
-              filesLimit={1}
-              onChange={(files) => setNewImgFile(files[0])}
-              fileObjects={[]}
+            <Dropzone
+              accept={{ 'image/png': ['.png'], 'image/jpeg': ['.jpg', '.jpeg'] }}
+              onDrop={(acceptedFiles) => setNewImgFile(acceptedFiles[0])}
+              // TODO: maxSize (in bytes)
             />
           )}
           {curImgLink && (
@@ -101,7 +100,7 @@ const EditableImage = ({ curImgLink, updateCurImgLink, imgPlaceholder, height, w
 
           <ModalFooter>
             <Button onClick={() => setIsEditingPhoto(false)}>Cancel</Button>
-            <Button variant='contained' onClick={updateImg} disabled={!newImgFile && !deleteExistingPhoto}>
+            <Button onClick={updateImg} disabled={!newImgFile && !deleteExistingPhoto}>
               Save
             </Button>
           </ModalFooter>

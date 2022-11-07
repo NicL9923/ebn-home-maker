@@ -7,7 +7,7 @@ import React from 'react';
 import Chart from 'react-google-charts';
 import { useUserStore } from 'state/UserStore';
 import EditableLabel from '../Inputs/EditableLabel';
-import { Box, Button, IconButton, Stack, Text } from '@chakra-ui/react';
+import { Box, Button, Heading, IconButton, Stack, Text } from '@chakra-ui/react';
 
 const formatChartData = (blobsData: SavingsBlob[]) => {
   const formattedDataArr: (string | number)[][] = [['Name', 'Amount']];
@@ -88,13 +88,11 @@ const Savings = ({ budget }: SavingsProps): JSX.Element => {
 
   return (
     <Box mt={2} ml={1} mr={1}>
-      <Text variant='h3' mb={2}>
-        Savings Blobs
-      </Text>
+      <Heading mb={2}>Savings Blobs</Heading>
 
       <Box sx={{ p: 1, maxWidth: 'auto', mb: 2 }}>
-        <Text variant='h4'>Total Saved:</Text>
-        <Text variant='h5'>
+        <Text>Total Saved:</Text>
+        <Text>
           $
           {budget.savingsBlobs
             .reduce((sum, { currentAmt }) => sum + currentAmt, 0)
@@ -105,7 +103,7 @@ const Savings = ({ budget }: SavingsProps): JSX.Element => {
         </Text>
       </Box>
 
-      <Button variant='contained' leftIcon={<MdAdd />} onClick={createSavingsBlob}>
+      <Button leftIcon={<MdAdd />} onClick={createSavingsBlob}>
         Create New Blob
       </Button>
 
@@ -117,7 +115,7 @@ const Savings = ({ budget }: SavingsProps): JSX.Element => {
                 fieldName='Blob name'
                 fieldType='ItemName'
                 text={blob.name}
-                textVariant='h6'
+                textSize='lg'
                 isValUnique={isBlobNameUnique}
                 onSubmitValue={(newValue) => updateSavingsBlobName(blob.name, newValue)}
               />
@@ -131,7 +129,6 @@ const Savings = ({ budget }: SavingsProps): JSX.Element => {
             <EditableLabel
               fieldName='Amount'
               fieldType='DecimalNum'
-              textVariant='body1'
               text={blob.currentAmt.toLocaleString(undefined, {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2,

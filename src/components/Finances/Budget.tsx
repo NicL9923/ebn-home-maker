@@ -9,7 +9,7 @@ import { useUserStore } from 'state/UserStore';
 import { useFirestoreDocumentMutation } from '@react-query-firebase/firestore';
 import { doc } from 'firebase/firestore';
 import { db, FsCol } from '../../firebase';
-import { Box, Divider, Grid, GridItem, IconButton, Stack, Text, Tooltip, useToken } from '@chakra-ui/react';
+import { Box, Divider, Grid, GridItem, Heading, IconButton, Stack, Text, Tooltip, useToken } from '@chakra-ui/react';
 
 export const BudgetContext = React.createContext({} as BudgetContextValue);
 
@@ -241,7 +241,7 @@ const Budget = (props: BudgetProps): JSX.Element => {
     }
 
     return (
-      <Text variant='subtitle1' ml={3} color={helperColor}>
+      <Text ml={3} color={helperColor}>
         $
         {Math.abs(difference).toLocaleString(undefined, {
           minimumFractionDigits: 2,
@@ -269,7 +269,7 @@ const Budget = (props: BudgetProps): JSX.Element => {
     }
 
     return (
-      <Text variant='subtitle1' ml={3} color={helperColor}>
+      <Text ml={3} color={helperColor}>
         $
         {Math.abs(difference).toLocaleString(undefined, {
           minimumFractionDigits: 2,
@@ -299,26 +299,26 @@ const Budget = (props: BudgetProps): JSX.Element => {
           fieldName='Budget name'
           fieldType='ItemName'
           isValUnique={() => true}
-          textVariant='h3'
+          textSize='3xl'
           text={budget.name}
           onSubmitValue={setBudgetName}
         />
-        <Text variant='h5'>
+        <Heading>
           {new Date().toLocaleDateString('en-US', {
             month: 'long',
             year: 'numeric',
           })}
-        </Text>
+        </Heading>
       </Box>
 
       <Box mb={4} width={325} mx='auto'>
         <Box sx={{ p: 2 }}>
           <Stack direction='row' alignContent='center' spacing={2} mb={2}>
-            <Text variant='h6'>Net Income</Text>
+            <Text>Net Income</Text>
             <EditableLabel
               fieldName='Monthly net income'
               fieldType='DecimalNum'
-              textVariant='h5'
+              textSize='xl'
               isMonetaryValue
               text={budget.monthlyNetIncome.toLocaleString(undefined, {
                 minimumFractionDigits: 2,
@@ -329,8 +329,8 @@ const Budget = (props: BudgetProps): JSX.Element => {
           </Stack>
 
           <Stack direction='row' alignContent='center' spacing={2}>
-            <Text variant='h6'>Total Allotted</Text>
-            <Text variant='h5'>
+            <Text>Total Allotted</Text>
+            <Text>
               $
               {budget.totalAllotted?.toLocaleString(undefined, {
                 minimumFractionDigits: 2,
@@ -341,8 +341,8 @@ const Budget = (props: BudgetProps): JSX.Element => {
           {getAllottedRemainder()}
 
           <Stack direction='row' alignContent='center' spacing={2} mt={1}>
-            <Text variant='h6'>Total Spent</Text>
-            <Text variant='h5'>
+            <Text>Total Spent</Text>
+            <Text>
               $
               {budget.totalSpent?.toLocaleString(undefined, {
                 minimumFractionDigits: 2,
@@ -364,20 +364,20 @@ const Budget = (props: BudgetProps): JSX.Element => {
                 </Tooltip>
 
                 <Stack>
-                  <Text variant='body1'>Category</Text>
+                  <Text>Category</Text>
                   <Stack direction='row' alignItems='end'>
                     <MdSubdirectoryArrowRight />
-                    <Text variant='body2'>Sub-category</Text>
+                    <Text>Sub-category</Text>
                   </Stack>
                 </Stack>
               </Stack>
             </GridItem>
 
             <GridItem ml={1}>
-              <Text variant='body1'>Allotted</Text>
+              <Text>Allotted</Text>
             </GridItem>
             <GridItem>
-              <Text variant='body1'>Spent</Text>
+              <Text>Spent</Text>
             </GridItem>
           </Grid>
 

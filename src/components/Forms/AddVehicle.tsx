@@ -187,9 +187,7 @@ const AddVehicle = ({ isOpen, setIsOpen }: AddVehicleProps) => {
 
           <ModalFooter>
             <Button onClick={() => setIsOpen(false)}>Cancel</Button>
-            <Button type='submit' variant='contained'>
-              Add
-            </Button>
+            <Button type='submit'>Add</Button>
           </ModalFooter>
         </form>
       </ModalContent>

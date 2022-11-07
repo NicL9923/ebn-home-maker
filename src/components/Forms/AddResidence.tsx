@@ -147,9 +147,7 @@ const AddResidence = ({ isOpen, setIsOpen }: AddResidenceProps) => {
 
           <ModalFooter>
             <Button onClick={() => setIsOpen(false)}>Cancel</Button>
-            <Button type='submit' variant='contained'>
-              Add
-            </Button>
+            <Button type='submit'>Add</Button>
           </ModalFooter>
         </form>
       </ModalContent>

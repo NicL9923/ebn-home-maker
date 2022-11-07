@@ -7,7 +7,7 @@ import { useUserStore } from '../src/state/UserStore';
 import { useFirestoreDocumentMutation } from '@react-query-firebase/firestore';
 import { doc } from 'firebase/firestore';
 import { db, FsCol } from '../src/firebase';
-import { Box, Button, Text } from '@chakra-ui/react';
+import { Box, Button, Heading, Text } from '@chakra-ui/react';
 import { MdEdit, MdSave } from 'react-icons/md';
 
 const MDEditor = dynamic(() => import('@uiw/react-md-editor').then((mod) => mod.default), { ssr: false });
@@ -57,14 +57,10 @@ const Information = () => {
 
   return (
     <Box maxWidth='lg' mx='auto' mt={2}>
-      <Text variant='h3' mb={2}>
-        Information
-      </Text>
+      <Heading mb={2}>Information</Heading>
 
       <Box p={2} mt={3}>
-        <Text variant='h4' mb={2}>
-          Family Board
-        </Text>
+        <Heading mb={2}>Family Board</Heading>
 
         {isEditingMd ? (
           <MDEditor value={editedMd} onChange={setEditedMd} style={{ height: '80vh' }} />
@@ -74,12 +70,12 @@ const Information = () => {
 
         <Box mt={3}>
           {userId === family.headOfFamily && !isEditingMd && (
-            <Button variant='contained' leftIcon={<MdEdit />} onClick={beginEditingBoard}>
+            <Button leftIcon={<MdEdit />} onClick={beginEditingBoard}>
               Edit Board
             </Button>
           )}
           {userId === family.headOfFamily && isEditingMd && (
-            <Button variant='contained' leftIcon={<MdSave />} onClick={endEditingBoard}>
+            <Button leftIcon={<MdSave />} onClick={endEditingBoard}>
               Save Changes
             </Button>
           )}

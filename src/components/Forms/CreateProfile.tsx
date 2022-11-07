@@ -119,9 +119,7 @@ const CreateProfile = ({ isOpen, setIsOpen }: CreateProfileProps) => {
 
           <ModalFooter>
             <Button onClick={() => setIsOpen(false)}>Cancel</Button>
-            <Button type='submit' variant='contained'>
-              Create
-            </Button>
+            <Button type='submit'>Create</Button>
           </ModalFooter>
         </form>
       </ModalContent>

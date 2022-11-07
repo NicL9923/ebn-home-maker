@@ -93,7 +93,6 @@ const SubCategory = (props: SubCategoryProps): JSX.Element => {
                 <EditableLabel
                   fieldName='Total allotted'
                   fieldType='DecimalNum'
-                  textVariant='body1'
                   isMonetaryValue
                   text={subcategory.totalAllotted.toLocaleString(undefined, {
                     minimumFractionDigits: 2,
@@ -103,7 +102,7 @@ const SubCategory = (props: SubCategoryProps): JSX.Element => {
                 />
               </GridItem>
               <GridItem>
-                <Text variant='body1'>
+                <Text>
                   $
                   {subcategory.currentSpent.toLocaleString(undefined, {
                     minimumFractionDigits: 2,

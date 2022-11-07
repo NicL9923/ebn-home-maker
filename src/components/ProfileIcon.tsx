@@ -39,7 +39,7 @@ const ProfileIcon = () => {
         src={profile?.imgLink ? profile.imgLink : undefined}
         sx={{ cursor: 'pointer' }}
       >
-        {!profile?.imgLink && <Text variant='h6'>{profile?.firstName[0].toUpperCase()}</Text>}
+        {!profile?.imgLink && <Text>{profile?.firstName[0].toUpperCase()}</Text>}
       </Avatar>
 
       <Menu id='profile-menu' isOpen={!!anchorEl} onClose={() => setAnchorEl(undefined)}>

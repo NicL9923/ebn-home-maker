@@ -2,7 +2,7 @@ import React from 'react';
 import Clock from 'react-live-clock';
 import WeatherBox from '../src/components/WeatherBox';
 import { useUserStore } from 'state/UserStore';
-import { Box, Container, Stack, Text } from '@chakra-ui/react';
+import { Box, Container, Heading, Stack } from '@chakra-ui/react';
 
 const Home = () => {
   const profile = useUserStore((state) => state.profile);
@@ -15,9 +15,9 @@ const Home = () => {
           <Clock format={'h:mm A'} ticking={true} />
         </Box>
 
-        {profile && <Text variant='h5'>Welcome back, {profile.firstName}!</Text>}
+        {profile && <Heading>Welcome back, {profile.firstName}!</Heading>}
 
-        {family && <Text variant='h6'>The {family.name} family</Text>}
+        {family && <Heading>The {family.name} family</Heading>}
       </Stack>
 
       {family && <WeatherBox />}

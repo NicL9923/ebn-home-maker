@@ -15,6 +15,7 @@ import {
   Box,
   Button,
   Divider,
+  Heading,
   Modal,
   ModalContent,
   ModalFooter,
@@ -195,37 +196,36 @@ const Family = () => {
 
   return (
     <Box p={3}>
-      <Text variant='h3'>My Family</Text>
+      <Heading>My Family</Heading>
 
       <Box mt={1} mb={4}>
-        <Text variant='h5'>Family Name</Text>
+        <Text>Family Name</Text>
 
         {userId === family.headOfFamily ? (
           <EditableLabel
-            textVariant='h6'
+            textSize='xl'
             text={family.name}
             fieldName='Family Name'
             fieldType='EntityName'
             onSubmitValue={updateFamilyName}
           />
         ) : (
-          <Text variant='h6'>{family.name}</Text>
+          <Text>{family.name}</Text>
         )}
       </Box>
 
       <Box mb={4}>
-        <Text variant='h5'>Members</Text>
+        <Text>Members</Text>
         <Stack direction='row' mb={3} flexWrap='wrap' spacing={1}>
           {familyMemberProfiles &&
             familyMemberProfiles.map((prof: Profile, idx: number) => (
               <Stack key={prof.firstName} alignItems='center' justifyContent='center'>
-                <Text variant='h6'>{prof.firstName}</Text>
+                <Text>{prof.firstName}</Text>
                 <Avatar src={prof.imgLink} sx={{ width: 128, height: 128 }}>
                   {!prof.imgLink && prof.firstName[0].toUpperCase()}
                 </Avatar>
                 {userId === family.headOfFamily && (
                   <Button
-                    variant='outlined'
                     leftIcon={<MdClose />}
                     sx={{ mt: 2 }}
                     size='small'
@@ -239,7 +239,7 @@ const Family = () => {
         </Stack>
         {userId === family.headOfFamily && (
           <Box width='100%' mx='auto'>
-            <Button variant='contained' leftIcon={<MdContentCopy />} onClick={copyInviteLink}>
+            <Button leftIcon={<MdContentCopy />} onClick={copyInviteLink}>
               Copy family invite link
             </Button>
           </Box>
@@ -247,23 +247,17 @@ const Family = () => {
       </Box>
 
       <Box>
-        <Text variant='h5'>Pets</Text>
+        <Text>Pets</Text>
         <Stack direction='row' mb={3} flexWrap='wrap' spacing={1}>
           {family.pets &&
             family.pets.map((pet: Pet, idx: number) => (
               <Stack key={pet.name} alignItems='center' justifyContent='center'>
-                <Text variant='body1'>{pet.name}</Text>
+                <Text>{pet.name}</Text>
                 <Avatar src={pet.imgLink} sx={{ width: 96, height: 96 }}>
                   {!pet.imgLink && pet.name[0].toUpperCase()}
                 </Avatar>
                 {userId === family.headOfFamily && (
-                  <Button
-                    variant='outlined'
-                    leftIcon={<MdClose />}
-                    size='small'
-                    onClick={() => removePet(pet, idx)}
-                    sx={{ mt: 2 }}
-                  >
+                  <Button leftIcon={<MdClose />} size='small' onClick={() => removePet(pet, idx)} sx={{ mt: 2 }}>
                     Remove
                   </Button>
                 )}
@@ -271,7 +265,7 @@ const Family = () => {
             ))}
         </Stack>
         {userId === family.headOfFamily && (
-          <Button variant='contained' leftIcon={<MdAdd />} onClick={() => setAddingPet(true)}>
+          <Button leftIcon={<MdAdd />} onClick={() => setAddingPet(true)}>
             Add a pet
           </Button>
         )}
@@ -281,26 +275,24 @@ const Family = () => {
         <Box mt={4}>
           <Divider />
 
-          <Text variant='h5' mt={2}>
-            Weather Applet Information
-          </Text>
+          <Text mt={2}>Weather Applet Information</Text>
 
           <Box mb={6}>
-            <Text variant='h6'>Location</Text>
+            <Text>Location</Text>
 
             <Box>
-              <Text variant='body1'>City</Text>
+              <Text>City</Text>
 
               <EditableLabel
-                textVariant='body1'
+                textSize='md'
                 text={family.cityState ? family.cityState.split(',')[0] : ''}
                 fieldName='City'
                 fieldType='EntityName'
                 onSubmitValue={updateFamilyLocation}
               />
-              <Text variant='body1'>State</Text>
+              <Text>State</Text>
               <EditableLabel
-                textVariant='body1'
+                textSize='md'
                 text={family.cityState ? family.cityState.split(',')[1] : ''}
                 fieldName='State'
                 fieldType='EntityName'
@@ -313,15 +305,13 @@ const Family = () => {
 
       {userId === family.headOfFamily ? (
         <Stack spacing={5}>
-          <Button variant='contained' onClick={exportFamilyDataJSON}>
-            Export family data
-          </Button>
-          <Button variant='contained' color='error' leftIcon={<MdClose />} onClick={() => setDeletingFamily(true)}>
+          <Button onClick={exportFamilyDataJSON}>Export family data</Button>
+          <Button color='error' leftIcon={<MdClose />} onClick={() => setDeletingFamily(true)}>
             Delete Family
           </Button>
         </Stack>
       ) : (
-        <Button variant='contained' color='error' leftIcon={<MdLogout />} onClick={() => setLeavingFamily(true)}>
+        <Button color='error' leftIcon={<MdLogout />} onClick={() => setLeavingFamily(true)}>
           Leave Family
         </Button>
       )}
@@ -333,12 +323,8 @@ const Family = () => {
           <Text>Are you sure you want to delete the {family.name} family?</Text>
 
           <ModalFooter>
-            <Button variant='text' onClick={() => setDeletingFamily(false)}>
-              Cancel
-            </Button>
-            <Button variant='contained' onClick={deleteFamily}>
-              Delete
-            </Button>
+            <Button onClick={() => setDeletingFamily(false)}>Cancel</Button>
+            <Button onClick={deleteFamily}>Delete</Button>
           </ModalFooter>
         </ModalContent>
       </Modal>
@@ -349,12 +335,8 @@ const Family = () => {
           <Text>Are you sure you want to leave the {family.name} family?</Text>
 
           <ModalFooter>
-            <Button variant='text' onClick={() => setLeavingFamily(false)}>
-              Cancel
-            </Button>
-            <Button variant='contained' onClick={leaveFamily}>
-              Leave
-            </Button>
+            <Button onClick={() => setLeavingFamily(false)}>Cancel</Button>
+            <Button onClick={leaveFamily}>Leave</Button>
           </ModalFooter>
         </ModalContent>
       </Modal>

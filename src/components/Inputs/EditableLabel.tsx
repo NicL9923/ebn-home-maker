@@ -5,7 +5,7 @@ import { Text } from '@chakra-ui/react';
 
 interface EditableLabelPropTypes {
   text: string;
-  textVariant?: string;
+  textSize?: string;
   isMonetaryValue?: boolean;
   fieldName: string;
   fieldType: keyof typeof FieldTypes;
@@ -14,7 +14,7 @@ interface EditableLabelPropTypes {
 }
 
 const EditableLabel = (props: EditableLabelPropTypes) => {
-  const { isValUnique, onSubmitValue, fieldType, fieldName, text, textVariant, isMonetaryValue } = props;
+  const { isValUnique, onSubmitValue, fieldType, fieldName, text, textSize, isMonetaryValue } = props;
   const [isEditing, setIsEditing] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
 
@@ -26,7 +26,7 @@ const EditableLabel = (props: EditableLabelPropTypes) => {
   return (
     <>
       <Text
-        variant={textVariant ?? 'h6'}
+        fontSize={textSize}
         onClick={startEditing}
         onMouseOver={() => setIsHovered(true)}
         onMouseOut={() => setIsHovered(false)}

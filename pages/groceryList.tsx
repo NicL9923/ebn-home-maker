@@ -7,7 +7,7 @@ import { DragDropContext, Draggable, Droppable, DropResult } from 'react-beautif
 import { useUserStore } from 'state/UserStore';
 import { useFirestoreDocumentMutation } from '@react-query-firebase/firestore';
 import { db, FsCol } from '../src/firebase';
-import { Box, Button, Checkbox, List, ListItem, Text, useToast } from '@chakra-ui/react';
+import { Box, Button, Checkbox, Heading, List, ListItem, useToast } from '@chakra-ui/react';
 
 const GroceryList = () => {
   const toast = useToast();
@@ -86,13 +86,9 @@ const GroceryList = () => {
 
   return (
     <Box maxWidth='md' mx='auto' mt={2} p={2}>
-      <Text variant='h3' mb={2}>
-        Grocery List
-      </Text>
+      <Heading mb={2}>Grocery List</Heading>
 
-      <Button variant='contained' onClick={() => setIsEditing(true)}>
-        Add item
-      </Button>
+      <Button onClick={() => setIsEditing(true)}>Add item</Button>
 
       <DragDropContext onDragEnd={onDragEnd}>
         <Droppable droppableId='groceryList' type='gListItem'>
@@ -120,7 +116,7 @@ const GroceryList = () => {
       </DragDropContext>
 
       {isItemSelected && (
-        <Button variant='outlined' onClick={removeGroceryItems} sx={{ mt: 8 }}>
+        <Button onClick={removeGroceryItems} sx={{ mt: 8 }}>
           Remove checked items
         </Button>
       )}

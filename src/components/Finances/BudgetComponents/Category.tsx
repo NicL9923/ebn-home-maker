@@ -35,7 +35,7 @@ const Category = (props: CategoryProps): JSX.Element => {
                   <EditableLabel
                     fieldName='Category'
                     fieldType='ItemName'
-                    textVariant='h5'
+                    textSize='xl'
                     text={category.name}
                     isValUnique={isCategoryNameUnique}
                     onSubmitValue={(newValue) => setCategoryName(newValue, category.name)}
@@ -58,7 +58,7 @@ const Category = (props: CategoryProps): JSX.Element => {
                 </Stack>
               </GridItem>
               <GridItem>
-                <Text variant='body1' ml={1} sx={{ fontWeight: 'bold' }}>
+                <Text ml={1} sx={{ fontWeight: 'bold' }}>
                   $
                   {category.totalAllotted?.toLocaleString(undefined, {
                     minimumFractionDigits: 2,
@@ -67,7 +67,7 @@ const Category = (props: CategoryProps): JSX.Element => {
                 </Text>
               </GridItem>
               <GridItem>
-                <Text variant='body1' ml={1} sx={{ fontWeight: 'bold' }}>
+                <Text ml={1} sx={{ fontWeight: 'bold' }}>
                   $
                   {category.currentSpent?.toLocaleString(undefined, {
                     minimumFractionDigits: 2,

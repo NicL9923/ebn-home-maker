@@ -8,7 +8,7 @@ import { useUserStore } from 'state/UserStore';
 import { auth, db, FsCol } from '../src/firebase';
 import { useFirestoreDocumentMutation } from '@react-query-firebase/firestore';
 import { doc } from 'firebase/firestore';
-import { Box, Button, Container, Stack, Text, useToast } from '@chakra-ui/react';
+import { Box, Button, Container, Heading, Stack, Text, useToast } from '@chakra-ui/react';
 
 const ProfilePage = () => {
   const toast = useToast();
@@ -59,19 +59,19 @@ const ProfilePage = () => {
         <NoProfile />
       ) : (
         <Box mb={4} p={3}>
-          <Text variant='h2'>My Profile</Text>
+          <Heading>My Profile</Heading>
 
           <Stack alignItems='center' justifyContent='center'>
             <EditableImage
               curImgLink={profile.imgLink}
               updateCurImgLink={updateProfileImgLink}
-              imgPlaceholder={<Text variant='h1'>{profile.firstName[0].toUpperCase()}</Text>}
+              imgPlaceholder={<Heading>{profile.firstName[0].toUpperCase()}</Heading>}
               height={164}
               width={164}
             />
 
             <EditableLabel
-              textVariant='h5'
+              textSize='2xl'
               text={profile.firstName}
               fieldName='First Name'
               fieldType='EntityName'
@@ -79,9 +79,7 @@ const ProfilePage = () => {
             />
 
             <Stack direction='row' justifyContent='space-evenly' sx={{ mt: 3 }}>
-              <Button variant='outlined' onClick={handlePasswordReset}>
-                Reset password (email)
-              </Button>
+              <Button onClick={handlePasswordReset}>Reset password (email)</Button>
             </Stack>
           </Stack>
         </Box>

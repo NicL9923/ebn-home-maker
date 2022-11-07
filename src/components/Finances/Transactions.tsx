@@ -6,7 +6,7 @@ import { useFirestoreDocumentMutation } from '@react-query-firebase/firestore';
 import { doc } from 'firebase/firestore';
 import { db, FsCol } from '../../firebase';
 import { MdAdd, MdDelete } from 'react-icons/md';
-import { Box, Button, Stack, Text } from '@chakra-ui/react';
+import { Box, Button, Heading, Stack, Text } from '@chakra-ui/react';
 import { Column, CompactTable } from '@table-library/react-table-library/compact';
 import { usePagination } from '@table-library/react-table-library/pagination';
 import { useSort } from '@table-library/react-table-library/sort';
@@ -116,10 +116,8 @@ const Transactions = ({ budget }: TransactionsProps): JSX.Element => {
 
   return (
     <Box mt={2} ml={1} mr={1}>
-      <Text variant='h3' mb={2}>
-        Transactions
-      </Text>
-      <Button leftIcon={<MdAdd />} variant='contained' onClick={() => setAddingTransaction(true)}>
+      <Heading mb={2}>Transactions</Heading>
+      <Button leftIcon={<MdAdd />} onClick={() => setAddingTransaction(true)}>
         Add transaction
       </Button>
       <Stack height={500} mt={3} mb={2}>
@@ -152,7 +150,7 @@ const Transactions = ({ budget }: TransactionsProps): JSX.Element => {
       </Stack>
 
       {selection.length > 0 && (
-        <Button leftIcon={<MdDelete />} variant='contained' color='error' onClick={removeTransactions} sx={{ mb: 3 }}>
+        <Button leftIcon={<MdDelete />} color='error' onClick={removeTransactions} sx={{ mb: 3 }}>
           Remove transaction{selection.length > 1 && 's'}
         </Button>
       )}
