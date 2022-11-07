@@ -23,7 +23,7 @@ const Navbar = () => {
   const [anchorEl, setAnchorEl] = useState<Element | undefined>(undefined);
 
   return (
-    <Box position='sticky' sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
+    <Box position='sticky'>
       <IconButton
         icon={<MdMenu />}
         size='large'

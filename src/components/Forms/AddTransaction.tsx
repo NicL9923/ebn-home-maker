@@ -28,6 +28,8 @@ import { Select, OptionBase, GroupBase } from 'chakra-react-select';
 
 // NOTE/TODO: If DatePicker ever gets reused, it'd probably be worth to write own wrapper for consistency
 
+// TODO: Add calculate functionality to the amount field here too
+
 export const catSubcatKeySeparator = '&%&';
 
 const addTransactionSchema = yup

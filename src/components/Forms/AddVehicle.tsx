@@ -21,6 +21,7 @@ import {
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { Controller, useForm } from 'react-hook-form';
+import Dropzone from 'react-dropzone';
 
 // TODO: File dropdown
 
@@ -174,12 +175,10 @@ const AddVehicle = ({ isOpen, setIsOpen }: AddVehicleProps) => {
               name='photo'
               control={control}
               render={({ field }) => (
-                <DropzoneArea
-                  acceptedFiles={['image/jpeg', 'image/png']}
-                  filesLimit={1}
-                  value={field.value}
-                  onChange={field.onChange}
-                  fileObjects={[]}
+                <Dropzone
+                  accept={{ 'image/png': ['.png'], 'image/jpeg': ['.jpg', '.jpeg'] }}
+                  onDrop={(acceptedFiles) => field.onChange(acceptedFiles[0])}
+                  // TODO: maxSize (in bytes)
                 />
               )}
             />

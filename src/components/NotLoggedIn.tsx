@@ -7,7 +7,7 @@ import {
 } from 'firebase/auth';
 import { FaGoogle } from 'react-icons/fa';
 import { auth } from '../firebase';
-import { Box, Button, Divider, Input, Stack, Text, useToast } from '@chakra-ui/react';
+import { Box, Button, Divider, FormControl, FormLabel, Input, Stack, Text, useToast } from '@chakra-ui/react';
 
 const NotLoggedIn = () => {
   const toast = useToast();
@@ -84,24 +84,15 @@ const NotLoggedIn = () => {
       </Text>
 
       <Stack width='75%' mx='auto'>
-        <Input
-          autoFocus
-          variant='standard'
-          type='email'
-          label='Email'
-          value={email}
-          onChange={(event) => setEmail(event.target.value)}
-          required
-        />
+        <FormControl>
+          <FormLabel>Email</FormLabel>
+          <Input type='email' value={email} onChange={(event) => setEmail(event.target.value)} />
+        </FormControl>
 
-        <Input
-          variant='standard'
-          type='password'
-          label='Password'
-          value={password}
-          onChange={(event) => setPassword(event.target.value)}
-          required
-        />
+        <FormControl>
+          <FormLabel>Password</FormLabel>
+          <Input type='password' value={password} onChange={(event) => setPassword(event.target.value)} />
+        </FormControl>
 
         <Stack direction='row' justifyContent='center' spacing={2} mt={3}>
           <Button variant='contained' onClick={emailPassSignIn}>
@@ -112,7 +103,7 @@ const NotLoggedIn = () => {
           </Button>
         </Stack>
 
-        <Divider sx={{ mt: 3, mb: 3 }}>OR</Divider>
+        <Divider sx={{ mt: 3, mb: 3 }} />
 
         <Button variant='contained' leftIcon={<FaGoogle />} onClick={googleSignIn}>
           Sign-In with Google

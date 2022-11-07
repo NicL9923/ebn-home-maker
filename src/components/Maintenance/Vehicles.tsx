@@ -8,8 +8,6 @@ import { db, FsCol } from '../../firebase';
 import { useFirestoreWriteBatch } from '@react-query-firebase/firestore';
 import { Box, Button, CircularProgress, Container, Grid, GridItem, Stack, Text } from '@chakra-ui/react';
 
-// TODO: Data grid
-
 export const Vehicles = () => {
   const profile = useUserStore((state) => state.profile);
   const family = useUserStore((state) => state.family);
@@ -96,6 +94,7 @@ export const Vehicles = () => {
                   Service Log
                 </Text>
                 <Box height={300}>
+                  {/*}
                   <DataGrid
                     columns={[
                       { field: 'date', headerName: 'Date' },
@@ -106,6 +105,7 @@ export const Vehicles = () => {
                     rowsPerPageOptions={[5, 10, 20]}
                     getRowId={(row) => row.date}
                   />
+                  */}
                 </Box>
                 <Button variant='contained' leftIcon={<MdAdd />} sx={{ mt: 1 }}>
                   Add to log

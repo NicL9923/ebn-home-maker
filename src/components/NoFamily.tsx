@@ -14,7 +14,7 @@ const NoFamily = () => {
       <Text variant='h6' textAlign='center'>
         Ask your head-of-household for their family invite link
       </Text>
-      <Divider sx={{ width: 250, mx: 'auto', mt: 2, mb: 2 }}>OR</Divider>
+      <Divider sx={{ width: 250, mx: 'auto', mt: 2, mb: 2 }} />
       <Stack direction='row' justifyContent='center'>
         <Button variant='contained' onClick={() => setCreatingFamily(true)}>
           Create a family

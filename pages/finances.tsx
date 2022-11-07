@@ -10,7 +10,17 @@ import { useFirestoreDocument } from '@react-query-firebase/firestore';
 import { db, FsCol } from '../src/firebase';
 import { doc } from 'firebase/firestore';
 import NoBudget from 'components/Finances/BudgetComponents/NoBudget';
-import { Box, CircularProgress, Divider, Drawer, DrawerBody, DrawerHeader, MenuItem, MenuList } from '@chakra-ui/react';
+import {
+  Box,
+  CircularProgress,
+  Drawer,
+  DrawerBody,
+  DrawerHeader,
+  Menu,
+  MenuDivider,
+  MenuItem,
+  MenuList,
+} from '@chakra-ui/react';
 
 enum COMPONENTS {
   BUDGET,
@@ -167,25 +177,25 @@ const Finances = () => {
       >
         <DrawerHeader>Finance Dashboard</DrawerHeader>
         <DrawerBody>
-          <MenuList>
-            <MenuItem icon={<MdAttachMoney />} onClick={() => setShownComponent(COMPONENTS.BUDGET)}>
-              Budget
-            </MenuItem>
-            <MenuItem icon={<MdAccountBalance />} onClick={() => setShownComponent(COMPONENTS.SAVINGS)}>
-              Savings
-            </MenuItem>
-            <MenuItem icon={<MdCreditCard />} onClick={() => setShownComponent(COMPONENTS.TRANSACTIONS)}>
-              Transactions
-            </MenuItem>
-          </MenuList>
+          <Menu>
+            <MenuList>
+              <MenuItem icon={<MdAttachMoney />} onClick={() => setShownComponent(COMPONENTS.BUDGET)}>
+                Budget
+              </MenuItem>
+              <MenuItem icon={<MdAccountBalance />} onClick={() => setShownComponent(COMPONENTS.SAVINGS)}>
+                Savings
+              </MenuItem>
+              <MenuItem icon={<MdCreditCard />} onClick={() => setShownComponent(COMPONENTS.TRANSACTIONS)}>
+                Transactions
+              </MenuItem>
 
-          <Divider />
+              <MenuDivider />
 
-          <MenuList>
-            <MenuItem icon={<MdArticle />} onClick={exportBudgetDataJSON}>
-              Export budget data
-            </MenuItem>
-          </MenuList>
+              <MenuItem icon={<MdArticle />} onClick={exportBudgetDataJSON}>
+                Export budget data
+              </MenuItem>
+            </MenuList>
+          </Menu>
         </DrawerBody>
       </Drawer>
 

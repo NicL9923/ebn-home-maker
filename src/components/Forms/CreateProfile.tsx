@@ -22,6 +22,7 @@ import {
 import * as yup from 'yup';
 import { Controller, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
+import Dropzone from 'react-dropzone';
 
 // TODO: File dropzone
 
@@ -106,12 +107,10 @@ const CreateProfile = ({ isOpen, setIsOpen }: CreateProfileProps) => {
               name='photo'
               control={control}
               render={({ field }) => (
-                <DropzoneArea
-                  acceptedFiles={['image/jpeg', 'image/png']}
-                  filesLimit={1}
-                  value={field.value}
-                  onChange={field.onChange}
-                  fileObjects={[]}
+                <Dropzone
+                  accept={{ 'image/png': ['.png'], 'image/jpeg': ['.jpg', '.jpeg'] }}
+                  onDrop={(acceptedFiles) => field.onChange(acceptedFiles[0])}
+                  // TODO: maxSize (in bytes)
                 />
               )}
             />

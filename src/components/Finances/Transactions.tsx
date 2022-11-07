@@ -7,49 +7,40 @@ import { doc } from 'firebase/firestore';
 import { db, FsCol } from '../../firebase';
 import { MdAdd, MdDelete } from 'react-icons/md';
 import { Box, Button, Stack, Text } from '@chakra-ui/react';
+import { Column, CompactTable } from '@table-library/react-table-library/compact';
+import { usePagination } from '@table-library/react-table-library/pagination';
+import { useSort } from '@table-library/react-table-library/sort';
+import { useRowSelect } from '@table-library/react-table-library/select';
 
-// TODO: Data grid
-
-const dgColumns = [
+const transactionTableColumns: Column[] = [
   {
-    field: 'amt',
-    headerName: 'Amount',
-    minWidth: 65,
-    type: 'number',
-    flex: 1,
-    editable: true,
-    valueFormatter: (params: { value?: number }) => {
-      if (!params.value) return '';
-      return `$${params.value.toLocaleString(undefined, {
+    label: 'Amount',
+    renderCell: (item) =>
+      `$${item.amt.toLocaleString(undefined, {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
-      })}`;
-    },
+      })}`,
   },
   {
-    field: 'name',
-    headerName: 'Description',
-    minWidth: 120,
-    flex: 1,
-    editable: true,
+    label: 'Description',
+    renderCell: (item) => item.name,
   },
   {
-    field: 'subcategory',
-    headerName: 'Subcategory',
-    minWidth: 90,
-    flex: 1,
-    // editable: true, TODO: Make a custom edit component for this (same Select/Switch component as Dialog)
+    label: 'Subcategory',
+    renderCell: (item) => item.subcategory,
+    // TODO: Make a custom (or re-use the existing) edit component for this (same Select/Switch component as Dialog)
   },
   {
-    field: 'timestamp',
-    headerName: 'Date',
-    type: 'date',
-    flex: 1,
-    width: 100,
-    editable: true,
-    valueGetter: (params: { value?: string }) => new Date(params.value ?? ''),
+    label: 'Date',
+    renderCell: (item) =>
+      new Date(item.timestamp).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
   },
 ];
+
+interface PageState {
+  page: number;
+  size: number;
+}
 
 interface TransactionsProps {
   budget: IBudget;
@@ -58,9 +49,41 @@ interface TransactionsProps {
 const Transactions = ({ budget }: TransactionsProps): JSX.Element => {
   const family = useUserStore((state) => state.family);
 
+  const transactionTableData = {
+    nodes: budget.transactions.map((transaction) => ({ ...transaction, id: transaction.id?.toString() ?? '' })),
+  };
+
   const [addingTransaction, setAddingTransaction] = useState(false);
-  const [selection, setSelection] = useState<GridRowId[]>([]);
-  const [pageSize, setPageSize] = useState(20);
+  const [selection, setSelection] = useState<string[]>([]);
+  // TODO: rowsPerPageOptions={[10, 20, 50, 100]}
+  const [pageState, setPageState] = useState<PageState>({ page: 0, size: 20 });
+
+  const sort = useSort(
+    transactionTableData,
+    {
+      state: {
+        sortKey: 'TIMESTAMP',
+        reverse: true,
+      },
+    },
+    {
+      sortFns: {
+        TIMESTAMP: (array) => array.sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()),
+      },
+    }
+  );
+
+  const pagination = usePagination(transactionTableData, {
+    state: pageState,
+    onChange: (_action, state) => setPageState(state as PageState),
+  });
+
+  const select = useRowSelect(transactionTableData, {
+    state: {
+      ids: selection,
+    },
+    onChange: (_action, state) => setSelection(state.ids),
+  });
 
   const budgetDocMutation = useFirestoreDocumentMutation(doc(db, FsCol.Budgets, family?.budgetId ?? 'undefined'), {
     merge: true,
@@ -71,12 +94,13 @@ const Transactions = ({ budget }: TransactionsProps): JSX.Element => {
 
     let updArr = [...budget.transactions];
 
-    updArr = updArr.filter((_val, idx) => selection.indexOf(idx) === -1); // Efficient way to remove transaction(s) from array
+    updArr = updArr.filter((_val, idx) => selection.indexOf(idx.toString()) === -1); // Efficient way to remove transaction(s) from array
 
     budgetDocMutation.mutate({ transactions: updArr });
     setSelection([]);
   };
 
+  /* TODO: Hook this back up
   const processTransactionUpdate = (newRow: Transaction, oldRow: Transaction) => {
     if (!family?.budgetId) return oldRow;
 
@@ -88,6 +112,7 @@ const Transactions = ({ budget }: TransactionsProps): JSX.Element => {
 
     return newRow;
   };
+  */
 
   return (
     <Box mt={2} ml={1} mr={1}>
@@ -98,22 +123,32 @@ const Transactions = ({ budget }: TransactionsProps): JSX.Element => {
         Add transaction
       </Button>
       <Stack height={500} mt={3} mb={2}>
-        <DataGrid
-          columns={dgColumns}
-          rows={budget.transactions}
-          pageSize={pageSize}
-          onPageSizeChange={(newPageSize) => setPageSize(newPageSize)}
-          rowsPerPageOptions={[10, 20, 50, 100]}
-          selectionModel={selection}
-          onSelectionModelChange={setSelection}
-          experimentalFeatures={{ newEditingApi: true }}
-          initialState={{
-            sorting: { sortModel: [{ field: 'timestamp', sort: 'desc' }] },
-          }}
-          processRowUpdate={processTransactionUpdate}
-          checkboxSelection
-          disableSelectionOnClick
+        <CompactTable
+          columns={transactionTableColumns}
+          data={transactionTableData}
+          pagination={pagination}
+          sort={sort}
+          select={select}
         />
+        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+          <span>Total Pages: {pagination.state.getTotalPages(transactionTableData.nodes)}</span>
+
+          <span>
+            Page:{' '}
+            {pagination.state.getPages(transactionTableData.nodes).map((_: any, pageIndex: any) => (
+              <button
+                key={pageIndex}
+                type='button'
+                style={{
+                  fontWeight: pagination.state.page === pageIndex ? 'bold' : 'normal',
+                }}
+                onClick={() => pagination.fns.onSetPage(pageIndex)}
+              >
+                {pageIndex + 1}
+              </button>
+            ))}
+          </span>
+        </div>
       </Stack>
 
       {selection.length > 0 && (

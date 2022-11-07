@@ -21,8 +21,9 @@ import {
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { Controller, useForm } from 'react-hook-form';
+import Dropzone from 'react-dropzone';
 
-// TODO: File dropzone
+// TODO: Move dropzone to common component if/when styling it and applying other general props in the future
 
 const addPetSchema = yup
   .object({
@@ -110,12 +111,10 @@ const AddPet = ({ isOpen, setIsOpen }: AddPetProps) => {
               name='photo'
               control={control}
               render={({ field }) => (
-                <DropzoneArea
-                  acceptedFiles={['image/jpeg', 'image/png']}
-                  filesLimit={1}
-                  value={field.value}
-                  onChange={field.onChange}
-                  fileObjects={[]}
+                <Dropzone
+                  accept={{ 'image/png': ['.png'], 'image/jpeg': ['.jpg', '.jpeg'] }}
+                  onDrop={(acceptedFiles) => field.onChange(acceptedFiles[0])}
+                  // TODO: maxSize (in bytes)
                 />
               )}
             />
