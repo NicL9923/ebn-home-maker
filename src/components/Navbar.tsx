@@ -11,14 +11,14 @@ import {
 import ProfileIcon from './ProfileIcon';
 import Link from 'next/link';
 import { useUserStore } from 'state/UserStore';
-import { IconButton, Menu, MenuList, MenuButton, MenuItem, Stack, Text, Heading } from '@chakra-ui/react';
+import { IconButton, Menu, MenuList, MenuButton, MenuItem, Stack, Text, Heading, Portal } from '@chakra-ui/react';
 
 const Navbar = () => {
   const userId = useUserStore((state) => state.userId);
   const profile = useUserStore((state) => state.profile);
 
   return (
-    <Stack position='sticky' direction='row' alignItems='center' p={2} bgColor='green.700'>
+    <Stack position='sticky' top='0' direction='row' alignItems='center' p={2} bgColor='green.700'>
       <Menu>
         <MenuButton
           as={IconButton}
@@ -29,37 +29,39 @@ const Navbar = () => {
           color='white'
         />
 
-        <MenuList>
-          <Link href='/groceryList'>
-            <MenuItem icon={<MdList />}>
-              <Text>Grocery List</Text>
-            </MenuItem>
-          </Link>
+        <Portal>
+          <MenuList>
+            <Link href='/groceryList'>
+              <MenuItem icon={<MdList />}>
+                <Text>Grocery List</Text>
+              </MenuItem>
+            </Link>
 
-          <Link href='/finances'>
-            <MenuItem icon={<MdOutlinePayments />}>
-              <Text>Finances</Text>
-            </MenuItem>
-          </Link>
+            <Link href='/finances'>
+              <MenuItem icon={<MdOutlinePayments />}>
+                <Text>Finances</Text>
+              </MenuItem>
+            </Link>
 
-          <Link href='/info'>
-            <MenuItem icon={<MdOutlineEventNote />}>
-              <Text>Information</Text>
-            </MenuItem>
-          </Link>
+            <Link href='/info'>
+              <MenuItem icon={<MdOutlineEventNote />}>
+                <Text>Information</Text>
+              </MenuItem>
+            </Link>
 
-          <Link href='/maintenance'>
-            <MenuItem icon={<MdOutlineSettings />}>
-              <Text>Home & Auto</Text>
-            </MenuItem>
-          </Link>
+            <Link href='/maintenance'>
+              <MenuItem icon={<MdOutlineSettings />}>
+                <Text>Home & Auto</Text>
+              </MenuItem>
+            </Link>
 
-          <Link href='/smarthome'>
-            <MenuItem icon={<MdOutlineMemory />}>
-              <Text>Smart Home</Text>
-            </MenuItem>
-          </Link>
-        </MenuList>
+            <Link href='/smarthome'>
+              <MenuItem icon={<MdOutlineMemory />}>
+                <Text>Smart Home</Text>
+              </MenuItem>
+            </Link>
+          </MenuList>
+        </Portal>
       </Menu>
 
       <Link href='/'>

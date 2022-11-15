@@ -7,7 +7,7 @@ import { useUserStore } from '../src/state/UserStore';
 import { useFirestoreDocumentMutation } from '@react-query-firebase/firestore';
 import { doc } from 'firebase/firestore';
 import { db, FsCol } from '../src/firebase';
-import { Box, Button, Heading, Text } from '@chakra-ui/react';
+import { Box, Button, Heading, useColorMode } from '@chakra-ui/react';
 import { MdEdit, MdSave } from 'react-icons/md';
 
 const MDEditor = dynamic(() => import('@uiw/react-md-editor').then((mod) => mod.default), { ssr: false });
@@ -20,6 +20,7 @@ const EditorMarkdown = dynamic(
 );
 
 const Information = () => {
+  const { colorMode } = useColorMode();
   const userId = useUserStore((state) => state.userId);
   const profile = useUserStore((state) => state.profile);
   const family = useUserStore((state) => state.family);
@@ -56,30 +57,28 @@ const Information = () => {
   };
 
   return (
-    <Box maxWidth='lg' mx='auto' mt={2}>
-      <Heading mb={2}>Information</Heading>
+    <Box p={2} mt={2}>
+      <Heading mb={2}>Family Board</Heading>
 
-      <Box p={2} mt={3}>
-        <Heading mb={2}>Family Board</Heading>
-
-        {isEditingMd ? (
-          <MDEditor value={editedMd} onChange={setEditedMd} style={{ height: '80vh' }} />
-        ) : (
-          <EditorMarkdown style={{ padding: 15, height: '80vh' }} source={family.boardMarkdown} />
+      <Box mb={3}>
+        {userId === family.headOfFamily && !isEditingMd && (
+          <Button size='sm' leftIcon={<MdEdit />} onClick={beginEditingBoard}>
+            Edit Board
+          </Button>
         )}
+        {userId === family.headOfFamily && isEditingMd && (
+          <Button size='sm' leftIcon={<MdSave />} colorScheme='green' onClick={endEditingBoard}>
+            Save Changes
+          </Button>
+        )}
+      </Box>
 
-        <Box mt={3}>
-          {userId === family.headOfFamily && !isEditingMd && (
-            <Button leftIcon={<MdEdit />} onClick={beginEditingBoard}>
-              Edit Board
-            </Button>
-          )}
-          {userId === family.headOfFamily && isEditingMd && (
-            <Button leftIcon={<MdSave />} onClick={endEditingBoard}>
-              Save Changes
-            </Button>
-          )}
-        </Box>
+      <Box data-color-mode={colorMode} height='70vh'>
+        {isEditingMd ? (
+          <MDEditor value={editedMd} onChange={setEditedMd} height='100%' />
+        ) : (
+          <EditorMarkdown style={{ height: '100%' }} source={family.boardMarkdown} />
+        )}
       </Box>
     </Box>
   );

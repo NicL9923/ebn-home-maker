@@ -13,6 +13,7 @@ import {
   MenuList,
   useToast,
   useColorMode,
+  Portal,
 } from '@chakra-ui/react';
 import { SunIcon, MoonIcon } from '@chakra-ui/icons';
 
@@ -45,19 +46,21 @@ const ProfileIcon = () => {
           <Avatar name={profile?.firstName} src={profile?.imgLink} bg='green.400' cursor='pointer' />
         </MenuButton>
 
-        <MenuList>
-          <Link href='/profile'>
-            <MenuItem>My Profile</MenuItem>
-          </Link>
+        <Portal>
+          <MenuList>
+            <Link href='/profile'>
+              <MenuItem>My Profile</MenuItem>
+            </Link>
 
-          <MenuItem onClick={toggleColorMode} icon={colorMode === 'light' ? <MoonIcon /> : <SunIcon />}>
-            {colorMode === 'light' ? 'Dark' : 'Light'} mode
-          </MenuItem>
+            <MenuItem onClick={toggleColorMode} icon={colorMode === 'light' ? <MoonIcon /> : <SunIcon />}>
+              {colorMode === 'light' ? 'Dark' : 'Light'} mode
+            </MenuItem>
 
-          <MenuDivider />
+            <MenuDivider />
 
-          <MenuItem onClick={handleSignOut}>Logout</MenuItem>
-        </MenuList>
+            <MenuItem onClick={handleSignOut}>Logout</MenuItem>
+          </MenuList>
+        </Portal>
       </Menu>
     </Box>
   );

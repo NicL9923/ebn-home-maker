@@ -76,6 +76,7 @@ const SingleFieldDialog = (props: SingleFieldDialogProps) => {
   const saveValue = () => {
     if (fieldValue !== initialValue) {
       onSubmitValue(fieldValue);
+      setFieldValue(initialValue ?? '');
     }
 
     onClosed();
@@ -94,10 +95,11 @@ const SingleFieldDialog = (props: SingleFieldDialogProps) => {
   return (
     <Modal isOpen={isOpen} onClose={onClosed}>
       <ModalOverlay />
+
       <ModalContent>
         <ModalHeader>{`${titleVerb} ${fieldName}`}</ModalHeader>
 
-        <Stack direction='row' alignItems='center' spacing={1}>
+        <Stack direction='row' alignItems='center' spacing={1} p='2'>
           <InputGroup>
             {isMonetaryValue && <InputLeftElement>$</InputLeftElement>}
             <Input
@@ -114,7 +116,8 @@ const SingleFieldDialog = (props: SingleFieldDialogProps) => {
               <IconButton
                 icon={<MdCalculate />}
                 onClick={calculateMoneyValue}
-                sx={{ height: '50%' }}
+                variant='ghost'
+                fontSize='32'
                 aria-label='Calculate expression value'
               />
             </Tooltip>
@@ -123,7 +126,7 @@ const SingleFieldDialog = (props: SingleFieldDialogProps) => {
 
         <ModalFooter>
           <Button onClick={onClosed}>Cancel</Button>
-          <Button disabled={!!valErr} onClick={saveValue}>
+          <Button disabled={!!valErr} onClick={saveValue} colorScheme='green' ml='3'>
             Save
           </Button>
         </ModalFooter>

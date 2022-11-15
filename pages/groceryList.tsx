@@ -1,13 +1,12 @@
 import React, { useMemo, useState } from 'react';
-import NoFamily from 'components/NoFamily';
 import { doc } from 'firebase/firestore';
-import NoProfile from 'components/NoProfile';
 import SingleFieldDialog from 'components/Inputs/SingleFieldDialog';
 import { DragDropContext, Draggable, Droppable, DropResult } from 'react-beautiful-dnd';
 import { useUserStore } from 'state/UserStore';
 import { useFirestoreDocumentMutation } from '@react-query-firebase/firestore';
 import { db, FsCol } from '../src/firebase';
-import { Box, Button, Checkbox, Heading, List, ListItem, useToast } from '@chakra-ui/react';
+import { Box, Button, Checkbox, Heading, List, ListItem, Stack, useToast } from '@chakra-ui/react';
+import { MdAdd, MdDelete } from 'react-icons/md';
 
 const GroceryList = () => {
   const toast = useToast();
@@ -20,12 +19,9 @@ const GroceryList = () => {
     merge: true,
   });
 
-  if (!profile) {
-    return <NoProfile />;
-  }
-
-  if (!family) {
-    return <NoFamily />;
+  // Already handled in AppProvider - just to shut errors up
+  if (!profile || !family) {
+    return null;
   }
 
   const addGroceryItem = (newItemName?: string) => {
@@ -60,6 +56,10 @@ const GroceryList = () => {
   };
 
   const removeGroceryItems = () => {
+    if (!window.confirm('Are you sure you want to remove all checked items?')) {
+      return;
+    }
+
     const updGroceryList = family.groceryList.filter((val) => val.isBought === false);
 
     familyDocMutation.mutate({ groceryList: updGroceryList });
@@ -85,23 +85,50 @@ const GroceryList = () => {
   );
 
   return (
-    <Box maxWidth='md' mx='auto' mt={2} p={2}>
+    <Box mt={2} p={2}>
       <Heading mb={2}>Grocery List</Heading>
 
-      <Button onClick={() => setIsEditing(true)}>Add item</Button>
+      <Stack direction='row'>
+        <Button size='sm' leftIcon={<MdAdd />} onClick={() => setIsEditing(true)}>
+          Add item
+        </Button>
+
+        <Button
+          size='sm'
+          leftIcon={<MdDelete />}
+          onClick={removeGroceryItems}
+          mt='8'
+          colorScheme='red'
+          disabled={!isItemSelected}
+        >
+          Remove checked items
+        </Button>
+      </Stack>
 
       <DragDropContext onDragEnd={onDragEnd}>
         <Droppable droppableId='groceryList' type='gListItem'>
           {(provided) => (
-            <List {...provided.droppableProps} ref={provided.innerRef} sx={{ mt: 2 }}>
+            <List
+              {...provided.droppableProps}
+              ref={provided.innerRef}
+              mt='2'
+              height='75vh'
+              width='85vw'
+              overflow='auto'
+              bgColor='gray.50'
+              p='3'
+              borderRadius='md'
+            >
               {family.groceryList.map((groceryItem, idx) => (
-                <Draggable draggableId={`${idx}`} index={idx} key={idx}>
+                <Draggable draggableId={`${groceryItem.name}-${idx}`} index={idx} key={`${groceryItem.name}-${idx}`}>
                   {(provided) => (
                     <ListItem {...provided.draggableProps} {...provided.dragHandleProps} ref={provided.innerRef}>
                       <Checkbox
                         size='lg'
+                        colorScheme='green'
                         checked={groceryItem.isBought}
                         onChange={(e) => editGroceryItem(idx, undefined, e.target.checked)}
+                        m='2'
                       >
                         {groceryItem.name}
                       </Checkbox>
@@ -114,12 +141,6 @@ const GroceryList = () => {
           )}
         </Droppable>
       </DragDropContext>
-
-      {isItemSelected && (
-        <Button onClick={removeGroceryItems} sx={{ mt: 8 }}>
-          Remove checked items
-        </Button>
-      )}
 
       <SingleFieldDialog
         initialValue={''}

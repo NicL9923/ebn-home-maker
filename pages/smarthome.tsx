@@ -1,17 +1,17 @@
-import { Box, Heading, Text } from '@chakra-ui/react';
+import { Container, Heading, Text } from '@chakra-ui/react';
 import React from 'react';
 
 const SmartHome = () => {
   return (
-    <Box maxWidth='sm' mx='auto' textAlign='center' mt={3} p={2}>
-      <Heading>Smart Home</Heading>
-      <Heading mb={6}>- Under Construction -</Heading>
+    <Container centerContent textAlign='center' m={2} p={2} maxWidth='95vw'>
+      <Heading size='2xl'>Smart Home</Heading>
+      <Heading size='lg'>- Under Construction -</Heading>
 
-      <Text>
+      <Text mt='4'>
         Welcome to the Smart Home page! This page doesn&apos;t do anything yet - it&apos;s just here to remind me in
         case I want to do any cool smarthome integration stuff in the future!
       </Text>
-    </Box>
+    </Container>
   );
 };
 
