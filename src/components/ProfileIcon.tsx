@@ -1,12 +1,24 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { signOut } from 'firebase/auth';
 import Link from 'next/link';
 import { useUserStore } from 'state/UserStore';
 import { auth } from '../firebase';
-import { Avatar, Box, Menu, MenuButton, MenuDivider, MenuItem, MenuList, Text, useToast } from '@chakra-ui/react';
+import {
+  Avatar,
+  Box,
+  Menu,
+  MenuButton,
+  MenuDivider,
+  MenuItem,
+  MenuList,
+  useToast,
+  useColorMode,
+} from '@chakra-ui/react';
+import { SunIcon, MoonIcon } from '@chakra-ui/icons';
 
 const ProfileIcon = () => {
   const toast = useToast();
+  const { colorMode, toggleColorMode } = useColorMode();
   const profile = useUserStore((state) => state.profile);
 
   const handleSignOut = () =>
@@ -29,18 +41,18 @@ const ProfileIcon = () => {
   return (
     <Box>
       <Menu>
-        <MenuButton
-          as={Avatar}
-          aria-label='Nav menu'
-          src={profile?.imgLink}
-          sx={{ cursor: 'pointer' }}
-        >
-          {!profile?.imgLink && <Text>{profile?.firstName[0].toUpperCase()}</Text>}
+        <MenuButton>
+          <Avatar name={profile?.firstName} src={profile?.imgLink} bg='green.400' cursor='pointer' />
         </MenuButton>
+
         <MenuList>
           <Link href='/profile'>
             <MenuItem>My Profile</MenuItem>
           </Link>
+
+          <MenuItem onClick={toggleColorMode} icon={colorMode === 'light' ? <MoonIcon /> : <SunIcon />}>
+            {colorMode === 'light' ? 'Dark' : 'Light'} mode
+          </MenuItem>
 
           <MenuDivider />
 

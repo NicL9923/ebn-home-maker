@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   MdMenu,
   MdList,
@@ -11,22 +11,22 @@ import {
 import ProfileIcon from './ProfileIcon';
 import Link from 'next/link';
 import { useUserStore } from 'state/UserStore';
-import { IconButton, Menu, MenuList, MenuButton, MenuItem, Stack, Text, useColorMode } from '@chakra-ui/react';
-import { SunIcon, MoonIcon } from '@chakra-ui/icons';
+import { IconButton, Menu, MenuList, MenuButton, MenuItem, Stack, Text, Heading } from '@chakra-ui/react';
 
 const Navbar = () => {
-  const { colorMode, toggleColorMode } = useColorMode();
-
   const userId = useUserStore((state) => state.userId);
   const profile = useUserStore((state) => state.profile);
 
   return (
-    <Stack position='sticky' direction='row'>
+    <Stack position='sticky' direction='row' alignItems='center' p={2} bgColor='green.700'>
       <Menu>
         <MenuButton
           as={IconButton}
-          aria-label='Nav menu'
           icon={<MdMenu />}
+          variant='ghost'
+          fontSize='2xl'
+          aria-label='Nav menu'
+          color='white'
         />
 
         <MenuList>
@@ -63,20 +63,14 @@ const Navbar = () => {
       </Menu>
 
       <Link href='/'>
-        <IconButton icon={<MdHome />} aria-label='Homepage' />
+        <IconButton icon={<MdHome />} variant='ghost' fontSize='2xl' aria-label='Homepage' color='white' />
       </Link>
 
-      <Text sx={{ flexGrow: 1 }}>Our Home</Text>
+      <Heading sx={{ flexGrow: 1 }} size='md' color='white'>
+        Our Home
+      </Heading>
 
-      <Stack direction='row' alignItems='center'>
-        <IconButton
-          onClick={toggleColorMode}
-          icon={colorMode === 'light' ? <MoonIcon /> : <SunIcon />}
-          aria-label='Toggle light and dark mode'
-        />
-
-        {userId && profile && <ProfileIcon />}
-      </Stack>
+      {userId && profile && <ProfileIcon />}
     </Stack>
   );
 };

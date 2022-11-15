@@ -28,6 +28,7 @@ import {
   AlertTitle,
   Box,
   CircularProgress,
+  Container,
   Heading,
   Stack,
   Tab,
@@ -156,20 +157,19 @@ const WeatherBox = () => {
 
   useEffect(() => {
     processAndSetWeather();
-    console.log('fired');
   }, [weatherDataQuery.data]);
 
   return (
     <Stack alignItems='center' justifyContent='center' mb={6}>
       <Heading>Weather</Heading>
-      <Text>{weatherLocation}</Text>
+      <Text fontSize='lg'>{weatherLocation}</Text>
 
       {geocodeDataQuery.isLoading || weatherDataQuery.isLoading ? (
         <Box mx='auto' textAlign='center' mt={20}>
           <CircularProgress isIndeterminate />
         </Box>
       ) : (
-        <Tabs>
+        <Tabs isFitted>
           <TabList>
             <Tab>Current</Tab>
             <Tab>Hourly</Tab>
@@ -178,86 +178,63 @@ const WeatherBox = () => {
           <TabPanels>
             <TabPanel>
               {currentWeather && (
-                <Box>
-                  <Stack
-                    direction='column'
-                    alignItems='center'
-                    justifyContent='center'
-                    textAlign='center'
-                    mt={3}
-                    pl={5}
-                    pr={5}
-                    pt={2}
-                    pb={2}
-                  >
-                    <Text>{currentWeather.condition}</Text>
-                    {getWeatherIcon(currentWeather.iconCode, 108)}
-                    <Text>{currentWeather.temp}°F</Text>
-                    <Text>Feels like {currentWeather.feelsLike}°</Text>
-                    <Text>Humidity: {currentWeather.humidity}%</Text>
-                    <Text>Wind: {currentWeather.wind}mph</Text>
-                  </Stack>
-                </Box>
+                <Container centerContent>
+                  <Heading size='md'>{currentWeather.condition}</Heading>
+                  <Text fontSize='xl'>{currentWeather.temp}°F</Text>
+                  <Container centerContent>{getWeatherIcon(currentWeather.iconCode, 108)}</Container>
+                  <Text>Feels like: {currentWeather.feelsLike}°F</Text>
+                  <Text>Humidity: {currentWeather.humidity}%</Text>
+                  <Text>Wind: {currentWeather.wind}mph</Text>
+                </Container>
               )}
             </TabPanel>
 
             <TabPanel>
-              <Stack spacing={1} mt={2}>
+              <Stack spacing={3} mt={2}>
                 {hourlyWeather?.map((rpt) => (
-                  <Box key={rpt.hour}>
-                    <Stack
-                      direction='row'
-                      alignItems='center'
-                      justifyContent='space-evenly'
-                      textAlign='center'
-                      width={{ xs: '95vw', sm: '60vw', md: '35vw', lg: '25vw' }}
-                    >
-                      <Text>
-                        {rpt.hour < 12 ? `${rpt.hour} AM` : `${rpt.hour === 12 ? rpt.hour : rpt.hour - 12} PM`}
-                      </Text>
+                  <Stack key={rpt.hour} direction='row' alignItems='center'>
+                    <Heading size='sm' mr='auto'>
+                      {rpt.hour < 12 ? `${rpt.hour} AM` : `${rpt.hour === 12 ? rpt.hour : rpt.hour - 12} PM`}
+                    </Heading>
 
-                      <Stack>
+                    <Text ml='auto'>{rpt.temp}°F</Text>
+
+                    <Stack direction='column' justifyContent='space-around' alignItems='center' spacing={0}>
+                      <Container centerContent mb={-1}>
                         {getWeatherIcon(rpt.iconCode)}
-                        <Text>{rpt.condition}</Text>
-                      </Stack>
-
-                      <Text>{rpt.temp}°F</Text>
-
-                      <Stack>
-                        <Text>Feels like: {rpt.feelsLike}°</Text>
-                        <Text>Humidity: {rpt.humidity}%</Text>
-                      </Stack>
+                      </Container>
+                      <Heading size='xs'>{rpt.condition}</Heading>
                     </Stack>
-                  </Box>
+
+                    <Stack direction='column' justifyContent='space-around' alignItems='center' spacing={0}>
+                      <Text fontSize='sm'>FL: {rpt.feelsLike}°F</Text>
+                      <Text fontSize='sm'>HUM: {rpt.humidity}%</Text>
+                    </Stack>
+                  </Stack>
                 ))}
               </Stack>
             </TabPanel>
 
             <TabPanel>
-              <Stack spacing={2} m={2}>
+              <Stack spacing={3} m={2}>
                 {dailyWeather?.map((rpt) => (
-                  <Box key={rpt.day}>
-                    <Stack
-                      direction='row'
-                      alignItems='center'
-                      justifyContent='space-evenly'
-                      textAlign='center'
-                      width={{ xs: '95vw', sm: '60vw', md: '35vw', lg: '25vw' }}
-                      key={rpt.day}
-                    >
-                      <Text>{rpt.day}</Text>
+                  <Stack key={rpt.day} direction='row' alignItems='center'>
+                    <Heading size='sm' mr='auto'>
+                      {rpt.day}
+                    </Heading>
 
-                      <Stack>
+                    <Stack direction='column' justifyContent='space-around' alignItems='center' spacing={0} ml='auto'>
+                      <Container centerContent mb={-1}>
                         {getWeatherIcon(rpt.iconCode)}
-                        <Text>{rpt.condition}</Text>
-                      </Stack>
-
-                      <Stack>
-                        <Text>High: {rpt.tempHigh}°F</Text>
-                        <Text>Low: {rpt.tempLow}°F</Text>
-                      </Stack>
+                      </Container>
+                      <Heading size='xs'>{rpt.condition}</Heading>
                     </Stack>
-                  </Box>
+
+                    <Stack direction='column' justifyContent='space-around' alignItems='center' spacing={0}>
+                      <Text>High: {rpt.tempHigh}°F</Text>
+                      <Text>Low: {rpt.tempLow}°F</Text>
+                    </Stack>
+                  </Stack>
                 ))}
               </Stack>
             </TabPanel>

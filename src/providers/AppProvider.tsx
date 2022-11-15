@@ -64,7 +64,7 @@ const AppProvider = ({ children }: ProviderProps) => {
 
       {userAuth.isLoading || profileDoc.isLoading || familyDoc.isLoading ? (
         <Box mx='auto' textAlign='center' mt={20}>
-          <CircularProgress size={80} isIndeterminate />
+          <CircularProgress size={59} isIndeterminate />
         </Box>
       ) : !userId ? (
         <NotLoggedIn />
