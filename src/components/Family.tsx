@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import EditableLabel from './Inputs/EditableLabel';
-import { MdAdd, MdClose, MdContentCopy, MdLogout } from 'react-icons/md';
+import { MdAdd, MdArticle, MdClose, MdContentCopy, MdLogout } from 'react-icons/md';
 import { Profile, Pet } from 'models/types';
 import copy from 'clipboard-copy';
 import NoFamily from './NoFamily';
@@ -17,6 +17,7 @@ import {
   Divider,
   Heading,
   Modal,
+  ModalBody,
   ModalContent,
   ModalFooter,
   ModalHeader,
@@ -24,6 +25,8 @@ import {
   Stack,
   Text,
   useToast,
+  Wrap,
+  WrapItem,
 } from '@chakra-ui/react';
 
 const Family = () => {
@@ -216,56 +219,63 @@ const Family = () => {
 
       <Box mb={4}>
         <Text>Members</Text>
-        <Stack direction='row' mb={3} flexWrap='wrap' spacing={1}>
+        <Wrap>
           {familyMemberProfiles &&
             familyMemberProfiles.map((prof: Profile, idx: number) => (
-              <Stack key={prof.firstName} alignItems='center' justifyContent='center'>
-                <Text>{prof.firstName}</Text>
-                <Avatar src={prof.imgLink} sx={{ width: 128, height: 128 }}>
-                  {!prof.imgLink && prof.firstName[0].toUpperCase()}
-                </Avatar>
-                {userId === family.headOfFamily && (
-                  <Button
-                    leftIcon={<MdClose />}
-                    sx={{ mt: 2 }}
-                    size='small'
-                    onClick={() => removeFamilyMember(prof.firstName, idx)}
-                  >
-                    Remove
-                  </Button>
-                )}
-              </Stack>
+              <WrapItem key={prof.firstName}>
+                <Stack alignItems='center' justifyContent='center'>
+                  <Text>{prof.firstName}</Text>
+                  <Avatar name={prof.firstName} src={prof.imgLink} size='2xl' />
+                  {userId === family.headOfFamily && (
+                    <Button
+                      leftIcon={<MdClose />}
+                      mt='2'
+                      size='sm'
+                      onClick={() => removeFamilyMember(prof.firstName, idx)}
+                      colorScheme='red'
+                    >
+                      Remove
+                    </Button>
+                  )}
+                </Stack>
+              </WrapItem>
             ))}
-        </Stack>
+        </Wrap>
+
         {userId === family.headOfFamily && (
-          <Box width='100%' mx='auto'>
-            <Button leftIcon={<MdContentCopy />} onClick={copyInviteLink}>
-              Copy family invite link
-            </Button>
-          </Box>
+          <Button leftIcon={<MdContentCopy />} onClick={copyInviteLink} mt={3}>
+            Copy family invite link
+          </Button>
         )}
       </Box>
 
       <Box>
         <Text>Pets</Text>
-        <Stack direction='row' mb={3} flexWrap='wrap' spacing={1}>
+        <Wrap>
           {family.pets &&
             family.pets.map((pet: Pet, idx: number) => (
-              <Stack key={pet.name} alignItems='center' justifyContent='center'>
-                <Text>{pet.name}</Text>
-                <Avatar src={pet.imgLink} sx={{ width: 96, height: 96 }}>
-                  {!pet.imgLink && pet.name[0].toUpperCase()}
-                </Avatar>
-                {userId === family.headOfFamily && (
-                  <Button leftIcon={<MdClose />} size='small' onClick={() => removePet(pet, idx)} sx={{ mt: 2 }}>
-                    Remove
-                  </Button>
-                )}
-              </Stack>
+              <WrapItem key={pet.name}>
+                <Stack alignItems='center' justifyContent='center'>
+                  <Text>{pet.name}</Text>
+                  <Avatar name={pet.name} src={pet.imgLink} size='xl' />
+                  {userId === family.headOfFamily && (
+                    <Button
+                      leftIcon={<MdClose />}
+                      size='sm'
+                      onClick={() => removePet(pet, idx)}
+                      mt='2'
+                      colorScheme='red'
+                    >
+                      Remove
+                    </Button>
+                  )}
+                </Stack>
+              </WrapItem>
             ))}
-        </Stack>
+        </Wrap>
+
         {userId === family.headOfFamily && (
-          <Button leftIcon={<MdAdd />} onClick={() => setAddingPet(true)}>
+          <Button leftIcon={<MdAdd />} onClick={() => setAddingPet(true)} mt={3}>
             Add a pet
           </Button>
         )}
@@ -275,37 +285,34 @@ const Family = () => {
         <Box mt={4}>
           <Divider />
 
-          <Text mt={2}>Weather Applet Information</Text>
+          <Heading size='md' mt={2}>
+            Weather Applet - Location
+          </Heading>
 
-          <Box mb={6}>
-            <Text>Location</Text>
+          <Heading size='sm'>City</Heading>
+          <EditableLabel
+            text={family.cityState ? family.cityState.split(',')[0] : ''}
+            fieldName='City'
+            fieldType='EntityName'
+            onSubmitValue={updateFamilyLocation}
+          />
 
-            <Box>
-              <Text>City</Text>
-
-              <EditableLabel
-                textSize='md'
-                text={family.cityState ? family.cityState.split(',')[0] : ''}
-                fieldName='City'
-                fieldType='EntityName'
-                onSubmitValue={updateFamilyLocation}
-              />
-              <Text>State</Text>
-              <EditableLabel
-                textSize='md'
-                text={family.cityState ? family.cityState.split(',')[1] : ''}
-                fieldName='State'
-                fieldType='EntityName'
-                onSubmitValue={(newState?: string) => updateFamilyLocation('', newState)}
-              />
-            </Box>
-          </Box>
+          <Heading size='sm'>State</Heading>
+          <EditableLabel
+            text={family.cityState ? family.cityState.split(',')[1] : ''}
+            fieldName='State'
+            fieldType='EntityName'
+            onSubmitValue={(newState?: string) => updateFamilyLocation('', newState)}
+          />
         </Box>
       )}
 
       {userId === family.headOfFamily ? (
-        <Stack spacing={5}>
-          <Button onClick={exportFamilyDataJSON}>Export family data</Button>
+        <Stack spacing={5} mt={6}>
+          <Button leftIcon={<MdArticle />} onClick={exportFamilyDataJSON}>
+            Export family data
+          </Button>
+
           <Button color='error' leftIcon={<MdClose />} onClick={() => setDeletingFamily(true)}>
             Delete Family
           </Button>
@@ -316,11 +323,16 @@ const Family = () => {
         </Button>
       )}
 
+      <AddPet isOpen={addingPet} setIsOpen={setAddingPet} />
+
       <Modal isOpen={deletingFamily} onClose={() => setDeletingFamily(false)}>
         <ModalOverlay />
+
         <ModalContent>
           <ModalHeader>Delete family?</ModalHeader>
-          <Text>Are you sure you want to delete the {family.name} family?</Text>
+          <ModalBody>
+            <Text>Are you sure you want to delete the {family.name} family?</Text>
+          </ModalBody>
 
           <ModalFooter>
             <Button onClick={() => setDeletingFamily(false)}>Cancel</Button>
@@ -330,9 +342,14 @@ const Family = () => {
       </Modal>
 
       <Modal isOpen={leavingFamily} onClose={() => setLeavingFamily(false)}>
-        <ModalHeader>Leave family?</ModalHeader>
+        <ModalOverlay />
+
         <ModalContent>
-          <Text>Are you sure you want to leave the {family.name} family?</Text>
+          <ModalHeader>Leave family?</ModalHeader>
+
+          <ModalBody>
+            <Text>Are you sure you want to leave the {family.name} family?</Text>
+          </ModalBody>
 
           <ModalFooter>
             <Button onClick={() => setLeavingFamily(false)}>Cancel</Button>
@@ -340,8 +357,6 @@ const Family = () => {
           </ModalFooter>
         </ModalContent>
       </Modal>
-
-      <AddPet isOpen={addingPet} setIsOpen={setAddingPet} />
     </Box>
   );
 };

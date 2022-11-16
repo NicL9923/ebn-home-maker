@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { deleteObject, getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
 import { v4 as uuidv4 } from 'uuid';
 import { MdEdit } from 'react-icons/md';
@@ -9,12 +9,15 @@ import {
   Checkbox,
   IconButton,
   Modal,
+  ModalBody,
   ModalContent,
   ModalFooter,
   ModalHeader,
   ModalOverlay,
 } from '@chakra-ui/react';
-import Dropzone from 'react-dropzone';
+import FileDropzone from './FileDropzone';
+
+type FileWithPreview = File & { preview: string };
 
 interface EditableImageProps {
   curImgLink?: string;
@@ -27,10 +30,10 @@ const EditableImage = ({ curImgLink, updateCurImgLink, height, width }: Editable
   const [isHoveringImg, setIsHoveringImg] = useState(false);
 
   const [isEditingPhoto, setIsEditingPhoto] = useState(false);
-  const [newImgFile, setNewImgFile] = useState<File | null>(null);
+  const [newImgFile, setNewImgFile] = useState<FileWithPreview | null>(null);
   const [deleteExistingPhoto, setDeleteExistingPhoto] = useState(false);
 
-  const updateImg = () => {
+  const updateImg = async () => {
     if (deleteExistingPhoto || newImgFile) {
       const storage = getStorage();
 
@@ -42,19 +45,21 @@ const EditableImage = ({ curImgLink, updateCurImgLink, height, width }: Editable
 
       if (newImgFile) {
         const imgRef = ref(storage, uuidv4());
-        uploadBytes(imgRef, newImgFile).then((snapshot) => {
-          getDownloadURL(snapshot.ref).then((url) => {
-            updateCurImgLink(url);
-          });
-        });
+        updateCurImgLink(await getDownloadURL((await uploadBytes(imgRef, newImgFile)).ref));
       } else {
         updateCurImgLink('');
       }
     }
+
+    setIsEditingPhoto(false);
   };
 
+  useEffect(() => {
+    return () => URL.revokeObjectURL(newImgFile?.preview ?? '');
+  }, []);
+
   return (
-    <Box pointerEvents='all'>
+    <Box>
       <Avatar
         src={curImgLink}
         cursor='pointer'
@@ -83,25 +88,42 @@ const EditableImage = ({ curImgLink, updateCurImgLink, height, width }: Editable
 
       <Modal isOpen={isEditingPhoto} onClose={() => setIsEditingPhoto(false)}>
         <ModalOverlay />
+
         <ModalContent>
           <ModalHeader>Update/Delete image</ModalHeader>
 
-          {!deleteExistingPhoto && (
-            <Dropzone
-              accept={{ 'image/png': ['.png'], 'image/jpeg': ['.jpg', '.jpeg'] }}
-              onDrop={(acceptedFiles) => setNewImgFile(acceptedFiles[0])}
-              // TODO: maxSize (in bytes)
-            />
-          )}
-          {curImgLink && (
-            <Checkbox checked={deleteExistingPhoto} onChange={() => setDeleteExistingPhoto(!deleteExistingPhoto)}>
-              Only delete existing photo
-            </Checkbox>
-          )}
+          <ModalBody p={2}>
+            {!deleteExistingPhoto && (
+              <FileDropzone
+                accept={{ 'image/png': ['.png'], 'image/jpeg': ['.jpg', '.jpeg'] }}
+                onDrop={(acceptedFiles) =>
+                  setNewImgFile({ ...acceptedFiles[0], preview: URL.createObjectURL(acceptedFiles[0]) })
+                }
+                previewChildren={
+                  newImgFile ? (
+                    <Avatar
+                      src={newImgFile.preview}
+                      onLoad={() => {
+                        URL.revokeObjectURL(newImgFile.preview);
+                      }}
+                      mt={3}
+                      size='xl'
+                    />
+                  ) : null
+                }
+              />
+            )}
+
+            {curImgLink && (
+              <Checkbox checked={deleteExistingPhoto} onChange={() => setDeleteExistingPhoto(!deleteExistingPhoto)}>
+                Only delete existing photo
+              </Checkbox>
+            )}
+          </ModalBody>
 
           <ModalFooter>
             <Button onClick={() => setIsEditingPhoto(false)}>Cancel</Button>
-            <Button onClick={updateImg} disabled={!newImgFile && !deleteExistingPhoto}>
+            <Button onClick={updateImg} disabled={!newImgFile && !deleteExistingPhoto} ml={3} colorScheme='green'>
               Save
             </Button>
           </ModalFooter>
