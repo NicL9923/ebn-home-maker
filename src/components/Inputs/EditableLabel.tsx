@@ -28,8 +28,8 @@ const EditableLabel = (props: EditableLabelPropTypes) => {
       <Text
         fontSize={textSize}
         onClick={startEditing}
-        onMouseOver={() => setIsHovered(true)}
-        onMouseOut={() => setIsHovered(false)}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
         sx={{
           borderBottom: isHovered ? '2px solid green' : '',
         }}

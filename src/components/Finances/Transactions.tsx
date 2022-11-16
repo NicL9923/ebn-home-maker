@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { IBudget, Transaction } from 'models/types';
+import { IBudget } from 'models/types';
 import AddTransaction from 'components/Forms/AddTransaction';
 import { useUserStore } from 'state/UserStore';
 import { useFirestoreDocumentMutation } from '@react-query-firebase/firestore';
 import { doc } from 'firebase/firestore';
 import { db, FsCol } from '../../firebase';
 import { MdAdd, MdDelete } from 'react-icons/md';
-import { Box, Button, Heading, Stack, Text } from '@chakra-ui/react';
+import { Box, Button, Heading, Stack } from '@chakra-ui/react';
 import { Column, CompactTable } from '@table-library/react-table-library/compact';
 import { usePagination } from '@table-library/react-table-library/pagination';
 import { useSort } from '@table-library/react-table-library/sort';

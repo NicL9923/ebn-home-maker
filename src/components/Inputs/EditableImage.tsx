@@ -16,18 +16,16 @@ import {
 } from '@chakra-ui/react';
 import Dropzone from 'react-dropzone';
 
-// TODO: On image hover -> grey background + Edit icon overlay on image (and cursor pointer)
-
 interface EditableImageProps {
   curImgLink?: string;
   updateCurImgLink: (newImgLink: string) => void;
-  imgPlaceholder: JSX.Element;
   height: number;
   width: number;
 }
 
-const EditableImage = ({ curImgLink, updateCurImgLink, imgPlaceholder, height, width }: EditableImageProps) => {
+const EditableImage = ({ curImgLink, updateCurImgLink, height, width }: EditableImageProps) => {
   const [isHoveringImg, setIsHoveringImg] = useState(false);
+
   const [isEditingPhoto, setIsEditingPhoto] = useState(false);
   const [newImgFile, setNewImgFile] = useState<File | null>(null);
   const [deleteExistingPhoto, setDeleteExistingPhoto] = useState(false);
@@ -56,25 +54,28 @@ const EditableImage = ({ curImgLink, updateCurImgLink, imgPlaceholder, height, w
   };
 
   return (
-    <Box>
-      <Avatar src={curImgLink} sx={{ height, width, position: 'relative' }}>
-        {!curImgLink && imgPlaceholder}
-
+    <Box pointerEvents='all'>
+      <Avatar
+        src={curImgLink}
+        cursor='pointer'
+        sx={{ height, width, position: 'relative' }}
+        onMouseEnter={() => setIsHoveringImg(true)}
+        onMouseLeave={() => setIsHoveringImg(false)}
+      >
         {isHoveringImg && (
           <IconButton
             icon={<MdEdit />}
             onClick={() => setIsEditingPhoto(true)}
+            size='lg'
+            fontSize='64'
+            variant='ghost'
             sx={{
-              borderRadius: '50%',
               position: 'absolute',
               top: '50%',
               left: '50%',
               transform: 'translate(-50%, -50%)',
-              zIndex: 100,
-              color: '#eaeaea',
+              color: 'black',
             }}
-            onMouseOver={() => setIsHoveringImg(true)}
-            onMouseOut={() => setIsHoveringImg(false)}
             aria-label='Edit image'
           />
         )}

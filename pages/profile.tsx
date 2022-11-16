@@ -8,7 +8,7 @@ import { useUserStore } from 'state/UserStore';
 import { auth, db, FsCol } from '../src/firebase';
 import { useFirestoreDocumentMutation } from '@react-query-firebase/firestore';
 import { doc } from 'firebase/firestore';
-import { Box, Button, Container, Heading, Stack, Text, useToast } from '@chakra-ui/react';
+import { Box, Button, Container, Heading, Stack, useToast } from '@chakra-ui/react';
 
 const ProfilePage = () => {
   const toast = useToast();
@@ -65,7 +65,6 @@ const ProfilePage = () => {
             <EditableImage
               curImgLink={profile.imgLink}
               updateCurImgLink={updateProfileImgLink}
-              imgPlaceholder={<Heading>{profile.firstName[0].toUpperCase()}</Heading>}
               height={164}
               width={164}
             />

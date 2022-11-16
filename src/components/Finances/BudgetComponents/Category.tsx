@@ -30,7 +30,7 @@ const Category = (props: CategoryProps): JSX.Element => {
         <div {...provided.draggableProps} {...provided.dragHandleProps} ref={provided.innerRef}>
           <Box mb={1}>
             <Grid alignItems='center'>
-              <GridItem onMouseOver={() => setIsHovered(true)} onMouseOut={() => setIsHovered(false)}>
+              <GridItem onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
                 <Stack direction='row' alignItems='center'>
                   <EditableLabel
                     fieldName='Category'
