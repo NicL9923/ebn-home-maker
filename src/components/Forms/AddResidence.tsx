@@ -12,6 +12,7 @@ import {
   FormLabel,
   Input,
   Modal,
+  ModalBody,
   ModalContent,
   ModalFooter,
   ModalHeader,
@@ -21,9 +22,7 @@ import {
 import * as yup from 'yup';
 import { Controller, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import Dropzone from 'react-dropzone';
-
-// TODO: File dropzone
+import FileDropzone from 'components/Inputs/FileDropzone';
 
 const addResidenceSchema = yup
   .object({
@@ -55,6 +54,7 @@ const AddResidence = ({ isOpen, setIsOpen }: AddResidenceProps) => {
     register,
     handleSubmit,
     control,
+    reset,
     formState: { errors },
   } = useForm<AddResidenceFormSchema>({
     resolver: yupResolver(addResidenceSchema),
@@ -102,6 +102,7 @@ const AddResidence = ({ isOpen, setIsOpen }: AddResidenceProps) => {
     });
 
     setIsOpen(false);
+    reset();
   };
 
   return (
@@ -110,43 +111,46 @@ const AddResidence = ({ isOpen, setIsOpen }: AddResidenceProps) => {
       <ModalContent>
         <ModalHeader>Add Residence</ModalHeader>
 
-        <form onSubmit={handleSubmit(addNewResidence)}>
-          <FormControl>
-            <FormLabel>Name</FormLabel>
-            <Input type='text' placeholder='My house!' {...register('name')} />
-            <FormErrorMessage>{errors.name?.message}</FormErrorMessage>
-          </FormControl>
+        <form onSubmit={handleSubmit(addNewResidence)} method='post'>
+          <ModalBody>
+            <FormControl>
+              <FormLabel>Name</FormLabel>
+              <Input type='text' placeholder='My house!' {...register('name')} />
+              <FormErrorMessage>{errors.name?.message}</FormErrorMessage>
+            </FormControl>
 
-          <FormControl>
-            <FormLabel>Photo</FormLabel>
-            <Controller
-              name='photo'
-              control={control}
-              render={({ field }) => (
-                <Dropzone
-                  accept={{ 'image/png': ['.png'], 'image/jpeg': ['.jpg', '.jpeg'] }}
-                  onDrop={(acceptedFiles) => field.onChange(acceptedFiles[0])}
-                  // TODO: maxSize (in bytes)
-                />
-              )}
-            />
-            <FormErrorMessage>{errors.photo?.message}</FormErrorMessage>
-          </FormControl>
+            <FormControl>
+              <FormLabel>Photo</FormLabel>
+              <Controller
+                name='photo'
+                control={control}
+                render={({ field }) => (
+                  <FileDropzone
+                    accept={{ 'image/png': ['.png'], 'image/jpeg': ['.jpg', '.jpeg'] }}
+                    onDrop={(acceptedFiles) => field.onChange(acceptedFiles[0])}
+                  />
+                )}
+              />
+              <FormErrorMessage>{errors.photo?.message}</FormErrorMessage>
+            </FormControl>
 
-          <FormControl>
-            <FormLabel>Year Built</FormLabel>
-            <Input type='text' {...register('yearBuilt')} />
-            <FormErrorMessage>{errors.name?.message}</FormErrorMessage>
-          </FormControl>
+            <FormControl>
+              <FormLabel>Year Built</FormLabel>
+              <Input type='text' {...register('yearBuilt')} />
+              <FormErrorMessage>{errors.name?.message}</FormErrorMessage>
+            </FormControl>
 
-          <FormControl>
-            <FormLabel>Year Purchased</FormLabel>
-            <Input type='text' {...register('yearPurchased')} />
-            <FormErrorMessage>{errors.name?.message}</FormErrorMessage>
-          </FormControl>
+            <FormControl>
+              <FormLabel>Year Purchased</FormLabel>
+              <Input type='text' {...register('yearPurchased')} />
+              <FormErrorMessage>{errors.name?.message}</FormErrorMessage>
+            </FormControl>
+          </ModalBody>
 
           <ModalFooter>
-            <Button onClick={() => setIsOpen(false)}>Cancel</Button>
+            <Button type='button' onClick={() => setIsOpen(false)}>
+              Cancel
+            </Button>
             <Button type='submit'>Add</Button>
           </ModalFooter>
         </form>

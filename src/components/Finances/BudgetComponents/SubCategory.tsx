@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { BudgetCategory, BudgetSubcategory } from 'models/types';
-import { BudgetContext } from '../Budget';
+import { BudgetContext, budgetRowsGridTemplateColumns } from '../Budget';
 import { Draggable } from 'react-beautiful-dnd';
 import EditableLabel from 'components/Inputs/EditableLabel';
 import { MdKeyboardArrowDown } from 'react-icons/md';
@@ -40,9 +40,9 @@ const SubCategory = (props: SubCategoryProps): JSX.Element => {
 
   const getLinearProgressColor = (curSpent: number, curAllotted: number) => {
     if (Math.round((curSpent / curAllotted) * 100) > 100) {
-      return 'error';
+      return 'red';
     } else {
-      return 'primary';
+      return 'green';
     }
   };
 
@@ -51,9 +51,9 @@ const SubCategory = (props: SubCategoryProps): JSX.Element => {
       {(provided) => (
         <div {...provided.draggableProps} {...provided.dragHandleProps} ref={provided.innerRef}>
           <Box ml={2} mb={1}>
-            <Grid alignItems='center'>
+            <Grid templateColumns={budgetRowsGridTemplateColumns} gridColumnGap={1} alignItems='center'>
               <GridItem onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
-                <Stack direction='row' alignItems='center'>
+                <Stack direction='row'>
                   <EditableLabel
                     fieldName='Subcategory'
                     fieldType='ItemName'
@@ -94,9 +94,10 @@ const SubCategory = (props: SubCategoryProps): JSX.Element => {
                 </Stack>
 
                 <Progress
+                  textAlign='start'
                   value={getLinearProgressValue(subcategory.currentSpent, subcategory.totalAllotted)}
-                  color={getLinearProgressColor(subcategory.currentSpent, subcategory.totalAllotted)}
-                  sx={{ width: '85%', mt: 1 }}
+                  colorScheme={getLinearProgressColor(subcategory.currentSpent, subcategory.totalAllotted)}
+                  mt={1}
                 />
               </GridItem>
 

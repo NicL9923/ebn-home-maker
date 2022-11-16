@@ -30,7 +30,7 @@ const Navbar = () => {
         />
 
         <Portal>
-          <MenuList>
+          <MenuList zIndex={15}>
             <Link href='/groceryList'>
               <MenuItem icon={<MdList />}>
                 <Text>Grocery List</Text>

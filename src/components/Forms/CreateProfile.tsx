@@ -13,6 +13,7 @@ import {
   FormLabel,
   Input,
   Modal,
+  ModalBody,
   ModalContent,
   ModalFooter,
   ModalHeader,
@@ -51,6 +52,7 @@ const CreateProfile = ({ isOpen, setIsOpen }: CreateProfileProps) => {
     register,
     handleSubmit,
     control,
+    reset,
     formState: { errors },
   } = useForm<CreateProfileFormSchema>({
     resolver: yupResolver(createProfileSchema),
@@ -86,6 +88,7 @@ const CreateProfile = ({ isOpen, setIsOpen }: CreateProfileProps) => {
     });
 
     setIsOpen(false);
+    reset();
   };
 
   return (
@@ -94,31 +97,35 @@ const CreateProfile = ({ isOpen, setIsOpen }: CreateProfileProps) => {
       <ModalContent>
         <ModalHeader>Create Profile</ModalHeader>
 
-        <form onSubmit={handleSubmit(createProfile)}>
-          <FormControl>
-            <FormLabel>First Name</FormLabel>
-            <Input type='text' {...register('name')} />
-            <FormErrorMessage>{errors.name?.message}</FormErrorMessage>
-          </FormControl>
+        <form onSubmit={handleSubmit(createProfile)} method='post'>
+          <ModalBody>
+            <FormControl>
+              <FormLabel>First Name</FormLabel>
+              <Input type='text' {...register('name')} />
+              <FormErrorMessage>{errors.name?.message}</FormErrorMessage>
+            </FormControl>
 
-          <FormControl>
-            <FormLabel>Photo</FormLabel>
-            <Controller
-              name='photo'
-              control={control}
-              render={({ field }) => (
-                <Dropzone
-                  accept={{ 'image/png': ['.png'], 'image/jpeg': ['.jpg', '.jpeg'] }}
-                  onDrop={(acceptedFiles) => field.onChange(acceptedFiles[0])}
-                  // TODO: maxSize (in bytes)
-                />
-              )}
-            />
-            <FormErrorMessage>{errors.photo?.message}</FormErrorMessage>
-          </FormControl>
+            <FormControl>
+              <FormLabel>Photo</FormLabel>
+              <Controller
+                name='photo'
+                control={control}
+                render={({ field }) => (
+                  <Dropzone
+                    accept={{ 'image/png': ['.png'], 'image/jpeg': ['.jpg', '.jpeg'] }}
+                    onDrop={(acceptedFiles) => field.onChange(acceptedFiles[0])}
+                    // TODO: maxSize (in bytes)
+                  />
+                )}
+              />
+              <FormErrorMessage>{errors.photo?.message}</FormErrorMessage>
+            </FormControl>
+          </ModalBody>
 
           <ModalFooter>
-            <Button onClick={() => setIsOpen(false)}>Cancel</Button>
+            <Button type='button' onClick={() => setIsOpen(false)}>
+              Cancel
+            </Button>
             <Button type='submit'>Create</Button>
           </ModalFooter>
         </form>

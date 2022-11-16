@@ -12,6 +12,7 @@ import {
   FormLabel,
   Input,
   Modal,
+  ModalBody,
   ModalContent,
   ModalFooter,
   ModalHeader,
@@ -44,6 +45,7 @@ const CreateFamily = ({ isOpen, setIsOpen }: CreateFamilyProps) => {
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm<CreateFamilyFormSchema>({
     resolver: yupResolver(createFamilySchema),
@@ -83,6 +85,7 @@ const CreateFamily = ({ isOpen, setIsOpen }: CreateFamilyProps) => {
     });
 
     setIsOpen(false);
+    reset();
   };
 
   return (
@@ -91,15 +94,19 @@ const CreateFamily = ({ isOpen, setIsOpen }: CreateFamilyProps) => {
       <ModalContent>
         <ModalHeader>Create Family</ModalHeader>
 
-        <form onSubmit={handleSubmit(createFamily)}>
-          <FormControl>
-            <FormLabel>Family (Last) Name</FormLabel>
-            <Input type='text' {...register('name')} />
-            <FormErrorMessage>{errors.name?.message}</FormErrorMessage>
-          </FormControl>
+        <form onSubmit={handleSubmit(createFamily)} method='post'>
+          <ModalBody>
+            <FormControl>
+              <FormLabel>Family (Last) Name</FormLabel>
+              <Input type='text' {...register('name')} />
+              <FormErrorMessage>{errors.name?.message}</FormErrorMessage>
+            </FormControl>
+          </ModalBody>
 
           <ModalFooter>
-            <Button onClick={() => setIsOpen(false)}>Cancel</Button>
+            <Button type='button' onClick={() => setIsOpen(false)}>
+              Cancel
+            </Button>
             <Button type='submit'>Create</Button>
           </ModalFooter>
         </form>

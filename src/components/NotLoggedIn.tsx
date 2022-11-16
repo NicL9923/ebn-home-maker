@@ -7,7 +7,7 @@ import {
 } from 'firebase/auth';
 import { FaGoogle } from 'react-icons/fa';
 import { auth } from '../firebase';
-import { Box, Button, Divider, FormControl, FormLabel, Heading, Input, Stack, Text, useToast } from '@chakra-ui/react';
+import { Box, Button, Divider, FormControl, FormLabel, Heading, Input, Stack, useToast } from '@chakra-ui/react';
 
 const NotLoggedIn = () => {
   const toast = useToast();

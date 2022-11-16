@@ -9,6 +9,7 @@ import {
   InputGroup,
   InputLeftElement,
   Modal,
+  ModalBody,
   ModalContent,
   ModalFooter,
   ModalHeader,
@@ -99,30 +100,32 @@ const SingleFieldDialog = (props: SingleFieldDialogProps) => {
       <ModalContent>
         <ModalHeader>{`${titleVerb} ${fieldName}`}</ModalHeader>
 
-        <Stack direction='row' alignItems='center' spacing={1} p='2'>
-          <InputGroup>
-            {isMonetaryValue && <InputLeftElement>$</InputLeftElement>}
-            <Input
-              type='text'
-              value={fieldValue}
-              onChange={(event: React.ChangeEvent<HTMLInputElement>) => validateAndSetValue(event.target.value)}
-              required
-              autoFocus
-            />
-          </InputGroup>
-
-          {isMonetaryValue && (
-            <Tooltip title='Calculate value'>
-              <IconButton
-                icon={<MdCalculate />}
-                onClick={calculateMoneyValue}
-                variant='ghost'
-                fontSize='32'
-                aria-label='Calculate expression value'
+        <ModalBody>
+          <Stack direction='row' alignItems='center' spacing={1}>
+            <InputGroup>
+              {isMonetaryValue && <InputLeftElement>$</InputLeftElement>}
+              <Input
+                type='text'
+                value={fieldValue}
+                onChange={(event: React.ChangeEvent<HTMLInputElement>) => validateAndSetValue(event.target.value)}
+                required
+                autoFocus
               />
-            </Tooltip>
-          )}
-        </Stack>
+            </InputGroup>
+
+            {isMonetaryValue && (
+              <Tooltip title='Calculate value'>
+                <IconButton
+                  icon={<MdCalculate />}
+                  onClick={calculateMoneyValue}
+                  variant='ghost'
+                  fontSize='32'
+                  aria-label='Calculate expression value'
+                />
+              </Tooltip>
+            )}
+          </Stack>
+        </ModalBody>
 
         <ModalFooter>
           <Button onClick={onClosed}>Cancel</Button>

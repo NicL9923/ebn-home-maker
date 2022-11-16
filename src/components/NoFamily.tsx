@@ -7,10 +7,14 @@ const NoFamily = () => {
 
   return (
     <Box maxWidth='sm' mx='auto' mt={3} p={2}>
-      <Heading mb={3}>We couldn&apos;t find a family for this profile!</Heading>
+      <Heading size='md' mb={3}>
+        We couldn&apos;t find a family for this profile!
+      </Heading>
 
       <Text textAlign='center'>Ask your head-of-household for their family invite link</Text>
+
       <Divider sx={{ width: 250, mx: 'auto', mt: 2, mb: 2 }} />
+
       <Stack direction='row' justifyContent='center'>
         <Button onClick={() => setCreatingFamily(true)}>Create a family</Button>
       </Stack>

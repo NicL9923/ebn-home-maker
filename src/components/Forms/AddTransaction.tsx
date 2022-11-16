@@ -11,6 +11,7 @@ import {
   FormLabel,
   Input,
   Modal,
+  ModalBody,
   ModalContent,
   ModalFooter,
   ModalHeader,
@@ -18,16 +19,12 @@ import {
   useToast,
 } from '@chakra-ui/react';
 import { useForm, Controller } from 'react-hook-form';
-import { ReactDatePicker } from 'react-datepicker';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { Select, OptionBase, GroupBase } from 'chakra-react-select';
+import DatePicker from 'components/Inputs/DatePicker';
 
 // TODO: Disable form buttons while submitting
-// TODO: Dropzone for file (image) inputs ['image/jpeg', 'image/png']
-
-// NOTE/TODO: If DatePicker ever gets reused, it'd probably be worth to write own wrapper for consistency
-
 // TODO: Add calculate functionality to the amount field here too
 
 export const catSubcatKeySeparator = '&%&';
@@ -36,7 +33,7 @@ const addTransactionSchema = yup
   .object({
     amount: yup.number().required('The transaction amount is required'),
     description: yup.string().required('A description of the transaction is required'),
-    category: yup.mixed().required('The (sub)category that the transaction falls under is required'),
+    catSubcat: yup.mixed().required('The (sub)category that the transaction falls under is required'),
     date: yup.date().required('The date of the transaction is required'),
   })
   .required();
@@ -94,6 +91,20 @@ const AddTransaction = ({ isOpen, setIsOpen, initialCatSubcat, budget }: AddTran
     return catOptions;
   }, []);
 
+  const initialCatSubcatOption = useMemo<ICatOpt | undefined>(() => {
+    let newInitialOption: ICatOpt | undefined = undefined;
+
+    categoryOptions.forEach((optGroup) => {
+      const foundOpt = optGroup.options.find((opt) => opt.value === initialCatSubcat);
+
+      if (foundOpt) {
+        newInitialOption = { ...foundOpt };
+      }
+    });
+
+    return newInitialOption;
+  }, [categoryOptions, initialCatSubcat]);
+
   const submitNewTransaction = (newTransactionData: AddTransactionFormSchema, event?: BaseSyntheticEvent) => {
     event?.preventDefault();
     if (!family?.budgetId) {
@@ -134,52 +145,59 @@ const AddTransaction = ({ isOpen, setIsOpen, initialCatSubcat, budget }: AddTran
       <ModalContent>
         <ModalHeader>Add Transaction</ModalHeader>
 
-        <form onSubmit={handleSubmit(submitNewTransaction)}>
-          <FormControl>
-            <FormLabel>Amount</FormLabel>
-            <Input type='number' {...register('amount')} />
-            <FormErrorMessage>{errors.amount?.message}</FormErrorMessage>
-          </FormControl>
+        <form onSubmit={handleSubmit(submitNewTransaction)} method='post'>
+          <ModalBody>
+            <FormControl>
+              <FormLabel>Amount</FormLabel>
+              <Input type='number' {...register('amount')} step='0.01' />
+              <FormErrorMessage>{errors.amount?.message}</FormErrorMessage>
+            </FormControl>
 
-          <FormControl>
-            <FormLabel>Description</FormLabel>
-            <Input type='text' {...register('description')} />
-            <FormErrorMessage>{errors.description?.message}</FormErrorMessage>
-          </FormControl>
+            <FormControl>
+              <FormLabel>Description</FormLabel>
+              <Input type='text' {...register('description')} />
+              <FormErrorMessage>{errors.description?.message}</FormErrorMessage>
+            </FormControl>
 
-          <FormControl>
-            <FormLabel>Category</FormLabel>
-            <Controller
-              name='catSubcat'
-              control={control}
-              render={({ field }) => (
-                <Select
-                  value={field.value}
-                  onChange={field.onChange}
-                  options={categoryOptions}
-                  isClearable
-                  isSearchable
-                  isReadOnly={!!initialCatSubcat}
-                />
-              )}
-            />
-            <FormErrorMessage>{errors.catSubcat?.message}</FormErrorMessage>
-          </FormControl>
+            <FormControl>
+              <FormLabel>Category</FormLabel>
+              <Controller
+                name='catSubcat'
+                control={control}
+                defaultValue={initialCatSubcatOption}
+                render={({ field }) => (
+                  <Select
+                    value={field.value}
+                    onChange={field.onChange}
+                    options={categoryOptions}
+                    isClearable
+                    isSearchable
+                    isReadOnly={!!initialCatSubcat}
+                  />
+                )}
+              />
+              <FormErrorMessage>{errors.catSubcat?.message}</FormErrorMessage>
+            </FormControl>
 
-          <FormControl>
-            <FormLabel>Date</FormLabel>
-            <Input type='date' defaultValue={new Date().toLocaleDateString()} {...register('date')} />
-            <Controller
-              name='date'
-              control={control}
-              render={({ field }) => <ReactDatePicker selected={field.value} onChange={field.onChange} />}
-            />
-            <FormErrorMessage>{errors.date?.message}</FormErrorMessage>
-          </FormControl>
+            <FormControl>
+              <FormLabel>Date</FormLabel>
+              <Controller
+                name='date'
+                control={control}
+                defaultValue={new Date()}
+                render={({ field }) => <DatePicker selected={field.value} onChange={field.onChange} />}
+              />
+              <FormErrorMessage>{errors.date?.message}</FormErrorMessage>
+            </FormControl>
+          </ModalBody>
 
           <ModalFooter>
-            <Button onClick={() => setIsOpen(false)}>Cancel</Button>
-            <Button type='submit'>Save</Button>
+            <Button type='button' onClick={() => setIsOpen(false)}>
+              Cancel
+            </Button>
+            <Button type='submit' colorScheme='green' ml={3}>
+              Save
+            </Button>
           </ModalFooter>
         </form>
       </ModalContent>

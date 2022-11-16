@@ -7,14 +7,14 @@ const NoProfile = () => {
 
   return (
     <Box maxWidth='sm' mx='auto' mt={2} p={2}>
-      <Heading>Welcome to Our Home!</Heading>
+      <Heading size='lg'>Welcome to Our Home!</Heading>
       <Text mb={2}>It looks like you don&apos;t have a profile yet, would you like to create one?</Text>
+
       <Stack direction='row' justifyContent='center' mb={2}>
         <Button onClick={() => setCreatingProfile(true)}>Create a profile</Button>
       </Stack>
-      <Text>
-        Creating a profile allows you to create/join a budget and opens the door to family/household management!
-      </Text>
+
+      <Text>Creating a profile opens the door to family/household management!</Text>
 
       <CreateProfile isOpen={creatingProfile} setIsOpen={setCreatingProfile} />
     </Box>

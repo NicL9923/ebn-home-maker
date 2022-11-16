@@ -3,7 +3,7 @@ import EditableLabel from 'components/Inputs/EditableLabel';
 import { BudgetCategory, IBudget } from 'models/types';
 import React, { useContext, useState } from 'react';
 import { Draggable, Droppable } from 'react-beautiful-dnd';
-import { BudgetContext } from '../Budget';
+import { BudgetContext, budgetRowsGridTemplateColumns } from '../Budget';
 import SubCategory from './SubCategory';
 import {
   Box,
@@ -40,9 +40,9 @@ const Category = (props: CategoryProps): JSX.Element => {
       {(provided) => (
         <div {...provided.draggableProps} {...provided.dragHandleProps} ref={provided.innerRef}>
           <Box mb={1}>
-            <Grid alignItems='center'>
+            <Grid templateColumns={budgetRowsGridTemplateColumns} alignItems='center' gridColumnGap={1}>
               <GridItem onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
-                <Stack direction='row' alignItems='center'>
+                <Stack direction='row' alignItems='center' w='100%'>
                   <EditableLabel
                     fieldName='Category'
                     fieldType='ItemName'
@@ -70,7 +70,8 @@ const Category = (props: CategoryProps): JSX.Element => {
                   </Menu>
                 </Stack>
               </GridItem>
-              <GridItem>
+
+              <GridItem w='100%'>
                 <Text ml={1} sx={{ fontWeight: 'bold' }}>
                   $
                   {category.totalAllotted?.toLocaleString(undefined, {
@@ -79,7 +80,8 @@ const Category = (props: CategoryProps): JSX.Element => {
                   })}
                 </Text>
               </GridItem>
-              <GridItem>
+
+              <GridItem w='100%'>
                 <Text ml={1} sx={{ fontWeight: 'bold' }}>
                   $
                   {category.currentSpent?.toLocaleString(undefined, {

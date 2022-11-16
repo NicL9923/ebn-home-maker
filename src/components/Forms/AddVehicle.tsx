@@ -12,6 +12,7 @@ import {
   FormLabel,
   Input,
   Modal,
+  ModalBody,
   ModalContent,
   ModalFooter,
   ModalHeader,
@@ -21,9 +22,7 @@ import {
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { Controller, useForm } from 'react-hook-form';
-import Dropzone from 'react-dropzone';
-
-// TODO: File dropdown
+import FileDropzone from 'components/Inputs/FileDropzone';
 
 const addVehicleSchema = yup
   .object({
@@ -65,6 +64,7 @@ const AddVehicle = ({ isOpen, setIsOpen }: AddVehicleProps) => {
     register,
     handleSubmit,
     control,
+    reset,
     formState: { errors },
   } = useForm<AddVehicleFormSchema>({
     resolver: yupResolver(addVehicleSchema),
@@ -112,6 +112,7 @@ const AddVehicle = ({ isOpen, setIsOpen }: AddVehicleProps) => {
     });
 
     setIsOpen(false);
+    reset();
   };
 
   return (
@@ -120,73 +121,76 @@ const AddVehicle = ({ isOpen, setIsOpen }: AddVehicleProps) => {
       <ModalContent>
         <ModalHeader>Add Vehicle</ModalHeader>
 
-        <form onSubmit={handleSubmit(addNewVehicle)}>
-          <FormControl>
-            <FormLabel>Model Year</FormLabel>
-            <Input type='text' {...register('year')} />
-            <FormErrorMessage>{errors.year?.message}</FormErrorMessage>
-          </FormControl>
+        <form onSubmit={handleSubmit(addNewVehicle)} method='post'>
+          <ModalBody>
+            <FormControl>
+              <FormLabel>Model Year</FormLabel>
+              <Input type='text' {...register('year')} />
+              <FormErrorMessage>{errors.year?.message}</FormErrorMessage>
+            </FormControl>
 
-          <FormControl>
-            <FormLabel>Make</FormLabel>
-            <Input type='text' placeholder='Chevrolet, Ford, Dodge, Toyota...' {...register('make')} />
-            <FormErrorMessage>{errors.make?.message}</FormErrorMessage>
-          </FormControl>
+            <FormControl>
+              <FormLabel>Make</FormLabel>
+              <Input type='text' placeholder='Chevrolet, Ford, Dodge, Toyota...' {...register('make')} />
+              <FormErrorMessage>{errors.make?.message}</FormErrorMessage>
+            </FormControl>
 
-          <FormControl>
-            <FormLabel>Model</FormLabel>
-            <Input type='text' placeholder='F150, Corolla, Tacoma, Tahoe...' {...register('model')} />
-            <FormErrorMessage>{errors.make?.message}</FormErrorMessage>
-          </FormControl>
+            <FormControl>
+              <FormLabel>Model</FormLabel>
+              <Input type='text' placeholder='F150, Corolla, Tacoma, Tahoe...' {...register('model')} />
+              <FormErrorMessage>{errors.make?.message}</FormErrorMessage>
+            </FormControl>
 
-          <FormControl>
-            <FormLabel>Trim</FormLabel>
-            <Input type='text' placeholder='SE, Ultimate, Limited, Lariat...' {...register('trim')} />
-            <FormErrorMessage>{errors.make?.message}</FormErrorMessage>
-          </FormControl>
+            <FormControl>
+              <FormLabel>Trim</FormLabel>
+              <Input type='text' placeholder='SE, Ultimate, Limited, Lariat...' {...register('trim')} />
+              <FormErrorMessage>{errors.make?.message}</FormErrorMessage>
+            </FormControl>
 
-          <FormControl>
-            <FormLabel>Engine</FormLabel>
-            <Input type='text' placeholder='3.5L V6...' {...register('engine')} />
-            <FormErrorMessage>{errors.make?.message}</FormErrorMessage>
-          </FormControl>
+            <FormControl>
+              <FormLabel>Engine</FormLabel>
+              <Input type='text' placeholder='3.5L V6...' {...register('engine')} />
+              <FormErrorMessage>{errors.make?.message}</FormErrorMessage>
+            </FormControl>
 
-          <FormControl>
-            <FormLabel>VIN (Vehicle Identification Number)</FormLabel>
-            <Input type='text' {...register('vin')} />
-            <FormErrorMessage>{errors.make?.message}</FormErrorMessage>
-          </FormControl>
+            <FormControl>
+              <FormLabel>VIN (Vehicle Identification Number)</FormLabel>
+              <Input type='text' {...register('vin')} />
+              <FormErrorMessage>{errors.make?.message}</FormErrorMessage>
+            </FormControl>
 
-          <FormControl>
-            <FormLabel>License Plate</FormLabel>
-            <Input type='text' {...register('licensePlate')} />
-            <FormErrorMessage>{errors.make?.message}</FormErrorMessage>
-          </FormControl>
+            <FormControl>
+              <FormLabel>License Plate</FormLabel>
+              <Input type='text' {...register('licensePlate')} />
+              <FormErrorMessage>{errors.make?.message}</FormErrorMessage>
+            </FormControl>
 
-          <FormControl>
-            <FormLabel>Odometer (miles)</FormLabel>
-            <Input type='number' {...register('miles')} />
-            <FormErrorMessage>{errors.make?.message}</FormErrorMessage>
-          </FormControl>
+            <FormControl>
+              <FormLabel>Odometer (miles)</FormLabel>
+              <Input type='number' {...register('miles')} />
+              <FormErrorMessage>{errors.make?.message}</FormErrorMessage>
+            </FormControl>
 
-          <FormControl>
-            <FormLabel>Photo</FormLabel>
-            <Controller
-              name='photo'
-              control={control}
-              render={({ field }) => (
-                <Dropzone
-                  accept={{ 'image/png': ['.png'], 'image/jpeg': ['.jpg', '.jpeg'] }}
-                  onDrop={(acceptedFiles) => field.onChange(acceptedFiles[0])}
-                  // TODO: maxSize (in bytes)
-                />
-              )}
-            />
-            <FormErrorMessage>{errors.photo?.message}</FormErrorMessage>
-          </FormControl>
+            <FormControl>
+              <FormLabel>Photo</FormLabel>
+              <Controller
+                name='photo'
+                control={control}
+                render={({ field }) => (
+                  <FileDropzone
+                    accept={{ 'image/png': ['.png'], 'image/jpeg': ['.jpg', '.jpeg'] }}
+                    onDrop={(acceptedFiles) => field.onChange(acceptedFiles[0])}
+                  />
+                )}
+              />
+              <FormErrorMessage>{errors.photo?.message}</FormErrorMessage>
+            </FormControl>
+          </ModalBody>
 
           <ModalFooter>
-            <Button onClick={() => setIsOpen(false)}>Cancel</Button>
+            <Button type='button' onClick={() => setIsOpen(false)}>
+              Cancel
+            </Button>
             <Button type='submit'>Add</Button>
           </ModalFooter>
         </form>

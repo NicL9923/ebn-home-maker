@@ -218,7 +218,9 @@ const Family = () => {
       </Box>
 
       <Box mb={4}>
-        <Text>Members</Text>
+        <Heading size='md' mb={2}>
+          Members
+        </Heading>
         <Wrap>
           {familyMemberProfiles &&
             familyMemberProfiles.map((prof: Profile, idx: number) => (
@@ -250,7 +252,9 @@ const Family = () => {
       </Box>
 
       <Box>
-        <Text>Pets</Text>
+        <Heading size='md' mb={2}>
+          Pets
+        </Heading>
         <Wrap>
           {family.pets &&
             family.pets.map((pet: Pet, idx: number) => (
@@ -285,7 +289,7 @@ const Family = () => {
         <Box mt={4}>
           <Divider />
 
-          <Heading size='md' mt={2}>
+          <Heading size='md' mt={2} mb={2}>
             Weather Applet - Location
           </Heading>
 

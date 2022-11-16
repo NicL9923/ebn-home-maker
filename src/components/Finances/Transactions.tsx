@@ -133,7 +133,7 @@ const Transactions = ({ budget }: TransactionsProps): JSX.Element => {
 
           <span>
             Page:{' '}
-            {pagination.state.getPages(transactionTableData.nodes).map((_: any, pageIndex: any) => (
+            {pagination.state.getPages(transactionTableData.nodes).map((_: unknown, pageIndex: number) => (
               <button
                 key={pageIndex}
                 type='button'

@@ -9,9 +9,11 @@ import { useUserStore } from 'state/UserStore';
 import { useFirestoreDocumentMutation } from '@react-query-firebase/firestore';
 import { doc } from 'firebase/firestore';
 import { db, FsCol } from '../../firebase';
-import { Box, Divider, Grid, GridItem, Heading, IconButton, Stack, Text, Tooltip, useToken } from '@chakra-ui/react';
+import { Box, Grid, GridItem, Heading, IconButton, Stack, Text, Tooltip, useToken } from '@chakra-ui/react';
 
 export const BudgetContext = React.createContext({} as BudgetContextValue);
+
+export const budgetRowsGridTemplateColumns = '3fr 1fr 1fr';
 
 interface BudgetProps {
   budget: IBudget;
@@ -355,10 +357,10 @@ const Budget = (props: BudgetProps): JSX.Element => {
       </Box>
 
       <Box>
-        <Box p={1} sx={{ position: 'sticky', top: 60, zIndex: 1000 }}>
-          <Grid alignItems='center' p={1} bgColor='green.400'>
-            <GridItem>
-              <Stack direction='row' alignItems='center'>
+        <Box position='sticky' top='64px' zIndex={10} bgColor='green.400' pt={1} pb={1}>
+          <Grid templateColumns={budgetRowsGridTemplateColumns} alignItems='center' gridColumnGap={1}>
+            <GridItem w='100%'>
+              <Stack direction='row' alignItems='center' spacing={0}>
                 <Tooltip title='Add category'>
                   <IconButton
                     icon={<MdAdd />}
@@ -369,9 +371,9 @@ const Budget = (props: BudgetProps): JSX.Element => {
                   />
                 </Tooltip>
 
-                <Stack>
+                <Stack width='100%' alignItems='start' spacing={0}>
                   <Text>Category</Text>
-                  <Stack direction='row' alignItems='end'>
+                  <Stack direction='row' alignItems='end' ml={4}>
                     <MdSubdirectoryArrowRight />
                     <Text>Sub-category</Text>
                   </Stack>
@@ -379,15 +381,13 @@ const Budget = (props: BudgetProps): JSX.Element => {
               </Stack>
             </GridItem>
 
-            <GridItem ml={1}>
+            <GridItem ml={1} w='100%'>
               <Text>Allotted</Text>
             </GridItem>
-            <GridItem>
+            <GridItem w='100%'>
               <Text>Spent</Text>
             </GridItem>
           </Grid>
-
-          <Divider />
         </Box>
 
         <BudgetContext.Provider

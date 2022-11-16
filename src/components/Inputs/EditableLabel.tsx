@@ -31,7 +31,7 @@ const EditableLabel = (props: EditableLabelPropTypes) => {
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
         sx={{
-          borderBottom: isHovered ? '2px solid green' : '',
+          borderBottom: isHovered ? '2px solid green' : '2px solid transparent',
         }}
       >
         {isMonetaryValue && '$'}

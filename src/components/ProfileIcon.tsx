@@ -47,7 +47,7 @@ const ProfileIcon = () => {
         </MenuButton>
 
         <Portal>
-          <MenuList>
+          <MenuList zIndex={15}>
             <Link href='/profile'>
               <MenuItem>My Profile</MenuItem>
             </Link>

@@ -7,7 +7,7 @@ import React from 'react';
 import Chart from 'react-google-charts';
 import { useUserStore } from 'state/UserStore';
 import EditableLabel from '../Inputs/EditableLabel';
-import { Box, Button, Heading, IconButton, Stack, Text } from '@chakra-ui/react';
+import { Box, Button, Heading, IconButton, Stack, Stat, StatLabel, StatNumber, Wrap, WrapItem } from '@chakra-ui/react';
 
 const formatChartData = (blobsData: SavingsBlob[]) => {
   const formattedDataArr: (string | number)[][] = [['Name', 'Amount']];
@@ -90,9 +90,9 @@ const Savings = ({ budget }: SavingsProps): JSX.Element => {
     <Box mt={2} ml={1} mr={1}>
       <Heading mb={2}>Savings Blobs</Heading>
 
-      <Box sx={{ p: 1, maxWidth: 'auto', mb: 2 }}>
-        <Text>Total Saved:</Text>
-        <Text>
+      <Stat w='50%' p={3} bgColor='green.400' borderRadius='md'>
+        <StatLabel>Total Saved</StatLabel>
+        <StatNumber>
           $
           {budget.savingsBlobs
             .reduce((sum, { currentAmt }) => sum + currentAmt, 0)
@@ -100,45 +100,53 @@ const Savings = ({ budget }: SavingsProps): JSX.Element => {
               minimumFractionDigits: 2,
               maximumFractionDigits: 2,
             })}
-        </Text>
-      </Box>
+        </StatNumber>
+      </Stat>
 
-      <Button leftIcon={<MdAdd />} onClick={createSavingsBlob}>
+      <Button leftIcon={<MdAdd />} onClick={createSavingsBlob} m={4}>
         Create New Blob
       </Button>
 
-      <Stack mb={4} spacing={1} mt={2}>
+      <Wrap mb={4}>
         {budget.savingsBlobs.map((blob) => (
-          <Box sx={{ p: 1 }} key={blob.name}>
-            <Stack direction='row' alignItems='center' justifyContent='space-between'>
-              <EditableLabel
-                fieldName='Blob name'
-                fieldType='ItemName'
-                text={blob.name}
-                textSize='lg'
-                isValUnique={isBlobNameUnique}
-                onSubmitValue={(newValue) => updateSavingsBlobName(blob.name, newValue)}
-              />
-              <IconButton
-                icon={<MdClear />}
-                sx={{ ml: 4 }}
-                onClick={() => deleteSavingsBlob(blob.name)}
-                aria-label='Delete savings blob'
-              />
-            </Stack>
-            <EditableLabel
-              fieldName='Amount'
-              fieldType='DecimalNum'
-              text={blob.currentAmt.toLocaleString(undefined, {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              })}
-              isMonetaryValue
-              onSubmitValue={(newValue) => updateSavingsBlobAmt(blob.name, newValue)}
-            />
-          </Box>
+          <WrapItem key={blob.name}>
+            <Stat p={3} bgColor='green.300' borderRadius='md'>
+              <StatLabel>
+                <Stack direction='row' justifyContent='center' alignItems='center'>
+                  <EditableLabel
+                    fieldName='Blob name'
+                    fieldType='ItemName'
+                    text={blob.name}
+                    textSize='lg'
+                    isValUnique={isBlobNameUnique}
+                    onSubmitValue={(newValue) => updateSavingsBlobName(blob.name, newValue)}
+                  />
+                  <IconButton
+                    icon={<MdClear />}
+                    variant='ghost'
+                    fontSize={18}
+                    onClick={() => deleteSavingsBlob(blob.name)}
+                    size='sm'
+                    aria-label='Delete savings blob'
+                  />
+                </Stack>
+              </StatLabel>
+              <StatNumber>
+                <EditableLabel
+                  fieldName='Amount'
+                  fieldType='DecimalNum'
+                  text={blob.currentAmt.toLocaleString(undefined, {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })}
+                  isMonetaryValue
+                  onSubmitValue={(newValue) => updateSavingsBlobAmt(blob.name, newValue)}
+                />
+              </StatNumber>
+            </Stat>
+          </WrapItem>
         ))}
-      </Stack>
+      </Wrap>
 
       <Box
         sx={{
