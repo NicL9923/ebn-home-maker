@@ -5,7 +5,19 @@ import { Draggable } from 'react-beautiful-dnd';
 import EditableLabel from 'components/Inputs/EditableLabel';
 import { MdKeyboardArrowDown } from 'react-icons/md';
 import { catSubcatKeySeparator } from 'components/Forms/AddTransaction';
-import { Box, Grid, GridItem, IconButton, Menu, MenuItem, Progress, Stack, Text } from '@chakra-ui/react';
+import {
+  Box,
+  Grid,
+  GridItem,
+  IconButton,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
+  Progress,
+  Stack,
+  Text,
+} from '@chakra-ui/react';
 
 interface SubCategoryProps {
   subidx: number;
@@ -17,7 +29,6 @@ const SubCategory = (props: SubCategoryProps): JSX.Element => {
   const { setSubCatProperty, setCatSubcatKey, setAddingTransaction, removeSubCategory } = useContext(BudgetContext);
   const { subidx, category, subcategory } = props;
   const [isHovered, setIsHovered] = useState(false);
-  const [anchorEl, setAnchorEl] = useState<Element | undefined>(undefined);
 
   // TODO: handle identically named subcat being moved to the same cat as its twin
   const isSubcategoryNameUnique = (category: BudgetCategory, newSubcatName: string) => {
@@ -51,34 +62,34 @@ const SubCategory = (props: SubCategoryProps): JSX.Element => {
                     onSubmitValue={(newValue) => setSubCatProperty(newValue, subcategory.name, category.name, 'name')}
                   />
 
-                  <IconButton
-                    icon={<MdKeyboardArrowDown />}
-                    onClick={(event) => setAnchorEl(event.currentTarget)}
-                    sx={{
-                      display: isHovered ? 'inherit' : 'hidden',
-                      p: 0,
-                      ml: 1,
-                    }}
-                    aria-label='Subcategory menu'
-                  />
-                  <Menu id={`subcat${subidx}-menu`} isOpen={!!anchorEl} onClose={() => setAnchorEl(undefined)}>
-                    <MenuItem
-                      onClick={() => {
-                        setCatSubcatKey(`${category.name}${catSubcatKeySeparator}${subcategory.name}`);
-                        setAddingTransaction(true);
-                        setAnchorEl(undefined);
-                      }}
-                    >
-                      Add transaction
-                    </MenuItem>
-                    <MenuItem
-                      onClick={() => {
-                        removeSubCategory(category.name, subcategory.name);
-                        setAnchorEl(undefined);
-                      }}
-                    >
-                      Delete subcategory
-                    </MenuItem>
+                  <Menu>
+                    <MenuButton>
+                      <IconButton
+                        icon={<MdKeyboardArrowDown />}
+                        fontSize={24}
+                        variant='ghost'
+                        visibility={isHovered ? 'visible' : 'hidden'}
+                        aria-label='Category menu'
+                      />
+                    </MenuButton>
+
+                    <MenuList>
+                      <MenuItem
+                        onClick={() => {
+                          setCatSubcatKey(`${category.name}${catSubcatKeySeparator}${subcategory.name}`);
+                          setAddingTransaction(true);
+                        }}
+                      >
+                        Add transaction
+                      </MenuItem>
+                      <MenuItem
+                        onClick={() => {
+                          removeSubCategory(category.name, subcategory.name);
+                        }}
+                      >
+                        Delete subcategory
+                      </MenuItem>
+                    </MenuList>
                   </Menu>
                 </Stack>
 

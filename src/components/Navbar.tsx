@@ -18,7 +18,7 @@ const Navbar = () => {
   const profile = useUserStore((state) => state.profile);
 
   return (
-    <Stack position='sticky' top='0' direction='row' alignItems='center' p={2} bgColor='green.700'>
+    <Stack position='sticky' top='0' direction='row' alignItems='center' p={2} bgColor='green.700' zIndex={10}>
       <Menu>
         <MenuButton
           as={IconButton}

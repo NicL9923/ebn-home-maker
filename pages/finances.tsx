@@ -12,26 +12,20 @@ import { doc } from 'firebase/firestore';
 import NoBudget from 'components/Finances/BudgetComponents/NoBudget';
 import {
   Box,
+  Button,
   CircularProgress,
-  Drawer,
-  DrawerBody,
-  DrawerHeader,
-  Menu,
-  MenuDivider,
-  MenuItem,
-  MenuList,
+  Heading,
+  Icon,
+  Tab,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Tabs,
+  Text,
 } from '@chakra-ui/react';
-
-enum COMPONENTS {
-  BUDGET,
-  SAVINGS,
-  TRANSACTIONS,
-}
 
 const Finances = () => {
   const family = useUserStore((state) => state.family);
-
-  const [shownComponent, setShownComponent] = useState(0);
   const [budget, setBudget] = useState<IBudget | undefined>(undefined);
 
   const budgetDoc = useFirestoreDocument(
@@ -138,27 +132,10 @@ const Finances = () => {
     processAndSetBudget(budgetDoc.data ? (budgetDoc.data.data() as IBudget) : undefined);
   }, [budgetDoc.data]);
 
-  const showDashboardComponent = () => {
-    if (!budget) return;
-
-    const budgetComponent = <Budget budget={budget} setBudget={setBudget} />;
-
-    switch (shownComponent) {
-      case 0:
-        return budgetComponent;
-      case 1:
-        return <Savings budget={budget} />;
-      case 2:
-        return <Transactions budget={budget} />;
-      default:
-        return budgetComponent;
-    }
-  };
-
   if (budgetDoc.isLoading) {
     return (
       <Box mx='auto' textAlign='center' mt={20}>
-        <CircularProgress size={60} isIndeterminate />
+        <CircularProgress size={59} isIndeterminate />
       </Box>
     );
   }
@@ -168,40 +145,47 @@ const Finances = () => {
   }
 
   return (
-    <Box display='flex'>
-      <Drawer
-        isOpen={true}
-        onClose={() => {
-          return;
-        }}
-      >
-        <DrawerHeader>Finance Dashboard</DrawerHeader>
-        <DrawerBody>
-          <Menu>
-            <MenuList>
-              <MenuItem icon={<MdAttachMoney />} onClick={() => setShownComponent(COMPONENTS.BUDGET)}>
-                Budget
-              </MenuItem>
-              <MenuItem icon={<MdAccountBalance />} onClick={() => setShownComponent(COMPONENTS.SAVINGS)}>
-                Savings
-              </MenuItem>
-              <MenuItem icon={<MdCreditCard />} onClick={() => setShownComponent(COMPONENTS.TRANSACTIONS)}>
-                Transactions
-              </MenuItem>
+    <Box>
+      <Heading textAlign='center' mt={2}>
+        Finance Dashboard
+      </Heading>
 
-              <MenuDivider />
+      <Tabs align='center' variant='enclosed' mt={4} colorScheme='green'>
+        <TabList>
+          <Tab>
+            <Icon as={MdAttachMoney} />
+            <Text ml={1}>Budget</Text>
+          </Tab>
 
-              <MenuItem icon={<MdArticle />} onClick={exportBudgetDataJSON}>
-                Export budget data
-              </MenuItem>
-            </MenuList>
-          </Menu>
-        </DrawerBody>
-      </Drawer>
+          <Tab>
+            <Icon as={MdAccountBalance} />
+            <Text ml={1}>Savings</Text>
+          </Tab>
 
-      <Box flexGrow={1} p={1} pb={6}>
-        {showDashboardComponent()}
-      </Box>
+          <Tab>
+            <Icon as={MdCreditCard} />
+            <Text ml={1}>Transactions</Text>
+          </Tab>
+        </TabList>
+
+        <TabPanels>
+          <TabPanel>
+            <Budget budget={budget} setBudget={setBudget} />
+          </TabPanel>
+
+          <TabPanel>
+            <Savings budget={budget} />
+          </TabPanel>
+
+          <TabPanel>
+            <Transactions budget={budget} />
+          </TabPanel>
+        </TabPanels>
+      </Tabs>
+
+      <Button leftIcon={<MdArticle />} onClick={exportBudgetDataJSON} m={4}>
+        Export budget data
+      </Button>
     </Box>
   );
 };

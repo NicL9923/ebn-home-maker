@@ -5,7 +5,19 @@ import React, { useContext, useState } from 'react';
 import { Draggable, Droppable } from 'react-beautiful-dnd';
 import { BudgetContext } from '../Budget';
 import SubCategory from './SubCategory';
-import { Box, Divider, Grid, GridItem, IconButton, Menu, MenuItem, Stack, Text } from '@chakra-ui/react';
+import {
+  Box,
+  Divider,
+  Grid,
+  GridItem,
+  IconButton,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
+  Stack,
+  Text,
+} from '@chakra-ui/react';
 
 interface CategoryProps {
   idx: number;
@@ -18,7 +30,6 @@ const Category = (props: CategoryProps): JSX.Element => {
   const { budget, setCategoryName, removeCategory, addNewSubCategory } = useContext(BudgetContext);
   const { idx, category, isLastCat } = props;
   const [isHovered, setIsHovered] = useState(false);
-  const [anchorEl, setAnchorEl] = useState<Element | undefined>(undefined);
 
   const isCategoryNameUnique = (newCatName: string) => {
     return !budget.categories.some((cat) => cat.name === newCatName);
@@ -41,19 +52,21 @@ const Category = (props: CategoryProps): JSX.Element => {
                     onSubmitValue={(newValue) => setCategoryName(newValue, category.name)}
                   />
 
-                  <IconButton
-                    icon={<MdKeyboardArrowDown />}
-                    onClick={(event) => setAnchorEl(event.currentTarget)}
-                    sx={{
-                      display: isHovered ? 'inherit' : 'none',
-                      p: 0,
-                      ml: 1,
-                    }}
-                    aria-label='Category menu'
-                  />
-                  <Menu id={`cat${idx}-menu`} isOpen={!!anchorEl} onClose={() => setAnchorEl(undefined)}>
-                    <MenuItem onClick={() => addNewSubCategory(category.name)}>Add sub-category</MenuItem>
-                    <MenuItem onClick={() => removeCategory(category.name)}>Delete category</MenuItem>
+                  <Menu>
+                    <MenuButton>
+                      <IconButton
+                        icon={<MdKeyboardArrowDown />}
+                        fontSize={24}
+                        variant='ghost'
+                        visibility={isHovered ? 'visible' : 'hidden'}
+                        aria-label='Category menu'
+                      />
+                    </MenuButton>
+
+                    <MenuList>
+                      <MenuItem onClick={() => addNewSubCategory(category.name)}>Add sub-category</MenuItem>
+                      <MenuItem onClick={() => removeCategory(category.name)}>Delete category</MenuItem>
+                    </MenuList>
                   </Menu>
                 </Stack>
               </GridItem>

@@ -293,7 +293,7 @@ const Budget = (props: BudgetProps): JSX.Element => {
   };
 
   return (
-    <Box key={budget.id} maxWidth='xl' mx='auto'>
+    <Box>
       <Box textAlign='center' mb={4} mt={2} width={300} mx='auto'>
         <EditableLabel
           fieldName='Budget name'
@@ -356,11 +356,17 @@ const Budget = (props: BudgetProps): JSX.Element => {
 
       <Box>
         <Box p={1} sx={{ position: 'sticky', top: 60, zIndex: 1000 }}>
-          <Grid alignItems='center' sx={{ p: 1 }}>
+          <Grid alignItems='center' p={1} bgColor='green.400'>
             <GridItem>
               <Stack direction='row' alignItems='center'>
                 <Tooltip title='Add category'>
-                  <IconButton icon={<MdAdd />} onClick={addNewCategory} aria-label='Add category' />
+                  <IconButton
+                    icon={<MdAdd />}
+                    onClick={addNewCategory}
+                    variant='ghost'
+                    fontSize={24}
+                    aria-label='Add category'
+                  />
                 </Tooltip>
 
                 <Stack>
