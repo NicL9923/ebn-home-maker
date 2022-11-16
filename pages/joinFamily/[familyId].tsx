@@ -1,26 +1,40 @@
 import React, { useEffect } from 'react';
-import { Alert, Box, CircularProgress } from '@mui/material';
-import { arrayUnion } from 'firebase/firestore';
+import { arrayUnion, doc, writeBatch } from 'firebase/firestore';
 import { useRouter } from 'next/router';
-import { useAppStore } from '../../src/state/AppStore';
 import { useUserStore } from '../../src/state/UserStore';
+import { Alert, CircularProgress, Container, useToast } from '@chakra-ui/react';
+import { useFirestoreWriteBatch } from '@react-query-firebase/firestore';
+import { db, FsCol } from '../../src/firebase';
 
 const JoinFamily = () => {
   const router = useRouter();
   const familyId = router.query['familyId'] as string;
+  const toast = useToast();
 
-  const firebase = useAppStore((state) => state.firebase);
   const userId = useUserStore((state) => state.userId);
   const profile = useUserStore((state) => state.profile);
   const family = useUserStore((state) => state.family);
+
+  const batch = writeBatch(db);
+  const batchMutation = useFirestoreWriteBatch(batch);
 
   const addUserToFamily = () => {
     if (!familyId || !userId || profile?.familyId === familyId) {
       return;
     }
 
-    firebase.updateFamily(familyId, { members: arrayUnion(userId) });
-    firebase.updateProfile(userId, { familyId });
+    batch.update(doc(db, FsCol.Families, familyId), { members: arrayUnion(userId) });
+    batch.update(doc(db, FsCol.Profiles, userId), { familyId });
+
+    batchMutation.mutate(undefined, {
+      onSuccess() {
+        toast({
+          title: `You've successfully joined the ${family.name} family! (${familyId})`,
+          status: 'success',
+          isClosable: true,
+        });
+      },
+    });
   };
 
   useEffect(() => {
@@ -28,15 +42,15 @@ const JoinFamily = () => {
   }, []);
 
   return (
-    <Box maxWidth='md' mt={6} mx='auto'>
+    <Container centerContent mt={6}>
       {family ? (
-        <Alert severity='success'>
+        <Alert status='success'>
           You&apos;ve successfully joined the {family.name} family! ({familyId})
         </Alert>
       ) : (
-        <CircularProgress />
+        <CircularProgress isIndeterminate size={32} />
       )}
-    </Box>
+    </Container>
   );
 };
 
