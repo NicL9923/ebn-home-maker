@@ -70,6 +70,7 @@ const AddTransaction = ({ isOpen, setIsOpen, initialCatSubcat, budget }: AddTran
     register,
     handleSubmit,
     control,
+    reset,
     formState: { errors },
   } = useForm<AddTransactionFormSchema>({
     resolver: yupResolver(addTransactionSchema),
@@ -134,6 +135,7 @@ const AddTransaction = ({ isOpen, setIsOpen, initialCatSubcat, budget }: AddTran
           });
 
           setIsOpen(false);
+          reset();
         },
       }
     );
