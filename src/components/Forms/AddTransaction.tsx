@@ -71,6 +71,7 @@ const AddTransaction = ({ isOpen, setIsOpen, initialCatSubcat, budget }: AddTran
     handleSubmit,
     control,
     reset,
+    setValue,
     formState: { errors },
   } = useForm<AddTransactionFormSchema>({
     resolver: yupResolver(addTransactionSchema),
@@ -102,6 +103,10 @@ const AddTransaction = ({ isOpen, setIsOpen, initialCatSubcat, budget }: AddTran
         newInitialOption = { ...foundOpt };
       }
     });
+
+    if (newInitialOption) {
+      setValue('catSubcat', newInitialOption);
+    }
 
     return newInitialOption;
   }, [categoryOptions, initialCatSubcat]);
