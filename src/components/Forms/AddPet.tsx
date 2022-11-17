@@ -22,9 +22,7 @@ import {
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { Controller, useForm } from 'react-hook-form';
-import Dropzone from 'react-dropzone';
-
-// TODO: Move dropzone to common component if/when styling it and applying other general props in the future
+import FileDropzone from 'components/Inputs/FileDropzone';
 
 const addPetSchema = yup
   .object({
@@ -87,12 +85,12 @@ const AddPet = ({ isOpen, setIsOpen }: AddPetProps) => {
             status: 'success',
             isClosable: true,
           });
+
+          setIsOpen(false);
+          reset();
         },
       }
     );
-
-    setIsOpen(false);
-    reset();
   };
 
   return (
@@ -115,10 +113,9 @@ const AddPet = ({ isOpen, setIsOpen }: AddPetProps) => {
                 name='photo'
                 control={control}
                 render={({ field }) => (
-                  <Dropzone
+                  <FileDropzone
                     accept={{ 'image/png': ['.png'], 'image/jpeg': ['.jpg', '.jpeg'] }}
                     onDrop={(acceptedFiles) => field.onChange(acceptedFiles[0])}
-                    // TODO: maxSize (in bytes)
                   />
                 )}
               />

@@ -25,8 +25,6 @@ import { Controller, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import FileDropzone from 'components/Inputs/FileDropzone';
 
-// TODO: File dropzone
-
 const createProfileSchema = yup
   .object({
     name: yup.string().required(`You must provide your first name`),
