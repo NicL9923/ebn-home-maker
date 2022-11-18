@@ -11,7 +11,7 @@
     "@hookform/resolvers": "^2.9.10",
     "@react-query-firebase/auth": "^1.0.0-dev.2",
     "@react-query-firebase/firestore": "^1.0.0-dev.7",
-    "@table-library/react-table-library": "^4.0.23",
+    "@tanstack/react-table": "^8.5.30",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.3.0",
     "@testing-library/user-event": "^14.4.2",
