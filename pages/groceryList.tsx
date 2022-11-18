@@ -5,11 +5,12 @@ import { DragDropContext, Draggable, Droppable, DropResult } from 'react-beautif
 import { useUserStore } from 'state/UserStore';
 import { useFirestoreDocumentMutation } from '@react-query-firebase/firestore';
 import { db, FsCol } from '../src/firebase';
-import { Box, Button, Checkbox, Heading, List, ListItem, Stack, useToast } from '@chakra-ui/react';
+import { Box, Button, Checkbox, Heading, List, ListItem, Stack, useColorModeValue, useToast } from '@chakra-ui/react';
 import { MdAdd, MdDelete } from 'react-icons/md';
 
 const GroceryList = () => {
   const toast = useToast();
+  const listBgColor = useColorModeValue('gray.50', 'gray.700');
   const profile = useUserStore((state) => state.profile);
   const family = useUserStore((state) => state.family);
 
@@ -115,7 +116,7 @@ const GroceryList = () => {
               height='75vh'
               width='85vw'
               overflow='auto'
-              bgColor='gray.50'
+              bgColor={listBgColor}
               p='3'
               borderRadius='md'
             >
