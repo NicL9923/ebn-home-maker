@@ -113,13 +113,13 @@ const AddResidence = ({ isOpen, setIsOpen }: AddResidenceProps) => {
 
         <form onSubmit={handleSubmit(addNewResidence)} method='post'>
           <ModalBody>
-            <FormControl>
+            <FormControl isInvalid={!!errors.name?.message}>
               <FormLabel>Name</FormLabel>
               <Input type='text' placeholder='My house!' {...register('name')} />
               <FormErrorMessage>{errors.name?.message}</FormErrorMessage>
             </FormControl>
 
-            <FormControl>
+            <FormControl isInvalid={!!errors.photo?.message}>
               <FormLabel>Photo</FormLabel>
               <Controller
                 name='photo'
@@ -134,16 +134,16 @@ const AddResidence = ({ isOpen, setIsOpen }: AddResidenceProps) => {
               <FormErrorMessage>{errors.photo?.message}</FormErrorMessage>
             </FormControl>
 
-            <FormControl>
+            <FormControl isInvalid={!!errors.yearBuilt?.message}>
               <FormLabel>Year Built</FormLabel>
               <Input type='text' {...register('yearBuilt')} />
-              <FormErrorMessage>{errors.name?.message}</FormErrorMessage>
+              <FormErrorMessage>{errors.yearBuilt?.message}</FormErrorMessage>
             </FormControl>
 
-            <FormControl>
+            <FormControl isInvalid={!!errors.yearPurchased?.message}>
               <FormLabel>Year Purchased</FormLabel>
               <Input type='text' {...register('yearPurchased')} />
-              <FormErrorMessage>{errors.name?.message}</FormErrorMessage>
+              <FormErrorMessage>{errors.yearPurchased?.message}</FormErrorMessage>
             </FormControl>
           </ModalBody>
 

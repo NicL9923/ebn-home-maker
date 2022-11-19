@@ -123,55 +123,55 @@ const AddVehicle = ({ isOpen, setIsOpen }: AddVehicleProps) => {
 
         <form onSubmit={handleSubmit(addNewVehicle)} method='post'>
           <ModalBody>
-            <FormControl>
+            <FormControl isInvalid={!!errors.year?.message}>
               <FormLabel>Model Year</FormLabel>
               <Input type='text' {...register('year')} />
               <FormErrorMessage>{errors.year?.message}</FormErrorMessage>
             </FormControl>
 
-            <FormControl>
+            <FormControl isInvalid={!!errors.make?.message}>
               <FormLabel>Make</FormLabel>
               <Input type='text' placeholder='Chevrolet, Ford, Dodge, Toyota...' {...register('make')} />
               <FormErrorMessage>{errors.make?.message}</FormErrorMessage>
             </FormControl>
 
-            <FormControl>
+            <FormControl isInvalid={!!errors.model?.message}>
               <FormLabel>Model</FormLabel>
               <Input type='text' placeholder='F150, Corolla, Tacoma, Tahoe...' {...register('model')} />
-              <FormErrorMessage>{errors.make?.message}</FormErrorMessage>
+              <FormErrorMessage>{errors.model?.message}</FormErrorMessage>
             </FormControl>
 
-            <FormControl>
+            <FormControl isInvalid={!!errors.trim?.message}>
               <FormLabel>Trim</FormLabel>
               <Input type='text' placeholder='SE, Ultimate, Limited, Lariat...' {...register('trim')} />
-              <FormErrorMessage>{errors.make?.message}</FormErrorMessage>
+              <FormErrorMessage>{errors.trim?.message}</FormErrorMessage>
             </FormControl>
 
-            <FormControl>
+            <FormControl isInvalid={!!errors.engine?.message}>
               <FormLabel>Engine</FormLabel>
               <Input type='text' placeholder='3.5L V6...' {...register('engine')} />
-              <FormErrorMessage>{errors.make?.message}</FormErrorMessage>
+              <FormErrorMessage>{errors.engine?.message}</FormErrorMessage>
             </FormControl>
 
-            <FormControl>
+            <FormControl isInvalid={!!errors.vin?.message}>
               <FormLabel>VIN (Vehicle Identification Number)</FormLabel>
               <Input type='text' {...register('vin')} />
-              <FormErrorMessage>{errors.make?.message}</FormErrorMessage>
+              <FormErrorMessage>{errors.vin?.message}</FormErrorMessage>
             </FormControl>
 
-            <FormControl>
+            <FormControl isInvalid={!!errors.licensePlate?.message}>
               <FormLabel>License Plate</FormLabel>
               <Input type='text' {...register('licensePlate')} />
-              <FormErrorMessage>{errors.make?.message}</FormErrorMessage>
+              <FormErrorMessage>{errors.licensePlate?.message}</FormErrorMessage>
             </FormControl>
 
-            <FormControl>
+            <FormControl isInvalid={!!errors.miles?.message}>
               <FormLabel>Odometer (miles)</FormLabel>
               <Input type='number' {...register('miles')} />
-              <FormErrorMessage>{errors.make?.message}</FormErrorMessage>
+              <FormErrorMessage>{errors.miles?.message}</FormErrorMessage>
             </FormControl>
 
-            <FormControl>
+            <FormControl isInvalid={!!errors.photo?.message}>
               <FormLabel>Photo</FormLabel>
               <Controller
                 name='photo'

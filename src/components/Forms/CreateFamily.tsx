@@ -96,7 +96,7 @@ const CreateFamily = ({ isOpen, setIsOpen }: CreateFamilyProps) => {
 
         <form onSubmit={handleSubmit(createFamily)} method='post'>
           <ModalBody>
-            <FormControl>
+            <FormControl isInvalid={!!errors.name?.message}>
               <FormLabel>Family (Last) Name</FormLabel>
               <Input type='text' {...register('name')} />
               <FormErrorMessage>{errors.name?.message}</FormErrorMessage>

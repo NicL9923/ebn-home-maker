@@ -154,19 +154,19 @@ const AddTransaction = ({ isOpen, setIsOpen, initialCatSubcat, budget }: AddTran
 
         <form onSubmit={handleSubmit(submitNewTransaction)} method='post'>
           <ModalBody>
-            <FormControl>
+            <FormControl isInvalid={!!errors.amount?.message}>
               <FormLabel>Amount</FormLabel>
               <Input type='number' {...register('amount')} step='0.01' />
               <FormErrorMessage>{errors.amount?.message}</FormErrorMessage>
             </FormControl>
 
-            <FormControl>
+            <FormControl isInvalid={!!errors.description?.message}>
               <FormLabel>Description</FormLabel>
               <Input type='text' {...register('description')} />
               <FormErrorMessage>{errors.description?.message}</FormErrorMessage>
             </FormControl>
 
-            <FormControl>
+            <FormControl isInvalid={!!errors.catSubcat?.message}>
               <FormLabel>Category</FormLabel>
               <Controller
                 name='catSubcat'
@@ -186,7 +186,7 @@ const AddTransaction = ({ isOpen, setIsOpen, initialCatSubcat, budget }: AddTran
               <FormErrorMessage>{errors.catSubcat?.message}</FormErrorMessage>
             </FormControl>
 
-            <FormControl>
+            <FormControl isInvalid={!!errors.date?.message}>
               <FormLabel>Date</FormLabel>
               <Controller
                 name='date'

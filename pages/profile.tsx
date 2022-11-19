@@ -53,6 +53,10 @@ const ProfilePage = () => {
       });
   };
 
+  const userUsesEmailPasswordAuth = auth.currentUser?.providerData.some(
+    (provider) => provider.providerId === 'password'
+  );
+
   return (
     <Container>
       {!profile ? (
@@ -78,7 +82,7 @@ const ProfilePage = () => {
             />
 
             <Stack direction='row' justifyContent='space-evenly' sx={{ mt: 3 }}>
-              <Button onClick={handlePasswordReset}>Reset password (email)</Button>
+              {userUsesEmailPasswordAuth && <Button onClick={handlePasswordReset}>Reset password (email)</Button>}
             </Stack>
           </Stack>
         </Box>

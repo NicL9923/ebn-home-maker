@@ -101,13 +101,13 @@ const AddPet = ({ isOpen, setIsOpen }: AddPetProps) => {
 
         <form onSubmit={handleSubmit(addPet)} method='post'>
           <ModalBody>
-            <FormControl>
+            <FormControl isInvalid={!!errors.name?.message}>
               <FormLabel>Name</FormLabel>
               <Input type='text' {...register('name')} />
               <FormErrorMessage>{errors.name?.message}</FormErrorMessage>
             </FormControl>
 
-            <FormControl>
+            <FormControl isInvalid={!!errors.photo?.message}>
               <FormLabel>Photo</FormLabel>
               <Controller
                 name='photo'

@@ -11,13 +11,14 @@ import { Family, Profile } from 'models/types';
 import NoProfile from 'components/NoProfile';
 import NoFamily from 'components/NoFamily';
 import { useAuthUser } from '@react-query-firebase/auth';
-import { useFirestoreDocument } from '@react-query-firebase/firestore';
-import { Box, CircularProgress } from '@chakra-ui/react';
+import { useFirestoreDocumentData } from '@react-query-firebase/firestore';
+import { Box, CircularProgress, useToast } from '@chakra-ui/react';
 
 // TODO: Properly type useFirestoreDocuments because doc method of explicit generics is not playing nice
 // TODO: Snackbar/console-error errors for mutation onErrors
 
 const AppProvider = ({ children }: ProviderProps) => {
+  const toast = useToast();
   const userId = useUserStore((state) => state.userId);
   const profile = useUserStore((state) => state.profile);
   const family = useUserStore((state) => state.family);
@@ -27,18 +28,38 @@ const AppProvider = ({ children }: ProviderProps) => {
   const setFamily = useUserStore((state) => state.setFamily);
 
   const userAuth = useAuthUser(['user'], getAuth());
-  const profileDoc = useFirestoreDocument(
-    [FsCol.Profiles, userId ?? 'undefined'],
+  const profileDocData = useFirestoreDocumentData(
+    [FsCol.Profiles, userId],
     doc(db, FsCol.Profiles, userId ?? 'undefined'),
     {
       subscribe: true,
+    },
+    {
+      onError(error) {
+        toast({
+          title: `Error getting profile data`,
+          description: error.message,
+          status: 'error',
+          isClosable: true,
+        });
+      },
     }
   );
-  const familyDoc = useFirestoreDocument(
-    [FsCol.Families, profile?.familyId ?? 'undefined'],
+  const familyDocData = useFirestoreDocumentData(
+    [FsCol.Families, profile?.familyId],
     doc(db, FsCol.Families, profile?.familyId ?? 'undefined'),
     {
       subscribe: true,
+    },
+    {
+      onError(error) {
+        toast({
+          title: `Error getting family data`,
+          description: error.message,
+          status: 'error',
+          isClosable: true,
+        });
+      },
     }
   );
 
@@ -50,28 +71,28 @@ const AppProvider = ({ children }: ProviderProps) => {
 
   // Profile listener
   useEffect(() => {
-    setProfile(profileDoc.data ? (profileDoc.data.data() as Profile) : undefined);
-  }, [profileDoc.data]);
+    setProfile(profileDocData.data ? (profileDocData.data as Profile) : undefined);
+  }, [profileDocData.data]);
 
   // Family listener
   useEffect(() => {
-    setFamily(familyDoc.data ? (familyDoc.data.data() as Family) : undefined);
-  }, [familyDoc.data]);
+    setFamily(familyDocData.data ? (familyDocData.data as Family) : undefined);
+  }, [familyDocData.data]);
 
   return (
     <ThemeProvider>
       <Navbar />
 
-      {userAuth.isLoading || profileDoc.isLoading || familyDoc.isLoading ? (
+      {!userAuth.isLoading && !userAuth.isError && !userId ? (
+        <NotLoggedIn />
+      ) : !profileDocData.isLoading && !profileDocData.isError && !profile ? (
+        <NoProfile />
+      ) : !familyDocData.isLoading && !familyDocData.isError && !family ? (
+        <NoFamily />
+      ) : userAuth.isLoading || profileDocData.isLoading || familyDocData.isLoading ? (
         <Box mx='auto' textAlign='center' mt={20}>
           <CircularProgress size={59} isIndeterminate />
         </Box>
-      ) : !userId ? (
-        <NotLoggedIn />
-      ) : !profile ? (
-        <NoProfile />
-      ) : !family ? (
-        <NoFamily />
       ) : (
         children
       )}
