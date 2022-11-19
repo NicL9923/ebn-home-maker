@@ -1,6 +1,6 @@
 import { Button, Divider, FormControl, FormErrorMessage, FormLabel, Input, Stack, useToast } from '@chakra-ui/react';
 import { auth } from '../../firebase';
-import { GoogleAuthProvider, signInWithEmailAndPassword, signInWithRedirect } from 'firebase/auth';
+import { GoogleAuthProvider, signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
 import { FaGoogle } from 'react-icons/fa';
 import { BaseSyntheticEvent } from 'react';
 import * as yup from 'yup';
@@ -52,7 +52,7 @@ const Login = () => {
   };
 
   const googleSignIn = () =>
-    signInWithRedirect(auth, provider)
+    signInWithPopup(auth, provider)
       .then(() => {
         toast({
           title: 'Successfully signed in with Google!',
