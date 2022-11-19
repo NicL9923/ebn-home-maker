@@ -67,6 +67,7 @@ const Login = () => {
           status: 'error',
           isClosable: true,
         });
+        console.log(error);
       });
 
   return (
