@@ -56,7 +56,7 @@ const LandingPage = () => {
 
       <Stack id='home-maker-details' direction='row' justifyContent='space-evenly' alignItems='center' height='50vh'>
         <Box>
-          <Stack direction='column' justifyContent='center' alignItems='center' width={250} textAlign='center'>
+          <Stack direction='column' justifyContent='center' alignItems='center' textAlign='center'>
             <Icon as={MdAccountBalance} fontSize={64} />
             <Heading size='md' mt={4}>
               Manage your finances
@@ -65,7 +65,7 @@ const LandingPage = () => {
           </Stack>
         </Box>
         <Box>
-          <Stack direction='column' justifyContent='center' alignItems='center' width={250} textAlign='center'>
+          <Stack direction='column' justifyContent='center' alignItems='center' textAlign='center'>
             <Icon as={MdChecklist} fontSize={64} />
             <Heading size='md' mt={4}>
               Manage your household
@@ -74,7 +74,7 @@ const LandingPage = () => {
           </Stack>
         </Box>
         <Box>
-          <Stack direction='column' justifyContent='center' alignItems='center' width={250} textAlign='center'>
+          <Stack direction='column' justifyContent='center' alignItems='center' textAlign='center'>
             <Icon as={FaWrench} fontSize={64} />
             <Heading size='md' mt={4}>
               Keep up on maintenance
