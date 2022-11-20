@@ -20,7 +20,6 @@ const GroceryList = () => {
     merge: true,
   });
 
-  // Already handled in AppProvider - just to shut errors up
   if (!profile || !family) {
     return null;
   }

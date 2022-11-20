@@ -107,7 +107,9 @@ const CreateFamily = ({ isOpen, setIsOpen }: CreateFamilyProps) => {
             <Button type='button' onClick={() => setIsOpen(false)}>
               Cancel
             </Button>
-            <Button type='submit'>Create</Button>
+            <Button type='submit' ml={3} colorScheme='green'>
+              Create
+            </Button>
           </ModalFooter>
         </form>
       </ModalContent>

@@ -1,8 +1,18 @@
 import React, { useEffect } from 'react';
 import { arrayUnion, doc, writeBatch } from 'firebase/firestore';
 import { useRouter } from 'next/router';
+import Link from 'next/link';
 import { useUserStore } from '../../src/state/UserStore';
-import { Alert, CircularProgress, Container, useToast } from '@chakra-ui/react';
+import {
+  Alert,
+  AlertDescription,
+  AlertIcon,
+  Button,
+  CircularProgress,
+  Container,
+  Text,
+  useToast,
+} from '@chakra-ui/react';
 import { useFirestoreWriteBatch } from '@react-query-firebase/firestore';
 import { db, FsCol } from '../../src/firebase';
 
@@ -44,9 +54,23 @@ const JoinFamily = () => {
   return (
     <Container centerContent mt={6}>
       {family ? (
-        <Alert status='success'>
-          You&apos;ve successfully joined the {family.name} family! ({familyId})
-        </Alert>
+        <Container centerContent>
+          <Alert status='success'>
+            <AlertIcon />
+
+            <AlertDescription>{`Welcome to the ${family.name} family, ${profile.firstName}!`}</AlertDescription>
+          </Alert>
+
+          <Text>
+            {`You've successfully joined the ${family.name} family! `}
+            <Link href='/'>
+              <Button variant='link' colorScheme='blue'>
+                Head home
+              </Button>
+            </Link>
+            {` to get started!`}
+          </Text>
+        </Container>
       ) : (
         <CircularProgress isIndeterminate size={32} />
       )}

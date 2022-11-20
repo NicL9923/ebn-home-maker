@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react';
 import { getAuth } from 'firebase/auth';
-import NotLoggedIn from '../components/NotLoggedIn';
 import ThemeProvider from 'providers/ThemeProvider';
 import { ProviderProps } from 'providers/providerTypes';
 import Navbar from 'components/Navbar';
@@ -13,11 +12,14 @@ import NoFamily from 'components/NoFamily';
 import { useAuthUser } from '@react-query-firebase/auth';
 import { useFirestoreDocumentData } from '@react-query-firebase/firestore';
 import { Box, CircularProgress, useToast } from '@chakra-ui/react';
+import LandingPage from 'components/LandingPage';
+import { useRouter } from 'next/router';
 
 // TODO: Properly type useFirestoreDocuments because doc method of explicit generics is not playing nice
 // TODO: Snackbar/console-error errors for mutation onErrors
 
 const AppProvider = ({ children }: ProviderProps) => {
+  const router = useRouter();
   const toast = useToast();
   const userId = useUserStore((state) => state.userId);
   const profile = useUserStore((state) => state.profile);
@@ -47,7 +49,7 @@ const AppProvider = ({ children }: ProviderProps) => {
   );
   const familyDocData = useFirestoreDocumentData(
     [FsCol.Families, profile?.familyId],
-    doc(db, FsCol.Families, profile?.familyId ?? 'undefined'),
+    doc(db, FsCol.Families, !profile?.familyId ? 'undefined' : profile.familyId),
     {
       subscribe: true,
     },
@@ -79,23 +81,43 @@ const AppProvider = ({ children }: ProviderProps) => {
     setFamily(familyDocData.data ? (familyDocData.data as Family) : undefined);
   }, [familyDocData.data]);
 
+  const getPageContent = () => {
+    if (router.pathname.includes('login') || router.pathname.includes('signup')) {
+      return children;
+    }
+
+    if (router.pathname.includes('joinFamily')) {
+      return children;
+    }
+
+    if (!userAuth.isLoading && !userAuth.isError && !userId) {
+      return <LandingPage />;
+    }
+
+    if (!profileDocData.isLoading && !profileDocData.isError && !profile) {
+      return <NoProfile />;
+    }
+
+    if (!familyDocData.isLoading && !familyDocData.isError && !family) {
+      return <NoFamily />;
+    }
+
+    if (userAuth.isLoading || profileDocData.isLoading || familyDocData.isLoading) {
+      return (
+        <Box mx='auto' textAlign='center' mt={20}>
+          <CircularProgress size={59} isIndeterminate />
+        </Box>
+      );
+    }
+
+    return children;
+  };
+
   return (
     <ThemeProvider>
       <Navbar />
 
-      {!userAuth.isLoading && !userAuth.isError && !userId ? (
-        <NotLoggedIn />
-      ) : !profileDocData.isLoading && !profileDocData.isError && !profile ? (
-        <NoProfile />
-      ) : !familyDocData.isLoading && !familyDocData.isError && !family ? (
-        <NoFamily />
-      ) : userAuth.isLoading || profileDocData.isLoading || familyDocData.isLoading ? (
-        <Box mx='auto' textAlign='center' mt={20}>
-          <CircularProgress size={59} isIndeterminate />
-        </Box>
-      ) : (
-        children
-      )}
+      {getPageContent()}
     </ThemeProvider>
   );
 };

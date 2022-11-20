@@ -191,7 +191,9 @@ const AddVehicle = ({ isOpen, setIsOpen }: AddVehicleProps) => {
             <Button type='button' onClick={() => setIsOpen(false)}>
               Cancel
             </Button>
-            <Button type='submit'>Add</Button>
+            <Button type='submit' ml={3} colorScheme='green'>
+              Add
+            </Button>
           </ModalFooter>
         </form>
       </ModalContent>

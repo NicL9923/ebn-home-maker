@@ -11,7 +11,18 @@ import {
 import ProfileIcon from './ProfileIcon';
 import Link from 'next/link';
 import { useUserStore } from 'state/UserStore';
-import { IconButton, Menu, MenuList, MenuButton, MenuItem, Stack, Text, Heading, Portal } from '@chakra-ui/react';
+import {
+  IconButton,
+  Menu,
+  MenuList,
+  MenuButton,
+  MenuItem,
+  Stack,
+  Text,
+  Heading,
+  Portal,
+  Button,
+} from '@chakra-ui/react';
 
 const Navbar = () => {
   const userId = useUserStore((state) => state.userId);
@@ -73,6 +84,11 @@ const Navbar = () => {
       </Heading>
 
       {userId && profile && <ProfileIcon />}
+      {!userId && (
+        <Link href='/login'>
+          <Button colorScheme='green'>Login</Button>
+        </Link>
+      )}
     </Stack>
   );
 };

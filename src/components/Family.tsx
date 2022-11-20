@@ -317,12 +317,12 @@ const Family = () => {
             Export family data
           </Button>
 
-          <Button color='error' leftIcon={<MdClose />} onClick={() => setDeletingFamily(true)}>
+          <Button colorScheme='red' leftIcon={<MdClose />} onClick={() => setDeletingFamily(true)}>
             Delete Family
           </Button>
         </Stack>
       ) : (
-        <Button color='error' leftIcon={<MdLogout />} onClick={() => setLeavingFamily(true)}>
+        <Button leftIcon={<MdLogout />} onClick={() => setLeavingFamily(true)} mt={6} colorScheme='red'>
           Leave Family
         </Button>
       )}

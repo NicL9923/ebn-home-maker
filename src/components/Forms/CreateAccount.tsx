@@ -5,8 +5,9 @@ import * as yup from 'yup';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { BaseSyntheticEvent } from 'react';
+import { useRouter } from 'next/router';
 
-// TODO: Email validation - required to create profile ?
+// TODO: Email verification - required to create profile ?
 
 const createAccountValidationSchema = yup
   .object({
@@ -24,6 +25,7 @@ interface CreateAccountSchema {
 
 const CreateAccount = () => {
   const toast = useToast();
+  const router = useRouter();
 
   const {
     register,
@@ -44,6 +46,8 @@ const CreateAccount = () => {
           status: 'success',
           isClosable: true,
         });
+
+        router.push('/');
       })
       .catch((error) => {
         // Error creating account
