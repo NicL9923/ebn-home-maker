@@ -69,7 +69,7 @@ const Navbar = () => {
       </Link>
 
       <Heading sx={{ flexGrow: 1 }} size='md' color='white'>
-        Our Home
+        Home Maker
       </Heading>
 
       {userId && profile && <ProfileIcon />}

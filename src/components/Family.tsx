@@ -126,7 +126,7 @@ const Family = () => {
   const copyInviteLink = () => {
     if (!profile) return;
 
-    copy(`https://our-home-239c1.firebaseapp.com/joinFamily/${profile.familyId}`).then(() => {
+    copy(`https://explorersbynature.com/joinFamily/${profile.familyId}`).then(() => {
       toast({
         title: `Copied invite link`,
         status: 'info',

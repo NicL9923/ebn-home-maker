@@ -7,7 +7,7 @@ const NoProfile = () => {
 
   return (
     <Box maxWidth='sm' mx='auto' mt={2} p={2}>
-      <Heading size='lg'>Welcome to Our Home!</Heading>
+      <Heading size='lg'>Welcome to Home Maker!</Heading>
       <Text mb={2}>It looks like you don&apos;t have a profile yet, would you like to create one?</Text>
 
       <Stack direction='row' justifyContent='center' mb={2}>

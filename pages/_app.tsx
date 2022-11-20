@@ -11,8 +11,11 @@ const AppBase = ({ Component, pageProps }: AppProps) => {
     <QueryClientProvider client={queryClient}>
       <Head>
         <meta name='viewport' content='width=device-width, initial-scale=1' />
-        <title>Our Home</title>
-        <meta name='description' content='An app to help run a household!' />
+        <title>EBN - Home Maker</title>
+        <meta
+          name='description'
+          content="Explorers by Nature's Home Maker app lets you stay on top of your household so that it doesn't run you."
+        />
       </Head>
 
       <AppProvider>
