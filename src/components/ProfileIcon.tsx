@@ -48,9 +48,11 @@ const ProfileIcon = () => {
 
         <Portal>
           <MenuList zIndex={15}>
-            <Link href='/profile'>
-              <MenuItem>My Profile</MenuItem>
-            </Link>
+            {profile && (
+              <Link href='/profile'>
+                <MenuItem>My Profile</MenuItem>
+              </Link>
+            )}
 
             <MenuItem onClick={toggleColorMode} icon={colorMode === 'light' ? <MoonIcon /> : <SunIcon />}>
               {colorMode === 'light' ? 'Dark' : 'Light'} mode

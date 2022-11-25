@@ -49,7 +49,7 @@ const AppProvider = ({ children }: ProviderProps) => {
   );
   const familyDocData = useFirestoreDocumentData(
     [FsCol.Families, profile?.familyId],
-    doc(db, FsCol.Families, !profile?.familyId ? 'undefined' : profile.familyId),
+    doc(db, FsCol.Families, profile?.familyId ?? 'undefined'),
     {
       subscribe: true,
     },
