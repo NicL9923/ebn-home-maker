@@ -82,7 +82,9 @@ const CreateAccount = () => {
         </FormControl>
 
         <Stack direction='row' justifyContent='center' spacing={2} mt={3}>
-          <Button type='submit'>Create account</Button>
+          <Button type='submit' colorScheme='green'>
+            Create account
+          </Button>
         </Stack>
       </form>
     </Stack>

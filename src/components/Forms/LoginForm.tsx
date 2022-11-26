@@ -92,7 +92,9 @@ const LoginForm = () => {
         </FormControl>
 
         <Stack direction='row' justifyContent='center' spacing={2} mt={3}>
-          <Button type='submit'>Sign in</Button>
+          <Button type='submit' colorScheme='green'>
+            Sign in
+          </Button>
         </Stack>
       </form>
 
