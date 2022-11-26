@@ -4,19 +4,14 @@ import ThemeProvider from 'providers/ThemeProvider';
 import { ProviderProps } from 'providers/providerTypes';
 import Navbar from 'components/Navbar';
 import { useUserStore } from 'state/UserStore';
-import { doc } from 'firebase/firestore';
+import { doc, onSnapshot } from 'firebase/firestore';
 import { db, FsCol } from '../firebase';
 import { Family, Profile } from 'models/types';
 import NoProfile from 'components/NoProfile';
 import NoFamily from 'components/NoFamily';
-import { useAuthUser } from '@react-query-firebase/auth';
-import { useFirestoreDocumentData } from '@react-query-firebase/firestore';
 import { Box, CircularProgress, useToast } from '@chakra-ui/react';
 import LandingPage from 'components/LandingPage';
 import { useRouter } from 'next/router';
-
-// TODO: Properly type useFirestoreDocuments because doc method of explicit generics is not playing nice
-// TODO: Snackbar/console-error errors for mutation onErrors
 
 const AppProvider = ({ children }: ProviderProps) => {
   const router = useRouter();
@@ -29,80 +24,82 @@ const AppProvider = ({ children }: ProviderProps) => {
   const setProfile = useUserStore((state) => state.setProfile);
   const setFamily = useUserStore((state) => state.setFamily);
 
-  const userAuth = useAuthUser(['user'], getAuth());
-  const profileDocData = useFirestoreDocumentData(
-    [FsCol.Profiles, userId],
-    doc(db, FsCol.Profiles, userId ?? 'undefined'),
-    {
-      subscribe: true,
-    },
-    {
-      onError(error) {
-        toast({
-          title: `Error getting profile data`,
-          description: error.message,
-          status: 'error',
-          isClosable: true,
-        });
-      },
-    }
-  );
-  const familyDocData = useFirestoreDocumentData(
-    [FsCol.Families, profile?.familyId],
-    doc(db, FsCol.Families, profile?.familyId ?? 'undefined'),
-    {
-      subscribe: true,
-    },
-    {
-      onError(error) {
-        toast({
-          title: `Error getting family data`,
-          description: error.message,
-          status: 'error',
-          isClosable: true,
-        });
-      },
-    }
-  );
-
   // Auth listener
   useEffect(() => {
-    setUserId(userAuth?.data?.uid);
-    setUserEmail(userAuth?.data?.email ?? undefined);
-  }, [userAuth.data]);
+    const unsubscribeAuth = getAuth().onAuthStateChanged((user) => {
+      setUserId(user?.uid ?? null);
+      setUserEmail(user?.email ?? null);
+    });
+
+    return () => unsubscribeAuth();
+  }, []);
 
   // Profile listener
   useEffect(() => {
-    setProfile(profileDocData.data ? (profileDocData.data as Profile) : undefined);
-  }, [profileDocData.data]);
+    if (userId) {
+      const unsubscribeProfileSnapshot = onSnapshot(
+        doc(db, FsCol.Profiles, userId),
+        (doc) => {
+          setProfile(doc.exists() ? (doc.data() as Profile) : null);
+        },
+        (error) => {
+          toast({
+            title: `Error getting profile`,
+            description: error.message,
+            status: 'error',
+            isClosable: true,
+          });
+        }
+      );
+
+      return () => unsubscribeProfileSnapshot();
+    }
+  }, [userId]);
 
   // Family listener
   useEffect(() => {
-    setFamily(familyDocData.data ? (familyDocData.data as Family) : undefined);
-  }, [familyDocData.data]);
+    if (profile?.familyId) {
+      const unsubscribeFamilySnapshot = onSnapshot(
+        doc(db, FsCol.Families, profile.familyId),
+        (doc) => {
+          setFamily(doc.exists() ? (doc.data() as Family) : null);
+        },
+        (error) => {
+          toast({
+            title: `Error getting family`,
+            description: error.message,
+            status: 'error',
+            isClosable: true,
+          });
+        }
+      );
+
+      return () => unsubscribeFamilySnapshot();
+    }
+  }, [profile?.familyId]);
 
   const getPageContent = () => {
-    if (router.pathname.includes('login') || router.pathname.includes('signup')) {
+    if (
+      router.pathname.includes('login') ||
+      router.pathname.includes('signup') ||
+      router.pathname.includes('joinFamily')
+    ) {
       return children;
     }
 
-    if (router.pathname.includes('joinFamily')) {
-      return children;
-    }
-
-    if (!userAuth.isLoading && !userAuth.isError && !userId) {
+    if (userId === null) {
       return <LandingPage />;
     }
 
-    if (!profileDocData.isLoading && !profileDocData.isError && !profile) {
+    if (profile === null) {
       return <NoProfile />;
     }
 
-    if (!familyDocData.isLoading && !familyDocData.isError && !family) {
+    if (family === null) {
       return <NoFamily />;
     }
 
-    if (userAuth.isLoading || profileDocData.isLoading || familyDocData.isLoading) {
+    if (userId === undefined || profile === undefined || family === undefined) {
       return (
         <Box mx='auto' textAlign='center' mt={20}>
           <CircularProgress size={59} isIndeterminate />

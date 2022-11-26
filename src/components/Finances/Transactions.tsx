@@ -2,8 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { IBudget, Transaction } from 'models/types';
 import AddTransaction from 'components/Forms/AddTransaction';
 import { useUserStore } from 'state/UserStore';
-import { useFirestoreDocumentMutation } from '@react-query-firebase/firestore';
-import { doc } from 'firebase/firestore';
+import { doc, updateDoc } from 'firebase/firestore';
 import { db, FsCol } from '../../firebase';
 import { MdAdd, MdDelete } from 'react-icons/md';
 import { Box, Button, Checkbox, Heading, Stack, Table, Tbody, Th, Thead, Tr } from '@chakra-ui/react';
@@ -33,10 +32,6 @@ const Transactions = ({ budget }: TransactionsProps) => {
   const [addingTransaction, setAddingTransaction] = useState(false);
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
   // TODO: editable fields
-
-  const budgetDocMutation = useFirestoreDocumentMutation(doc(db, FsCol.Budgets, family?.budgetId ?? 'undefined'), {
-    merge: true,
-  });
 
   const transactionColumns = useMemo<ColumnDef<TableTransaction>[]>(
     () => [
@@ -126,8 +121,9 @@ const Transactions = ({ budget }: TransactionsProps) => {
 
     updArr = updArr.filter((_val, idx) => !rowSelection[idx]);
 
-    budgetDocMutation.mutate({ transactions: updArr });
-    setRowSelection({});
+    updateDoc(doc(db, FsCol.Budgets, family.budgetId), { transactions: updArr }).then(() => {
+      setRowSelection({});
+    });
   };
 
   /* TODO: Hook this back up
@@ -138,7 +134,7 @@ const Transactions = ({ budget }: TransactionsProps) => {
     const updArr = [...budget.transactions];
     updArr[updArr.findIndex((transaction) => transaction.id === oldRow.id)] = newRow;
 
-    budgetDocMutation.mutate({ transactions: updArr });
+    updateDoc(doc(db, FsCol.Budgets, family.budgetId), { transactions: updArr })
 
     return newRow;
   };

@@ -5,7 +5,6 @@ import { MdAdd, MdEdit, MdHouse } from 'react-icons/md';
 import { useUserStore } from 'state/UserStore';
 import { doc, getDoc, writeBatch } from 'firebase/firestore';
 import { db, FsCol } from '../../firebase';
-import { useFirestoreWriteBatch } from '@react-query-firebase/firestore';
 import { Box, Button, CircularProgress, Container, Grid, GridItem, Heading, Stack, Text } from '@chakra-ui/react';
 
 export const Residences = () => {
@@ -17,7 +16,6 @@ export const Residences = () => {
   const [addingResidence, setAddingResidence] = useState(false);
 
   const batch = writeBatch(db);
-  const batchMutation = useFirestoreWriteBatch(batch);
 
   const getResidences = () => {
     if (!family?.residences) return;
@@ -49,7 +47,7 @@ export const Residences = () => {
     batch.update(doc(db, FsCol.Families, profile.familyId), { residences: newResIdArr });
     batch.delete(doc(db, FsCol.Residences, resId));
 
-    batchMutation.mutate();
+    batch.commit();
   };
 
   // const addLogEntry = () => {};

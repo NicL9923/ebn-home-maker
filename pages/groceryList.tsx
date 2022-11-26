@@ -1,9 +1,8 @@
 import React, { useMemo, useState } from 'react';
-import { doc } from 'firebase/firestore';
+import { doc, updateDoc } from 'firebase/firestore';
 import SingleFieldDialog from 'components/Inputs/SingleFieldDialog';
 import { DragDropContext, Draggable, Droppable, DropResult } from 'react-beautiful-dnd';
 import { useUserStore } from 'state/UserStore';
-import { useFirestoreDocumentMutation } from '@react-query-firebase/firestore';
 import { db, FsCol } from '../src/firebase';
 import { Box, Button, Checkbox, Heading, List, ListItem, Stack, useColorModeValue, useToast } from '@chakra-ui/react';
 import { MdAdd, MdDelete } from 'react-icons/md';
@@ -16,10 +15,6 @@ const GroceryList = () => {
 
   const [isEditing, setIsEditing] = useState(false);
 
-  const familyDocMutation = useFirestoreDocumentMutation(doc(db, FsCol.Families, profile?.familyId ?? 'undefined'), {
-    merge: true,
-  });
-
   if (!profile || !family) {
     return null;
   }
@@ -29,18 +24,13 @@ const GroceryList = () => {
 
     const newList = [...family.groceryList, { name: newItemName, isBought: false }];
 
-    familyDocMutation.mutate(
-      { groceryList: newList },
-      {
-        onSuccess() {
-          toast({
-            title: 'Successfully added item!',
-            status: 'success',
-            isClosable: true,
-          });
-        },
-      }
-    );
+    updateDoc(doc(db, FsCol.Families, profile.familyId), { groceryList: newList }).then(() => {
+      toast({
+        title: 'Successfully added item!',
+        status: 'success',
+        isClosable: true,
+      });
+    });
   };
 
   const editGroceryItem = (idx: number, newName: string | undefined, isBought: boolean) => {
@@ -52,7 +42,7 @@ const GroceryList = () => {
 
     updGroceryList[idx].isBought = isBought;
 
-    familyDocMutation.mutate({ groceryList: updGroceryList });
+    updateDoc(doc(db, FsCol.Families, profile.familyId), { groceryList: updGroceryList });
   };
 
   const removeGroceryItems = () => {
@@ -62,7 +52,7 @@ const GroceryList = () => {
 
     const updGroceryList = family.groceryList.filter((val) => val.isBought === false);
 
-    familyDocMutation.mutate({ groceryList: updGroceryList });
+    updateDoc(doc(db, FsCol.Families, profile.familyId), { groceryList: updGroceryList });
   };
 
   const onDragEnd = ({ type, source, destination }: DropResult) => {
@@ -75,7 +65,7 @@ const GroceryList = () => {
       newGList.splice(source.index, 1);
       newGList.splice(destination.index, 0, listItem);
 
-      familyDocMutation.mutate({ groceryList: newGList });
+      updateDoc(doc(db, FsCol.Families, profile.familyId), { groceryList: newGList });
     }
   };
 

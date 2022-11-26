@@ -13,7 +13,6 @@ import {
   Text,
   useToast,
 } from '@chakra-ui/react';
-import { useFirestoreWriteBatch } from '@react-query-firebase/firestore';
 import { db, FsCol } from '../../src/firebase';
 
 const JoinFamily = () => {
@@ -26,24 +25,30 @@ const JoinFamily = () => {
   const family = useUserStore((state) => state.family);
 
   const batch = writeBatch(db);
-  const batchMutation = useFirestoreWriteBatch(batch);
 
   const addUserToFamily = () => {
-    if (!familyId || !userId || profile?.familyId === familyId) {
+    if (!familyId || !userId) {
+      return;
+    }
+
+    if (profile?.familyId === familyId) {
+      toast({
+        title: `You're already apart of the ${family.name} family! (${familyId})`,
+        status: 'info',
+        isClosable: true,
+      });
       return;
     }
 
     batch.update(doc(db, FsCol.Families, familyId), { members: arrayUnion(userId) });
     batch.update(doc(db, FsCol.Profiles, userId), { familyId });
 
-    batchMutation.mutate(undefined, {
-      onSuccess() {
-        toast({
-          title: `You've successfully joined the ${family.name} family! (${familyId})`,
-          status: 'success',
-          isClosable: true,
-        });
-      },
+    batch.commit().then(() => {
+      toast({
+        title: `You've successfully joined the ${family.name} family! (${familyId})`,
+        status: 'success',
+        isClosable: true,
+      });
     });
   };
 

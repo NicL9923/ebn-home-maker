@@ -4,7 +4,6 @@ import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import { useUserStore } from 'state/UserStore';
 import { doc, writeBatch } from 'firebase/firestore';
 import { db, FsCol, storage } from '../../firebase';
-import { useFirestoreWriteBatch } from '@react-query-firebase/firestore';
 import {
   Button,
   FormControl,
@@ -71,7 +70,6 @@ const AddVehicle = ({ isOpen, setIsOpen }: AddVehicleProps) => {
   });
 
   const batch = writeBatch(db);
-  const batchMutation = useFirestoreWriteBatch(batch);
 
   const addNewVehicle = async (newVehicleData: AddVehicleFormSchema, event?: BaseSyntheticEvent) => {
     event?.preventDefault();
@@ -101,18 +99,16 @@ const AddVehicle = ({ isOpen, setIsOpen }: AddVehicleProps) => {
       residences: newVehIdArr,
     });
 
-    batchMutation.mutate(undefined, {
-      onSuccess() {
-        toast({
-          title: 'Successfully added vehicle!',
-          status: 'success',
-          isClosable: true,
-        });
-      },
-    });
+    batch.commit().then(() => {
+      toast({
+        title: 'Successfully added vehicle!',
+        status: 'success',
+        isClosable: true,
+      });
 
-    setIsOpen(false);
-    reset();
+      setIsOpen(false);
+      reset();
+    });
   };
 
   return (

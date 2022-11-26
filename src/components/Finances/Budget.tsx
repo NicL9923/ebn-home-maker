@@ -6,8 +6,7 @@ import Chart from 'react-google-charts';
 import AddTransaction from 'components/Forms/AddTransaction';
 import BudgetCategories from './BudgetComponents/BudgetCategories';
 import { useUserStore } from 'state/UserStore';
-import { useFirestoreDocumentMutation } from '@react-query-firebase/firestore';
-import { doc } from 'firebase/firestore';
+import { doc, updateDoc } from 'firebase/firestore';
 import { db, FsCol } from '../../firebase';
 import { Box, Grid, GridItem, Heading, IconButton, Stack, Text, Tooltip, useToken } from '@chakra-ui/react';
 
@@ -20,7 +19,7 @@ interface BudgetProps {
   setBudget: (newBudget: IBudget) => void;
 }
 
-const Budget = (props: BudgetProps): JSX.Element => {
+const Budget = (props: BudgetProps) => {
   const { budget, setBudget } = props;
   const [red500, green400, yellow300] = useToken('colors', ['red.500', 'green.400', 'yellow.300']);
 
@@ -29,27 +28,28 @@ const Budget = (props: BudgetProps): JSX.Element => {
   const [addingTransaction, setAddingTransaction] = useState(false);
   const [catSubcatKey, setCatSubcatKey] = useState('');
 
-  const budgetDocMutation = useFirestoreDocumentMutation(doc(db, FsCol.Budgets, family?.budgetId ?? 'undefined'), {
-    merge: true,
-  });
+  if (!family?.budgetId) {
+    return null;
+  }
 
   const saveUpdatedCategories = (categories: BudgetCategory[], transactions?: Transaction[]) => {
-    budgetDocMutation.mutate({
+    if (!family?.budgetId) return;
+    updateDoc(doc(db, FsCol.Budgets, family.budgetId), {
       categories,
       transactions,
     });
   };
 
-  const setBudgetName = (newName: string | undefined) => {
+  const setBudgetName = (newName?: string) => {
     if (!family?.budgetId || !newName) return;
 
-    budgetDocMutation.mutate({ name: newName });
+    updateDoc(doc(db, FsCol.Budgets, family.budgetId), { name: newName });
   };
 
-  const setMonthlyNetIncome = (newValue: string | undefined) => {
+  const setMonthlyNetIncome = (newValue?: string) => {
     if (!family?.budgetId || !newValue) return;
 
-    budgetDocMutation.mutate({
+    updateDoc(doc(db, FsCol.Budgets, family.budgetId), {
       monthlyNetIncome: parseFloat(newValue),
     });
   };

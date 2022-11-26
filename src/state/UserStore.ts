@@ -2,14 +2,14 @@ import { Family, Profile } from 'models/types';
 import create from 'zustand';
 
 interface IUserStore {
-  userId?: string;
-  userEmail?: string;
-  profile?: Profile;
-  family?: Family;
-  setUserId: (newUserId?: string) => void;
-  setUserEmail: (newUserEmail?: string) => void;
-  setProfile: (newProfile?: Profile) => void;
-  setFamily: (newFamily?: Family) => void;
+  userId?: string | null;
+  userEmail?: string | null;
+  profile?: Profile | null;
+  family?: Family | null;
+  setUserId: (newUserId?: string | null) => void;
+  setUserEmail: (newUserEmail?: string | null) => void;
+  setProfile: (newProfile?: Profile | null) => void;
+  setFamily: (newFamily?: Family | null) => void;
 }
 
 export const useUserStore = create<IUserStore>((set) => ({
@@ -17,8 +17,8 @@ export const useUserStore = create<IUserStore>((set) => ({
   userEmail: undefined,
   profile: undefined,
   family: undefined,
-  setUserId: (newUserId?: string) => set({ userId: newUserId }),
-  setUserEmail: (newUserEmail?: string) => set({ userEmail: newUserEmail }),
-  setProfile: (newProfile?: Profile) => set({ profile: newProfile }),
-  setFamily: (newFamily?: Family) => set({ family: newFamily }),
+  setUserId: (newUserId?: string | null) => set({ userId: newUserId }),
+  setUserEmail: (newUserEmail?: string | null) => set({ userEmail: newUserEmail }),
+  setProfile: (newProfile?: Profile | null) => set({ profile: newProfile }),
+  setFamily: (newFamily?: Family | null) => set({ family: newFamily }),
 }));

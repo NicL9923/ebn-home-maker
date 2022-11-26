@@ -7,8 +7,7 @@ import NoFamily from './NoFamily';
 import AddPet from './Forms/AddPet';
 import { deleteObject, getStorage, ref } from 'firebase/storage';
 import { useUserStore } from 'state/UserStore';
-import { useFirestoreDocumentMutation, useFirestoreWriteBatch } from '@react-query-firebase/firestore';
-import { doc, getDoc, writeBatch } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, writeBatch } from 'firebase/firestore';
 import { db, FsCol } from '../firebase';
 import {
   Avatar,
@@ -41,12 +40,11 @@ const Family = () => {
   const [deletingFamily, setDeletingFamily] = useState(false);
   const [leavingFamily, setLeavingFamily] = useState(false);
 
-  const familyDocMutation = useFirestoreDocumentMutation(doc(db, FsCol.Families, profile?.familyId ?? 'undefined'), {
-    merge: true,
-  });
-
   const batch = writeBatch(db);
-  const batchMutation = useFirestoreWriteBatch(batch);
+
+  if (!profile) {
+    return null;
+  }
 
   const getFamilyMemberProfiles = () => {
     if (!family?.members) return;
@@ -67,7 +65,7 @@ const Family = () => {
 
   const updateFamilyName = (newFamName?: string) => {
     if (newFamName) {
-      familyDocMutation.mutate({ name: newFamName });
+      updateDoc(doc(db, FsCol.Families, profile.familyId), { name: newFamName });
     }
   };
 
@@ -77,7 +75,7 @@ const Family = () => {
     const curLoc = family.cityState.split(',');
     const newLoc = `${newCity ? newCity : curLoc[0]},${newState ? newState : curLoc[1]}`;
 
-    familyDocMutation.mutate({ cityState: newLoc });
+    updateDoc(doc(db, FsCol.Families, profile.familyId), { cityState: newLoc });
   };
 
   const deleteFamily = () => {
@@ -101,7 +99,7 @@ const Family = () => {
     batch.delete(doc(db, FsCol.Families, profile.familyId));
     batch.update(doc(db, FsCol.Profiles, userId), { familyId: '' });
 
-    batchMutation.mutate();
+    batch.commit();
   };
 
   const leaveFamily = () => {
@@ -120,7 +118,7 @@ const Family = () => {
     batch.update(doc(db, FsCol.Families, profile.familyId), mergeFam);
     batch.update(doc(db, FsCol.Profiles, userId), { familyId: '' });
 
-    batchMutation.mutate();
+    batch.commit();
   };
 
   const copyInviteLink = () => {
@@ -142,7 +140,7 @@ const Family = () => {
       const newMembersArr = [...family.members];
       newMembersArr.splice(memberIdx, 1);
 
-      familyDocMutation.mutate({ members: newMembersArr });
+      updateDoc(doc(db, FsCol.Families, profile.familyId), { members: newMembersArr });
     }
   };
 
@@ -159,7 +157,7 @@ const Family = () => {
         deleteObject(oldImgRef);
       }
 
-      familyDocMutation.mutate({ pets: newPetsArr });
+      updateDoc(doc(db, FsCol.Families, profile.familyId), { pets: newPetsArr });
     }
   };
 

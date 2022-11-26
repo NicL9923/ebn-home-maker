@@ -21,7 +21,7 @@ import {
 } from 'models/weatherTypes';
 import { openWeatherMapOneCallApiBaseUrl, openWeatherMapGeocodeApiBaseUrl, daysOfTheWeek } from '../constants';
 import { useUserStore } from 'state/UserStore';
-import { useQuery } from 'react-query';
+import { useQuery } from '@tanstack/react-query';
 import {
   Alert,
   AlertDescription,

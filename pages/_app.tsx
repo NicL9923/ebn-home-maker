@@ -2,6 +2,9 @@ import React from 'react';
 import type { AppProps } from 'next/app';
 import Head from 'next/head';
 import AppProvider from '../src/providers/AppProvider';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
+const queryClient = new QueryClient();
 
 const AppBase = ({ Component, pageProps }: AppProps) => {
   return (
@@ -15,9 +18,11 @@ const AppBase = ({ Component, pageProps }: AppProps) => {
         />
       </Head>
 
-      <AppProvider>
-        <Component {...pageProps} />
-      </AppProvider>
+      <QueryClientProvider client={queryClient}>
+        <AppProvider>
+          <Component {...pageProps} />
+        </AppProvider>
+      </QueryClientProvider>
     </>
   );
 };

@@ -4,7 +4,6 @@ import { v4 as uuidv4 } from 'uuid';
 import { useUserStore } from 'state/UserStore';
 import { doc, writeBatch } from 'firebase/firestore';
 import { db, FsCol, storage } from '../../firebase';
-import { useFirestoreWriteBatch } from '@react-query-firebase/firestore';
 import { GenericObject } from 'models/types';
 import {
   Button,
@@ -57,7 +56,6 @@ const CreateProfile = ({ isOpen, setIsOpen }: CreateProfileProps) => {
   });
 
   const batch = writeBatch(db);
-  const batchMutation = useFirestoreWriteBatch(batch);
 
   const createProfile = async (createProfileData: CreateProfileFormSchema, event?: BaseSyntheticEvent) => {
     event?.preventDefault();
@@ -75,18 +73,16 @@ const CreateProfile = ({ isOpen, setIsOpen }: CreateProfileProps) => {
 
     batch.set(doc(db, FsCol.Profiles, userId), newProfileObj);
 
-    batchMutation.mutate(undefined, {
-      onSuccess() {
-        toast({
-          title: 'Successfully created profile!',
-          status: 'success',
-          isClosable: true,
-        });
-      },
-    });
+    batch.commit().then(() => {
+      toast({
+        title: 'Successfully created profile!',
+        status: 'success',
+        isClosable: true,
+      });
 
-    setIsOpen(false);
-    reset();
+      setIsOpen(false);
+      reset();
+    });
   };
 
   return (

@@ -6,8 +6,7 @@ import EditableImage from 'components/Inputs/EditableImage';
 import { sendPasswordResetEmail } from 'firebase/auth';
 import { useUserStore } from 'state/UserStore';
 import { auth, db, FsCol } from '../src/firebase';
-import { useFirestoreDocumentMutation } from '@react-query-firebase/firestore';
-import { doc } from 'firebase/firestore';
+import { doc, updateDoc } from 'firebase/firestore';
 import { Box, Button, Container, Heading, Stack, useToast } from '@chakra-ui/react';
 
 const ProfilePage = () => {
@@ -16,18 +15,18 @@ const ProfilePage = () => {
   const userEmail = useUserStore((state) => state.userEmail);
   const profile = useUserStore((state) => state.profile);
 
-  const familyDocMutation = useFirestoreDocumentMutation(doc(db, FsCol.Profiles, userId ?? 'undefined'), {
-    merge: true,
-  });
+  if (!userId) {
+    return null;
+  }
 
   const updateProfileName = (newName?: string) => {
     if (newName) {
-      familyDocMutation.mutate({ firstName: newName });
+      updateDoc(doc(db, FsCol.Profiles, userId), { firstName: newName });
     }
   };
 
   const updateProfileImgLink = (newImgLink: string) => {
-    familyDocMutation.mutate({ imgLink: newImgLink });
+    updateDoc(doc(db, FsCol.Profiles, userId), { imgLink: newImgLink });
   };
 
   const handlePasswordReset = () => {

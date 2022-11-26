@@ -3,7 +3,6 @@ import { Family } from 'models/types';
 import { v4 as uuidv4 } from 'uuid';
 import { useUserStore } from 'state/UserStore';
 import { doc, writeBatch } from 'firebase/firestore';
-import { useFirestoreWriteBatch } from '@react-query-firebase/firestore';
 import { db, FsCol } from '../../firebase';
 import {
   Button,
@@ -52,7 +51,6 @@ const CreateFamily = ({ isOpen, setIsOpen }: CreateFamilyProps) => {
   });
 
   const batch = writeBatch(db);
-  const batchMutation = useFirestoreWriteBatch(batch);
 
   const createFamily = (createFamilyData: CreateFamilyFormSchema, event?: BaseSyntheticEvent) => {
     event?.preventDefault();
@@ -74,18 +72,16 @@ const CreateFamily = ({ isOpen, setIsOpen }: CreateFamilyProps) => {
     batch.set(doc(db, FsCol.Families, newFamId), newFamObj);
     batch.update(doc(db, FsCol.Profiles, userId), { familyId: newFamId });
 
-    batchMutation.mutate(undefined, {
-      onSuccess() {
-        toast({
-          title: 'Successfully created family!',
-          status: 'success',
-          isClosable: true,
-        });
-      },
-    });
+    batch.commit().then(() => {
+      toast({
+        title: 'Successfully created family!',
+        status: 'success',
+        isClosable: true,
+      });
 
-    setIsOpen(false);
-    reset();
+      setIsOpen(false);
+      reset();
+    });
   };
 
   return (

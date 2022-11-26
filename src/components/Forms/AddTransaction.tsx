@@ -1,8 +1,7 @@
 import React, { BaseSyntheticEvent, useMemo } from 'react';
 import { IBudget, Transaction } from 'models/types';
 import { useUserStore } from 'state/UserStore';
-import { useFirestoreDocumentMutation } from '@react-query-firebase/firestore';
-import { doc } from 'firebase/firestore';
+import { doc, updateDoc } from 'firebase/firestore';
 import { db, FsCol } from '../../firebase';
 import {
   Button,
@@ -77,10 +76,6 @@ const AddTransaction = ({ isOpen, setIsOpen, initialCatSubcat, budget }: AddTran
     resolver: yupResolver(addTransactionSchema),
   });
 
-  const budgetDocMutation = useFirestoreDocumentMutation(doc(db, FsCol.Budgets, family?.budgetId ?? 'undefined'), {
-    merge: true,
-  });
-
   const categoryOptions = useMemo(() => {
     const catOptions: IGroupOpt[] = budget.categories.map((category) => ({
       label: category.name,
@@ -129,21 +124,16 @@ const AddTransaction = ({ isOpen, setIsOpen, initialCatSubcat, budget }: AddTran
 
     const updArr = [...budget.transactions, formattedTransaction];
 
-    budgetDocMutation.mutate(
-      { transactions: updArr },
-      {
-        onSuccess() {
-          toast({
-            title: 'Successfully added transaction!',
-            status: 'success',
-            isClosable: true,
-          });
+    updateDoc(doc(db, FsCol.Budgets, family.budgetId), { transactions: updArr }).then(() => {
+      toast({
+        title: 'Successfully added transaction!',
+        status: 'success',
+        isClosable: true,
+      });
 
-          setIsOpen(false);
-          reset();
-        },
-      }
-    );
+      setIsOpen(false);
+      reset();
+    });
   };
 
   return (

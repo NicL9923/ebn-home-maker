@@ -23,12 +23,9 @@ import {
   Portal,
   Button,
 } from '@chakra-ui/react';
-import { useAuthUser } from '@react-query-firebase/auth';
-import { getAuth } from 'firebase/auth';
 
 const Navbar = () => {
   const userId = useUserStore((state) => state.userId);
-  const userAuth = useAuthUser(['user'], getAuth());
 
   return (
     <Stack position='sticky' top='0' direction='row' alignItems='center' p={2} bgColor='green.700' zIndex={10}>
@@ -86,7 +83,7 @@ const Navbar = () => {
       </Heading>
 
       {userId && <ProfileIcon />}
-      {!userAuth.isLoading && !userId && (
+      {userId === null && (
         <Link href='/login'>
           <Button colorScheme='green'>Login</Button>
         </Link>

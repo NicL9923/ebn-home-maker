@@ -6,9 +6,8 @@ import Transactions from '../src/components/Finances/Transactions';
 import 'jspdf-autotable';
 import { BudgetCategory, IBudget, BudgetSubcategory, Transaction } from 'models/types';
 import { useUserStore } from 'state/UserStore';
-import { useFirestoreDocument } from '@react-query-firebase/firestore';
 import { db, FsCol } from '../src/firebase';
-import { doc } from 'firebase/firestore';
+import { doc, onSnapshot } from 'firebase/firestore';
 import NoBudget from 'components/Finances/BudgetComponents/NoBudget';
 import {
   Box,
@@ -22,23 +21,17 @@ import {
   TabPanels,
   Tabs,
   Text,
+  useToast,
 } from '@chakra-ui/react';
 
 const Finances = () => {
+  const toast = useToast();
   const family = useUserStore((state) => state.family);
-  const [budget, setBudget] = useState<IBudget | undefined>(undefined);
+  const [budget, setBudget] = useState<IBudget | null | undefined>(undefined);
 
-  const budgetDoc = useFirestoreDocument(
-    [FsCol.Budgets, family?.budgetId ?? 'undefined'],
-    doc(db, FsCol.Budgets, family?.budgetId ?? 'undefined'),
-    {
-      subscribe: true,
-    }
-  );
-
-  const processAndSetBudget = (budgetData?: IBudget) => {
+  const processAndSetBudget = (budgetData?: IBudget | null) => {
     if (!budgetData) {
-      setBudget(undefined);
+      setBudget(budgetData);
       return;
     }
 
@@ -128,11 +121,29 @@ const Finances = () => {
     URL.revokeObjectURL(href);
   };
 
+  // Budget listener
   useEffect(() => {
-    processAndSetBudget(budgetDoc.data ? (budgetDoc.data.data() as IBudget) : undefined);
-  }, [budgetDoc.data]);
+    if (family?.budgetId) {
+      const unsubscribeBudgetSnapshot = onSnapshot(
+        doc(db, FsCol.Budgets, family.budgetId),
+        (doc) => {
+          processAndSetBudget(doc.exists() ? (doc.data() as IBudget) : null);
+        },
+        (error) => {
+          toast({
+            title: `Error getting budget`,
+            description: error.message,
+            status: 'error',
+            isClosable: true,
+          });
+        }
+      );
 
-  if (budgetDoc.isLoading) {
+      return () => unsubscribeBudgetSnapshot();
+    }
+  }, [family?.budgetId]);
+
+  if (budget === undefined) {
     return (
       <Box mx='auto' textAlign='center' mt={20}>
         <CircularProgress size={59} isIndeterminate />
@@ -140,7 +151,7 @@ const Finances = () => {
     );
   }
 
-  if (!budget) {
+  if (budget === null) {
     return <NoBudget />;
   }
 

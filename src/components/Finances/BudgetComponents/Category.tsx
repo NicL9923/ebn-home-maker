@@ -26,7 +26,7 @@ interface CategoryProps {
   budget: IBudget;
 }
 
-const Category = (props: CategoryProps): JSX.Element => {
+const Category = (props: CategoryProps) => {
   const { budget, setCategoryName, removeCategory, addNewSubCategory } = useContext(BudgetContext);
   const { idx, category, isLastCat } = props;
   const [isHovered, setIsHovered] = useState(false);

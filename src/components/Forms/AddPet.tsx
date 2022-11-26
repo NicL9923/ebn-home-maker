@@ -2,8 +2,7 @@ import React, { BaseSyntheticEvent } from 'react';
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import { v4 as uuidv4 } from 'uuid';
 import { useUserStore } from 'state/UserStore';
-import { useFirestoreDocumentMutation } from '@react-query-firebase/firestore';
-import { doc } from 'firebase/firestore';
+import { doc, updateDoc } from 'firebase/firestore';
 import { db, FsCol, storage } from '../../firebase';
 import {
   Button,
@@ -56,10 +55,6 @@ const AddPet = ({ isOpen, setIsOpen }: AddPetProps) => {
     resolver: yupResolver(addPetSchema),
   });
 
-  const familyDocMutation = useFirestoreDocumentMutation(doc(db, FsCol.Budgets, profile?.familyId ?? 'undefined'), {
-    merge: true,
-  });
-
   const addPet = async (newPetData: AddPetFormSchema, event?: BaseSyntheticEvent) => {
     event?.preventDefault();
     if (!profile || !family) return;
@@ -76,21 +71,16 @@ const AddPet = ({ isOpen, setIsOpen }: AddPetProps) => {
       imgLink,
     });
 
-    familyDocMutation.mutate(
-      { pets: newPetsArr },
-      {
-        onSuccess() {
-          toast({
-            title: 'Successfully added pet!',
-            status: 'success',
-            isClosable: true,
-          });
+    updateDoc(doc(db, FsCol.Families, profile.familyId), { pets: newPetsArr }).then(() => {
+      toast({
+        title: 'Successfully added pet!',
+        status: 'success',
+        isClosable: true,
+      });
 
-          setIsOpen(false);
-          reset();
-        },
-      }
-    );
+      setIsOpen(false);
+      reset();
+    });
   };
 
   return (

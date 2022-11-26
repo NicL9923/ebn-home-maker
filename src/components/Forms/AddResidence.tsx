@@ -4,7 +4,6 @@ import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import { useUserStore } from 'state/UserStore';
 import { db, FsCol, storage } from '../../firebase';
 import { doc, writeBatch } from 'firebase/firestore';
-import { useFirestoreWriteBatch } from '@react-query-firebase/firestore';
 import {
   Button,
   FormControl,
@@ -61,7 +60,6 @@ const AddResidence = ({ isOpen, setIsOpen }: AddResidenceProps) => {
   });
 
   const batch = writeBatch(db);
-  const batchMutation = useFirestoreWriteBatch(batch);
 
   const addNewResidence = async (newResidenceData: AddResidenceFormSchema, event?: BaseSyntheticEvent) => {
     event?.preventDefault();
@@ -91,18 +89,16 @@ const AddResidence = ({ isOpen, setIsOpen }: AddResidenceProps) => {
       residences: newResIdArr,
     });
 
-    batchMutation.mutate(undefined, {
-      onSuccess() {
-        toast({
-          title: 'Successfully added residence!',
-          status: 'success',
-          isClosable: true,
-        });
-      },
-    });
+    batch.commit().then(() => {
+      toast({
+        title: 'Successfully added residence!',
+        status: 'success',
+        isClosable: true,
+      });
 
-    setIsOpen(false);
-    reset();
+      setIsOpen(false);
+      reset();
+    });
   };
 
   return (

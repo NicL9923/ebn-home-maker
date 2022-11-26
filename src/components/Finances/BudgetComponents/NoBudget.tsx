@@ -1,4 +1,3 @@
-import { useFirestoreWriteBatch } from '@react-query-firebase/firestore';
 import { db, FsCol } from '../../../firebase';
 import { doc, writeBatch } from 'firebase/firestore';
 import { IBudget } from 'models/types';
@@ -11,7 +10,6 @@ const NoBudget = () => {
   const profile = useUserStore((state) => state.profile);
 
   const batch = writeBatch(db);
-  const batchMutation = useFirestoreWriteBatch(batch);
 
   const createAndSaveDefaultBudget = () => {
     if (!userId || !profile) return;
@@ -65,7 +63,7 @@ const NoBudget = () => {
     batch.update(doc(db, FsCol.Families, profile.familyId), { budgetId: newBudgetUuid });
     batch.set(doc(db, FsCol.Budgets, newBudgetUuid), newBudgetTemplate);
 
-    batchMutation.mutate();
+    batch.commit();
   };
 
   return (
@@ -73,9 +71,7 @@ const NoBudget = () => {
       <Text>You don&apos;t have a budget yet!</Text>
       <Text mb={4}>Create one?</Text>
 
-      <Button onClick={createAndSaveDefaultBudget} disabled={batchMutation.isLoading}>
-        Create Budget
-      </Button>
+      <Button onClick={createAndSaveDefaultBudget}>Create Budget</Button>
     </Box>
   );
 };

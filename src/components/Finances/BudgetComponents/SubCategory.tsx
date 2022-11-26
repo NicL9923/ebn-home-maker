@@ -25,7 +25,7 @@ interface SubCategoryProps {
   subcategory: BudgetSubcategory;
 }
 
-const SubCategory = (props: SubCategoryProps): JSX.Element => {
+const SubCategory = (props: SubCategoryProps) => {
   const { setSubCatProperty, setCatSubcatKey, setAddingTransaction, removeSubCategory } = useContext(BudgetContext);
   const { subidx, category, subcategory } = props;
   const [isHovered, setIsHovered] = useState(false);

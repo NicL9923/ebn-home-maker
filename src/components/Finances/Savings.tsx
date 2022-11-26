@@ -1,7 +1,6 @@
 import { MdAdd, MdClear } from 'react-icons/md';
-import { useFirestoreDocumentMutation } from '@react-query-firebase/firestore';
 import { db, FsCol } from '../../firebase';
-import { doc } from 'firebase/firestore';
+import { doc, updateDoc } from 'firebase/firestore';
 import { IBudget, SavingsBlob } from 'models/types';
 import React from 'react';
 import Chart from 'react-google-charts';
@@ -23,12 +22,8 @@ interface SavingsProps {
   budget: IBudget;
 }
 
-const Savings = ({ budget }: SavingsProps): JSX.Element => {
+const Savings = ({ budget }: SavingsProps) => {
   const family = useUserStore((state) => state.family);
-
-  const budgetDocMutation = useFirestoreDocumentMutation(doc(db, FsCol.Budgets, family?.budgetId ?? 'undefined'), {
-    merge: true,
-  });
 
   const isBlobNameUnique = (newBlobName: string) => {
     return !budget.savingsBlobs.some((blob) => blob.name === newBlobName);
@@ -37,7 +32,7 @@ const Savings = ({ budget }: SavingsProps): JSX.Element => {
   const saveUpdBlobsArr = (newArr: SavingsBlob[]) => {
     if (!family?.budgetId) return;
 
-    budgetDocMutation.mutate({
+    updateDoc(doc(db, FsCol.Budgets, family.budgetId), {
       savingsBlobs: newArr,
     });
   };

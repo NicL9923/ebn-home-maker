@@ -1,11 +1,9 @@
 import React, { useState } from 'react';
-import NoFamily from '../src/components/NoFamily';
 import '@uiw/react-md-editor/markdown-editor.css';
 import '@uiw/react-markdown-preview/markdown.css';
 import dynamic from 'next/dynamic';
 import { useUserStore } from '../src/state/UserStore';
-import { useFirestoreDocumentMutation } from '@react-query-firebase/firestore';
-import { doc } from 'firebase/firestore';
+import { doc, updateDoc } from 'firebase/firestore';
 import { db, FsCol } from '../src/firebase';
 import { Box, Button, Heading, useColorMode } from '@chakra-ui/react';
 import { MdEdit, MdSave } from 'react-icons/md';
@@ -28,12 +26,8 @@ const Information = () => {
   const [isEditingMd, setIsEditingMd] = useState(false);
   const [editedMd, setEditedMd] = useState<string | undefined>(undefined);
 
-  const familyDocMutation = useFirestoreDocumentMutation(doc(db, FsCol.Families, profile?.familyId ?? 'undefined'), {
-    merge: true,
-  });
-
   if (!family) {
-    return <NoFamily />;
+    return null;
   }
 
   const beginEditingBoard = () => {
@@ -43,17 +37,11 @@ const Information = () => {
 
   const endEditingBoard = () => {
     if (profile && editedMd !== family.boardMarkdown) {
-      familyDocMutation.mutate(
-        { boardMarkdown: editedMd },
-        {
-          onSuccess() {
-            setEditedMd(undefined);
-          },
-        }
-      );
+      updateDoc(doc(db, FsCol.Families, profile.familyId), { boardMarkdown: editedMd }).then(() => {
+        setIsEditingMd(false);
+        setEditedMd(undefined);
+      });
     }
-
-    setIsEditingMd(false);
   };
 
   return (
