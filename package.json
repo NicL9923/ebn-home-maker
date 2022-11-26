@@ -54,7 +54,6 @@
     "dev": "next dev",
     "build": "next build",
     "export": "next build && next export",
-    "deploy": "firebase deploy",
     "updateFirebaseTools": "npm install -g firebase-tools"
   },
   "eslintConfig": {
