@@ -5,7 +5,24 @@ import { useUserStore } from 'state/UserStore';
 import { doc, updateDoc } from 'firebase/firestore';
 import { db, FsCol } from '../../firebase';
 import { MdAdd, MdDelete } from 'react-icons/md';
-import { Box, Button, Checkbox, Heading, Stack, Table, Tbody, Th, Thead, Tr } from '@chakra-ui/react';
+import {
+  Box,
+  Button,
+  Checkbox,
+  FormControl,
+  FormLabel,
+  Heading,
+  IconButton,
+  Select,
+  Stack,
+  Table,
+  TableContainer,
+  Tbody,
+  Text,
+  Th,
+  Thead,
+  Tr,
+} from '@chakra-ui/react';
 import {
   ColumnDef,
   flexRender,
@@ -15,6 +32,7 @@ import {
   RowSelectionState,
   useReactTable,
 } from '@tanstack/react-table';
+import { HiChevronLeft, HiChevronRight, HiChevronDoubleLeft, HiChevronDoubleRight } from 'react-icons/hi';
 
 const rowsPerPageOptions = [10, 25, 50, 100];
 
@@ -42,6 +60,8 @@ const Transactions = ({ budget }: TransactionsProps) => {
             isChecked={table.getIsAllRowsSelected()}
             isIndeterminate={table.getIsSomeRowsSelected()}
             onChange={table.getToggleAllRowsSelectedHandler()}
+            colorScheme='green'
+            borderColor='white'
           />
         ),
         cell: ({ row }) => (
@@ -50,6 +70,8 @@ const Transactions = ({ budget }: TransactionsProps) => {
               isChecked={row.getIsSelected()}
               //isIndeterminate={row.getIsSomeSelected()}
               onChange={row.getToggleSelectedHandler()}
+              m={2}
+              colorScheme='green'
             />
           </div>
         ),
@@ -160,77 +182,102 @@ const Transactions = ({ budget }: TransactionsProps) => {
       </Stack>
 
       <Stack mt={3} mb={2}>
-        <Table>
-          <Thead>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <Tr key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <Th key={header.id} colSpan={header.colSpan}>
-                    {!header.isPlaceholder && (
-                      <div
-                        className={header.column.getCanSort() ? 'cursor-pointer select-none' : ''}
-                        onClick={header.column.getToggleSortingHandler()}
-                      >
-                        {flexRender(header.column.columnDef.header, header.getContext())}
-                        {{
-                          asc: ' (by Farthest)',
-                          desc: ' (by Nearest)',
-                        }[header.column.getIsSorted() as string] ?? null}
-                      </div>
-                    )}
-                  </Th>
-                ))}
-              </Tr>
-            ))}
-          </Thead>
+        <TableContainer maxHeight='70vh' overflowX='auto' overflowY='auto'>
+          <Table variant='striped'>
+            <Thead position='sticky' top={0} bgColor='green.400' zIndex={1}>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <Tr key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => (
+                    <Th key={header.id} colSpan={header.colSpan} color='white'>
+                      {!header.isPlaceholder && (
+                        <div
+                          className={header.column.getCanSort() ? 'cursor-pointer select-none' : ''}
+                          onClick={header.column.getToggleSortingHandler()}
+                        >
+                          {flexRender(header.column.columnDef.header, header.getContext())}
+                          {{
+                            asc: ' (Oldest)',
+                            desc: ' (Newest)',
+                          }[header.column.getIsSorted() as string] ?? null}
+                        </div>
+                      )}
+                    </Th>
+                  ))}
+                </Tr>
+              ))}
+            </Thead>
 
-          <Tbody>
-            {table.getRowModel().rows.map((row) => (
-              <Tr key={row.id}>
-                {row.getVisibleCells().map((cell) => (
-                  <td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
-                ))}
-              </Tr>
-            ))}
-          </Tbody>
-        </Table>
+            <Tbody>
+              {table.getRowModel().rows.map((row) => (
+                <Tr key={row.id}>
+                  {row.getVisibleCells().map((cell) => (
+                    <td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
+                  ))}
+                </Tr>
+              ))}
+            </Tbody>
+          </Table>
+        </TableContainer>
 
         <Box>
-          <Button onClick={() => table.setPageIndex(0)} disabled={!table.getCanPreviousPage()}>
-            {'<<'}
-          </Button>
+          <Text mt={2}>Total transactions: {transactionData.length}</Text>
 
-          <Button onClick={table.previousPage} disabled={!table.getCanPreviousPage()}>
-            {'<'}
-          </Button>
+          <Stack direction='row' justifyContent='center' alignItems='center' m={2}>
+            <IconButton
+              icon={<HiChevronDoubleLeft />}
+              aria-label='First page'
+              onClick={() => table.setPageIndex(0)}
+              disabled={!table.getCanPreviousPage()}
+              fontSize={20}
+            />
 
-          <Button onClick={table.nextPage} disabled={!table.getCanNextPage()}>
-            {'>'}
-          </Button>
+            <IconButton
+              icon={<HiChevronLeft />}
+              aria-label='Previous page'
+              onClick={table.previousPage}
+              disabled={!table.getCanPreviousPage()}
+              fontSize={20}
+            />
 
-          <Button onClick={() => table.setPageIndex(table.getPageCount() - 1)} disabled={!table.getCanNextPage()}>
-            {'>>'}
-          </Button>
+            <Text>
+              Page{' '}
+              <Text fontWeight='bold' display='inline'>
+                {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
+              </Text>
+            </Text>
 
-          <span>
-            <div>Page</div>
-            <strong>
-              {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
-            </strong>
-          </span>
+            <IconButton
+              icon={<HiChevronRight />}
+              aria-label='Next page'
+              onClick={table.nextPage}
+              disabled={!table.getCanNextPage()}
+              fontSize={20}
+            />
 
-          <select
-            value={table.getState().pagination.pageSize}
-            onChange={(e) => {
-              table.setPageSize(Number(e.target.value));
-            }}
-          >
-            {rowsPerPageOptions.map((pageSize) => (
-              <option key={pageSize} value={pageSize}>
-                Show {pageSize}
-              </option>
-            ))}
-          </select>
+            <IconButton
+              icon={<HiChevronDoubleRight />}
+              aria-label='Last page'
+              onClick={() => table.setPageIndex(table.getPageCount() - 1)}
+              disabled={!table.getCanNextPage()}
+              fontSize={20}
+            />
+          </Stack>
+
+          <FormControl width='200px'>
+            <FormLabel>Rows per page</FormLabel>
+            <Select
+              value={table.getState().pagination.pageSize}
+              onChange={(e) => {
+                table.setPageSize(Number(e.target.value));
+              }}
+            >
+              {rowsPerPageOptions.map((pageSize) => (
+                <option key={pageSize} value={pageSize}>
+                  {pageSize}
+                </option>
+              ))}
+            </Select>
+          </FormControl>
         </Box>
       </Stack>
 
