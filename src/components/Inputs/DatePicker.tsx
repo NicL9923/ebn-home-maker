@@ -4,8 +4,8 @@ import 'react-datepicker/dist/react-datepicker.css';
 
 const DatePickerStyle = (isLightMode = true) => ({
   '--light-gray': isLightMode ? 'var(--chakra-colors-white)' : 'var(--chakra-colors-gray-700)',
-  '--gray': isLightMode ? 'var(--chakra-colors-gray-300)' : 'var(--chakra-colors-gray-500)',
-  '--blue700': isLightMode ? 'var(--chakra-colors-blue-600)' : 'var(--chakra-colors-blue-600)',
+  '--gray': isLightMode ? 'var(--chakra-colors-gray-300)' : 'var(--chakra-colors-gray-600)',
+  '--blue700': 'var(--chakra-colors-blue-600)',
   '--blue600': isLightMode ? 'var(--chakra-colors-blue-500)' : 'var(--chakra-colors-blue-300)',
   '--blue500': isLightMode ? 'var(--chakra-colors-gray-400)' : 'var(--chakra-colors-gray-500)',
   '--blue400': isLightMode ? 'var(--chakra-colors-gray-300)' : 'var(--chakra-colors-gray-600)',
