@@ -129,7 +129,12 @@ const DatePicker = ({ selected, onChange }: DatePickerProps) => {
 
   return (
     <Box sx={DatePickerStyle(isLightMode)}>
-      <ReactDatePicker selected={selected} onChange={onChange} className='react-datapicker__input-text' />
+      <ReactDatePicker
+        selected={selected}
+        onChange={onChange}
+        className='react-datapicker__input-text'
+        onFocus={(e) => (e.target.readOnly = true)} // Bandaid to stop mobile keyboards from popping up
+      />
     </Box>
   );
 };
