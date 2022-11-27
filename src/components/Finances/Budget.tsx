@@ -1,6 +1,6 @@
 import { MdAdd, MdSubdirectoryArrowRight } from 'react-icons/md';
 import { BudgetCategory, IBudget, BudgetSubcategory, BudgetContextValue, Transaction } from 'models/types';
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import EditableLabel from '../Inputs/EditableLabel';
 import Chart from 'react-google-charts';
 import AddTransaction from 'components/Forms/AddTransaction';
@@ -226,61 +226,59 @@ const Budget = (props: BudgetProps) => {
     saveUpdatedCategories(updArr);
   };
 
-  const getAllottedRemainder = () => {
+  const allottedRemainder = useMemo(() => {
     if (!budget.totalAllotted) return;
 
     const difference = budget.monthlyNetIncome - budget.totalAllotted;
-    let helperColor: string | undefined = '';
+    let helperColor: string | undefined = undefined;
     let helperText = 'to allot';
+    const stringifiedDifference = Math.abs(difference).toLocaleString(undefined, {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
 
-    if (difference > 0) {
-      helperColor = yellow300;
-    } else if (difference === 0) {
-      helperColor = undefined;
-    } else {
-      helperText = 'over-allotted';
-      helperColor = red500;
+    if (stringifiedDifference !== '0.00') {
+      if (difference > 0) {
+        helperColor = yellow300;
+      } else {
+        helperText = 'over-allotted';
+        helperColor = red500;
+      }
     }
 
     return (
-      <Text ml={3} color={helperColor}>
-        $
-        {Math.abs(difference).toLocaleString(undefined, {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2,
-        })}{' '}
-        {helperText}
+      <Text color={helperColor} ml={-3}>
+        ${stringifiedDifference} {helperText}
       </Text>
     );
-  };
+  }, [budget.monthlyNetIncome, budget.totalAllotted]);
 
-  const getSpendingRemainder = () => {
+  const spendingRemainder = useMemo(() => {
     if (!budget.totalAllotted || !budget.totalSpent) return;
 
     const difference = budget.totalAllotted - budget.totalSpent;
-    let helperColor: string | undefined = '';
+    let helperColor: string | undefined = undefined;
     let helperText = 'remaining';
+    const stringifiedRemainder = Math.abs(difference).toLocaleString(undefined, {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
 
-    if (difference > 0) {
-      helperColor = green400;
-    } else if (difference === 0) {
-      helperColor = undefined;
-    } else {
-      helperText = 'over-budget';
-      helperColor = red500;
+    if (stringifiedRemainder !== '0.00') {
+      if (difference > 0) {
+        helperColor = green400;
+      } else {
+        helperText = 'over-budget';
+        helperColor = red500;
+      }
     }
 
     return (
-      <Text ml={3} color={helperColor}>
-        $
-        {Math.abs(difference).toLocaleString(undefined, {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2,
-        })}{' '}
-        {helperText}
+      <Text color={helperColor} ml={-1}>
+        ${stringifiedRemainder} {helperText}
       </Text>
     );
-  };
+  }, [budget.totalAllotted, budget.totalSpent]);
 
   const formatChartData = (budgetCats: BudgetCategory[]) => {
     const formattedDataArr: (string | number)[][] = [['Category', 'Percent']];
@@ -340,7 +338,7 @@ const Budget = (props: BudgetProps) => {
               })}
             </Text>
           </Stack>
-          {getAllottedRemainder()}
+          {allottedRemainder}
 
           <Stack direction='row' alignContent='center' spacing={2} mt={1}>
             <Text>Total Spent</Text>
@@ -352,7 +350,7 @@ const Budget = (props: BudgetProps) => {
               })}
             </Text>
           </Stack>
-          {getSpendingRemainder()}
+          {spendingRemainder}
         </Box>
       </Box>
 
