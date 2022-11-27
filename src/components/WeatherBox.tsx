@@ -167,6 +167,8 @@ const WeatherBox = () => {
       {geocodeDataQuery.isLoading || weatherDataQuery.isLoading ? (
         <Box mx='auto' textAlign='center' mt={20}>
           <CircularProgress isIndeterminate />
+
+          <Text>Checking the weather...</Text>
         </Box>
       ) : (
         <Tabs isFitted>

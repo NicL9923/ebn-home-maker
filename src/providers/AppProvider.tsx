@@ -9,7 +9,7 @@ import { db, FsCol } from '../firebase';
 import { Family, Profile } from 'models/types';
 import NoProfile from 'components/NoProfile';
 import NoFamily from 'components/NoFamily';
-import { Box, CircularProgress, useToast } from '@chakra-ui/react';
+import { Box, CircularProgress, Text, useToast } from '@chakra-ui/react';
 import LandingPage from 'components/LandingPage';
 import { useRouter } from 'next/router';
 
@@ -103,6 +103,16 @@ const AppProvider = ({ children }: ProviderProps) => {
       return (
         <Box mx='auto' textAlign='center' mt={20}>
           <CircularProgress size={59} isIndeterminate />
+
+          <Text>
+            {!userId
+              ? 'Fetching login data...'
+              : !profile
+              ? 'Fetching profile data...'
+              : !family
+              ? 'Fetching family data...'
+              : 'This is fine. 🐶🔥'}
+          </Text>
         </Box>
       );
     }
