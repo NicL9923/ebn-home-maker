@@ -8,7 +8,19 @@ import BudgetCategories from './BudgetComponents/BudgetCategories';
 import { useUserStore } from 'state/UserStore';
 import { doc, updateDoc } from 'firebase/firestore';
 import { db, FsCol } from '../../firebase';
-import { Box, Grid, GridItem, Heading, IconButton, Stack, Text, Tooltip, useToken } from '@chakra-ui/react';
+import {
+  Box,
+  Grid,
+  GridItem,
+  Heading,
+  IconButton,
+  Stack,
+  Text,
+  Tooltip,
+  useColorMode,
+  useColorModeValue,
+  useToken,
+} from '@chakra-ui/react';
 
 export const BudgetContext = React.createContext({} as BudgetContextValue);
 
@@ -21,6 +33,7 @@ interface BudgetProps {
 
 const Budget = (props: BudgetProps) => {
   const { budget, setBudget } = props;
+  const isLightMode = useColorMode().colorMode === 'light';
   const [red500, green400, yellow300] = useToken('colors', ['red.500', 'green.400', 'yellow.300']);
 
   const family = useUserStore((state) => state.family);
@@ -406,19 +419,17 @@ const Budget = (props: BudgetProps) => {
         </BudgetContext.Provider>
       </Box>
 
-      <Box
-        sx={{
-          mt: 4,
-          height: '25vw',
-          '@media (max-width:600px)': { height: '100vw' },
-        }}
-      >
+      <Box mt={4} height={['100vw', '30vw']} bgColor={useColorModeValue('gray.200', 'gray.600')}>
         <Chart
           chartType='PieChart'
           width='100%'
           height='100%'
           data={formatChartData(budget.categories)}
-          options={{ title: 'Percent of Allotted Budget', is3D: false }}
+          options={{
+            title: 'Percent of Allotted Budget',
+            is3D: false,
+            ...getCommonChartOptions(isLightMode),
+          }}
         />
       </Box>
 
@@ -431,5 +442,27 @@ const Budget = (props: BudgetProps) => {
     </Box>
   );
 };
+
+export const getCommonChartOptions = (isLightMode: boolean) => ({
+  backgroundColor: 'transparent',
+  hAxis: {
+    textStyle: {
+      color: isLightMode ? 'black' : 'white',
+    },
+  },
+  vAxis: {
+    textStyle: {
+      color: isLightMode ? 'black' : 'white',
+    },
+  },
+  legend: {
+    textStyle: {
+      color: isLightMode ? 'black' : 'white',
+    },
+  },
+  titleTextStyle: {
+    color: isLightMode ? 'black' : 'white',
+  },
+});
 
 export default Budget;

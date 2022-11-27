@@ -6,7 +6,20 @@ import React from 'react';
 import Chart from 'react-google-charts';
 import { useUserStore } from 'state/UserStore';
 import EditableLabel from '../Inputs/EditableLabel';
-import { Box, Button, Heading, IconButton, Stack, Stat, StatLabel, StatNumber, Wrap, WrapItem } from '@chakra-ui/react';
+import {
+  Box,
+  Button,
+  Heading,
+  IconButton,
+  Stack,
+  Stat,
+  StatLabel,
+  StatNumber,
+  useColorMode,
+  Wrap,
+  WrapItem,
+} from '@chakra-ui/react';
+import { getCommonChartOptions } from './Budget';
 
 const formatChartData = (blobsData: SavingsBlob[]) => {
   const formattedDataArr: (string | number)[][] = [['Name', 'Amount']];
@@ -24,6 +37,7 @@ interface SavingsProps {
 
 const Savings = ({ budget }: SavingsProps) => {
   const family = useUserStore((state) => state.family);
+  const isLightMode = useColorMode().colorMode === 'light';
 
   const isBlobNameUnique = (newBlobName: string) => {
     return !budget.savingsBlobs.some((blob) => blob.name === newBlobName);
@@ -143,19 +157,13 @@ const Savings = ({ budget }: SavingsProps) => {
         ))}
       </Wrap>
 
-      <Box
-        sx={{
-          mb: 4,
-          height: '25vw',
-          '@media (max-width:600px)': { height: '100vw' },
-        }}
-      >
+      <Box mb={4} height={['100vw', '75vw', '50vw', '25vw']}>
         <Chart
           chartType='PieChart'
           width='100%'
           height='100%'
           data={formatChartData(budget.savingsBlobs)}
-          options={{ title: 'Savings Breakdown', pieHole: 0.5, is3D: false }}
+          options={{ title: 'Savings Breakdown', pieHole: 0.5, is3D: false, ...getCommonChartOptions(isLightMode) }}
         />
       </Box>
     </Box>
