@@ -53,7 +53,7 @@ const SubCategory = (props: SubCategoryProps) => {
           <Box ml={2} mb={1}>
             <Grid templateColumns={budgetRowsGridTemplateColumns} gridColumnGap={1} alignItems='center'>
               <GridItem onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
-                <Stack direction='row'>
+                <Stack direction='row' textAlign='left'>
                   <EditableLabel
                     fieldName='Subcategory'
                     fieldType='ItemName'
