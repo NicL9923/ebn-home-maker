@@ -38,10 +38,11 @@ const Information = () => {
   const endEditingBoard = () => {
     if (profile && editedMd !== family.boardMarkdown) {
       updateDoc(doc(db, FsCol.Families, profile.familyId), { boardMarkdown: editedMd }).then(() => {
-        setIsEditingMd(false);
         setEditedMd(undefined);
       });
     }
+
+    setIsEditingMd(false);
   };
 
   return (
@@ -61,11 +62,11 @@ const Information = () => {
         )}
       </Box>
 
-      <Box data-color-mode={colorMode} height='70vh'>
+      <Box data-color-mode={colorMode} height='80vh'>
         {isEditingMd ? (
           <MDEditor value={editedMd} onChange={setEditedMd} height='100%' />
         ) : (
-          <EditorMarkdown style={{ height: '100%' }} source={family.boardMarkdown} />
+          <EditorMarkdown style={{ height: '100%', overflow: 'auto' }} source={family.boardMarkdown} />
         )}
       </Box>
     </Box>
