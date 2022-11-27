@@ -1,4 +1,4 @@
-import { MdAccountBalance, MdArticle, MdAttachMoney, MdCreditCard } from 'react-icons/md';
+import { MdAccountBalance, MdArticle, MdAttachMoney, MdCreditCard, MdKeyboardArrowDown } from 'react-icons/md';
 import React, { useEffect, useState } from 'react';
 import Budget from '../src/components/Finances/Budget';
 import Savings from '../src/components/Finances/Savings';
@@ -11,10 +11,15 @@ import { doc, onSnapshot } from 'firebase/firestore';
 import NoBudget from 'components/Finances/BudgetComponents/NoBudget';
 import {
   Box,
-  Button,
   CircularProgress,
   Heading,
   Icon,
+  IconButton,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
+  Stack,
   Tab,
   TabList,
   TabPanel,
@@ -157,9 +162,28 @@ const Finances = () => {
 
   return (
     <Box>
-      <Heading textAlign='center' mt={2}>
-        Finance Dashboard
-      </Heading>
+      <Stack direction='row' justifyContent='center' alignItems='center'>
+        <Heading textAlign='center' mt={2}>
+          Finance Dashboard
+        </Heading>
+
+        <Menu>
+          <MenuButton>
+            <IconButton
+              icon={<MdKeyboardArrowDown />}
+              fontSize={28}
+              variant='ghost'
+              aria-label='Finance dashboard menu'
+            />
+          </MenuButton>
+
+          <MenuList>
+            <MenuItem icon={<MdArticle />} onClick={exportBudgetDataJSON}>
+              Export budget data
+            </MenuItem>
+          </MenuList>
+        </Menu>
+      </Stack>
 
       <Tabs align='center' variant='enclosed' mt={4} colorScheme='green'>
         <TabList>
@@ -193,10 +217,6 @@ const Finances = () => {
           </TabPanel>
         </TabPanels>
       </Tabs>
-
-      <Button leftIcon={<MdArticle />} onClick={exportBudgetDataJSON} m={4}>
-        Export budget data
-      </Button>
     </Box>
   );
 };

@@ -1,7 +1,7 @@
 import { MdKeyboardArrowDown } from 'react-icons/md';
 import EditableLabel from 'components/Inputs/EditableLabel';
 import { BudgetCategory, IBudget } from 'models/types';
-import React, { useContext, useState } from 'react';
+import React, { useContext } from 'react';
 import { Draggable, Droppable } from 'react-beautiful-dnd';
 import { BudgetContext, budgetRowsGridTemplateColumns } from '../Budget';
 import SubCategory from './SubCategory';
@@ -29,7 +29,6 @@ interface CategoryProps {
 const Category = (props: CategoryProps) => {
   const { budget, setCategoryName, removeCategory, addNewSubCategory } = useContext(BudgetContext);
   const { idx, category, isLastCat } = props;
-  const [isHovered, setIsHovered] = useState(false);
 
   const isCategoryNameUnique = (newCatName: string) => {
     return !budget.categories.some((cat) => cat.name === newCatName);
@@ -41,7 +40,7 @@ const Category = (props: CategoryProps) => {
         <div {...provided.draggableProps} {...provided.dragHandleProps} ref={provided.innerRef}>
           <Box mb={1}>
             <Grid templateColumns={budgetRowsGridTemplateColumns} alignItems='center' gridColumnGap={1}>
-              <GridItem onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
+              <GridItem>
                 <Stack direction='row' alignItems='center' w='100%'>
                   <EditableLabel
                     fieldName='Category'
@@ -58,7 +57,6 @@ const Category = (props: CategoryProps) => {
                         icon={<MdKeyboardArrowDown />}
                         fontSize={24}
                         variant='ghost'
-                        visibility={isHovered ? 'visible' : 'hidden'}
                         aria-label='Category menu'
                       />
                     </MenuButton>

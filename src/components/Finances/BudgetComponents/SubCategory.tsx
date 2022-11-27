@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext } from 'react';
 import { BudgetCategory, BudgetSubcategory } from 'models/types';
 import { BudgetContext, budgetRowsGridTemplateColumns } from '../Budget';
 import { Draggable } from 'react-beautiful-dnd';
@@ -28,7 +28,6 @@ interface SubCategoryProps {
 const SubCategory = (props: SubCategoryProps) => {
   const { setSubCatProperty, setCatSubcatKey, setAddingTransaction, removeSubCategory } = useContext(BudgetContext);
   const { subidx, category, subcategory } = props;
-  const [isHovered, setIsHovered] = useState(false);
 
   // TODO: handle identically named subcat being moved to the same cat as its twin
   const isSubcategoryNameUnique = (category: BudgetCategory, newSubcatName: string) => {
@@ -52,8 +51,8 @@ const SubCategory = (props: SubCategoryProps) => {
         <div {...provided.draggableProps} {...provided.dragHandleProps} ref={provided.innerRef}>
           <Box ml={2} mb={1}>
             <Grid templateColumns={budgetRowsGridTemplateColumns} gridColumnGap={1} alignItems='center'>
-              <GridItem onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
-                <Stack direction='row' textAlign='left'>
+              <GridItem>
+                <Stack direction='row' alignItems='center' textAlign='left'>
                   <EditableLabel
                     fieldName='Subcategory'
                     fieldType='ItemName'
@@ -68,7 +67,6 @@ const SubCategory = (props: SubCategoryProps) => {
                         icon={<MdKeyboardArrowDown />}
                         fontSize={24}
                         variant='ghost'
-                        visibility={isHovered ? 'visible' : 'hidden'}
                         aria-label='Category menu'
                       />
                     </MenuButton>
