@@ -48,10 +48,15 @@ const Budget = (props: BudgetProps) => {
   const saveUpdatedCategories = (categories: BudgetCategory[], transactions?: Transaction[]) => {
     if (!family?.budgetId) return;
 
-    updateDoc(doc(db, FsCol.Budgets, family.budgetId), {
+    const budgetMergeObj: Partial<IBudget> = {
       categories,
-      transactions: transactions ?? null,
-    });
+    };
+
+    if (transactions) {
+      budgetMergeObj.transactions = transactions;
+    }
+
+    updateDoc(doc(db, FsCol.Budgets, family.budgetId), budgetMergeObj);
   };
 
   const setBudgetName = (newName?: string) => {
