@@ -47,9 +47,10 @@ const Budget = (props: BudgetProps) => {
 
   const saveUpdatedCategories = (categories: BudgetCategory[], transactions?: Transaction[]) => {
     if (!family?.budgetId) return;
+
     updateDoc(doc(db, FsCol.Budgets, family.budgetId), {
       categories,
-      transactions,
+      transactions: transactions ?? null,
     });
   };
 
