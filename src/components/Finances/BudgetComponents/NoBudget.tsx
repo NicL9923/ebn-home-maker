@@ -2,8 +2,8 @@ import { db, FsCol } from '../../../firebase';
 import { doc, writeBatch } from 'firebase/firestore';
 import { IBudget } from 'models/types';
 import { useUserStore } from 'state/UserStore';
-import { v4 as uuidv4 } from 'uuid';
 import { Box, Button, Text } from '@chakra-ui/react';
+import { genUuid } from 'utils/utils';
 
 const NoBudget = () => {
   const userId = useUserStore((state) => state.userId);
@@ -14,7 +14,7 @@ const NoBudget = () => {
   const createAndSaveDefaultBudget = () => {
     if (!userId || !profile) return;
 
-    const newBudgetUuid = uuidv4();
+    const newBudgetUuid = genUuid();
     const newBudgetTemplate: IBudget = {
       name: 'My Budget',
       id: newBudgetUuid,

@@ -1,6 +1,5 @@
 import React, { BaseSyntheticEvent } from 'react';
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
-import { v4 as uuidv4 } from 'uuid';
 import { useUserStore } from 'state/UserStore';
 import { doc, writeBatch } from 'firebase/firestore';
 import { db, FsCol, storage } from '../../firebase';
@@ -23,6 +22,7 @@ import * as yup from 'yup';
 import { Controller, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import FileDropzone from 'components/Inputs/FileDropzone';
+import { genUuid } from 'utils/utils';
 
 const createProfileSchema = yup
   .object({
@@ -66,7 +66,7 @@ const CreateProfile = ({ isOpen, setIsOpen }: CreateProfileProps) => {
     if (createProfileData.photo) {
       newProfileObj.imgLink = await getDownloadURL(
         (
-          await uploadBytes(ref(storage, uuidv4()), createProfileData.photo)
+          await uploadBytes(ref(storage, genUuid()), createProfileData.photo)
         ).ref
       );
     }

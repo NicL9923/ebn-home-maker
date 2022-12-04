@@ -1,5 +1,4 @@
 import React, { BaseSyntheticEvent } from 'react';
-import { v4 as uuidv4 } from 'uuid';
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import { useUserStore } from 'state/UserStore';
 import { doc, writeBatch } from 'firebase/firestore';
@@ -22,6 +21,7 @@ import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { Controller, useForm } from 'react-hook-form';
 import FileDropzone from 'components/Inputs/FileDropzone';
+import { genUuid } from 'utils/utils';
 
 const addVehicleSchema = yup
   .object({
@@ -75,7 +75,7 @@ const AddVehicle = ({ isOpen, setIsOpen }: AddVehicleProps) => {
     event?.preventDefault();
     if (!family || !profile) return;
 
-    const newVehId = uuidv4();
+    const newVehId = genUuid();
 
     let newVehIdArr: string[] = [];
     if (family.vehicles) {
@@ -85,7 +85,7 @@ const AddVehicle = ({ isOpen, setIsOpen }: AddVehicleProps) => {
 
     let imgUrl: string | undefined = undefined;
     if (newVehicleData.photo) {
-      imgUrl = await getDownloadURL((await uploadBytes(ref(storage, uuidv4()), newVehicleData.photo)).ref);
+      imgUrl = await getDownloadURL((await uploadBytes(ref(storage, genUuid()), newVehicleData.photo)).ref);
     }
 
     batch.set(doc(db, FsCol.Vehicles, newVehId), {

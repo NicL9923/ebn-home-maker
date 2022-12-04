@@ -29,7 +29,6 @@ const SubCategory = (props: SubCategoryProps) => {
   const { setSubCatProperty, setCatSubcatKey, setAddingTransaction, removeSubCategory } = useContext(BudgetContext);
   const { subidx, category, subcategory } = props;
 
-  // TODO: handle identically named subcat being moved to the same cat as its twin
   const isSubcategoryNameUnique = (category: BudgetCategory, newSubcatName: string) => {
     return !category.subcategories.some((subcat) => subcat.name === newSubcatName);
   };

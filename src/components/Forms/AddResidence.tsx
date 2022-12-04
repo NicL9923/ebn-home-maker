@@ -1,5 +1,4 @@
 import React, { BaseSyntheticEvent } from 'react';
-import { v4 as uuidv4 } from 'uuid';
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import { useUserStore } from 'state/UserStore';
 import { db, FsCol, storage } from '../../firebase';
@@ -22,6 +21,7 @@ import * as yup from 'yup';
 import { Controller, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import FileDropzone from 'components/Inputs/FileDropzone';
+import { genUuid } from 'utils/utils';
 
 const addResidenceSchema = yup
   .object({
@@ -65,7 +65,7 @@ const AddResidence = ({ isOpen, setIsOpen }: AddResidenceProps) => {
     event?.preventDefault();
     if (!family || !profile) return;
 
-    const newResId = uuidv4();
+    const newResId = genUuid();
 
     let newResIdArr: string[] = [];
     if (family.residences) {
@@ -75,7 +75,7 @@ const AddResidence = ({ isOpen, setIsOpen }: AddResidenceProps) => {
 
     let imgUrl: string | undefined = undefined;
     if (newResidenceData.photo) {
-      imgUrl = await getDownloadURL((await uploadBytes(ref(storage, uuidv4()), newResidenceData.photo)).ref);
+      imgUrl = await getDownloadURL((await uploadBytes(ref(storage, genUuid()), newResidenceData.photo)).ref);
     }
 
     batch.set(doc(db, FsCol.Residences, newResId), {

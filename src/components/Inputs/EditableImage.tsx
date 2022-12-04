@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { deleteObject, getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
-import { v4 as uuidv4 } from 'uuid';
 import { MdEdit } from 'react-icons/md';
 import {
   Avatar,
@@ -16,6 +15,7 @@ import {
   ModalOverlay,
 } from '@chakra-ui/react';
 import FileDropzone from './FileDropzone';
+import { genUuid } from 'utils/utils';
 
 type FileWithPreview = File & { preview: string };
 
@@ -44,7 +44,7 @@ const EditableImage = ({ curImgLink, updateCurImgLink, height, width }: Editable
       }
 
       if (newImgFile) {
-        const imgRef = ref(storage, uuidv4());
+        const imgRef = ref(storage, genUuid());
         updateCurImgLink(await getDownloadURL((await uploadBytes(imgRef, newImgFile)).ref));
       } else {
         updateCurImgLink('');

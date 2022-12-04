@@ -3,12 +3,14 @@ export type GenericObject<T = any> = { [key: string]: T };
 
 // ID === user.uid
 export interface Profile {
+  uid: string;
   familyId: string;
   firstName: string;
   imgLink?: string;
 }
 
 export interface Family {
+  uid: string;
   headOfFamily: string;
   budgetId?: string;
   members: string[];
@@ -22,17 +24,19 @@ export interface Family {
 }
 
 export interface Pet {
+  uid: string;
   name: string;
   imgLink?: string;
 }
 
 export interface ServiceLogEntry {
+  uid: string;
   date: string;
   note: string;
 }
 
 export interface Vehicle {
-  id: string;
+  uid: string;
   img?: string;
   year: string;
   make: string;
@@ -47,7 +51,7 @@ export interface Vehicle {
 }
 
 export interface Residence {
-  id: string;
+  uid: string;
   name: string;
   img?: string;
   yearBuilt: string;
@@ -56,10 +60,9 @@ export interface Residence {
   maintenanceMarkers: { houseAgeYears: number; maintenanceReq: string }[];
 }
 
-// ID === same as docID
 export interface IBudget {
+  uid: string;
   name: string;
-  id: string;
   monthlyNetIncome: number;
   categories: BudgetCategory[];
   editors: string[];
@@ -70,6 +73,7 @@ export interface IBudget {
 }
 
 export interface BudgetCategory {
+  uid: string;
   name: string;
   subcategories: BudgetSubcategory[];
   currentSpent?: number;
@@ -77,19 +81,21 @@ export interface BudgetCategory {
 }
 
 export interface BudgetSubcategory {
+  uid: string;
   name: string;
   currentSpent: number;
   totalAllotted: number;
 }
 
 export interface SavingsBlob {
+  uid: string;
   name: string;
   currentAmt: number;
   // goalAmt: number;
 }
 
 export interface Transaction {
-  id?: number;
+  uid: string;
   name: string;
   amt: number;
   category: string;
@@ -98,6 +104,7 @@ export interface Transaction {
 }
 
 export interface GroceryItem {
+  uid: string;
   name: string;
   isBought: boolean;
 }

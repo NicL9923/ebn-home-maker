@@ -1,6 +1,5 @@
 import React, { BaseSyntheticEvent } from 'react';
 import { Family } from 'models/types';
-import { v4 as uuidv4 } from 'uuid';
 import { useUserStore } from 'state/UserStore';
 import { doc, writeBatch } from 'firebase/firestore';
 import { db, FsCol } from '../../firebase';
@@ -21,6 +20,7 @@ import {
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useForm } from 'react-hook-form';
+import { genUuid } from 'utils/utils';
 
 const createFamilySchema = yup
   .object({
@@ -56,7 +56,7 @@ const CreateFamily = ({ isOpen, setIsOpen }: CreateFamilyProps) => {
     event?.preventDefault();
     if (!userId) return;
 
-    const newFamId = uuidv4();
+    const newFamId = genUuid();
     const newFamObj: Family = {
       name: createFamilyData.name,
       headOfFamily: userId,

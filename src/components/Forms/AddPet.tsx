@@ -1,6 +1,5 @@
 import React, { BaseSyntheticEvent } from 'react';
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
-import { v4 as uuidv4 } from 'uuid';
 import { useUserStore } from 'state/UserStore';
 import { doc, updateDoc } from 'firebase/firestore';
 import { db, FsCol, storage } from '../../firebase';
@@ -22,6 +21,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { Controller, useForm } from 'react-hook-form';
 import FileDropzone from 'components/Inputs/FileDropzone';
+import { genUuid } from 'utils/utils';
 
 const addPetSchema = yup
   .object({
@@ -63,7 +63,7 @@ const AddPet = ({ isOpen, setIsOpen }: AddPetProps) => {
 
     let imgLink: string | undefined = undefined;
     if (newPetData.photo) {
-      imgLink = await getDownloadURL((await uploadBytes(ref(storage, uuidv4()), newPetData.photo)).ref);
+      imgLink = await getDownloadURL((await uploadBytes(ref(storage, genUuid()), newPetData.photo)).ref);
     }
 
     newPetsArr.push({
