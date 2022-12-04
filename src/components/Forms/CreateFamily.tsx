@@ -58,6 +58,7 @@ const CreateFamily = ({ isOpen, setIsOpen }: CreateFamilyProps) => {
 
     const newFamId = genUuid();
     const newFamObj: Family = {
+      uid: newFamId,
       name: createFamilyData.name,
       headOfFamily: userId,
       members: [userId],

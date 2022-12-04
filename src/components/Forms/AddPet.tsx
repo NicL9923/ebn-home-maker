@@ -67,6 +67,7 @@ const AddPet = ({ isOpen, setIsOpen }: AddPetProps) => {
     }
 
     newPetsArr.push({
+      uid: genUuid(),
       name: newPetData.name,
       imgLink,
     });

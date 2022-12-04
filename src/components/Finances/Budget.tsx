@@ -21,6 +21,7 @@ import {
   useColorModeValue,
   useToken,
 } from '@chakra-ui/react';
+import { genUuid } from 'utils/utils';
 
 export const BudgetContext = React.createContext({} as BudgetContextValue);
 
@@ -133,7 +134,7 @@ const Budget = (props: BudgetProps) => {
       nameIterator++;
     }
 
-    saveUpdatedCategories([...budget.categories, { name: newCatName, subcategories: [] }]);
+    saveUpdatedCategories([...budget.categories, { uid: genUuid(), name: newCatName, subcategories: [] }]);
   };
 
   const removeCategory = (catName: string) => {
@@ -174,6 +175,7 @@ const Budget = (props: BudgetProps) => {
         }
 
         cat.subcategories.push({
+          uid: genUuid(),
           name: newSubCatName,
           currentSpent: 0,
           totalAllotted: 0,

@@ -154,7 +154,7 @@ const Transactions = ({ budget }: TransactionsProps) => {
 
     newRow.timestamp = newRow.timestamp.toString();
     const updArr = [...budget.transactions];
-    updArr[updArr.findIndex((transaction) => transaction.id === oldRow.id)] = newRow;
+    updArr[updArr.findIndex((transaction) => transaction.uid === oldRow.id)] = newRow;
 
     updateDoc(doc(db, FsCol.Budgets, family.budgetId), { transactions: updArr })
 

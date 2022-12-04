@@ -92,7 +92,7 @@ export const Residences = () => {
                       { field: 'date', headerName: 'Date' },
                       { field: 'note', headerName: 'Note', flex: 1 },
                     ]}
-                    rows={residence.serviceLogEntries.map((entry, idx) => ({ ...entry, id: idx }))}
+                    rows={residence.serviceLogEntries.map((entry) => ({ ...entry, id: entry.uid }))}
                     pageSize={5}
                     rowsPerPageOptions={[5, 10, 20]}
                   />
@@ -109,7 +109,7 @@ export const Residences = () => {
 
                 <Stack direction='row' justifyContent='right' spacing={1} mt={3}>
                   <Button>Edit</Button>
-                  <Button onClick={() => deleteResidence(residence.id)}>Delete</Button>
+                  <Button onClick={() => deleteResidence(residence.uid)}>Delete</Button>
                 </Stack>
               </Box>
             </GridItem>

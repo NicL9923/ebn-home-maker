@@ -20,6 +20,7 @@ import {
   WrapItem,
 } from '@chakra-ui/react';
 import { getCommonChartOptions } from './Budget';
+import { genUuid } from 'utils/utils';
 
 const formatChartData = (blobsData: SavingsBlob[]) => {
   const formattedDataArr: (string | number)[][] = [['Name', 'Amount']];
@@ -62,7 +63,7 @@ const Savings = ({ budget }: SavingsProps) => {
       nameIterator++;
     }
 
-    updBlobsArr.push({ name: newBlobName, currentAmt: 0 });
+    updBlobsArr.push({ uid: genUuid(), name: newBlobName, currentAmt: 0 });
 
     saveUpdBlobsArr(updBlobsArr);
   };
@@ -118,7 +119,7 @@ const Savings = ({ budget }: SavingsProps) => {
 
       <Wrap mb={4}>
         {budget.savingsBlobs.map((blob) => (
-          <WrapItem key={blob.name}>
+          <WrapItem key={blob.uid}>
             <Stat p={3} bgColor='green.300' borderRadius='md'>
               <StatLabel>
                 <Stack direction='row' justifyContent='center' alignItems='center'>

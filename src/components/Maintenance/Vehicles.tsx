@@ -96,7 +96,7 @@ export const Vehicles = () => {
                       { field: 'date', headerName: 'Date' },
                       { field: 'note', headerName: 'Note' },
                     ]}
-                    rows={vehicle.serviceLogEntries.map((entry, idx) => ({ ...entry, id: idx }))}
+                    rows={vehicle.serviceLogEntries.map((entry) => ({ ...entry, id: entry.uid }))}
                     pageSize={5}
                     rowsPerPageOptions={[5, 10, 20]}
                     getRowId={(row) => row.date}
@@ -114,7 +114,7 @@ export const Vehicles = () => {
 
                 <Stack direction='row' justifyContent='right' spacing={1} mt={3}>
                   <Button>Edit</Button>
-                  <Button onClick={() => deleteVehicle(vehicle.id)}>Delete</Button>
+                  <Button onClick={() => deleteVehicle(vehicle.uid)}>Delete</Button>
                 </Stack>
               </Box>
             </GridItem>

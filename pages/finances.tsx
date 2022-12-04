@@ -4,11 +4,11 @@ import Budget from '../src/components/Finances/Budget';
 import Savings from '../src/components/Finances/Savings';
 import Transactions from '../src/components/Finances/Transactions';
 import 'jspdf-autotable';
-import { BudgetCategory, IBudget, BudgetSubcategory, Transaction } from 'models/types';
-import { useUserStore } from 'state/UserStore';
+import { BudgetCategory, IBudget, BudgetSubcategory, Transaction } from '../src/models/types';
+import { useUserStore } from '../src/state/UserStore';
 import { db, FsCol } from '../src/firebase';
 import { doc, onSnapshot } from 'firebase/firestore';
-import NoBudget from 'components/Finances/BudgetComponents/NoBudget';
+import NoBudget from '../src/components/Finances/BudgetComponents/NoBudget';
 import {
   Box,
   CircularProgress,
@@ -56,12 +56,10 @@ const Finances = () => {
       console.error('Missing budget categories array!');
       newBudget.transactions = [];
     } else {
-      newBudget.transactions.forEach((transaction: Transaction, index: number) => {
-        transaction.id = index;
-
-        const tCatIdx = newBudget.categories.findIndex((x: BudgetCategory) => x.name === transaction.category);
+      newBudget.transactions.forEach((transaction: Transaction) => {
+        const tCatIdx = newBudget.categories.findIndex((budgetCat) => budgetCat.name === transaction.category);
         const tSubCatIdx = newBudget.categories[tCatIdx].subcategories.findIndex(
-          (x: BudgetSubcategory) => x.name === transaction.subcategory
+          (budgetSubcat) => budgetSubcat.name === transaction.subcategory
         );
 
         // Only count transaction towards this month's budget if it's from this month

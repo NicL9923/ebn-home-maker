@@ -16,20 +16,23 @@ const NoBudget = () => {
 
     const newBudgetUuid = genUuid();
     const newBudgetTemplate: IBudget = {
+      uid: newBudgetUuid,
       name: 'My Budget',
-      id: newBudgetUuid,
       editors: [userId],
       monthlyNetIncome: 3000,
       categories: [
         {
+          uid: genUuid(),
           name: 'Essentials',
           subcategories: [
             {
+              uid: genUuid(),
               name: 'Rent',
               totalAllotted: 1250,
               currentSpent: 0,
             },
             {
+              uid: genUuid(),
               name: 'Utilities',
               totalAllotted: 300,
               currentSpent: 0,
@@ -37,9 +40,11 @@ const NoBudget = () => {
           ],
         },
         {
+          uid: genUuid(),
           name: 'Lifestyle',
           subcategories: [
             {
+              uid: genUuid(),
               name: 'Spending',
               totalAllotted: 300,
               currentSpent: 0,
@@ -47,10 +52,10 @@ const NoBudget = () => {
           ],
         },
       ],
-      savingsBlobs: [{ name: 'Default Blob', currentAmt: 1000 }],
+      savingsBlobs: [{ uid: genUuid(), name: 'Default Blob', currentAmt: 1000 }],
       transactions: [
         {
-          id: 0,
+          uid: genUuid(),
           name: 'Default transaction',
           amt: 10,
           category: 'Essentials',

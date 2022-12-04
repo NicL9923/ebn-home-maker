@@ -18,6 +18,7 @@ import {
   Stack,
   Text,
 } from '@chakra-ui/react';
+import { subcatPrefix } from './BudgetCategories';
 
 interface CategoryProps {
   idx: number;
@@ -35,7 +36,7 @@ const Category = (props: CategoryProps) => {
   };
 
   return (
-    <Draggable draggableId={category.name} index={idx}>
+    <Draggable draggableId={category.uid} index={idx}>
       {(provided) => (
         <div {...provided.draggableProps} {...provided.dragHandleProps} ref={provided.innerRef}>
           <Box mb={1}>
@@ -90,11 +91,11 @@ const Category = (props: CategoryProps) => {
               </GridItem>
             </Grid>
 
-            <Droppable droppableId={`subcats-${category.name}`} type='subcategory'>
+            <Droppable droppableId={`${subcatPrefix}${category.name}`} type='subcategory'>
               {(provided) => (
                 <div {...provided.droppableProps} ref={provided.innerRef}>
                   {category.subcategories.map((subcategory, subidx) => (
-                    <SubCategory key={subcategory.name} subidx={subidx} category={category} subcategory={subcategory} />
+                    <SubCategory key={subcategory.uid} subidx={subidx} category={category} subcategory={subcategory} />
                   ))}
                   {provided.placeholder}
                 </div>

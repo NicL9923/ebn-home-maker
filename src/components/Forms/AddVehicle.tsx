@@ -22,6 +22,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { Controller, useForm } from 'react-hook-form';
 import FileDropzone from 'components/Inputs/FileDropzone';
 import { genUuid } from 'utils/utils';
+import { Vehicle } from 'models/types';
 
 const addVehicleSchema = yup
   .object({
@@ -88,13 +89,15 @@ const AddVehicle = ({ isOpen, setIsOpen }: AddVehicleProps) => {
       imgUrl = await getDownloadURL((await uploadBytes(ref(storage, genUuid()), newVehicleData.photo)).ref);
     }
 
-    batch.set(doc(db, FsCol.Vehicles, newVehId), {
-      id: newVehId,
+    const newVehicle: Vehicle = {
+      uid: newVehId,
       img: imgUrl,
       maintenanceMarkers: [],
       serviceLogEntries: [],
       ...newVehicleData,
-    });
+    };
+
+    batch.set(doc(db, FsCol.Vehicles, newVehId), newVehicle);
     batch.update(doc(db, FsCol.Families, profile.familyId), {
       residences: newVehIdArr,
     });

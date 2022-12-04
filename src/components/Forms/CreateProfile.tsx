@@ -3,7 +3,7 @@ import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import { useUserStore } from 'state/UserStore';
 import { doc, writeBatch } from 'firebase/firestore';
 import { db, FsCol, storage } from '../../firebase';
-import { GenericObject } from 'models/types';
+import { Profile } from 'models/types';
 import {
   Button,
   FormControl,
@@ -61,7 +61,7 @@ const CreateProfile = ({ isOpen, setIsOpen }: CreateProfileProps) => {
     event?.preventDefault();
     if (!userId) return;
 
-    const newProfileObj: GenericObject = { firstName: createProfileData.name, familyId: '' };
+    const newProfileObj: Profile = { uid: userId, firstName: createProfileData.name, familyId: '' };
 
     if (createProfileData.photo) {
       newProfileObj.imgLink = await getDownloadURL(

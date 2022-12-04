@@ -22,6 +22,7 @@ import { Controller, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import FileDropzone from 'components/Inputs/FileDropzone';
 import { genUuid } from 'utils/utils';
+import { Residence } from 'models/types';
 
 const addResidenceSchema = yup
   .object({
@@ -78,13 +79,15 @@ const AddResidence = ({ isOpen, setIsOpen }: AddResidenceProps) => {
       imgUrl = await getDownloadURL((await uploadBytes(ref(storage, genUuid()), newResidenceData.photo)).ref);
     }
 
-    batch.set(doc(db, FsCol.Residences, newResId), {
-      id: newResId,
+    const newResidence: Residence = {
+      uid: newResId,
       img: imgUrl,
       maintenanceMarkers: [],
       serviceLogEntries: [],
       ...newResidenceData,
-    });
+    };
+
+    batch.set(doc(db, FsCol.Residences, newResId), newResidence);
     batch.update(doc(db, FsCol.Families, profile.familyId), {
       residences: newResIdArr,
     });

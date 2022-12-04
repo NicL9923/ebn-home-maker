@@ -22,6 +22,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { Select, OptionBase, GroupBase } from 'chakra-react-select';
 import DatePicker from 'components/Inputs/DatePicker';
+import { genUuid } from 'utils/utils';
 
 // TODO: Disable form buttons while submitting
 // TODO: Add calculate functionality to the amount field here too
@@ -115,6 +116,7 @@ const AddTransaction = ({ isOpen, setIsOpen, initialCatSubcat, budget }: AddTran
     const splitCatSubcat = newTransactionData.catSubcat.value.split(catSubcatKeySeparator);
 
     const formattedTransaction: Transaction = {
+      uid: genUuid(),
       amt: newTransactionData.amount,
       name: newTransactionData.description,
       timestamp: newTransactionData.date.toString(),

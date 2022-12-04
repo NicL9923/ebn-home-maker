@@ -51,9 +51,9 @@ const Family = () => {
 
     const famMemProfs: Profile[] = [];
 
-    family.members.forEach((member) => {
-      if (member !== userId) {
-        getDoc(doc(db, FsCol.Profiles, member)).then((doc) => {
+    family.members.forEach((memberId) => {
+      if (memberId !== userId) {
+        getDoc(doc(db, FsCol.Profiles, memberId)).then((doc) => {
           if (doc.exists()) {
             famMemProfs.push(doc.data() as Profile);
             setFamilyMemberProfiles(famMemProfs);
@@ -87,12 +87,12 @@ const Family = () => {
     });
 
     // Delete residences and vehicles
-    family.residences.forEach((res) => {
-      batch.delete(doc(db, FsCol.Residences, res));
+    family.residences.forEach((resId) => {
+      batch.delete(doc(db, FsCol.Residences, resId));
     });
 
-    family.vehicles.forEach((veh) => {
-      batch.delete(doc(db, FsCol.Vehicles, veh));
+    family.vehicles.forEach((vehId) => {
+      batch.delete(doc(db, FsCol.Vehicles, vehId));
     });
 
     // Delete family doc
@@ -133,23 +133,30 @@ const Family = () => {
     });
   };
 
-  const removeFamilyMember = (memberFirstName: string, memberIdx: number) => {
+  const removeFamilyMember = (memberProfile: Profile) => {
     if (!profile || !family) return;
 
-    if (window.confirm(`Are you sure you want to remove ${memberFirstName} from the family?`)) {
+    if (window.confirm(`Are you sure you want to remove ${memberProfile.firstName} from the family?`)) {
       const newMembersArr = [...family.members];
-      newMembersArr.splice(memberIdx, 1);
+      newMembersArr.splice(
+        newMembersArr.findIndex((memberId) => memberId === memberProfile.uid),
+        1
+      );
 
+      // TODO: Need to batch update this and that users profile.familyId
       updateDoc(doc(db, FsCol.Families, profile.familyId), { members: newMembersArr });
     }
   };
 
-  const removePet = (pet: Pet, petIdx: number) => {
+  const removePet = (pet: Pet) => {
     if (!profile || !family) return;
 
     if (window.confirm(`Are you sure you want to remove ${pet.name} from the family?`)) {
       const newPetsArr = [...family.pets];
-      newPetsArr.splice(petIdx, 1);
+      newPetsArr.splice(
+        newPetsArr.findIndex((petInArr) => petInArr.uid === pet.uid),
+        1
+      );
 
       if (pet.imgLink) {
         const storage = getStorage();
@@ -221,17 +228,17 @@ const Family = () => {
         </Heading>
         <Wrap>
           {familyMemberProfiles &&
-            familyMemberProfiles.map((prof: Profile, idx: number) => (
-              <WrapItem key={prof.firstName}>
+            familyMemberProfiles.map((memberProfile) => (
+              <WrapItem key={memberProfile.uid}>
                 <Stack alignItems='center' justifyContent='center'>
-                  <Text>{prof.firstName}</Text>
-                  <Avatar name={prof.firstName} src={prof.imgLink} size='2xl' />
+                  <Text>{memberProfile.firstName}</Text>
+                  <Avatar name={memberProfile.firstName} src={memberProfile.imgLink} size='2xl' />
                   {userId === family.headOfFamily && (
                     <Button
                       leftIcon={<MdClose />}
                       mt='2'
                       size='sm'
-                      onClick={() => removeFamilyMember(prof.firstName, idx)}
+                      onClick={() => removeFamilyMember(memberProfile)}
                       colorScheme='red'
                     >
                       Remove
@@ -255,19 +262,13 @@ const Family = () => {
         </Heading>
         <Wrap>
           {family.pets &&
-            family.pets.map((pet: Pet, idx: number) => (
-              <WrapItem key={pet.name}>
+            family.pets.map((pet: Pet) => (
+              <WrapItem key={pet.uid}>
                 <Stack alignItems='center' justifyContent='center'>
                   <Text>{pet.name}</Text>
                   <Avatar name={pet.name} src={pet.imgLink} size='xl' />
                   {userId === family.headOfFamily && (
-                    <Button
-                      leftIcon={<MdClose />}
-                      size='sm'
-                      onClick={() => removePet(pet, idx)}
-                      mt='2'
-                      colorScheme='red'
-                    >
+                    <Button leftIcon={<MdClose />} size='sm' onClick={() => removePet(pet)} mt='2' colorScheme='red'>
                       Remove
                     </Button>
                   )}
@@ -311,6 +312,8 @@ const Family = () => {
 
       {userId === family.headOfFamily ? (
         <Stack spacing={5} mt={6}>
+          {/* TODO: Need a method to regen familyId (in case accidentally released - to stop unwanted family joins) */}
+
           <Button leftIcon={<MdArticle />} onClick={exportFamilyDataJSON}>
             Export family data
           </Button>

@@ -45,7 +45,7 @@ const SubCategory = (props: SubCategoryProps) => {
   };
 
   return (
-    <Draggable draggableId={subcategory.name} index={subidx}>
+    <Draggable draggableId={subcategory.uid} index={subidx}>
       {(provided) => (
         <div {...provided.draggableProps} {...provided.dragHandleProps} ref={provided.innerRef}>
           <Box ml={2} mb={1}>

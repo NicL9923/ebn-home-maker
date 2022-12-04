@@ -1,10 +1,10 @@
 import React from 'react';
-import NoProfile from 'components/NoProfile';
-import Family from 'components/Family';
-import EditableLabel from 'components/Inputs/EditableLabel';
-import EditableImage from 'components/Inputs/EditableImage';
+import NoProfile from '../src/components/NoProfile';
+import Family from '../src/components/Family';
+import EditableLabel from '../src/components/Inputs/EditableLabel';
+import EditableImage from '../src/components/Inputs/EditableImage';
 import { sendPasswordResetEmail } from 'firebase/auth';
-import { useUserStore } from 'state/UserStore';
+import { useUserStore } from '../src/state/UserStore';
 import { auth, db, FsCol } from '../src/firebase';
 import { doc, updateDoc } from 'firebase/firestore';
 import { Box, Button, Container, Heading, Stack, useToast } from '@chakra-ui/react';

@@ -1,11 +1,13 @@
 import React, { useMemo, useState } from 'react';
 import { doc, updateDoc } from 'firebase/firestore';
-import SingleFieldDialog from 'components/Inputs/SingleFieldDialog';
+import SingleFieldDialog from '../src/components/Inputs/SingleFieldDialog';
 import { DragDropContext, Draggable, Droppable, DropResult } from 'react-beautiful-dnd';
-import { useUserStore } from 'state/UserStore';
+import { useUserStore } from '../src/state/UserStore';
 import { db, FsCol } from '../src/firebase';
 import { Box, Button, Checkbox, Heading, List, ListItem, Stack, useColorModeValue, useToast } from '@chakra-ui/react';
 import { MdAdd, MdDelete } from 'react-icons/md';
+import { GroceryItem } from '../src/models/types';
+import { genUuid } from '../src/utils/utils';
 
 const GroceryList = () => {
   const toast = useToast();
@@ -22,7 +24,7 @@ const GroceryList = () => {
   const addGroceryItem = (newItemName?: string) => {
     if (!newItemName) return;
 
-    const newList = [...family.groceryList, { name: newItemName, isBought: false }];
+    const newList: GroceryItem[] = [...family.groceryList, { uid: genUuid(), name: newItemName, isBought: false }];
 
     updateDoc(doc(db, FsCol.Families, profile.familyId), { groceryList: newList }).then(() => {
       toast({
@@ -110,7 +112,7 @@ const GroceryList = () => {
               borderRadius='md'
             >
               {family.groceryList.map((groceryItem, idx) => (
-                <Draggable draggableId={`${groceryItem.name}-${idx}`} index={idx} key={`${groceryItem.name}-${idx}`}>
+                <Draggable draggableId={`${groceryItem.uid}`} index={idx} key={`${groceryItem.uid}`}>
                   {(provided) => (
                     <ListItem {...provided.draggableProps} {...provided.dragHandleProps} ref={provided.innerRef}>
                       <Checkbox
