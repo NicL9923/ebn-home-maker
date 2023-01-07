@@ -1,4 +1,4 @@
-import React, { BaseSyntheticEvent, useMemo } from 'react';
+import React, { BaseSyntheticEvent, useMemo, useState } from 'react';
 import { IBudget, Transaction } from 'models/types';
 import { useUserStore } from 'state/UserStore';
 import { doc, updateDoc } from 'firebase/firestore';
@@ -8,13 +8,18 @@ import {
   FormControl,
   FormErrorMessage,
   FormLabel,
+  IconButton,
   Input,
+  InputGroup,
+  InputLeftElement,
   Modal,
   ModalBody,
   ModalContent,
   ModalFooter,
   ModalHeader,
   ModalOverlay,
+  Stack,
+  Tooltip,
   useToast,
 } from '@chakra-ui/react';
 import { useForm, Controller } from 'react-hook-form';
@@ -23,9 +28,10 @@ import * as yup from 'yup';
 import { Select, OptionBase, GroupBase } from 'chakra-react-select';
 import DatePicker from 'components/Inputs/DatePicker';
 import { genUuid } from 'utils/utils';
+import { MdCalculate } from 'react-icons/md';
+import { evaluate, round } from 'mathjs';
 
 // TODO: Disable form buttons while submitting
-// TODO: Add calculate functionality to the amount field here too
 
 export const catSubcatKeySeparator = '&%&';
 
@@ -76,6 +82,8 @@ const AddTransaction = ({ isOpen, setIsOpen, initialCatSubcat, budget }: AddTran
   } = useForm<AddTransactionFormSchema>({
     resolver: yupResolver(addTransactionSchema),
   });
+
+  const [amtStr, setAmtStr] = useState('');
 
   const categoryOptions = useMemo(() => {
     const catOptions: IGroupOpt[] = budget.categories.map((category) => ({
@@ -135,7 +143,14 @@ const AddTransaction = ({ isOpen, setIsOpen, initialCatSubcat, budget }: AddTran
 
       setIsOpen(false);
       reset();
+      setAmtStr('');
     });
+  };
+
+  const calculateMoneyValue = () => {
+    const newVal: number = round(evaluate(amtStr), 2);
+    setValue('amount', newVal);
+    setAmtStr(`${newVal}`);
   };
 
   return (
@@ -148,7 +163,36 @@ const AddTransaction = ({ isOpen, setIsOpen, initialCatSubcat, budget }: AddTran
           <ModalBody>
             <FormControl isInvalid={!!errors.amount?.message}>
               <FormLabel>Amount</FormLabel>
-              <Input type='number' {...register('amount')} step='0.01' />
+
+              <Stack direction='row' alignItems='center' spacing={1}>
+                <Controller
+                  name='amount'
+                  control={control}
+                  render={({ field }) => (
+                    <InputGroup>
+                      <InputLeftElement>$</InputLeftElement>
+                      <Input
+                        type='text'
+                        value={amtStr}
+                        onChange={(e) => {
+                          field.onChange(round(parseFloat(e.target.value), 2));
+                          setAmtStr(e.target.value);
+                        }}
+                      />
+                    </InputGroup>
+                  )}
+                />
+                <Tooltip title='Calculate value'>
+                  <IconButton
+                    icon={<MdCalculate />}
+                    onClick={calculateMoneyValue}
+                    variant='ghost'
+                    fontSize='32'
+                    aria-label='Calculate expression value'
+                  />
+                </Tooltip>
+              </Stack>
+
               <FormErrorMessage>{errors.amount?.message}</FormErrorMessage>
             </FormControl>
 
