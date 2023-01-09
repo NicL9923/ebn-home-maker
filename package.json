@@ -30,7 +30,7 @@
     "framer-motion": "^7.6.4",
     "jspdf": "^2.5.1",
     "jspdf-autotable": "^3.5.25",
-    "luxon": "^2.5.0",
+    "luxon": "^2.5.2",
     "mathjs": "^11.3.0",
     "next": "latest",
     "next-remove-imports": "^1.0.8",
