@@ -15,6 +15,7 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
+  Stack,
   useToast,
 } from '@chakra-ui/react';
 import * as yup from 'yup';
@@ -74,18 +75,16 @@ const AddResidence = ({ isOpen, setIsOpen }: AddResidenceProps) => {
     }
     newResIdArr.push(newResId);
 
-    let imgUrl: string | undefined = undefined;
-    if (newResidenceData.photo) {
-      imgUrl = await getDownloadURL((await uploadBytes(ref(storage, genUuid()), newResidenceData.photo)).ref);
-    }
-
     const newResidence: Residence = {
       uid: newResId,
-      img: imgUrl,
       maintenanceMarkers: [],
       serviceLogEntries: [],
       ...newResidenceData,
     };
+
+    if (newResidenceData.photo) {
+      newResidence.img = await getDownloadURL((await uploadBytes(ref(storage, genUuid()), newResidenceData.photo)).ref);
+    }
 
     batch.set(doc(db, FsCol.Residences, newResId), newResidence);
     batch.update(doc(db, FsCol.Families, profile.familyId), {
@@ -118,6 +117,20 @@ const AddResidence = ({ isOpen, setIsOpen }: AddResidenceProps) => {
               <FormErrorMessage>{errors.name?.message}</FormErrorMessage>
             </FormControl>
 
+            <Stack direction='row' alignItems='center' spacing={1}>
+              <FormControl isInvalid={!!errors.yearBuilt?.message}>
+                <FormLabel>Year Built</FormLabel>
+                <Input type='text' {...register('yearBuilt')} />
+                <FormErrorMessage>{errors.yearBuilt?.message}</FormErrorMessage>
+              </FormControl>
+
+              <FormControl isInvalid={!!errors.yearPurchased?.message}>
+                <FormLabel>Year Purchased</FormLabel>
+                <Input type='text' {...register('yearPurchased')} />
+                <FormErrorMessage>{errors.yearPurchased?.message}</FormErrorMessage>
+              </FormControl>
+            </Stack>
+
             <FormControl isInvalid={!!errors.photo?.message}>
               <FormLabel>Photo</FormLabel>
               <Controller
@@ -131,18 +144,6 @@ const AddResidence = ({ isOpen, setIsOpen }: AddResidenceProps) => {
                 )}
               />
               <FormErrorMessage>{errors.photo?.message}</FormErrorMessage>
-            </FormControl>
-
-            <FormControl isInvalid={!!errors.yearBuilt?.message}>
-              <FormLabel>Year Built</FormLabel>
-              <Input type='text' {...register('yearBuilt')} />
-              <FormErrorMessage>{errors.yearBuilt?.message}</FormErrorMessage>
-            </FormControl>
-
-            <FormControl isInvalid={!!errors.yearPurchased?.message}>
-              <FormLabel>Year Purchased</FormLabel>
-              <Input type='text' {...register('yearPurchased')} />
-              <FormErrorMessage>{errors.yearPurchased?.message}</FormErrorMessage>
             </FormControl>
           </ModalBody>
 

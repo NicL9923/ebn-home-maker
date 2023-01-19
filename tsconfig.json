@@ -29,7 +29,7 @@
     "pages/SmartHome.tsx",
     "pages/index.tsx",
     "pages/Information.tsx",
-    "pages/Maintenance.tsx",
+    "pages/maintenance/index.tsx",
     "pages/GroceryList.tsx"
   ],
   "exclude": [

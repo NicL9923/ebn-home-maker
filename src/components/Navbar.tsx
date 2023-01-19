@@ -61,7 +61,7 @@ const Navbar = () => {
 
             <Link href='/maintenance'>
               <MenuItem icon={<MdOutlineSettings />}>
-                <Text>Home & Auto</Text>
+                <Text>Home/Auto Maintenance</Text>
               </MenuItem>
             </Link>
 

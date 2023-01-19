@@ -12,10 +12,10 @@ const FileDropzone = ({ accept, onDrop, previewChildren }: FileDropzoneProps) =>
       accept={accept}
       onDrop={onDrop}
       maxFiles={1}
-      maxSize={3145728} // 3MB (binary)
+      maxSize={3145728} // 3MB
     >
       {({ getRootProps, getInputProps }) => (
-        <Container bgColor='green.50' centerContent p={50} borderRadius='md' {...getRootProps()}>
+        <Container borderWidth='1px' centerContent p={50} borderRadius='md' {...getRootProps()}>
           <input {...getInputProps()} />
 
           <Icon as={MdFilePresent} fontSize={48} />

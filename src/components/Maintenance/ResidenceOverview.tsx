@@ -1,13 +1,25 @@
 import React, { useEffect, useState } from 'react';
 import type { Residence, ServiceLogEntry } from 'models/types';
 import AddResidence from 'components/Forms/AddResidence';
-import { MdAdd, MdEdit, MdHouse } from 'react-icons/md';
+import { MdHouse } from 'react-icons/md';
 import { useUserStore } from 'state/UserStore';
 import { doc, getDoc, writeBatch } from 'firebase/firestore';
 import { db, FsCol } from '../../firebase';
-import { Box, Button, CircularProgress, Container, Grid, GridItem, Heading, Stack, Text } from '@chakra-ui/react';
+import {
+  Box,
+  Button,
+  CircularProgress,
+  Heading,
+  Image,
+  LinkBox,
+  LinkOverlay,
+  Stack,
+  Text,
+  Wrap,
+  WrapItem,
+} from '@chakra-ui/react';
 
-export const Residences = () => {
+export const ResidenceOverview = () => {
   const profile = useUserStore((state) => state.profile);
   const family = useUserStore((state) => state.family);
 
@@ -59,8 +71,8 @@ export const Residences = () => {
   }, [family]);
 
   return (
-    <Box mt={2}>
-      <Heading>Residences</Heading>
+    <Box mt={4}>
+      <Heading>Your Residences</Heading>
       {!residences ? (
         isFetchingResidences && (
           <Box mx='auto' textAlign='center' mt={20}>
@@ -68,55 +80,40 @@ export const Residences = () => {
           </Box>
         )
       ) : (
-        <Grid mt={2} mb={2} gap={2}>
+        <Wrap mt={2} mb={2} gap={2}>
           {residences.map((residence) => (
-            <GridItem key={residence.name}>
-              <Box p={2}>
-                {residence.img ? (
-                  <img height='250' src={residence.img} />
-                ) : (
-                  <Container>
-                    <MdHouse />
-                  </Container>
-                )}
+            <WrapItem key={residence.name}>
+              <LinkBox>
+                <LinkOverlay href={`/maintenance/residences/${residence.uid}`} />
 
-                <Text>{residence.name}</Text>
-                <Text>Built: {residence.yearBuilt}</Text>
-                <Text>Purchased: {residence.yearPurchased}</Text>
+                <Box p={2} maxW='sm' borderWidth='1px' borderRadius='lg' overflow='hidden'>
+                  {residence.img ? (
+                    <Image height='250' src={residence.img} />
+                  ) : (
+                    <Box>
+                      <MdHouse fontSize={96} />
+                    </Box>
+                  )}
 
-                <Text mt={2}>Service Log</Text>
-                <Box height={300}>
-                  {/*
-                  <DataGrid
-                    columns={[
-                      { field: 'date', headerName: 'Date' },
-                      { field: 'note', headerName: 'Note', flex: 1 },
-                    ]}
-                    rows={residence.serviceLogEntries.map((entry) => ({ ...entry, id: entry.uid }))}
-                    pageSize={5}
-                    rowsPerPageOptions={[5, 10, 20]}
-                  />
-                  */}
+                  <Text>{residence.name}</Text>
+                  <Text>Built: {residence.yearBuilt}</Text>
+                  <Text>Purchased: {residence.yearPurchased}</Text>
+
+                  <Stack direction='row' justifyContent='right' spacing={1} mt={3}>
+                    <Button size='sm'>Edit</Button>
+                    <Button size='sm' onClick={() => deleteResidence(residence.uid)}>
+                      Delete
+                    </Button>
+                  </Stack>
                 </Box>
-                <Button leftIcon={<MdAdd />} sx={{ mt: 1 }}>
-                  Add to log
-                </Button>
-
-                <Text mt={2}>Maintenance</Text>
-                <Button leftIcon={<MdEdit />} sx={{ mt: 1 }}>
-                  Edit maintenance schedule
-                </Button>
-
-                <Stack direction='row' justifyContent='right' spacing={1} mt={3}>
-                  <Button>Edit</Button>
-                  <Button onClick={() => deleteResidence(residence.uid)}>Delete</Button>
-                </Stack>
-              </Box>
-            </GridItem>
+              </LinkBox>
+            </WrapItem>
           ))}
-        </Grid>
+        </Wrap>
       )}
-      <Button onClick={() => setAddingResidence(true)}>Add residence</Button>
+      <Button colorScheme='green' onClick={() => setAddingResidence(true)} mt={2}>
+        Add new residence
+      </Button>
 
       <AddResidence isOpen={addingResidence} setIsOpen={setAddingResidence} />
     </Box>

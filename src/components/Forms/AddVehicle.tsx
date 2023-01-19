@@ -7,6 +7,7 @@ import {
   Button,
   FormControl,
   FormErrorMessage,
+  FormHelperText,
   FormLabel,
   Input,
   Modal,
@@ -15,6 +16,7 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
+  Stack,
   useToast,
 } from '@chakra-ui/react';
 import * as yup from 'yup';
@@ -84,22 +86,20 @@ const AddVehicle = ({ isOpen, setIsOpen }: AddVehicleProps) => {
     }
     newVehIdArr.push(newVehId);
 
-    let imgUrl: string | undefined = undefined;
-    if (newVehicleData.photo) {
-      imgUrl = await getDownloadURL((await uploadBytes(ref(storage, genUuid()), newVehicleData.photo)).ref);
-    }
-
     const newVehicle: Vehicle = {
       uid: newVehId,
-      img: imgUrl,
       maintenanceMarkers: [],
       serviceLogEntries: [],
       ...newVehicleData,
     };
 
+    if (newVehicleData.photo) {
+      newVehicle.img = await getDownloadURL((await uploadBytes(ref(storage, genUuid()), newVehicleData.photo)).ref);
+    }
+
     batch.set(doc(db, FsCol.Vehicles, newVehId), newVehicle);
     batch.update(doc(db, FsCol.Families, profile.familyId), {
-      residences: newVehIdArr,
+      vehicles: newVehIdArr,
     });
 
     batch.commit().then(() => {
@@ -124,51 +124,58 @@ const AddVehicle = ({ isOpen, setIsOpen }: AddVehicleProps) => {
           <ModalBody>
             <FormControl isInvalid={!!errors.year?.message}>
               <FormLabel>Model Year</FormLabel>
-              <Input type='text' {...register('year')} />
+              <Input type='text' placeholder='2016' {...register('year')} />
               <FormErrorMessage>{errors.year?.message}</FormErrorMessage>
             </FormControl>
 
-            <FormControl isInvalid={!!errors.make?.message}>
-              <FormLabel>Make</FormLabel>
-              <Input type='text' placeholder='Chevrolet, Ford, Dodge, Toyota...' {...register('make')} />
-              <FormErrorMessage>{errors.make?.message}</FormErrorMessage>
-            </FormControl>
+            <Stack direction='row' alignItems='center' spacing={1}>
+              <FormControl isInvalid={!!errors.make?.message}>
+                <FormLabel>Make</FormLabel>
+                <Input type='text' placeholder='Chevrolet, Ford, Dodge, Toyota...' {...register('make')} />
+                <FormErrorMessage>{errors.make?.message}</FormErrorMessage>
+              </FormControl>
 
-            <FormControl isInvalid={!!errors.model?.message}>
-              <FormLabel>Model</FormLabel>
-              <Input type='text' placeholder='F150, Corolla, Tacoma, Tahoe...' {...register('model')} />
-              <FormErrorMessage>{errors.model?.message}</FormErrorMessage>
-            </FormControl>
+              <FormControl isInvalid={!!errors.model?.message}>
+                <FormLabel>Model</FormLabel>
+                <Input type='text' placeholder='F150, Corolla, Tahoe...' {...register('model')} />
+                <FormErrorMessage>{errors.model?.message}</FormErrorMessage>
+              </FormControl>
+            </Stack>
 
-            <FormControl isInvalid={!!errors.trim?.message}>
-              <FormLabel>Trim</FormLabel>
-              <Input type='text' placeholder='SE, Ultimate, Limited, Lariat...' {...register('trim')} />
-              <FormErrorMessage>{errors.trim?.message}</FormErrorMessage>
-            </FormControl>
+            <Stack direction='row' alignItems='center' spacing={1}>
+              <FormControl isInvalid={!!errors.trim?.message}>
+                <FormLabel>Trim</FormLabel>
+                <Input type='text' placeholder='SE, Limited, Lariat...' {...register('trim')} />
+                <FormErrorMessage>{errors.trim?.message}</FormErrorMessage>
+              </FormControl>
 
-            <FormControl isInvalid={!!errors.engine?.message}>
-              <FormLabel>Engine</FormLabel>
-              <Input type='text' placeholder='3.5L V6...' {...register('engine')} />
-              <FormErrorMessage>{errors.engine?.message}</FormErrorMessage>
-            </FormControl>
+              <FormControl isInvalid={!!errors.engine?.message}>
+                <FormLabel>Engine</FormLabel>
+                <Input type='text' placeholder='2.5L 4-Cyl, 3.5L V6...' {...register('engine')} />
+                <FormErrorMessage>{errors.engine?.message}</FormErrorMessage>
+              </FormControl>
+            </Stack>
 
             <FormControl isInvalid={!!errors.vin?.message}>
-              <FormLabel>VIN (Vehicle Identification Number)</FormLabel>
-              <Input type='text' {...register('vin')} />
+              <FormLabel>VIN</FormLabel>
+              <Input type='text' placeholder='Vehicle Identification Number' {...register('vin')} />
               <FormErrorMessage>{errors.vin?.message}</FormErrorMessage>
+              <FormHelperText>Just for your own reference!</FormHelperText>
             </FormControl>
 
-            <FormControl isInvalid={!!errors.licensePlate?.message}>
-              <FormLabel>License Plate</FormLabel>
-              <Input type='text' {...register('licensePlate')} />
-              <FormErrorMessage>{errors.licensePlate?.message}</FormErrorMessage>
-            </FormControl>
+            <Stack direction='row' alignItems='center' spacing={1}>
+              <FormControl isInvalid={!!errors.licensePlate?.message}>
+                <FormLabel>License Plate</FormLabel>
+                <Input type='text' {...register('licensePlate')} />
+                <FormErrorMessage>{errors.licensePlate?.message}</FormErrorMessage>
+              </FormControl>
 
-            <FormControl isInvalid={!!errors.miles?.message}>
-              <FormLabel>Odometer (miles)</FormLabel>
-              <Input type='number' {...register('miles')} />
-              <FormErrorMessage>{errors.miles?.message}</FormErrorMessage>
-            </FormControl>
+              <FormControl isInvalid={!!errors.miles?.message}>
+                <FormLabel>Odometer</FormLabel>
+                <Input type='number' {...register('miles')} />
+                <FormErrorMessage>{errors.miles?.message}</FormErrorMessage>
+              </FormControl>
+            </Stack>
 
             <FormControl isInvalid={!!errors.photo?.message}>
               <FormLabel>Photo</FormLabel>
