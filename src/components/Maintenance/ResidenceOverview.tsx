@@ -100,7 +100,6 @@ export const ResidenceOverview = () => {
                   <Text>Purchased: {residence.yearPurchased}</Text>
 
                   <Stack direction='row' justifyContent='right' spacing={1} mt={3}>
-                    <Button size='sm'>Edit</Button>
                     <Button size='sm' onClick={() => deleteResidence(residence.uid)}>
                       Delete
                     </Button>
