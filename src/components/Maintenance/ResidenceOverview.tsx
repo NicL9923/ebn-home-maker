@@ -3,7 +3,7 @@ import type { Residence, ServiceLogEntry } from 'models/types';
 import AddResidence from 'components/Forms/AddResidence';
 import { MdHouse } from 'react-icons/md';
 import { useUserStore } from 'state/UserStore';
-import { doc, getDoc, writeBatch } from 'firebase/firestore';
+import { doc, getDoc } from 'firebase/firestore';
 import { db, FsCol } from '../../firebase';
 import {
   Box,
@@ -13,21 +13,17 @@ import {
   Image,
   LinkBox,
   LinkOverlay,
-  Stack,
   Text,
   Wrap,
   WrapItem,
 } from '@chakra-ui/react';
 
 export const ResidenceOverview = () => {
-  const profile = useUserStore((state) => state.profile);
   const family = useUserStore((state) => state.family);
 
   const [residences, setResidences] = useState<Residence[]>([]);
   const [isFetchingResidences, setIsFetchingResidences] = useState(false);
   const [addingResidence, setAddingResidence] = useState(false);
-
-  const batch = writeBatch(db);
 
   const getResidences = () => {
     if (!family?.residences) return;
@@ -50,19 +46,6 @@ export const ResidenceOverview = () => {
 
     setIsFetchingResidences(false);
   };
-
-  const deleteResidence = (resId: string) => {
-    if (!family || !profile) return;
-
-    const newResIdArr = family.residences.filter((res) => res !== resId);
-
-    batch.update(doc(db, FsCol.Families, profile.familyId), { residences: newResIdArr });
-    batch.delete(doc(db, FsCol.Residences, resId));
-
-    batch.commit();
-  };
-
-  // const addLogEntry = () => {};
 
   useEffect(() => {
     if (family) {
@@ -98,12 +81,6 @@ export const ResidenceOverview = () => {
                   <Text>{residence.name}</Text>
                   <Text>Built: {residence.yearBuilt}</Text>
                   <Text>Purchased: {residence.yearPurchased}</Text>
-
-                  <Stack direction='row' justifyContent='right' spacing={1} mt={3}>
-                    <Button size='sm' onClick={() => deleteResidence(residence.uid)}>
-                      Delete
-                    </Button>
-                  </Stack>
                 </Box>
               </LinkBox>
             </WrapItem>
