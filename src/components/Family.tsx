@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import EditableLabel from './Inputs/EditableLabel';
 import { MdAdd, MdArticle, MdClose, MdContentCopy, MdLogout } from 'react-icons/md';
-import { Profile, Pet } from 'models/types';
+import { Profile, Pet, FamilySettings } from 'models/types';
 import copy from 'clipboard-copy';
 import NoFamily from './NoFamily';
 import AddPet from './Forms/AddPet';
@@ -13,6 +13,7 @@ import {
   Avatar,
   Box,
   Button,
+  Checkbox,
   Divider,
   Heading,
   Modal,
@@ -76,6 +77,12 @@ const Family = () => {
     const newLoc = `${newCity ? newCity : curLoc[0]},${newState ? newState : curLoc[1]}`;
 
     updateDoc(doc(db, FsCol.Families, profile.familyId), { cityState: newLoc });
+  };
+
+  const updateFamilySettings = (newFamilySettings?: FamilySettings) => {
+    if (family && newFamilySettings) {
+      updateDoc(doc(db, FsCol.Families, profile.familyId), { settings: { ...family.settings, ...newFamilySettings } });
+    }
   };
 
   const deleteFamily = () => {
@@ -307,6 +314,28 @@ const Family = () => {
             fieldType='EntityName'
             onSubmitValue={(newState?: string) => updateFamilyLocation('', newState)}
           />
+        </Box>
+      )}
+
+      {userId === family.headOfFamily && (
+        <Box mt={4}>
+          <Divider />
+
+          <Heading size='md' mt={2} mb={2}>
+            Family Settings
+          </Heading>
+
+          <Checkbox
+            defaultChecked={!!family.settings?.showAllTransactionsOnCurrentMonth}
+            onChange={(event) => updateFamilySettings({ showAllTransactionsOnCurrentMonth: event.target.checked })}
+            size='lg'
+          >
+            Show all transactions on current month
+          </Checkbox>
+          <Text>
+            Include all transactions in the current month&apos;s budget calculations even if they occurred outside the
+            current month
+          </Text>
         </Box>
       )}
 

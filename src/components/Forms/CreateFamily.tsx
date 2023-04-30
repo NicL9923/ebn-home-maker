@@ -68,6 +68,9 @@ const CreateFamily = ({ isOpen, setIsOpen }: CreateFamilyProps) => {
       residences: [],
       groceryList: [],
       cityState: 'Seattle,WA', // This'll be the default, because why not!
+      settings: {
+        showAllTransactionsOnCurrentMonth: false,
+      },
     };
 
     batch.set(doc(db, FsCol.Families, newFamId), newFamObj);

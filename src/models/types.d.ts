@@ -9,6 +9,10 @@ export interface Profile {
   imgLink?: string;
 }
 
+export interface FamilySettings {
+  showAllTransactionsOnCurrentMonth?: boolean;
+}
+
 export interface Family {
   uid: string;
   headOfFamily: string;
@@ -21,6 +25,7 @@ export interface Family {
   residences: string[]; // IDs
   groceryList: GroceryItem[];
   cityState: string; // Format: 'cityName,stateCode'
+  settings: FamilySettings;
 }
 
 export interface Pet {

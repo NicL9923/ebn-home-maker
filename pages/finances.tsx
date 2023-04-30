@@ -62,8 +62,11 @@ const Finances = () => {
           (budgetSubcat) => budgetSubcat.name === transaction.subcategory
         );
 
-        // Only count transaction towards this month's budget if it's from this month
-        if (new Date(transaction.timestamp).getMonth() === new Date().getMonth()) {
+        // Only count transaction towards this month's budget if it's from this month (unless family setting says otherwise)
+        if (
+          family?.settings?.showAllTransactionsOnCurrentMonth ||
+          new Date(transaction.timestamp).getMonth() === new Date().getMonth()
+        ) {
           // Verify cat and subcat were found (i.e. if the transaction has valid ones)
           if (tCatIdx !== -1 && tSubCatIdx !== -1) {
             newBudget.categories[tCatIdx].subcategories[tSubCatIdx].currentSpent += transaction.amt;
