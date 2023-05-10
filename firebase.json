@@ -12,7 +12,22 @@
     ],
     "headers": [
       { "source":"/service-worker.js", "headers": [{"key": "Cache-Control", "value": "max-age=600"}] }
-    ]
+    ],
+    "redirects": [{
+      "source": "/residences/**",
+      "destination": "/residences/[residenceId].html",
+      "type": 301
+    },
+    {
+      "source": "/vehicles/**",
+      "destination": "/vehicles/[vehicleId].html",
+      "type": 301
+    },
+    {
+      "source": "/joinFamily/**",
+      "destination": "/joinFamily/[familyId].html",
+      "type": 301
+    }]  
   },
   "storage": {
     "rules": "storage.rules"
