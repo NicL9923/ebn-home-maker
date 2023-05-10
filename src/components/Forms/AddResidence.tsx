@@ -1,4 +1,4 @@
-import React, { BaseSyntheticEvent } from 'react';
+import React, { BaseSyntheticEvent, useState } from 'react';
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import { useUserStore } from 'state/UserStore';
 import { db, FsCol, storage } from '../../firebase';
@@ -15,6 +15,7 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
+  Spinner,
   Stack,
   useToast,
 } from '@chakra-ui/react';
@@ -63,9 +64,13 @@ const AddResidence = ({ isOpen, setIsOpen }: AddResidenceProps) => {
 
   const batch = writeBatch(db);
 
+  const [isAddingResidence, setIsAddingResidence] = useState(false);
+
   const addNewResidence = async (newResidenceData: AddResidenceFormSchema, event?: BaseSyntheticEvent) => {
     event?.preventDefault();
     if (!family || !profile) return;
+
+    setIsAddingResidence(true);
 
     const newResId = genUuid();
 
@@ -99,6 +104,7 @@ const AddResidence = ({ isOpen, setIsOpen }: AddResidenceProps) => {
       });
 
       setIsOpen(false);
+      setIsAddingResidence(false);
       reset();
     });
   };
@@ -151,8 +157,8 @@ const AddResidence = ({ isOpen, setIsOpen }: AddResidenceProps) => {
             <Button type='button' onClick={() => setIsOpen(false)}>
               Cancel
             </Button>
-            <Button type='submit' ml={3} colorScheme='green'>
-              Add
+            <Button type='submit' ml={3} colorScheme='green' disabled={isAddingResidence}>
+              {isAddingResidence ? <Spinner /> : 'Add'}
             </Button>
           </ModalFooter>
         </form>

@@ -1,4 +1,4 @@
-import React, { BaseSyntheticEvent } from 'react';
+import React, { BaseSyntheticEvent, useState } from 'react';
 import { Family } from 'models/types';
 import { useUserStore } from 'state/UserStore';
 import { doc, writeBatch } from 'firebase/firestore';
@@ -15,6 +15,7 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
+  Spinner,
   useToast,
 } from '@chakra-ui/react';
 import * as yup from 'yup';
@@ -52,9 +53,13 @@ const CreateFamily = ({ isOpen, setIsOpen }: CreateFamilyProps) => {
 
   const batch = writeBatch(db);
 
+  const [isCreatingFamily, setIsCreatingFamily] = useState(false);
+
   const createFamily = (createFamilyData: CreateFamilyFormSchema, event?: BaseSyntheticEvent) => {
     event?.preventDefault();
     if (!userId) return;
+
+    setIsCreatingFamily(true);
 
     const newFamId = genUuid();
     const newFamObj: Family = {
@@ -84,6 +89,7 @@ const CreateFamily = ({ isOpen, setIsOpen }: CreateFamilyProps) => {
       });
 
       setIsOpen(false);
+      setIsCreatingFamily(false);
       reset();
     });
   };
@@ -107,8 +113,8 @@ const CreateFamily = ({ isOpen, setIsOpen }: CreateFamilyProps) => {
             <Button type='button' onClick={() => setIsOpen(false)}>
               Cancel
             </Button>
-            <Button type='submit' ml={3} colorScheme='green'>
-              Create
+            <Button type='submit' ml={3} colorScheme='green' disabled={isCreatingFamily}>
+              {isCreatingFamily ? <Spinner /> : 'Create'}
             </Button>
           </ModalFooter>
         </form>

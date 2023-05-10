@@ -18,6 +18,7 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
+  Spinner,
   Stack,
   Tooltip,
   useToast,
@@ -84,6 +85,7 @@ const AddTransaction = ({ isOpen, setIsOpen, initialCatSubcat, budget }: AddTran
   });
 
   const [amtStr, setAmtStr] = useState('');
+  const [isAddingTransaction, setIsAddingTransaction] = useState(false);
 
   const categoryOptions = useMemo(() => {
     const catOptions: IGroupOpt[] = budget.categories.map((category) => ({
@@ -117,9 +119,9 @@ const AddTransaction = ({ isOpen, setIsOpen, initialCatSubcat, budget }: AddTran
 
   const submitNewTransaction = (newTransactionData: AddTransactionFormSchema, event?: BaseSyntheticEvent) => {
     event?.preventDefault();
-    if (!family?.budgetId) {
-      return;
-    }
+    if (!family?.budgetId) return;
+
+    setIsAddingTransaction(true);
 
     const splitCatSubcat = newTransactionData.catSubcat.value.split(catSubcatKeySeparator);
 
@@ -142,6 +144,7 @@ const AddTransaction = ({ isOpen, setIsOpen, initialCatSubcat, budget }: AddTran
       });
 
       setIsOpen(false);
+      setIsAddingTransaction(false);
       reset();
       setAmtStr('');
     });
@@ -238,8 +241,8 @@ const AddTransaction = ({ isOpen, setIsOpen, initialCatSubcat, budget }: AddTran
             <Button type='button' onClick={() => setIsOpen(false)}>
               Cancel
             </Button>
-            <Button type='submit' colorScheme='green' ml={3}>
-              Save
+            <Button type='submit' colorScheme='green' ml={3} disabled={isAddingTransaction}>
+              {isAddingTransaction ? <Spinner /> : 'Save'}
             </Button>
           </ModalFooter>
         </form>

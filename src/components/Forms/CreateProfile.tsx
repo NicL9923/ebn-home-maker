@@ -1,4 +1,4 @@
-import React, { BaseSyntheticEvent } from 'react';
+import React, { BaseSyntheticEvent, useState } from 'react';
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import { useUserStore } from 'state/UserStore';
 import { doc, writeBatch } from 'firebase/firestore';
@@ -16,6 +16,7 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
+  Spinner,
   useToast,
 } from '@chakra-ui/react';
 import * as yup from 'yup';
@@ -57,9 +58,13 @@ const CreateProfile = ({ isOpen, setIsOpen }: CreateProfileProps) => {
 
   const batch = writeBatch(db);
 
+  const [isCreatingProfile, setIsCreatingProfile] = useState(false);
+
   const createProfile = async (createProfileData: CreateProfileFormSchema, event?: BaseSyntheticEvent) => {
     event?.preventDefault();
     if (!userId) return;
+
+    setIsCreatingProfile(true);
 
     const newProfileObj: Profile = { uid: userId, firstName: createProfileData.name, familyId: '' };
 
@@ -81,6 +86,7 @@ const CreateProfile = ({ isOpen, setIsOpen }: CreateProfileProps) => {
       });
 
       setIsOpen(false);
+      setIsCreatingProfile(false);
       reset();
     });
   };
@@ -119,8 +125,8 @@ const CreateProfile = ({ isOpen, setIsOpen }: CreateProfileProps) => {
             <Button type='button' onClick={() => setIsOpen(false)}>
               Cancel
             </Button>
-            <Button type='submit' ml={3} colorScheme='green'>
-              Create
+            <Button type='submit' ml={3} colorScheme='green' disabled={isCreatingProfile}>
+              {isCreatingProfile ? <Spinner /> : 'Create'}
             </Button>
           </ModalFooter>
         </form>

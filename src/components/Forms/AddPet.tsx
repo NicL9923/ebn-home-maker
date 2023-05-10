@@ -1,4 +1,4 @@
-import React, { BaseSyntheticEvent } from 'react';
+import React, { BaseSyntheticEvent, useState } from 'react';
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import { useUserStore } from 'state/UserStore';
 import { doc, updateDoc } from 'firebase/firestore';
@@ -15,6 +15,7 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
+  Spinner,
   useToast,
 } from '@chakra-ui/react';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -22,6 +23,7 @@ import * as yup from 'yup';
 import { Controller, useForm } from 'react-hook-form';
 import FileDropzone from 'components/Inputs/FileDropzone';
 import { genUuid } from 'utils/utils';
+import { Pet } from 'models/types';
 
 const addPetSchema = yup
   .object({
@@ -55,22 +57,25 @@ const AddPet = ({ isOpen, setIsOpen }: AddPetProps) => {
     resolver: yupResolver(addPetSchema),
   });
 
+  const [isAddingPet, setIsAddingPet] = useState(false);
+
   const addPet = async (newPetData: AddPetFormSchema, event?: BaseSyntheticEvent) => {
     event?.preventDefault();
     if (!profile || !family) return;
 
+    setIsAddingPet(true);
+
     const newPetsArr = family.pets ? [...family.pets] : [];
-
-    let imgLink: string | undefined = undefined;
-    if (newPetData.photo) {
-      imgLink = await getDownloadURL((await uploadBytes(ref(storage, genUuid()), newPetData.photo)).ref);
-    }
-
-    newPetsArr.push({
+    const newPet: Pet = {
       uid: genUuid(),
       name: newPetData.name,
-      imgLink,
-    });
+    };
+
+    if (newPetData.photo) {
+      newPet.imgLink = await getDownloadURL((await uploadBytes(ref(storage, genUuid()), newPetData.photo)).ref);
+    }
+
+    newPetsArr.push(newPet);
 
     updateDoc(doc(db, FsCol.Families, profile.familyId), { pets: newPetsArr }).then(() => {
       toast({
@@ -80,6 +85,7 @@ const AddPet = ({ isOpen, setIsOpen }: AddPetProps) => {
       });
 
       setIsOpen(false);
+      setIsAddingPet(false);
       reset();
     });
   };
@@ -118,8 +124,8 @@ const AddPet = ({ isOpen, setIsOpen }: AddPetProps) => {
             <Button type='button' onClick={() => setIsOpen(false)}>
               Cancel
             </Button>
-            <Button type='submit' ml={3} colorScheme='green'>
-              Add
+            <Button type='submit' ml={3} colorScheme='green' disabled={isAddingPet}>
+              {isAddingPet ? <Spinner /> : 'Add'}
             </Button>
           </ModalFooter>
         </form>

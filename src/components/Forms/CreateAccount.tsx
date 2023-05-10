@@ -1,10 +1,10 @@
-import { Button, FormControl, FormErrorMessage, FormLabel, Input, Stack, useToast } from '@chakra-ui/react';
+import { Button, FormControl, FormErrorMessage, FormLabel, Input, Spinner, Stack, useToast } from '@chakra-ui/react';
 import { auth } from '../../firebase';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import * as yup from 'yup';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { BaseSyntheticEvent } from 'react';
+import { BaseSyntheticEvent, useState } from 'react';
 import { useRouter } from 'next/router';
 
 // TODO: Email verification - required to create profile ?
@@ -35,8 +35,11 @@ const CreateAccount = () => {
     resolver: yupResolver(createAccountValidationSchema),
   });
 
+  const [isCreatingAccount, setIsCreatingAccount] = useState(false);
+
   const createEmailPassAccount = (createAccountData: CreateAccountSchema, event?: BaseSyntheticEvent) => {
     event?.preventDefault();
+    setIsCreatingAccount(true);
 
     createUserWithEmailAndPassword(auth, createAccountData.email, createAccountData.password)
       .then(() => {
@@ -46,6 +49,7 @@ const CreateAccount = () => {
           status: 'success',
           isClosable: true,
         });
+        setIsCreatingAccount(false);
 
         router.push('/');
       })
@@ -57,6 +61,7 @@ const CreateAccount = () => {
           status: 'error',
           isClosable: true,
         });
+        setIsCreatingAccount(false);
       });
   };
 
@@ -82,8 +87,8 @@ const CreateAccount = () => {
         </FormControl>
 
         <Stack direction='row' justifyContent='center' spacing={2} mt={3}>
-          <Button type='submit' colorScheme='green'>
-            Create account
+          <Button type='submit' colorScheme='green' disabled={isCreatingAccount}>
+            {isCreatingAccount ? <Spinner /> : 'Create account'}
           </Button>
         </Stack>
       </form>

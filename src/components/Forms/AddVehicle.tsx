@@ -1,4 +1,4 @@
-import React, { BaseSyntheticEvent } from 'react';
+import React, { BaseSyntheticEvent, useState } from 'react';
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import { useUserStore } from 'state/UserStore';
 import { doc, writeBatch } from 'firebase/firestore';
@@ -16,6 +16,7 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
+  Spinner,
   Stack,
   useToast,
 } from '@chakra-ui/react';
@@ -74,9 +75,13 @@ const AddVehicle = ({ isOpen, setIsOpen }: AddVehicleProps) => {
 
   const batch = writeBatch(db);
 
+  const [isAddingVehicle, setIsAddingVehicle] = useState(false);
+
   const addNewVehicle = async (newVehicleData: AddVehicleFormSchema, event?: BaseSyntheticEvent) => {
     event?.preventDefault();
     if (!family || !profile) return;
+
+    setIsAddingVehicle(true);
 
     const newVehId = genUuid();
 
@@ -110,6 +115,7 @@ const AddVehicle = ({ isOpen, setIsOpen }: AddVehicleProps) => {
       });
 
       setIsOpen(false);
+      setIsAddingVehicle(false);
       reset();
     });
   };
@@ -197,8 +203,8 @@ const AddVehicle = ({ isOpen, setIsOpen }: AddVehicleProps) => {
             <Button type='button' onClick={() => setIsOpen(false)}>
               Cancel
             </Button>
-            <Button type='submit' ml={3} colorScheme='green'>
-              Add
+            <Button type='submit' ml={3} colorScheme='green' disabled={isAddingVehicle}>
+              {isAddingVehicle ? <Spinner /> : 'Add'}
             </Button>
           </ModalFooter>
         </form>
