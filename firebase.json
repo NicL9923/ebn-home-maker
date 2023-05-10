@@ -13,20 +13,17 @@
     "headers": [
       { "source":"/service-worker.js", "headers": [{"key": "Cache-Control", "value": "max-age=600"}] }
     ],
-    "redirects": [{
-      "source": "/residences/**",
-      "destination": "/residences/[residenceId].html",
-      "type": 301
+    "rewrites": [{
+      "regex":"^/maintenance/residences/([^/]+?)(?:/)?$",
+      "destination": "/maintenance/residences/[residenceId].html"
     },
     {
-      "source": "/vehicles/**",
-      "destination": "/vehicles/[vehicleId].html",
-      "type": 301
+      "regex":"^/maintenance/vehicles/([^/]+?)(?:/)?$",
+      "destination": "/maintenance/vehicles/[vehicleId].html"
     },
     {
-      "source": "/joinFamily/**",
-      "destination": "/joinFamily/[familyId].html",
-      "type": 301
+      "regex":"^/joinFamily/([^/]+?)(?:/)?$",
+      "destination": "/joinFamily/[familyId].html"
     }]  
   },
   "storage": {
