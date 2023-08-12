@@ -97,7 +97,7 @@ const AddTransaction = ({ isOpen, setIsOpen, initialCatSubcat, budget }: AddTran
     }));
 
     return catOptions;
-  }, []);
+  }, [budget]);
 
   const initialCatSubcatOption = useMemo<ICatOpt | undefined>(() => {
     let newInitialOption: ICatOpt | undefined = undefined;
