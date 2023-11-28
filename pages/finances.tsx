@@ -103,7 +103,6 @@ const Finances = () => {
     `;
     const budgetData = {
       budget: {
-        name: budget.name,
         netIncome: budget.monthlyNetIncome,
         totalAllotted: budget.totalAllotted,
         totalSpent: budget.totalSpent,

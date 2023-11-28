@@ -67,7 +67,6 @@ export interface Residence {
 
 export interface IBudget {
   uid: string;
-  name: string;
   monthlyNetIncome: number;
   categories: BudgetCategory[];
   editors: string[];

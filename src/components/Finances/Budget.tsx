@@ -60,12 +60,6 @@ const Budget = (props: BudgetProps) => {
     updateDoc(doc(db, FsCol.Budgets, family.budgetId), budgetMergeObj);
   };
 
-  const setBudgetName = (newName?: string) => {
-    if (!family?.budgetId || !newName) return;
-
-    updateDoc(doc(db, FsCol.Budgets, family.budgetId), { name: newName });
-  };
-
   const setMonthlyNetIncome = (newValue?: string) => {
     if (!family?.budgetId || !newValue) return;
 
@@ -316,14 +310,6 @@ const Budget = (props: BudgetProps) => {
   return (
     <Box>
       <Box textAlign='center' mb={4} mt={2} width={300} mx='auto'>
-        <EditableLabel
-          fieldName='Budget name'
-          fieldType='ItemName'
-          isValUnique={() => true}
-          textSize='3xl'
-          text={budget.name}
-          onSubmitValue={setBudgetName}
-        />
         <Heading>
           {new Date().toLocaleDateString('en-US', {
             month: 'long',
