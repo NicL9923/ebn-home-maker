@@ -17,7 +17,6 @@ const NoBudget = () => {
     const newBudgetUuid = genUuid();
     const newBudgetTemplate: IBudget = {
       uid: newBudgetUuid,
-      name: 'My Budget',
       editors: [userId],
       monthlyNetIncome: 3000,
       categories: [

@@ -1,13 +1,5 @@
 import React from 'react';
-import {
-  MdMenu,
-  MdList,
-  MdHome,
-  MdOutlineMemory,
-  MdOutlineSettings,
-  MdOutlinePayments,
-  MdOutlineEventNote,
-} from 'react-icons/md';
+import { MdMenu, MdList, MdHome, MdOutlineSettings, MdOutlinePayments, MdOutlineEventNote } from 'react-icons/md';
 import ProfileIcon from './ProfileIcon';
 import Link from 'next/link';
 import { useUserStore } from 'state/UserStore';
