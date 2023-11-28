@@ -64,12 +64,6 @@ const Navbar = () => {
                 <Text>Home/Auto Maintenance</Text>
               </MenuItem>
             </Link>
-
-            <Link href='/smarthome'>
-              <MenuItem icon={<MdOutlineMemory />}>
-                <Text>Smart Home</Text>
-              </MenuItem>
-            </Link>
           </MenuList>
         </Portal>
       </Menu>

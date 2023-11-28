@@ -1,6 +1,6 @@
-# Explorers by Nature - Home Maker
+# Home Maker
 
 An app for managing a household
-    -Home
-    -Budgeting
-    -Smart home
+
+- Home
+- Budgeting
