@@ -15,6 +15,7 @@ import {
   Stat,
   StatLabel,
   StatNumber,
+  Text,
   useColorMode,
   Wrap,
   WrapItem,
@@ -98,7 +99,9 @@ const Savings = ({ budget }: SavingsProps) => {
 
   return (
     <Box mt={2} ml={1} mr={1}>
-      <Heading mb={2}>Savings Blobs</Heading>
+      <Heading mb={4}>Savings Blobs</Heading>
+
+      <Text mb={4}>Keep track of what your savings and investments are for</Text>
 
       <Stat w='50%' p={3} bgColor='green.400' borderRadius='md'>
         <StatLabel>Total Saved</StatLabel>
