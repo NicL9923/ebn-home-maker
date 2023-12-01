@@ -1,5 +1,7 @@
 import {
   Button,
+  FormControl,
+  FormErrorMessage,
   IconButton,
   Input,
   InputGroup,
@@ -103,16 +105,20 @@ const SingleFieldDialog = (props: SingleFieldDialogProps) => {
 
         <ModalBody>
           <Stack direction='row' alignItems='center' spacing={1}>
-            <InputGroup>
-              {isMonetaryValue && <InputLeftElement>$</InputLeftElement>}
-              <Input
-                type='text'
-                value={fieldValue}
-                onChange={(event: React.ChangeEvent<HTMLInputElement>) => validateAndSetValue(event.target.value)}
-                required
-                autoFocus
-              />
-            </InputGroup>
+            <FormControl isInvalid={!!valErr}>
+              <InputGroup>
+                {isMonetaryValue && <InputLeftElement>$</InputLeftElement>}
+                <Input
+                  type='text'
+                  value={fieldValue}
+                  onChange={(event: React.ChangeEvent<HTMLInputElement>) => validateAndSetValue(event.target.value)}
+                  isInvalid={!!valErr}
+                  isRequired
+                  autoFocus
+                />
+              </InputGroup>
+              <FormErrorMessage>{valErr}</FormErrorMessage>
+            </FormControl>
 
             {isMonetaryValue && (
               <Tooltip title='Calculate value'>
