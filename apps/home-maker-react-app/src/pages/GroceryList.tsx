@@ -84,7 +84,7 @@ const GroceryList = () => {
     <Box mt={2} p={2}>
       <Heading mb={2}>Grocery List</Heading>
 
-      <Stack direction='row'>
+      <Stack direction='row' mt={2}>
         <Button size='sm' leftIcon={<MdAdd />} onClick={() => setIsEditing(true)}>
           Add item
         </Button>
@@ -93,7 +93,6 @@ const GroceryList = () => {
           size='sm'
           leftIcon={<MdDelete />}
           onClick={removeGroceryItems}
-          mt='8'
           colorScheme='red'
           disabled={!isItemSelected}
         >
