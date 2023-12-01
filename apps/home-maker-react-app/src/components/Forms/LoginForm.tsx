@@ -101,7 +101,7 @@ const LoginForm = () => {
         </FormControl>
 
         <Stack direction='row' justifyContent='center' spacing={2} mt={3}>
-          <Button type='submit' colorScheme='green' disabled={isLoggingIn}>
+          <Button type='submit' colorScheme='green' isDisabled={isLoggingIn}>
             Sign in
           </Button>
         </Stack>
@@ -109,7 +109,7 @@ const LoginForm = () => {
 
       <Divider sx={{ mt: 3, mb: 3 }} />
 
-      <Button leftIcon={<FaGoogle />} onClick={googleSignIn} disabled={isLoggingIn}>
+      <Button leftIcon={<FaGoogle />} onClick={googleSignIn} isDisabled={isLoggingIn}>
         Sign in with Google
       </Button>
     </Stack>

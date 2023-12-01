@@ -130,7 +130,7 @@ const SingleFieldDialog = (props: SingleFieldDialogProps) => {
 
         <ModalFooter>
           <Button onClick={onClosed}>Cancel</Button>
-          <Button disabled={!!valErr} onClick={saveValue} colorScheme='green' ml='3'>
+          <Button isDisabled={!!valErr} onClick={saveValue} colorScheme='green' ml='3'>
             Save
           </Button>
         </ModalFooter>

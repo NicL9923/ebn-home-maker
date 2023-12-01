@@ -227,7 +227,7 @@ const Transactions = ({ budget }: TransactionsProps) => {
               icon={<HiChevronDoubleLeft />}
               aria-label='First page'
               onClick={() => table.setPageIndex(0)}
-              disabled={!table.getCanPreviousPage()}
+              isDisabled={!table.getCanPreviousPage()}
               fontSize={20}
             />
 
@@ -235,7 +235,7 @@ const Transactions = ({ budget }: TransactionsProps) => {
               icon={<HiChevronLeft />}
               aria-label='Previous page'
               onClick={table.previousPage}
-              disabled={!table.getCanPreviousPage()}
+              isDisabled={!table.getCanPreviousPage()}
               fontSize={20}
             />
 
@@ -250,7 +250,7 @@ const Transactions = ({ budget }: TransactionsProps) => {
               icon={<HiChevronRight />}
               aria-label='Next page'
               onClick={table.nextPage}
-              disabled={!table.getCanNextPage()}
+              isDisabled={!table.getCanNextPage()}
               fontSize={20}
             />
 
@@ -258,7 +258,7 @@ const Transactions = ({ budget }: TransactionsProps) => {
               icon={<HiChevronDoubleRight />}
               aria-label='Last page'
               onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-              disabled={!table.getCanNextPage()}
+              isDisabled={!table.getCanNextPage()}
               fontSize={20}
             />
           </Stack>

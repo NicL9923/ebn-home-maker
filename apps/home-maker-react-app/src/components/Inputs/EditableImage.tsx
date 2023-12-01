@@ -123,7 +123,7 @@ const EditableImage = ({ curImgLink, updateCurImgLink, height, width }: Editable
 
           <ModalFooter>
             <Button onClick={() => setIsEditingPhoto(false)}>Cancel</Button>
-            <Button onClick={updateImg} disabled={!newImgFile && !deleteExistingPhoto} ml={3} colorScheme='green'>
+            <Button onClick={updateImg} isDisabled={!newImgFile && !deleteExistingPhoto} ml={3} colorScheme='green'>
               Save
             </Button>
           </ModalFooter>

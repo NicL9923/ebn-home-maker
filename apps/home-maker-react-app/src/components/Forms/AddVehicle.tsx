@@ -11,7 +11,6 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
-  Spinner,
   Stack,
   useToast,
 } from '@chakra-ui/react';
@@ -203,8 +202,8 @@ const AddVehicle = ({ isOpen, setIsOpen }: AddVehicleProps) => {
             <Button type='button' onClick={() => setIsOpen(false)}>
               Cancel
             </Button>
-            <Button type='submit' ml={3} colorScheme='green' disabled={isAddingVehicle}>
-              {isAddingVehicle ? <Spinner /> : 'Add'}
+            <Button type='submit' ml={3} colorScheme='green' isLoading={isAddingVehicle}>
+              Add
             </Button>
           </ModalFooter>
         </form>

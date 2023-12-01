@@ -10,7 +10,6 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
-  Spinner,
   useToast,
 } from '@chakra-ui/react';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -125,8 +124,8 @@ const CreateProfile = ({ isOpen, setIsOpen }: CreateProfileProps) => {
             <Button type='button' onClick={() => setIsOpen(false)}>
               Cancel
             </Button>
-            <Button type='submit' ml={3} colorScheme='green' disabled={isCreatingProfile}>
-              {isCreatingProfile ? <Spinner /> : 'Create'}
+            <Button type='submit' ml={3} colorScheme='green' isLoading={isCreatingProfile}>
+              Create
             </Button>
           </ModalFooter>
         </form>

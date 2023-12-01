@@ -10,7 +10,6 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
-  Spinner,
   useToast,
 } from '@chakra-ui/react';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -113,8 +112,8 @@ const CreateFamily = ({ isOpen, setIsOpen }: CreateFamilyProps) => {
             <Button type='button' onClick={() => setIsOpen(false)}>
               Cancel
             </Button>
-            <Button type='submit' ml={3} colorScheme='green' disabled={isCreatingFamily}>
-              {isCreatingFamily ? <Spinner /> : 'Create'}
+            <Button type='submit' ml={3} colorScheme='green' isLoading={isCreatingFamily}>
+              Create
             </Button>
           </ModalFooter>
         </form>

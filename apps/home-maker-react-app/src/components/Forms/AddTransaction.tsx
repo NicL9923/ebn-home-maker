@@ -13,7 +13,6 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
-  Spinner,
   Stack,
   Tooltip,
   useToast,
@@ -245,8 +244,8 @@ const AddTransaction = ({ isOpen, setIsOpen, initialCatSubcat, budget }: AddTran
             <Button type='button' onClick={() => setIsOpen(false)}>
               Cancel
             </Button>
-            <Button type='submit' colorScheme='green' ml={3} disabled={isAddingTransaction}>
-              {isAddingTransaction ? <Spinner /> : 'Save'}
+            <Button type='submit' colorScheme='green' ml={3} isLoading={isAddingTransaction}>
+              Save
             </Button>
           </ModalFooter>
         </form>

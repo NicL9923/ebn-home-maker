@@ -1,4 +1,4 @@
-import { Button, FormControl, FormErrorMessage, FormLabel, Input, Spinner, Stack, useToast } from '@chakra-ui/react';
+import { Button, FormControl, FormErrorMessage, FormLabel, Input, Stack, useToast } from '@chakra-ui/react';
 import { auth } from '../../firebase';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import * as yup from 'yup';
@@ -87,8 +87,8 @@ const CreateAccount = () => {
         </FormControl>
 
         <Stack direction='row' justifyContent='center' spacing={2} mt={3}>
-          <Button type='submit' colorScheme='green' disabled={isCreatingAccount}>
-            {isCreatingAccount ? <Spinner /> : 'Create account'}
+          <Button type='submit' colorScheme='green' isLoading={isCreatingAccount}>
+            Create account
           </Button>
         </Stack>
       </form>

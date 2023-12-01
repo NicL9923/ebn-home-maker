@@ -10,7 +10,6 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
-  Spinner,
   Stack,
   useToast,
 } from '@chakra-ui/react';
@@ -157,8 +156,8 @@ const AddResidence = ({ isOpen, setIsOpen }: AddResidenceProps) => {
             <Button type='button' onClick={() => setIsOpen(false)}>
               Cancel
             </Button>
-            <Button type='submit' ml={3} colorScheme='green' disabled={isAddingResidence}>
-              {isAddingResidence ? <Spinner /> : 'Add'}
+            <Button type='submit' ml={3} colorScheme='green' isLoading={isAddingResidence}>
+              Add
             </Button>
           </ModalFooter>
         </form>

@@ -10,7 +10,6 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
-  Spinner,
   useToast,
 } from '@chakra-ui/react';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -124,8 +123,8 @@ const AddPet = ({ isOpen, setIsOpen }: AddPetProps) => {
             <Button type='button' onClick={() => setIsOpen(false)}>
               Cancel
             </Button>
-            <Button type='submit' ml={3} colorScheme='green' disabled={isAddingPet}>
-              {isAddingPet ? <Spinner /> : 'Add'}
+            <Button type='submit' ml={3} colorScheme='green' isLoading={isAddingPet}>
+              Add
             </Button>
           </ModalFooter>
         </form>

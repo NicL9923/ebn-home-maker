@@ -72,7 +72,7 @@ const GroceryList = () => {
   };
 
   const isItemSelected = useMemo(
-    () => family && family.groceryList.length > 0 && family.groceryList.some((item) => item.isBought),
+    () => (family ? family.groceryList.length > 0 && family.groceryList.some((item) => item.isBought) : false),
     [family]
   );
 
@@ -94,7 +94,7 @@ const GroceryList = () => {
           leftIcon={<MdDelete />}
           onClick={removeGroceryItems}
           colorScheme='red'
-          disabled={!isItemSelected}
+          isDisabled={!isItemSelected}
         >
           Remove checked items
         </Button>
