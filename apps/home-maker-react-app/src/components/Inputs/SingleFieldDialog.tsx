@@ -13,10 +13,10 @@ import {
   Stack,
   Tooltip,
 } from '@chakra-ui/react';
-import { evaluate, round } from 'mathjs';
 import React, { useEffect, useState } from 'react';
 import { MdCalculate } from 'react-icons/md';
 import { FieldTypes, ValidationErrorMsgs } from '../../constants';
+import { evaluateExprAndRoundTo2Decimals, getMonetaryValue2DecimalString } from '../../utils/utils';
 
 interface SingleFieldDialogProps {
   initialValue?: string;
@@ -81,7 +81,8 @@ const SingleFieldDialog = (props: SingleFieldDialogProps) => {
   const calculateMoneyValue = () => {
     if (!fieldValue) return;
 
-    validateAndSetValue(`${round(evaluate(fieldValue), 2)}`);
+    const exprResultValue = evaluateExprAndRoundTo2Decimals(fieldValue);
+    validateAndSetValue(getMonetaryValue2DecimalString(exprResultValue));
   };
 
   useEffect(() => {

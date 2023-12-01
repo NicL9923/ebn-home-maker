@@ -18,6 +18,7 @@ import { BudgetCategory, BudgetSubcategory } from '../../../models/types';
 import { catSubcatKeySeparator } from '../../Forms/AddTransaction';
 import EditableLabel from '../../Inputs/EditableLabel';
 import { BudgetContext, budgetRowsGridTemplateColumns } from '../Budget';
+import { calcMonetaryValuesRatioAsPercentInt, compareMonetaryValues } from '../../../utils/utils';
 
 interface SubCategoryProps {
   subidx: number;
@@ -34,14 +35,16 @@ const SubCategory = (props: SubCategoryProps) => {
   };
 
   const getLinearProgressValue = (curSpent: number, curAllotted: number) =>
-    Math.max(0, Math.min(1, curSpent / curAllotted)) * 100;
+    calcMonetaryValuesRatioAsPercentInt(curSpent, curAllotted);
 
   const getLinearProgressColor = (curSpent: number, curAllotted: number) => {
-    if (Math.round((curSpent / curAllotted) * 100) > 100) {
+    const comparisonResult = compareMonetaryValues(curSpent, curAllotted);
+
+    if (comparisonResult === 'over') {
       return 'red';
-    } else {
-      return 'green';
     }
+
+    return 'green';
   };
 
   return (

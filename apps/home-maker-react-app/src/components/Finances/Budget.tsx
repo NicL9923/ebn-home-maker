@@ -18,7 +18,7 @@ import { MdAdd, MdSubdirectoryArrowRight } from 'react-icons/md';
 import { FsCol, db } from '../../firebase';
 import { BudgetCategory, BudgetContextValue, BudgetSubcategory, IBudget, Transaction } from '../../models/types';
 import { useUserStore } from '../../state/UserStore';
-import { genUuid } from '../../utils/utils';
+import { genUuid, getAbsDiffAndComparisonOfMonetaryValues } from '../../utils/utils';
 import AddTransaction from '../Forms/AddTransaction';
 import EditableLabel from '../Inputs/EditableLabel';
 import BudgetCategories from './BudgetComponents/BudgetCategories';
@@ -240,27 +240,24 @@ const Budget = (props: BudgetProps) => {
 
   const allottedRemainder = useMemo(() => {
     if (!budget.totalAllotted) return;
-
-    const difference = budget.monthlyNetIncome - budget.totalAllotted;
     let helperColor: string | undefined = undefined;
     let helperText = 'to allot';
-    const stringifiedDifference = Math.abs(difference).toLocaleString(undefined, {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    });
 
-    if (stringifiedDifference !== '0.00') {
-      if (difference > 0) {
-        helperColor = yellow300;
-      } else {
-        helperText = 'over-allotted';
-        helperColor = red500;
-      }
+    const [allottedRemainderStatus, differenceString] = getAbsDiffAndComparisonOfMonetaryValues(
+      budget.monthlyNetIncome,
+      budget.totalAllotted
+    );
+
+    if (allottedRemainderStatus === 'under') {
+      helperColor = yellow300;
+    } else if (allottedRemainderStatus === 'over') {
+      helperText = 'over-allotted';
+      helperColor = red500;
     }
 
     return (
       <Text color={helperColor} ml={-3}>
-        ${stringifiedDifference} {helperText}
+        ${differenceString} {helperText}
       </Text>
     );
   }, [budget.monthlyNetIncome, budget.totalAllotted, red500, yellow300]);
@@ -268,26 +265,24 @@ const Budget = (props: BudgetProps) => {
   const spendingRemainder = useMemo(() => {
     if (!budget.totalAllotted || !budget.totalSpent) return;
 
-    const difference = budget.totalAllotted - budget.totalSpent;
     let helperColor: string | undefined = undefined;
     let helperText = 'remaining';
-    const stringifiedRemainder = Math.abs(difference).toLocaleString(undefined, {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    });
 
-    if (stringifiedRemainder !== '0.00') {
-      if (difference > 0) {
-        helperColor = green400;
-      } else {
-        helperText = 'over-budget';
-        helperColor = red500;
-      }
+    const [spendingRemainderStatus, differenceString] = getAbsDiffAndComparisonOfMonetaryValues(
+      budget.totalAllotted,
+      budget.totalSpent
+    );
+
+    if (spendingRemainderStatus === 'under') {
+      helperColor = green400;
+    } else if (spendingRemainderStatus === 'over') {
+      helperText = 'over-budget';
+      helperColor = red500;
     }
 
     return (
       <Text color={helperColor} ml={-1}>
-        ${stringifiedRemainder} {helperText}
+        ${differenceString} {helperText}
       </Text>
     );
   }, [budget.totalAllotted, budget.totalSpent, green400, red500]);

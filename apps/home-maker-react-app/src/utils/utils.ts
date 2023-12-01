@@ -1,3 +1,49 @@
+import { evaluate, round, subtract, compare, divide, multiply } from 'mathjs';
 import { v4 as uuidv4 } from 'uuid';
 
+// NOTE: Yes these are a little pointless, but it's to keep this important logic centralized and testable
+
 export const genUuid = () => uuidv4();
+
+export const roundTo2Decimals = (num: number): number => round(num, 2);
+
+export const evaluateExprAndRoundTo2Decimals = (expr: string): number => roundTo2Decimals(evaluate(expr));
+
+export const getMonetaryValue2DecimalString = (num: number): string => num.toFixed(2);
+
+export const calcMonetaryDifference = (minuend: number, subtrahend: number): number =>
+  subtract(roundTo2Decimals(minuend), roundTo2Decimals(subtrahend));
+
+export const calcMonetaryValuesRatioAsPercentInt = (dividend: number, divisor: number): number => {
+  const ratio = divide(dividend, divisor);
+  const intRatio = round(multiply(ratio, 100));
+  const rangeLimitedValue = Math.max(0, Math.min(100, intRatio));
+
+  return rangeLimitedValue;
+};
+
+type ComparisonStringType = 'over' | 'equal' | 'under';
+export const compareMonetaryValues = (a: number, b: number): ComparisonStringType => {
+  const comparisonResult = compare(roundTo2Decimals(a), roundTo2Decimals(b));
+
+  let comparisonString: ComparisonStringType = 'equal';
+
+  if (comparisonResult === 1) {
+    comparisonString = 'over';
+  } else if (comparisonResult === -1) {
+    comparisonString = 'under';
+  }
+
+  return comparisonString;
+};
+
+export const getAbsDiffAndComparisonOfMonetaryValues = (a: number, b: number): [ComparisonStringType, string] => {
+  const differenceResult = calcMonetaryDifference(a, b);
+  const comparisonString = compareMonetaryValues(differenceResult, 0);
+  const differenceString = Math.abs(differenceResult).toLocaleString(undefined, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+
+  return [comparisonString, differenceString];
+};
