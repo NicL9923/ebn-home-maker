@@ -1,4 +1,3 @@
-import Navbar from './components/Navbar';
 import AppProvider from './providers/AppProvider';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ColorModeScript } from '@chakra-ui/react';
@@ -13,8 +12,6 @@ const App = (): JSX.Element => {
       <ColorModeScript initialColorMode={theme.config.initialColorMode} />
       <QueryClientProvider client={queryClient}>
         <AppProvider>
-          <Navbar />
-
           <Outlet />
         </AppProvider>
       </QueryClientProvider>

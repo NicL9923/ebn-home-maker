@@ -1,21 +1,12 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import '@uiw/react-md-editor/markdown-editor.css';
 import '@uiw/react-markdown-preview/markdown.css';
-import dynamic from 'next/dynamic';
-import { useUserStore } from '../src/state/UserStore';
+import { useUserStore } from '../state/UserStore';
 import { doc, updateDoc } from 'firebase/firestore';
-import { db, FsCol } from '../src/firebase';
+import { db, FsCol } from '../firebase';
 import { Box, Button, Heading, useColorMode } from '@chakra-ui/react';
 import { MdEdit, MdSave } from 'react-icons/md';
-
-const MDEditor = dynamic(() => import('@uiw/react-md-editor').then((mod) => mod.default), { ssr: false });
-const EditorMarkdown = dynamic(
-  () =>
-    import('@uiw/react-md-editor').then((mod) => {
-      return mod.default.Markdown;
-    }),
-  { ssr: false }
-);
+import MDEditor from '@uiw/react-md-editor';
 
 const FamilyBoard = () => {
   const { colorMode } = useColorMode();
@@ -66,7 +57,7 @@ const FamilyBoard = () => {
         {isEditingMd ? (
           <MDEditor value={editedMd} onChange={setEditedMd} height='100%' />
         ) : (
-          <EditorMarkdown style={{ height: '100%', overflow: 'auto' }} source={family.boardMarkdown} />
+          <MDEditor.Markdown style={{ height: '100%', overflow: 'auto' }} source={family.boardMarkdown} />
         )}
       </Box>
     </Box>

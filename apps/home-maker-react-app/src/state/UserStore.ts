@@ -1,5 +1,5 @@
-import { Family, Profile } from 'models/types';
-import create from 'zustand';
+import { Family, Profile } from '../models/types';
+import { create } from 'zustand';
 
 interface IUserStore {
   userId?: string | null;

@@ -2,6 +2,7 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { nxViteTsPaths } from '@nx/vite/plugins/nx-tsconfig-paths.plugin';
+import { esbuildCommonjs } from '@originjs/vite-plugin-commonjs';
 
 export default defineConfig({
   cacheDir: '../../node_modules/.vite/home-maker-react-app',
@@ -17,6 +18,12 @@ export default defineConfig({
   },
 
   plugins: [react(), nxViteTsPaths()],
+
+  optimizeDeps: {
+    esbuildOptions: {
+      plugins: [esbuildCommonjs(['react-moment'])],
+    },
+  },
 
   // Uncomment this if you are using workers.
   // worker: {

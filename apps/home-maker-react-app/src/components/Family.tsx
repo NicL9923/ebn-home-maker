@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import EditableLabel from './Inputs/EditableLabel';
 import { MdAdd, MdArticle, MdClose, MdContentCopy, MdLogout } from 'react-icons/md';
-import { Profile, Pet, FamilySettings } from 'models/types';
+import { Profile, Pet, FamilySettings } from '../models/types';
 import copy from 'clipboard-copy';
 import NoFamily from './NoFamily';
 import AddPet from './Forms/AddPet';
 import { deleteObject, getStorage, ref } from 'firebase/storage';
-import { useUserStore } from 'state/UserStore';
+import { useUserStore } from '../state/UserStore';
 import { doc, getDoc, updateDoc, writeBatch } from 'firebase/firestore';
 import { db, FsCol } from '../firebase';
 import {
@@ -43,11 +43,7 @@ const Family = () => {
 
   const batch = writeBatch(db);
 
-  if (!profile) {
-    return null;
-  }
-
-  const getFamilyMemberProfiles = () => {
+  const getFamilyMemberProfiles = useCallback(() => {
     if (!family?.members) return;
 
     const famMemProfs: Profile[] = [];
@@ -62,16 +58,16 @@ const Family = () => {
         });
       }
     });
-  };
+  }, [userId, family?.members]);
 
   const updateFamilyName = (newFamName?: string) => {
-    if (newFamName) {
+    if (profile && newFamName) {
       updateDoc(doc(db, FsCol.Families, profile.familyId), { name: newFamName });
     }
   };
 
   const updateFamilyLocation = (newCity = '', newState = '') => {
-    if (!family) return;
+    if (!family || !profile) return;
 
     const curLoc = family.cityState.split(',');
     const newLoc = `${newCity ? newCity : curLoc[0]},${newState ? newState : curLoc[1]}`;
@@ -80,7 +76,7 @@ const Family = () => {
   };
 
   const updateFamilySettings = (newFamilySettings?: FamilySettings) => {
-    if (family && newFamilySettings) {
+    if (family && newFamilySettings && profile) {
       updateDoc(doc(db, FsCol.Families, profile.familyId), { settings: { ...family.settings, ...newFamilySettings } });
     }
   };
@@ -203,7 +199,11 @@ const Family = () => {
 
   useEffect(() => {
     if (family) getFamilyMemberProfiles();
-  }, [family]);
+  }, [family, getFamilyMemberProfiles]);
+
+  if (!profile) {
+    return null;
+  }
 
   if (!family) {
     return <NoFamily />;

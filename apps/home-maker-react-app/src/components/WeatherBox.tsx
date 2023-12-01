@@ -1,27 +1,3 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import {
-  WiRain,
-  WiThunderstorm,
-  WiSnowflakeCold,
-  WiFog,
-  WiDaySunny,
-  WiNightClear,
-  WiDayCloudy,
-  WiCloudy,
-  WiNightCloudy,
-} from 'react-icons/wi';
-import {
-  IGeocodeResponse,
-  IParsedCurrentWeather,
-  IParsedDailyWeather,
-  IParsedHourlyWeather,
-  IWeatherAlertResponse,
-  IWeatherResponse,
-} from 'models/weatherTypes';
-import { openWeatherMapOneCallApiBaseUrl, openWeatherMapGeocodeApiBaseUrl, daysOfTheWeek } from '../constants';
-import { useUserStore } from 'state/UserStore';
-import { useQuery } from '@tanstack/react-query';
 import {
   Alert,
   AlertDescription,
@@ -38,6 +14,30 @@ import {
   Tabs,
   Text,
 } from '@chakra-ui/react';
+import { useQuery } from '@tanstack/react-query';
+import axios from 'axios';
+import { useCallback, useEffect, useState } from 'react';
+import {
+  WiCloudy,
+  WiDayCloudy,
+  WiDaySunny,
+  WiFog,
+  WiNightClear,
+  WiNightCloudy,
+  WiRain,
+  WiSnowflakeCold,
+  WiThunderstorm,
+} from 'react-icons/wi';
+import { daysOfTheWeek, openWeatherMapGeocodeApiBaseUrl, openWeatherMapOneCallApiBaseUrl } from '../constants';
+import {
+  IGeocodeResponse,
+  IParsedCurrentWeather,
+  IParsedDailyWeather,
+  IParsedHourlyWeather,
+  IWeatherAlertResponse,
+  IWeatherResponse,
+} from '../models/weatherTypes';
+import { useUserStore } from '../state/UserStore';
 
 type DayNum = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 const getDayOfWeek = (dayNum: DayNum) => daysOfTheWeek[dayNum];
@@ -76,7 +76,9 @@ const WeatherBox = () => {
 
     const geocodeResponseLimit = 1;
     const defaultCountryCode = 'US'; // Currently just supports United States (US)
-    const geocodeUrl = `${openWeatherMapGeocodeApiBaseUrl}?q=${family.cityState},${defaultCountryCode}&limit=${geocodeResponseLimit}&appid=${process.env.NEXT_PUBLIC_OWM_API_KEY}`;
+    const geocodeUrl = `${openWeatherMapGeocodeApiBaseUrl}?q=${
+      family.cityState
+    },${defaultCountryCode}&limit=${geocodeResponseLimit}&appid=${import.meta.env.VITE_OWM_API_KEY}`;
 
     const geocodeResponse = await axios.get(geocodeUrl);
     const geocodeData = geocodeResponse.data[0] as IGeocodeResponse;
@@ -90,7 +92,9 @@ const WeatherBox = () => {
     }
 
     // Exclude minute-ly forecast
-    const fullUrl = `${openWeatherMapOneCallApiBaseUrl}?lat=${geocodeData.lat}&lon=${geocodeData.lon}&exclude=minutely&appid=${process.env.NEXT_PUBLIC_OWM_API_KEY}&units=imperial`;
+    const fullUrl = `${openWeatherMapOneCallApiBaseUrl}?lat=${geocodeData.lat}&lon=${
+      geocodeData.lon
+    }&exclude=minutely&appid=${import.meta.env.VITE_OWM_API_KEY}&units=imperial`;
 
     return (await axios.get(fullUrl)).data as IWeatherResponse;
   };
@@ -104,7 +108,7 @@ const WeatherBox = () => {
     { enabled: !!family?.cityState && !!geocodeDataQuery.data }
   );
 
-  const processAndSetWeather = async () => {
+  const processAndSetWeather = useCallback(async () => {
     const geocodeData = geocodeDataQuery.data;
 
     if (!geocodeData) return;
@@ -153,11 +157,11 @@ const WeatherBox = () => {
       tempLow: Math.trunc(day.temp.min),
     }));
     setDailyWeather(newDailyWeather);
-  };
+  }, [geocodeDataQuery.data, weatherDataQuery.data]);
 
   useEffect(() => {
     processAndSetWeather();
-  }, [weatherDataQuery.data]);
+  }, [weatherDataQuery.data, processAndSetWeather]);
 
   return (
     <Stack alignItems='center' justifyContent='center' mb={6}>

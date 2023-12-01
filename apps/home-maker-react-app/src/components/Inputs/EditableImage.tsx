@@ -1,6 +1,3 @@
-import React, { useEffect, useState } from 'react';
-import { deleteObject, getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
-import { MdEdit } from 'react-icons/md';
 import {
   Avatar,
   Box,
@@ -14,8 +11,11 @@ import {
   ModalHeader,
   ModalOverlay,
 } from '@chakra-ui/react';
+import { deleteObject, getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
+import { useEffect, useState } from 'react';
+import { MdEdit } from 'react-icons/md';
+import { genUuid } from '../../utils/utils';
 import FileDropzone from './FileDropzone';
-import { genUuid } from 'utils/utils';
 
 type FileWithPreview = File & { preview: string };
 
@@ -56,7 +56,7 @@ const EditableImage = ({ curImgLink, updateCurImgLink, height, width }: Editable
 
   useEffect(() => {
     return () => URL.revokeObjectURL(newImgFile?.preview ?? '');
-  }, []);
+  }, [newImgFile?.preview]);
 
   return (
     <Box>

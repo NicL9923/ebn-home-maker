@@ -1,9 +1,3 @@
-import React, { BaseSyntheticEvent, useState } from 'react';
-import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
-import { useUserStore } from 'state/UserStore';
-import { doc, writeBatch } from 'firebase/firestore';
-import { db, FsCol, storage } from '../../firebase';
-import { Profile } from 'models/types';
 import {
   Button,
   FormControl,
@@ -19,11 +13,17 @@ import {
   Spinner,
   useToast,
 } from '@chakra-ui/react';
-import * as yup from 'yup';
-import { Controller, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import FileDropzone from 'components/Inputs/FileDropzone';
-import { genUuid } from 'utils/utils';
+import { doc, writeBatch } from 'firebase/firestore';
+import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
+import { BaseSyntheticEvent, useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
+import * as yup from 'yup';
+import { FsCol, db, storage } from '../../firebase';
+import { Profile } from '../../models/types';
+import { useUserStore } from '../../state/UserStore';
+import { genUuid } from '../../utils/utils';
+import FileDropzone from '../Inputs/FileDropzone';
 
 const createProfileSchema = yup
   .object({

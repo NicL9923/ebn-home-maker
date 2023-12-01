@@ -6,7 +6,7 @@ import { BaseSyntheticEvent, useState } from 'react';
 import * as yup from 'yup';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { useRouter } from 'next/router';
+import { useNavigate } from '@tanstack/react-router';
 
 const loginValidationSchema = yup
   .object({
@@ -21,9 +21,9 @@ interface LoginSchema {
 }
 
 const LoginForm = () => {
+  const navigate = useNavigate();
   const toast = useToast();
   const provider = new GoogleAuthProvider();
-  const router = useRouter();
 
   const {
     register,
@@ -48,7 +48,7 @@ const LoginForm = () => {
         });
         setIsLoggingIn(false);
 
-        router.push('/');
+        navigate({ to: '/' });
       })
       .catch((error) => {
         toast({
@@ -72,7 +72,7 @@ const LoginForm = () => {
         });
         setIsLoggingIn(false);
 
-        router.push('/');
+        navigate({ to: '/' });
       })
       .catch((error) => {
         toast({

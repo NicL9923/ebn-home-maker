@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import SingleFieldDialog from './SingleFieldDialog';
 import { FieldTypes } from '../../constants';
 import { Text } from '@chakra-ui/react';

@@ -1,9 +1,12 @@
-import NoProfile from '../components/NoProfile';
-import Family from '../components/Family';
-import EditableLabel from '../components/Inputs/EditableLabel';
-import EditableImage from '../components/Inputs/EditableImage';
-import { useUserStore } from '../state/UserStore';
 import { Box, Button, Container, Heading, Stack, useToast } from '@chakra-ui/react';
+import { sendPasswordResetEmail } from 'firebase/auth';
+import { doc, updateDoc } from 'firebase/firestore';
+import Family from '../components/Family';
+import EditableImage from '../components/Inputs/EditableImage';
+import EditableLabel from '../components/Inputs/EditableLabel';
+import NoProfile from '../components/NoProfile';
+import { FsCol, auth, db } from '../firebase';
+import { useUserStore } from '../state/UserStore';
 
 const ProfilePage = () => {
   const toast = useToast();

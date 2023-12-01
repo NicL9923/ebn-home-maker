@@ -1,9 +1,12 @@
 import { Box, CircularProgress, Text, useToast } from '@chakra-ui/react';
+import { getAuth } from 'firebase/auth';
+import { doc, onSnapshot } from 'firebase/firestore';
 import { useEffect } from 'react';
 import LandingPage from '../components/LandingPage';
 import Navbar from '../components/Navbar';
 import NoFamily from '../components/NoFamily';
 import NoProfile from '../components/NoProfile';
+import { FsCol, db } from '../firebase';
 import { Family, Profile } from '../models/types';
 import { useUserStore } from '../state/UserStore';
 import ThemeProvider from './ThemeProvider';
@@ -29,7 +32,7 @@ const AppProvider = ({ children }: ProviderProps) => {
     });
 
     return () => unsubscribeAuth();
-  }, []);
+  }, [setUserEmail, setUserId]);
 
   // Profile listener
   useEffect(() => {
@@ -51,7 +54,7 @@ const AppProvider = ({ children }: ProviderProps) => {
 
       return () => unsubscribeProfileSnapshot();
     }
-  }, [userId]);
+  }, [userId, setProfile, toast]);
 
   // Family listener
   useEffect(() => {
@@ -73,15 +76,11 @@ const AppProvider = ({ children }: ProviderProps) => {
 
       return () => unsubscribeFamilySnapshot();
     }
-  }, [profile?.familyId]);
+  }, [profile?.familyId, setFamily, toast]);
 
   const getPageContent = () => {
     const curPath = window.location.pathname;
-    if (
-      curPath.includes('login') ||
-      curPath.includes('signup') ||
-      curPath.includes('joinFamily')
-    ) {
+    if (curPath.includes('login') || curPath.includes('signup') || curPath.includes('joinFamily')) {
       return children;
     }
 

@@ -1,13 +1,3 @@
-import { MdAdd, MdSubdirectoryArrowRight } from 'react-icons/md';
-import { BudgetCategory, IBudget, BudgetSubcategory, BudgetContextValue, Transaction } from 'models/types';
-import React, { useMemo, useState } from 'react';
-import EditableLabel from '../Inputs/EditableLabel';
-import Chart from 'react-google-charts';
-import AddTransaction from 'components/Forms/AddTransaction';
-import BudgetCategories from './BudgetComponents/BudgetCategories';
-import { useUserStore } from 'state/UserStore';
-import { doc, updateDoc } from 'firebase/firestore';
-import { db, FsCol } from '../../firebase';
 import {
   Box,
   Grid,
@@ -21,7 +11,17 @@ import {
   useColorModeValue,
   useToken,
 } from '@chakra-ui/react';
-import { genUuid } from 'utils/utils';
+import { doc, updateDoc } from 'firebase/firestore';
+import React, { useMemo, useState } from 'react';
+import Chart from 'react-google-charts';
+import { MdAdd, MdSubdirectoryArrowRight } from 'react-icons/md';
+import { FsCol, db } from '../../firebase';
+import { BudgetCategory, BudgetContextValue, BudgetSubcategory, IBudget, Transaction } from '../../models/types';
+import { useUserStore } from '../../state/UserStore';
+import { genUuid } from '../../utils/utils';
+import AddTransaction from '../Forms/AddTransaction';
+import EditableLabel from '../Inputs/EditableLabel';
+import BudgetCategories from './BudgetComponents/BudgetCategories';
 
 export const BudgetContext = React.createContext({} as BudgetContextValue);
 
@@ -35,16 +35,13 @@ interface BudgetProps {
 const Budget = (props: BudgetProps) => {
   const { budget, setBudget } = props;
   const isLightMode = useColorMode().colorMode === 'light';
+  const pieChartBgColor = useColorModeValue('gray.200', 'gray.600');
   const [red500, green400, yellow300] = useToken('colors', ['red.500', 'green.400', 'yellow.300']);
 
   const family = useUserStore((state) => state.family);
 
   const [addingTransaction, setAddingTransaction] = useState(false);
   const [catSubcatKey, setCatSubcatKey] = useState('');
-
-  if (!family?.budgetId) {
-    return null;
-  }
 
   const saveUpdatedCategories = (categories: BudgetCategory[], transactions?: Transaction[]) => {
     if (!family?.budgetId) return;
@@ -266,7 +263,7 @@ const Budget = (props: BudgetProps) => {
         ${stringifiedDifference} {helperText}
       </Text>
     );
-  }, [budget.monthlyNetIncome, budget.totalAllotted]);
+  }, [budget.monthlyNetIncome, budget.totalAllotted, red500, yellow300]);
 
   const spendingRemainder = useMemo(() => {
     if (!budget.totalAllotted || !budget.totalSpent) return;
@@ -293,7 +290,7 @@ const Budget = (props: BudgetProps) => {
         ${stringifiedRemainder} {helperText}
       </Text>
     );
-  }, [budget.totalAllotted, budget.totalSpent]);
+  }, [budget.totalAllotted, budget.totalSpent, green400, red500]);
 
   const formatChartData = (budgetCats: BudgetCategory[]) => {
     const formattedDataArr: (string | number)[][] = [['Category', 'Percent']];
@@ -306,6 +303,10 @@ const Budget = (props: BudgetProps) => {
 
     return formattedDataArr;
   };
+
+  if (!family?.budgetId) {
+    return null;
+  }
 
   return (
     <Box>
@@ -413,7 +414,7 @@ const Budget = (props: BudgetProps) => {
         </BudgetContext.Provider>
       </Box>
 
-      <Box mt={4} height={['100vw', '30vw']} bgColor={useColorModeValue('gray.200', 'gray.600')}>
+      <Box mt={4} height={['100vw', '30vw']} bgColor={pieChartBgColor}>
         <Chart
           chartType='PieChart'
           width='100%'

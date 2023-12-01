@@ -1,10 +1,3 @@
-import type { ServiceLogEntry, Vehicle } from 'models/types';
-import React, { useEffect, useState } from 'react';
-import AddVehicle from 'components/Forms/AddVehicle';
-import { MdDirectionsCar } from 'react-icons/md';
-import { useUserStore } from 'state/UserStore';
-import { doc, getDoc } from 'firebase/firestore';
-import { db, FsCol } from '../../firebase';
 import {
   Box,
   Button,
@@ -17,6 +10,13 @@ import {
   Wrap,
   WrapItem,
 } from '@chakra-ui/react';
+import { doc, getDoc } from 'firebase/firestore';
+import { useCallback, useEffect, useState } from 'react';
+import { MdDirectionsCar } from 'react-icons/md';
+import AddVehicle from '../../components/Forms/AddVehicle';
+import { FsCol, db } from '../../firebase';
+import type { ServiceLogEntry, Vehicle } from '../../models/types';
+import { useUserStore } from '../../state/UserStore';
 
 export const VehicleOverview = () => {
   const family = useUserStore((state) => state.family);
@@ -25,7 +25,7 @@ export const VehicleOverview = () => {
   const [isFetchingVehicles, setIsFetchingVehicles] = useState(false);
   const [addingVehicle, setAddingVehicle] = useState(false);
 
-  const getVehicles = () => {
+  const getVehicles = useCallback(() => {
     if (!family?.vehicles) return;
 
     setIsFetchingVehicles(true);
@@ -45,13 +45,13 @@ export const VehicleOverview = () => {
     });
 
     setIsFetchingVehicles(false);
-  };
+  }, [family?.vehicles]);
 
   useEffect(() => {
     if (family) {
       getVehicles();
     }
-  }, [family]);
+  }, [family, getVehicles]);
 
   return (
     <Box mt={4}>

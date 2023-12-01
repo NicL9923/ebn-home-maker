@@ -1,7 +1,3 @@
-import React, { useState, useEffect } from 'react';
-import { FieldTypes, ValidationErrorMsgs } from '../../constants';
-import { MdCalculate } from 'react-icons/md';
-import { evaluate, round } from 'mathjs';
 import {
   Button,
   IconButton,
@@ -17,6 +13,10 @@ import {
   Stack,
   Tooltip,
 } from '@chakra-ui/react';
+import { evaluate, round } from 'mathjs';
+import React, { useEffect, useState } from 'react';
+import { MdCalculate } from 'react-icons/md';
+import { FieldTypes, ValidationErrorMsgs } from '../../constants';
 
 interface SingleFieldDialogProps {
   initialValue?: string;
@@ -44,11 +44,6 @@ const SingleFieldDialog = (props: SingleFieldDialogProps) => {
   } = props;
   const [valErr, setValErr] = useState<string | undefined>(undefined);
   const [fieldValue, setFieldValue] = useState<string>(initialValue ?? '');
-
-  if (fieldType === 'ItemName' && !isValUnique) {
-    console.error('Field is of type ItemName, but no function was provided to validate uniqueness.');
-    return null;
-  }
 
   const validateAndSetValue = (newValue?: string) => {
     setFieldValue(newValue ?? '');
@@ -92,6 +87,11 @@ const SingleFieldDialog = (props: SingleFieldDialogProps) => {
   useEffect(() => {
     setFieldValue(initialValue ?? '');
   }, [initialValue]);
+
+  if (fieldType === 'ItemName' && !isValUnique) {
+    console.error('Field is of type ItemName, but no function was provided to validate uniqueness.');
+    return null;
+  }
 
   return (
     <Modal isOpen={isOpen} onClose={onClosed}>

@@ -1,14 +1,3 @@
-import { MdAccountBalance, MdArticle, MdAttachMoney, MdCreditCard, MdKeyboardArrowDown } from 'react-icons/md';
-import React, { useEffect, useState } from 'react';
-import Budget from '../src/components/Finances/Budget';
-import Savings from '../src/components/Finances/Savings';
-import Transactions from '../src/components/Finances/Transactions';
-import 'jspdf-autotable';
-import { BudgetCategory, IBudget, BudgetSubcategory, Transaction } from '../src/models/types';
-import { useUserStore } from '../src/state/UserStore';
-import { db, FsCol } from '../src/firebase';
-import { doc, onSnapshot } from 'firebase/firestore';
-import NoBudget from '../src/components/Finances/BudgetComponents/NoBudget';
 import {
   Box,
   CircularProgress,
@@ -28,68 +17,82 @@ import {
   Text,
   useToast,
 } from '@chakra-ui/react';
+import { doc, onSnapshot } from 'firebase/firestore';
+import 'jspdf-autotable';
+import { useCallback, useEffect, useState } from 'react';
+import { MdAccountBalance, MdArticle, MdAttachMoney, MdCreditCard, MdKeyboardArrowDown } from 'react-icons/md';
+import Budget from '../components/Finances/Budget';
+import NoBudget from '../components/Finances/BudgetComponents/NoBudget';
+import Savings from '../components/Finances/Savings';
+import Transactions from '../components/Finances/Transactions';
+import { FsCol, db } from '../firebase';
+import { BudgetCategory, BudgetSubcategory, IBudget, Transaction } from '../models/types';
+import { useUserStore } from '../state/UserStore';
 
 const Finances = () => {
   const toast = useToast();
   const family = useUserStore((state) => state.family);
   const [budget, setBudget] = useState<IBudget | null | undefined>(undefined);
 
-  const processAndSetBudget = (budgetData?: IBudget | null) => {
-    if (!budgetData) {
-      setBudget(budgetData);
-      return;
-    }
+  const processAndSetBudget = useCallback(
+    (budgetData?: IBudget | null) => {
+      if (!budgetData) {
+        setBudget(budgetData);
+        return;
+      }
 
-    const newBudget = { ...budgetData };
+      const newBudget = { ...budgetData };
 
-    if (!newBudget.categories) {
-      console.error('Missing budget categories array!');
-      newBudget.categories = [];
-    } else {
-      newBudget.categories.forEach((cat: BudgetCategory) => {
-        cat.currentSpent = 0;
-        cat.subcategories.forEach((subcat: BudgetSubcategory) => (subcat.currentSpent = 0));
-      });
-    }
+      if (!newBudget.categories) {
+        console.error('Missing budget categories array!');
+        newBudget.categories = [];
+      } else {
+        newBudget.categories.forEach((cat: BudgetCategory) => {
+          cat.currentSpent = 0;
+          cat.subcategories.forEach((subcat: BudgetSubcategory) => (subcat.currentSpent = 0));
+        });
+      }
 
-    if (!newBudget.transactions) {
-      console.error('Missing budget categories array!');
-      newBudget.transactions = [];
-    } else {
-      newBudget.transactions.forEach((transaction: Transaction) => {
-        const tCatIdx = newBudget.categories.findIndex((budgetCat) => budgetCat.name === transaction.category);
-        const tSubCatIdx = newBudget.categories[tCatIdx].subcategories.findIndex(
-          (budgetSubcat) => budgetSubcat.name === transaction.subcategory
-        );
+      if (!newBudget.transactions) {
+        console.error('Missing budget categories array!');
+        newBudget.transactions = [];
+      } else {
+        newBudget.transactions.forEach((transaction: Transaction) => {
+          const tCatIdx = newBudget.categories.findIndex((budgetCat) => budgetCat.name === transaction.category);
+          const tSubCatIdx = newBudget.categories[tCatIdx].subcategories.findIndex(
+            (budgetSubcat) => budgetSubcat.name === transaction.subcategory
+          );
 
-        // Only count transaction towards this month's budget if it's from this month (unless family setting says otherwise)
-        if (
-          family?.settings?.showAllTransactionsOnCurrentMonth ||
-          new Date(transaction.timestamp).getMonth() === new Date().getMonth()
-        ) {
-          // Verify cat and subcat were found (i.e. if the transaction has valid ones)
-          if (tCatIdx !== -1 && tSubCatIdx !== -1) {
-            newBudget.categories[tCatIdx].subcategories[tSubCatIdx].currentSpent += transaction.amt;
+          // Only count transaction towards this month's budget if it's from this month (unless family setting says otherwise)
+          if (
+            family?.settings?.showAllTransactionsOnCurrentMonth ||
+            new Date(transaction.timestamp).getMonth() === new Date().getMonth()
+          ) {
+            // Verify cat and subcat were found (i.e. if the transaction has valid ones)
+            if (tCatIdx !== -1 && tSubCatIdx !== -1) {
+              newBudget.categories[tCatIdx].subcategories[tSubCatIdx].currentSpent += transaction.amt;
+            }
           }
-        }
+        });
+      }
+
+      // Handle some calculations we do locally so we can reuse their values (efficiency!)
+      let totalSpent = 0;
+      let totalAllotted = 0;
+      newBudget.categories.forEach((cat: BudgetCategory) => {
+        cat.totalAllotted = cat.subcategories.reduce((sum, subcat) => sum + subcat.totalAllotted, 0);
+        totalAllotted += cat.totalAllotted;
+
+        cat.currentSpent = cat.subcategories.reduce((sum, subcat) => sum + subcat.currentSpent, 0);
+        totalSpent += cat.currentSpent;
       });
-    }
+      newBudget.totalSpent = totalSpent;
+      newBudget.totalAllotted = totalAllotted;
 
-    // Handle some calculations we do locally so we can reuse their values (efficiency!)
-    let totalSpent = 0;
-    let totalAllotted = 0;
-    newBudget.categories.forEach((cat: BudgetCategory) => {
-      cat.totalAllotted = cat.subcategories.reduce((sum, subcat) => sum + subcat.totalAllotted, 0);
-      totalAllotted += cat.totalAllotted;
-
-      cat.currentSpent = cat.subcategories.reduce((sum, subcat) => sum + subcat.currentSpent, 0);
-      totalSpent += cat.currentSpent;
-    });
-    newBudget.totalSpent = totalSpent;
-    newBudget.totalAllotted = totalAllotted;
-
-    setBudget(newBudget as IBudget);
-  };
+      setBudget(newBudget as IBudget);
+    },
+    [family?.settings?.showAllTransactionsOnCurrentMonth]
+  );
 
   const exportBudgetDataJSON = () => {
     if (!budget) return;
@@ -146,7 +149,7 @@ const Finances = () => {
 
       return () => unsubscribeBudgetSnapshot();
     }
-  }, [family?.budgetId]);
+  }, [family?.budgetId, processAndSetBudget, toast]);
 
   if (budget === undefined) {
     return (

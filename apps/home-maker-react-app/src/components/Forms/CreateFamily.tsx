@@ -1,8 +1,3 @@
-import React, { BaseSyntheticEvent, useState } from 'react';
-import { Family } from 'models/types';
-import { useUserStore } from 'state/UserStore';
-import { doc, writeBatch } from 'firebase/firestore';
-import { db, FsCol } from '../../firebase';
 import {
   Button,
   FormControl,
@@ -18,10 +13,15 @@ import {
   Spinner,
   useToast,
 } from '@chakra-ui/react';
-import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
+import { doc, writeBatch } from 'firebase/firestore';
+import { BaseSyntheticEvent, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { genUuid } from 'utils/utils';
+import * as yup from 'yup';
+import { FsCol, db } from '../../firebase';
+import { Family } from '../../models/types';
+import { useUserStore } from '../../state/UserStore';
+import { genUuid } from '../../utils/utils';
 
 const createFamilySchema = yup
   .object({

@@ -5,7 +5,7 @@ import * as yup from 'yup';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { BaseSyntheticEvent, useState } from 'react';
-import { useRouter } from 'next/router';
+import { useNavigate } from '@tanstack/react-router';
 
 // TODO: Email verification - required to create profile ?
 
@@ -24,8 +24,8 @@ interface CreateAccountSchema {
 }
 
 const CreateAccount = () => {
+  const navigate = useNavigate();
   const toast = useToast();
-  const router = useRouter();
 
   const {
     register,
@@ -51,7 +51,7 @@ const CreateAccount = () => {
         });
         setIsCreatingAccount(false);
 
-        router.push('/');
+        navigate({ to: '/' });
       })
       .catch((error) => {
         // Error creating account

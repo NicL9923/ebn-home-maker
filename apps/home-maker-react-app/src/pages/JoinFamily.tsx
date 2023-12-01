@@ -1,8 +1,3 @@
-import React, { useEffect } from 'react';
-import { arrayUnion, doc, writeBatch } from 'firebase/firestore';
-import { useRouter } from 'next/router';
-import Link from 'next/link';
-import { useUserStore } from '../../src/state/UserStore';
 import {
   Alert,
   AlertDescription,
@@ -13,11 +8,15 @@ import {
   Text,
   useToast,
 } from '@chakra-ui/react';
-import { db, FsCol } from '../../src/firebase';
+import { arrayUnion, doc, writeBatch } from 'firebase/firestore';
+import { useCallback, useEffect } from 'react';
+import { FsCol, db } from '../firebase';
+import { useUserStore } from '../state/UserStore';
+import { Link, useParams } from '@tanstack/react-router';
+import { joinFamilyRoute } from '../main';
 
 const JoinFamily = () => {
-  const router = useRouter();
-  const familyId = router.query['familyId'] as string;
+  const { familyId } = useParams({ from: joinFamilyRoute.id });
   const toast = useToast();
 
   const userId = useUserStore((state) => state.userId);
@@ -26,12 +25,12 @@ const JoinFamily = () => {
 
   const batch = writeBatch(db);
 
-  const addUserToFamily = () => {
+  const addUserToFamily = useCallback(() => {
     if (!familyId || !userId) {
       return;
     }
 
-    if (profile?.familyId === familyId) {
+    if (profile?.familyId === familyId && family) {
       toast({
         title: `You're already apart of the ${family.name} family! (${familyId})`,
         status: 'info',
@@ -45,20 +44,20 @@ const JoinFamily = () => {
 
     batch.commit().then(() => {
       toast({
-        title: `You've successfully joined the ${family.name} family! (${familyId})`,
+        title: `You've successfully joined the ${family?.name} family! (${familyId})`,
         status: 'success',
         isClosable: true,
       });
     });
-  };
+  }, [batch, familyId, family, profile?.familyId, userId, toast]);
 
   useEffect(() => {
     addUserToFamily();
-  }, []);
+  }, [addUserToFamily]);
 
   return (
     <Container centerContent mt={6}>
-      {family ? (
+      {profile && family ? (
         <Container centerContent>
           <Alert status='success'>
             <AlertIcon />
@@ -68,7 +67,7 @@ const JoinFamily = () => {
 
           <Text>
             {`You've successfully joined the ${family.name} family! `}
-            <Link href='/'>
+            <Link to='/'>
               <Button variant='link' colorScheme='blue'>
                 Head home
               </Button>

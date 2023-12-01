@@ -1,16 +1,15 @@
-import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/router';
-import Link from 'next/link';
-import { useUserStore } from '../../state/UserStore';
 import { Box, Button, CircularProgress, Container, Heading, Image, Stack, Text } from '@chakra-ui/react';
-import { MdArrowBack } from 'react-icons/md';
+import { Link, useParams } from '@tanstack/react-router';
 import { doc, getDoc, writeBatch } from 'firebase/firestore';
-import { db, FsCol } from '../../firebase';
+import { useCallback, useEffect, useState } from 'react';
+import { MdArrowBack } from 'react-icons/md';
+import { FsCol, db } from '../../firebase';
+import { vehicleRoute } from '../../main';
 import { ServiceLogEntry, Vehicle } from '../../models/types';
+import { useUserStore } from '../../state/UserStore';
 
 const VehicleView = () => {
-  const router = useRouter();
-  const vehicleId = router.query['vehicleId'] as string;
+  const { vehicleId } = useParams({ from: vehicleRoute.id });
 
   const profile = useUserStore((state) => state.profile);
   const family = useUserStore((state) => state.family);
@@ -19,7 +18,7 @@ const VehicleView = () => {
 
   const [vehicle, setVehicle] = useState<Vehicle | undefined>(undefined);
 
-  const getVehicle = () => {
+  const getVehicle = useCallback(() => {
     if (family && family.vehicles.includes(vehicleId)) {
       getDoc(doc(db, FsCol.Vehicles, vehicleId)).then((vehDoc) => {
         if (vehDoc.exists()) {
@@ -32,7 +31,7 @@ const VehicleView = () => {
         }
       });
     }
-  };
+  }, [family, vehicleId]);
 
   const deleteVehicle = () => {
     if (!family || !profile) return;
@@ -49,11 +48,11 @@ const VehicleView = () => {
 
   useEffect(() => {
     getVehicle();
-  }, []);
+  }, [getVehicle]);
 
   return (
     <Container centerContent mt={6}>
-      <Link href='/maintenance'>
+      <Link to='/maintenance'>
         <Button leftIcon={<MdArrowBack />} variant='link' colorScheme='blue'>
           Go back
         </Button>

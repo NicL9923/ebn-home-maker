@@ -1,13 +1,13 @@
-import React, { useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { doc, updateDoc } from 'firebase/firestore';
-import SingleFieldDialog from '../src/components/Inputs/SingleFieldDialog';
+import SingleFieldDialog from '../components/Inputs/SingleFieldDialog';
 import { DragDropContext, Draggable, Droppable, DropResult } from 'react-beautiful-dnd';
-import { useUserStore } from '../src/state/UserStore';
-import { db, FsCol } from '../src/firebase';
+import { useUserStore } from '../state/UserStore';
+import { db, FsCol } from '../firebase';
 import { Box, Button, Checkbox, Heading, List, ListItem, Stack, useColorModeValue, useToast } from '@chakra-ui/react';
 import { MdAdd, MdDelete } from 'react-icons/md';
-import { GroceryItem } from '../src/models/types';
-import { genUuid } from '../src/utils/utils';
+import { GroceryItem } from '../models/types';
+import { genUuid } from '../utils/utils';
 
 const GroceryList = () => {
   const toast = useToast();
@@ -17,12 +17,8 @@ const GroceryList = () => {
 
   const [isEditing, setIsEditing] = useState(false);
 
-  if (!profile || !family) {
-    return null;
-  }
-
   const addGroceryItem = (newItemName?: string) => {
-    if (!newItemName) return;
+    if (!newItemName || !family || !profile) return;
 
     const newList: GroceryItem[] = [...family.groceryList, { uid: genUuid(), name: newItemName, isBought: false }];
 
@@ -36,6 +32,8 @@ const GroceryList = () => {
   };
 
   const editGroceryItem = (idx: number, newName: string | undefined, isBought: boolean) => {
+    if (!family || !profile) return;
+
     const updGroceryList = [...family.groceryList];
 
     if (newName) {
@@ -48,6 +46,7 @@ const GroceryList = () => {
   };
 
   const removeGroceryItems = () => {
+    if (!family || !profile) return;
     if (!window.confirm('Are you sure you want to remove all checked items?')) {
       return;
     }
@@ -58,6 +57,7 @@ const GroceryList = () => {
   };
 
   const onDragEnd = ({ type, source, destination }: DropResult) => {
+    if (!family || !profile) return;
     if (!source || !destination || !type) return;
 
     if (type === 'gListItem') {
@@ -72,9 +72,13 @@ const GroceryList = () => {
   };
 
   const isItemSelected = useMemo(
-    () => family.groceryList.length > 0 && family.groceryList.some((item) => item.isBought),
-    [family.groceryList]
+    () => family && family.groceryList.length > 0 && family.groceryList.some((item) => item.isBought),
+    [family]
   );
+
+  if (!profile || !family) {
+    return null;
+  }
 
   return (
     <Box mt={2} p={2}>

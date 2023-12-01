@@ -1,16 +1,15 @@
-import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/router';
-import Link from 'next/link';
-import { useUserStore } from '../../state/UserStore';
 import { Box, Button, CircularProgress, Container, Heading, Image, Stack, Text } from '@chakra-ui/react';
-import { MdArrowBack } from 'react-icons/md';
 import { doc, getDoc, writeBatch } from 'firebase/firestore';
-import { db, FsCol } from '../../firebase';
-import { ServiceLogEntry, Residence } from '../../models/types';
+import { useCallback, useEffect, useState } from 'react';
+import { MdArrowBack } from 'react-icons/md';
+import { FsCol, db } from '../../firebase';
+import { Residence, ServiceLogEntry } from '../../models/types';
+import { useUserStore } from '../../state/UserStore';
+import { Link, useParams } from '@tanstack/react-router';
+import { residenceRoute } from '../../main';
 
 const ResidenceView = () => {
-  const router = useRouter();
-  const residenceId = router.query['residenceId'] as string;
+  const { residenceId } = useParams({ from: residenceRoute.id });
 
   const profile = useUserStore((state) => state.profile);
   const family = useUserStore((state) => state.family);
@@ -19,7 +18,7 @@ const ResidenceView = () => {
 
   const [residence, setResidence] = useState<Residence | undefined>(undefined);
 
-  const getResidence = () => {
+  const getResidence = useCallback(() => {
     if (family && family.residences.includes(residenceId)) {
       getDoc(doc(db, FsCol.Residences, residenceId)).then((vehDoc) => {
         if (vehDoc.exists()) {
@@ -32,7 +31,7 @@ const ResidenceView = () => {
         }
       });
     }
-  };
+  }, [family, residenceId]);
 
   const deleteResidence = () => {
     if (!family || !profile) return;
@@ -49,11 +48,11 @@ const ResidenceView = () => {
 
   useEffect(() => {
     getResidence();
-  }, []);
+  }, [getResidence]);
 
   return (
     <Container centerContent mt={6}>
-      <Link href='/maintenance'>
+      <Link to='/maintenance'>
         <Button leftIcon={<MdArrowBack />} variant='link' colorScheme='blue'>
           Go back
         </Button>

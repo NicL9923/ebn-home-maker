@@ -1,5 +1,5 @@
 import { Box, Button, Flex, Heading, Icon, Stack, Text, useBreakpointValue, VStack } from '@chakra-ui/react';
-import Link from 'next/link';
+import { Link } from '@tanstack/react-router';
 import { FaWrench } from 'react-icons/fa';
 import { MdAccountBalance, MdChecklist } from 'react-icons/md';
 
@@ -31,7 +31,7 @@ const LandingPage = () => {
               Create an account & profile, then create or join a family to get started!
             </Text>
             <Stack direction={'column'} spacing={3} align='center' alignSelf='center' position='relative'>
-              <Link href='/signup'>
+              <Link to='/signup'>
                 <Button
                   colorScheme='green'
                   bg='green.400'

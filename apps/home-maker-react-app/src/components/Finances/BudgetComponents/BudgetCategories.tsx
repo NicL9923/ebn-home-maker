@@ -1,7 +1,6 @@
 import { Box } from '@chakra-ui/react';
-import React, { useContext } from 'react';
-import { DragDropContext } from 'react-beautiful-dnd';
-import { Droppable, DropResult } from 'react-beautiful-dnd';
+import { useContext } from 'react';
+import { DragDropContext, Droppable, DropResult } from 'react-beautiful-dnd';
 import { BudgetContext } from '../Budget';
 import Category from './Category';
 

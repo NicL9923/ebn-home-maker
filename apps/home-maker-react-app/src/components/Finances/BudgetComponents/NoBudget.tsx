@@ -1,9 +1,9 @@
-import { db, FsCol } from '../../../firebase';
-import { doc, writeBatch } from 'firebase/firestore';
-import { IBudget } from 'models/types';
-import { useUserStore } from 'state/UserStore';
 import { Box, Button, Text } from '@chakra-ui/react';
-import { genUuid } from 'utils/utils';
+import { doc, writeBatch } from 'firebase/firestore';
+import { db, FsCol } from '../../../firebase';
+import { IBudget } from '../../../models/types';
+import { useUserStore } from '../../../state/UserStore';
+import { genUuid } from '../../../utils/utils';
 
 const NoBudget = () => {
   const userId = useUserStore((state) => state.userId);

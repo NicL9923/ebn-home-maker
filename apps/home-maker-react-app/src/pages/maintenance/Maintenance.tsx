@@ -1,5 +1,5 @@
-import { ResidenceOverview } from 'components/Maintenance/ResidenceOverview';
-import { VehicleOverview } from 'components/Maintenance/VehicleOverview';
+import { ResidenceOverview } from '../../components/Maintenance/ResidenceOverview';
+import { VehicleOverview } from '../../components/Maintenance/VehicleOverview';
 import { Container, Heading } from '@chakra-ui/react';
 
 const Maintenance = () => {

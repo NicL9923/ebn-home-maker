@@ -1,6 +1,6 @@
 import { Box, Button, Divider, Flex, Heading, Stack, Text } from '@chakra-ui/react';
-import React, { useState } from 'react';
-import { useUserStore } from 'state/UserStore';
+import { useState } from 'react';
+import { useUserStore } from '../state/UserStore';
 import CreateFamily from './Forms/CreateFamily';
 
 const NoFamily = () => {

@@ -1,10 +1,3 @@
-import React, { useMemo, useState } from 'react';
-import { IBudget, Transaction } from 'models/types';
-import AddTransaction from 'components/Forms/AddTransaction';
-import { useUserStore } from 'state/UserStore';
-import { doc, updateDoc } from 'firebase/firestore';
-import { db, FsCol } from '../../firebase';
-import { MdAdd, MdDelete } from 'react-icons/md';
 import {
   Box,
   Button,
@@ -25,14 +18,21 @@ import {
 } from '@chakra-ui/react';
 import {
   ColumnDef,
+  RowSelectionState,
   flexRender,
   getCoreRowModel,
   getPaginationRowModel,
   getSortedRowModel,
-  RowSelectionState,
   useReactTable,
 } from '@tanstack/react-table';
-import { HiChevronLeft, HiChevronRight, HiChevronDoubleLeft, HiChevronDoubleRight } from 'react-icons/hi';
+import { doc, updateDoc } from 'firebase/firestore';
+import { useMemo, useState } from 'react';
+import { HiChevronDoubleLeft, HiChevronDoubleRight, HiChevronLeft, HiChevronRight } from 'react-icons/hi';
+import { MdAdd, MdDelete } from 'react-icons/md';
+import { FsCol, db } from '../../firebase';
+import { IBudget, Transaction } from '../../models/types';
+import { useUserStore } from '../../state/UserStore';
+import AddTransaction from '../Forms/AddTransaction';
 
 const rowsPerPageOptions = [10, 25, 50, 100];
 

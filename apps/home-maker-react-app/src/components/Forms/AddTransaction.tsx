@@ -1,8 +1,3 @@
-import React, { BaseSyntheticEvent, useMemo, useState } from 'react';
-import { IBudget, Transaction } from 'models/types';
-import { useUserStore } from 'state/UserStore';
-import { doc, updateDoc } from 'firebase/firestore';
-import { db, FsCol } from '../../firebase';
 import {
   Button,
   FormControl,
@@ -23,14 +18,19 @@ import {
   Tooltip,
   useToast,
 } from '@chakra-ui/react';
-import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import * as yup from 'yup';
-import { Select, OptionBase, GroupBase } from 'chakra-react-select';
-import DatePicker from 'components/Inputs/DatePicker';
-import { genUuid } from 'utils/utils';
-import { MdCalculate } from 'react-icons/md';
+import { GroupBase, OptionBase, Select } from 'chakra-react-select';
+import { doc, updateDoc } from 'firebase/firestore';
 import { evaluate, round } from 'mathjs';
+import { BaseSyntheticEvent, useMemo, useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
+import { MdCalculate } from 'react-icons/md';
+import * as yup from 'yup';
+import { FsCol, db } from '../../firebase';
+import { IBudget, Transaction } from '../../models/types';
+import { useUserStore } from '../../state/UserStore';
+import { genUuid } from '../../utils/utils';
+import DatePicker from '../Inputs/DatePicker';
 
 // TODO: Disable form buttons while submitting
 
@@ -115,7 +115,7 @@ const AddTransaction = ({ isOpen, setIsOpen, initialCatSubcat, budget }: AddTran
     }
 
     return newInitialOption;
-  }, [categoryOptions, initialCatSubcat]);
+  }, [categoryOptions, initialCatSubcat, setValue]);
 
   const submitNewTransaction = (newTransactionData: AddTransactionFormSchema, event?: BaseSyntheticEvent) => {
     event?.preventDefault();

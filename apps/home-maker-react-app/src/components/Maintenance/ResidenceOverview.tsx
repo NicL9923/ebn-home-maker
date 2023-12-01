@@ -1,10 +1,3 @@
-import React, { useEffect, useState } from 'react';
-import type { Residence, ServiceLogEntry } from 'models/types';
-import AddResidence from 'components/Forms/AddResidence';
-import { MdHouse } from 'react-icons/md';
-import { useUserStore } from 'state/UserStore';
-import { doc, getDoc } from 'firebase/firestore';
-import { db, FsCol } from '../../firebase';
 import {
   Box,
   Button,
@@ -17,6 +10,13 @@ import {
   Wrap,
   WrapItem,
 } from '@chakra-ui/react';
+import { doc, getDoc } from 'firebase/firestore';
+import { useCallback, useEffect, useState } from 'react';
+import { MdHouse } from 'react-icons/md';
+import AddResidence from '../../components/Forms/AddResidence';
+import { FsCol, db } from '../../firebase';
+import type { Residence, ServiceLogEntry } from '../../models/types';
+import { useUserStore } from '../../state/UserStore';
 
 export const ResidenceOverview = () => {
   const family = useUserStore((state) => state.family);
@@ -25,7 +25,7 @@ export const ResidenceOverview = () => {
   const [isFetchingResidences, setIsFetchingResidences] = useState(false);
   const [addingResidence, setAddingResidence] = useState(false);
 
-  const getResidences = () => {
+  const getResidences = useCallback(() => {
     if (!family?.residences) return;
 
     setIsFetchingResidences(true);
@@ -45,13 +45,13 @@ export const ResidenceOverview = () => {
     });
 
     setIsFetchingResidences(false);
-  };
+  }, [family?.residences]);
 
   useEffect(() => {
     if (family) {
       getResidences();
     }
-  }, [family]);
+  }, [family, getResidences]);
 
   return (
     <Box mt={4}>

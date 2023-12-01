@@ -1,8 +1,3 @@
-import { MdAdd, MdClear } from 'react-icons/md';
-import { IBudget, SavingsBlob } from '../../models/types';
-import Chart from 'react-google-charts';
-import { useUserStore } from '../../state/UserStore';
-import EditableLabel from '../Inputs/EditableLabel';
 import {
   Box,
   Button,
@@ -13,12 +8,19 @@ import {
   StatLabel,
   StatNumber,
   Text,
-  useColorMode,
   Wrap,
   WrapItem,
+  useColorMode,
 } from '@chakra-ui/react';
-import { getCommonChartOptions } from './Budget';
+import { doc, updateDoc } from 'firebase/firestore';
+import Chart from 'react-google-charts';
+import { MdAdd, MdClear } from 'react-icons/md';
+import { FsCol, db } from '../../firebase';
+import { IBudget, SavingsBlob } from '../../models/types';
+import { useUserStore } from '../../state/UserStore';
 import { genUuid } from '../../utils/utils';
+import EditableLabel from '../Inputs/EditableLabel';
+import { getCommonChartOptions } from './Budget';
 
 const formatChartData = (blobsData: SavingsBlob[]) => {
   const formattedDataArr: (string | number)[][] = [['Name', 'Amount']];

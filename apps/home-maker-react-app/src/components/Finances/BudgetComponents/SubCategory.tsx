@@ -1,10 +1,3 @@
-import React, { useContext } from 'react';
-import { BudgetCategory, BudgetSubcategory } from 'models/types';
-import { BudgetContext, budgetRowsGridTemplateColumns } from '../Budget';
-import { Draggable } from 'react-beautiful-dnd';
-import EditableLabel from 'components/Inputs/EditableLabel';
-import { MdKeyboardArrowDown } from 'react-icons/md';
-import { catSubcatKeySeparator } from 'components/Forms/AddTransaction';
 import {
   Box,
   Grid,
@@ -18,6 +11,13 @@ import {
   Stack,
   Text,
 } from '@chakra-ui/react';
+import { useContext } from 'react';
+import { Draggable } from 'react-beautiful-dnd';
+import { MdKeyboardArrowDown } from 'react-icons/md';
+import { BudgetCategory, BudgetSubcategory } from '../../../models/types';
+import { catSubcatKeySeparator } from '../../Forms/AddTransaction';
+import EditableLabel from '../../Inputs/EditableLabel';
+import { BudgetContext, budgetRowsGridTemplateColumns } from '../Budget';
 
 interface SubCategoryProps {
   subidx: number;

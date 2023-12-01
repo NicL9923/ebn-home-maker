@@ -1,10 +1,3 @@
-import { MdKeyboardArrowDown } from 'react-icons/md';
-import EditableLabel from 'components/Inputs/EditableLabel';
-import { BudgetCategory, IBudget } from 'models/types';
-import React, { useContext } from 'react';
-import { Draggable, Droppable } from 'react-beautiful-dnd';
-import { BudgetContext, budgetRowsGridTemplateColumns } from '../Budget';
-import SubCategory from './SubCategory';
 import {
   Box,
   Divider,
@@ -18,7 +11,14 @@ import {
   Stack,
   Text,
 } from '@chakra-ui/react';
+import { useContext } from 'react';
+import { Draggable, Droppable } from 'react-beautiful-dnd';
+import { MdKeyboardArrowDown } from 'react-icons/md';
+import { BudgetCategory, IBudget } from '../../../models/types';
+import EditableLabel from '../../Inputs/EditableLabel';
+import { BudgetContext, budgetRowsGridTemplateColumns } from '../Budget';
 import { subcatPrefix } from './BudgetCategories';
+import SubCategory from './SubCategory';
 
 interface CategoryProps {
   idx: number;

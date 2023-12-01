@@ -14,6 +14,7 @@ import {
 import { Link } from '@tanstack/react-router';
 import { auth } from '../firebase';
 import { useUserStore } from '../state/UserStore';
+import { signOut } from 'firebase/auth';
 
 const ProfileIcon = () => {
   const toast = useToast();
