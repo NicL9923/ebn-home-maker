@@ -25,6 +25,10 @@ export default defineConfig({
     },
   },
 
+  resolve: {
+    mainFields: [], // Resolve issue moment-js was causing (through react-live-clock)
+  },
+
   // Uncomment this if you are using workers.
   // worker: {
   //  plugins: [ nxViteTsPaths() ],
