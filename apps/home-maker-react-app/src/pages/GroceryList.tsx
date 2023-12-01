@@ -5,7 +5,7 @@ import { DragDropContext, Draggable, Droppable, DropResult } from 'react-beautif
 import { useUserStore } from '../state/UserStore';
 import { db, FsCol } from '../firebase';
 import { Box, Button, Checkbox, Heading, List, ListItem, Stack, useColorModeValue, useToast } from '@chakra-ui/react';
-import { MdAdd, MdDelete } from 'react-icons/md';
+import { MdAdd, MdDelete, MdEdit } from 'react-icons/md';
 import { GroceryItem } from '../models/types';
 import { genUuid } from '../utils/utils';
 
@@ -15,12 +15,20 @@ const GroceryList = () => {
   const profile = useUserStore((state) => state.profile);
   const family = useUserStore((state) => state.family);
 
-  const [isEditing, setIsEditing] = useState(false);
+  const [isAdding, setIsAdding] = useState(false);
+  const [itemToEdit, setItemToEdit] = useState<GroceryItem>();
 
-  const addGroceryItem = (newItemName?: string) => {
+  const addOrEditGroceryItem = (newItemName?: string) => {
     if (!newItemName || !family || !profile) return;
 
-    const newList: GroceryItem[] = [...family.groceryList, { uid: genUuid(), name: newItemName, isBought: false }];
+    const newList = [...family.groceryList];
+
+    if (itemToEdit) {
+      const idx = newList.findIndex((item) => item.uid === itemToEdit.uid);
+      newList[idx].name = newItemName;
+    } else {
+      newList.push({ uid: genUuid(), name: newItemName, isBought: false });
+    }
 
     updateDoc(doc(db, FsCol.Families, profile.familyId), { groceryList: newList }).then(() => {
       toast({
@@ -71,10 +79,7 @@ const GroceryList = () => {
     }
   };
 
-  const isItemSelected = useMemo(
-    () => (family ? family.groceryList.length > 0 && family.groceryList.some((item) => item.isBought) : false),
-    [family]
-  );
+  const numItemsSelected = useMemo(() => family?.groceryList.filter((item) => item.isBought).length ?? 0, [family]);
 
   if (!profile || !family) {
     return null;
@@ -85,8 +90,17 @@ const GroceryList = () => {
       <Heading mb={2}>Grocery List</Heading>
 
       <Stack direction='row' mt={2}>
-        <Button size='sm' leftIcon={<MdAdd />} onClick={() => setIsEditing(true)}>
+        <Button size='sm' leftIcon={<MdAdd />} onClick={() => setIsAdding(true)}>
           Add item
+        </Button>
+
+        <Button
+          size='sm'
+          leftIcon={<MdEdit />}
+          onClick={() => setItemToEdit(family.groceryList.find((item) => item.isBought))}
+          isDisabled={numItemsSelected !== 1}
+        >
+          Edit
         </Button>
 
         <Button
@@ -94,9 +108,9 @@ const GroceryList = () => {
           leftIcon={<MdDelete />}
           onClick={removeGroceryItems}
           colorScheme='red'
-          isDisabled={!isItemSelected}
+          isDisabled={numItemsSelected === 0}
         >
-          Remove checked items
+          Remove checked
         </Button>
       </Stack>
 
@@ -138,13 +152,16 @@ const GroceryList = () => {
       </DragDropContext>
 
       <SingleFieldDialog
-        initialValue={''}
+        initialValue={itemToEdit?.name}
         titleVerb={'Add'}
         fieldName={'Grocery item'}
         fieldType={'EntityName'}
-        isOpen={isEditing}
-        onClosed={() => setIsEditing(false)}
-        onSubmitValue={addGroceryItem}
+        isOpen={isAdding || !!itemToEdit}
+        onClosed={() => {
+          setIsAdding(false);
+          setItemToEdit(undefined);
+        }}
+        onSubmitValue={addOrEditGroceryItem}
       />
     </Box>
   );
