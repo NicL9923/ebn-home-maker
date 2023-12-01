@@ -21,9 +21,10 @@ const GroceryList = () => {
   const addOrEditGroceryItem = (newItemName?: string) => {
     if (!newItemName || !family || !profile) return;
 
+    const isEditing = !!itemToEdit;
     const newList = [...family.groceryList];
 
-    if (itemToEdit) {
+    if (isEditing) {
       const idx = newList.findIndex((item) => item.uid === itemToEdit.uid);
       newList[idx].name = newItemName;
     } else {
@@ -32,7 +33,7 @@ const GroceryList = () => {
 
     updateDoc(doc(db, FsCol.Families, profile.familyId), { groceryList: newList }).then(() => {
       toast({
-        title: 'Successfully added item!',
+        title: `Successfully ${isEditing ? 'edited' : 'added'} item!`,
         status: 'success',
         isClosable: true,
       });
