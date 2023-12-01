@@ -22,6 +22,7 @@ import { genUuid, getAbsDiffAndComparisonOfMonetaryValues } from '../../utils/ut
 import AddTransaction from '../Forms/AddTransaction';
 import EditableLabel from '../Inputs/EditableLabel';
 import BudgetCategories from './BudgetComponents/BudgetCategories';
+import { InfoOutlineIcon } from '@chakra-ui/icons';
 
 export const BudgetContext = React.createContext({} as BudgetContextValue);
 
@@ -244,8 +245,8 @@ const Budget = (props: BudgetProps) => {
     let helperText = 'to allot';
 
     const [allottedRemainderStatus, differenceString] = getAbsDiffAndComparisonOfMonetaryValues(
-      budget.monthlyNetIncome,
-      budget.totalAllotted
+      budget.totalAllotted,
+      budget.monthlyNetIncome
     );
 
     if (allottedRemainderStatus === 'under') {
@@ -269,8 +270,8 @@ const Budget = (props: BudgetProps) => {
     let helperText = 'remaining';
 
     const [spendingRemainderStatus, differenceString] = getAbsDiffAndComparisonOfMonetaryValues(
-      budget.totalAllotted,
-      budget.totalSpent
+      budget.totalSpent,
+      budget.totalAllotted
     );
 
     if (spendingRemainderStatus === 'under') {
@@ -353,7 +354,12 @@ const Budget = (props: BudgetProps) => {
               })}
             </Text>
           </Stack>
-          {spendingRemainder}
+          <Stack direction='row' alignContent='center' alignItems='center' justifyContent='center' spacing={1}>
+            {spendingRemainder}
+            <Tooltip label='(of total allotted)'>
+              <InfoOutlineIcon boxSize={3} />
+            </Tooltip>
+          </Stack>
         </Box>
       </Box>
 
