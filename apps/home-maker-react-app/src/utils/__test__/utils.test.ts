@@ -77,6 +77,10 @@ describe('utils', () => {
     it('has a minimum limit of 0', () => {
       expect(calcMonetaryValuesRatioAsPercentInt(-0.03, 3)).toBe(0);
     });
+
+    it('returns 0 instead of 100 when the dividend/divisor are 0', () => {
+      expect(calcMonetaryValuesRatioAsPercentInt(0.0, 0)).toBe(0);
+    });
   });
 
   describe('compareMonetaryValues', () => {

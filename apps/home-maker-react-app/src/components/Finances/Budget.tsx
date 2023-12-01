@@ -18,11 +18,12 @@ import { MdAdd, MdSubdirectoryArrowRight } from 'react-icons/md';
 import { FsCol, db } from '../../firebase';
 import { BudgetCategory, BudgetContextValue, BudgetSubcategory, IBudget, Transaction } from '../../models/types';
 import { useUserStore } from '../../state/UserStore';
-import { genUuid, getAbsDiffAndComparisonOfMonetaryValues } from '../../utils/utils';
+import { genUuid, getAbsDiffAndComparisonOfMonetaryValues, moveMonth } from '../../utils/utils';
 import AddTransaction from '../Forms/AddTransaction';
 import EditableLabel from '../Inputs/EditableLabel';
 import BudgetCategories from './BudgetComponents/BudgetCategories';
 import { InfoOutlineIcon } from '@chakra-ui/icons';
+import { HiChevronLeft, HiChevronRight } from 'react-icons/hi';
 
 export const BudgetContext = React.createContext({} as BudgetContextValue);
 
@@ -31,10 +32,12 @@ export const budgetRowsGridTemplateColumns = '3fr 1fr 1fr';
 interface BudgetProps {
   budget: IBudget;
   setBudget: (newBudget: IBudget) => void;
+  curBudgetMonthAndYear: Date;
+  setBudgetCurMonthAndYear: (newDate: Date) => void;
 }
 
 const Budget = (props: BudgetProps) => {
-  const { budget, setBudget } = props;
+  const { budget, setBudget, curBudgetMonthAndYear, setBudgetCurMonthAndYear } = props;
   const isLightMode = useColorMode().colorMode === 'light';
   const pieChartBgColor = useColorModeValue('gray.200', 'gray.600');
   const [red500, green400, yellow300] = useToken('colors', ['red.500', 'green.400', 'yellow.300']);
@@ -264,7 +267,7 @@ const Budget = (props: BudgetProps) => {
   }, [budget.monthlyNetIncome, budget.totalAllotted, red500, yellow300]);
 
   const spendingRemainder = useMemo(() => {
-    if (!budget.totalAllotted || !budget.totalSpent) return;
+    if (budget.totalAllotted === undefined || budget.totalSpent === undefined) return;
 
     let helperColor: string | undefined = undefined;
     let helperText = 'remaining';
@@ -306,14 +309,34 @@ const Budget = (props: BudgetProps) => {
 
   return (
     <Box>
-      <Box textAlign='center' mb={4} mt={2} width={300} mx='auto'>
+      <Stack direction='row' justifyContent='center' alignItems='center' mb={4} mt={2}>
+        {!family.settings.showAllTransactionsOnCurrentMonth && (
+          <IconButton
+            icon={<HiChevronLeft />}
+            aria-label='Previous month'
+            onClick={() => setBudgetCurMonthAndYear(moveMonth(curBudgetMonthAndYear, 'backward'))}
+            fontSize={20}
+            boxSize={6}
+          />
+        )}
+
         <Heading>
-          {new Date().toLocaleDateString('en-US', {
+          {curBudgetMonthAndYear.toLocaleDateString('en-US', {
             month: 'long',
             year: 'numeric',
           })}
         </Heading>
-      </Box>
+
+        {!family.settings.showAllTransactionsOnCurrentMonth && (
+          <IconButton
+            icon={<HiChevronRight />}
+            aria-label='Next month'
+            onClick={() => setBudgetCurMonthAndYear(moveMonth(curBudgetMonthAndYear, 'forward'))}
+            fontSize={20}
+            boxSize={6}
+          />
+        )}
+      </Stack>
 
       <Box mb={4} width={325} mx='auto'>
         <Box sx={{ p: 2 }}>

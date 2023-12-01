@@ -334,7 +334,8 @@ const Family = () => {
           </Checkbox>
           <Text>
             Include all transactions in the current month&apos;s budget calculations even if they occurred outside the
-            current month
+            current month (disabling this will allow scrolling to past and future months to see their transactions, but
+            note that your current income/allotted values and categories will apply to all months)
           </Text>
         </Box>
       )}

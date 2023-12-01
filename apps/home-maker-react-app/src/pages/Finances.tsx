@@ -32,7 +32,8 @@ import { useUserStore } from '../state/UserStore';
 const Finances = () => {
   const toast = useToast();
   const family = useUserStore((state) => state.family);
-  const [budget, setBudget] = useState<IBudget | null | undefined>(undefined);
+  const [budget, setBudget] = useState<IBudget | null | undefined>();
+  const [curBudgetMonthAndYear, setBudgetCurMonthAndYear] = useState<Date>(new Date());
 
   const processAndSetBudget = useCallback(
     (budgetData?: IBudget | null) => {
@@ -63,11 +64,12 @@ const Finances = () => {
             (budgetSubcat) => budgetSubcat.name === transaction.subcategory
           );
 
-          // Only count transaction towards this month's budget if it's from this month (unless family setting says otherwise)
-          if (
-            family?.settings?.showAllTransactionsOnCurrentMonth ||
-            new Date(transaction.timestamp).getMonth() === new Date().getMonth()
-          ) {
+          // Only count transaction towards this month's budget if it's from this month/year (unless family setting says otherwise)
+          const transactionDate = new Date(transaction.timestamp);
+          const transactionIsInCurrentMonthYear =
+            transactionDate.getMonth() === curBudgetMonthAndYear.getMonth() &&
+            transactionDate.getFullYear() === curBudgetMonthAndYear.getFullYear();
+          if (family?.settings?.showAllTransactionsOnCurrentMonth || transactionIsInCurrentMonthYear) {
             // Verify cat and subcat were found (i.e. if the transaction has valid ones)
             if (tCatIdx !== -1 && tSubCatIdx !== -1) {
               newBudget.categories[tCatIdx].subcategories[tSubCatIdx].currentSpent += transaction.amt;
@@ -91,7 +93,7 @@ const Finances = () => {
 
       setBudget(newBudget as IBudget);
     },
-    [family?.settings?.showAllTransactionsOnCurrentMonth]
+    [family?.settings?.showAllTransactionsOnCurrentMonth, curBudgetMonthAndYear]
   );
 
   const exportBudgetDataJSON = () => {
@@ -208,7 +210,12 @@ const Finances = () => {
 
         <TabPanels>
           <TabPanel>
-            <Budget budget={budget} setBudget={setBudget} />
+            <Budget
+              budget={budget}
+              setBudget={setBudget}
+              curBudgetMonthAndYear={curBudgetMonthAndYear}
+              setBudgetCurMonthAndYear={setBudgetCurMonthAndYear}
+            />
           </TabPanel>
 
           <TabPanel>

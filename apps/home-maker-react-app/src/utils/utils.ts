@@ -15,6 +15,8 @@ export const calcMonetaryDifference = (minuend: number, subtrahend: number): num
   subtract(roundTo2Decimals(minuend), roundTo2Decimals(subtrahend));
 
 export const calcMonetaryValuesRatioAsPercentInt = (dividend: number, divisor: number): number => {
+  if (dividend === 0 || divisor === 0) return 0;
+
   const ratio = divide(dividend, divisor);
   const intRatio = round(multiply(ratio, 100));
   const rangeLimitedValue = Math.max(0, Math.min(100, intRatio));
@@ -46,4 +48,30 @@ export const getAbsDiffAndComparisonOfMonetaryValues = (a: number, b: number): [
   });
 
   return [comparisonString, differenceString];
+};
+
+export const moveMonth = (curDate: Date, direction: 'forward' | 'backward'): Date => {
+  const curYear = curDate.getFullYear();
+  const curMonth = curDate.getMonth();
+
+  let newYear = curYear;
+  let newMonth = curMonth;
+
+  if (direction === 'forward') {
+    if (curMonth === 11) {
+      newYear = curYear + 1;
+      newMonth = 0;
+    } else {
+      newMonth = curMonth + 1;
+    }
+  } else {
+    if (curMonth === 0) {
+      newYear = curYear - 1;
+      newMonth = 11;
+    } else {
+      newMonth = curMonth - 1;
+    }
+  }
+
+  return new Date(newYear, newMonth, 1);
 };
