@@ -17,6 +17,7 @@ import AddResidence from '../../components/Forms/AddResidence';
 import { FsCol, db } from '../../firebase';
 import type { Residence, ServiceLogEntry } from '../../models/types';
 import { useUserStore } from '../../state/UserStore';
+import { Link } from '@tanstack/react-router';
 
 export const ResidenceOverview = () => {
   const family = useUserStore((state) => state.family);
@@ -67,7 +68,7 @@ export const ResidenceOverview = () => {
           {residences.map((residence) => (
             <WrapItem key={residence.name}>
               <LinkBox>
-                <LinkOverlay href={`/maintenance/residences/${residence.uid}`} />
+                <LinkOverlay as={Link} to={`/maintenance/residences/${residence.uid}`} />
 
                 <Box p={2} maxW='sm' borderWidth='1px' borderRadius='lg' overflow='hidden'>
                   {residence.img ? (

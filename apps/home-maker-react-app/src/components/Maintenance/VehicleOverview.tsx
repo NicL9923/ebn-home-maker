@@ -17,6 +17,7 @@ import AddVehicle from '../../components/Forms/AddVehicle';
 import { FsCol, db } from '../../firebase';
 import type { ServiceLogEntry, Vehicle } from '../../models/types';
 import { useUserStore } from '../../state/UserStore';
+import { Link } from '@tanstack/react-router';
 
 export const VehicleOverview = () => {
   const family = useUserStore((state) => state.family);
@@ -67,7 +68,7 @@ export const VehicleOverview = () => {
           {vehicles.map((vehicle) => (
             <WrapItem key={vehicle.vin}>
               <LinkBox>
-                <LinkOverlay href={`/maintenance/vehicles/${vehicle.uid}`} />
+                <LinkOverlay as={Link} to={`/maintenance/vehicles/${vehicle.uid}`} />
 
                 <Box p={2} maxW='sm' borderWidth='1px' borderRadius='lg' overflow='hidden'>
                   {vehicle.img ? (

@@ -60,14 +60,14 @@ export const maintenanceRoute = new Route({
 });
 
 export const vehicleRoute = new Route({
-  getParentRoute: () => maintenanceRoute,
-  path: '$vehicleId',
+  getParentRoute: () => rootRoute,
+  path: '/maintenance/vehicles/$vehicleId',
   component: VehicleView,
 });
 
 export const residenceRoute = new Route({
-  getParentRoute: () => maintenanceRoute,
-  path: '$residenceId',
+  getParentRoute: () => rootRoute,
+  path: '/maintenance/residences/$residenceId',
   component: ResidenceView,
 });
 
