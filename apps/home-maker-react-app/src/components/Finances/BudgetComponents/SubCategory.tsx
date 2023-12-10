@@ -27,7 +27,7 @@ interface SubCategoryProps {
 }
 
 const SubCategory = (props: SubCategoryProps) => {
-  const { setSubCatProperty, setCatSubcatKey, setAddingTransaction, removeSubCategory } = useContext(BudgetContext);
+  const { setSubCatProperty, setCatSubcatKey, setAddingTransaction, setItemToRemove } = useContext(BudgetContext);
   const { subidx, category, subcategory } = props;
 
   const isSubcategoryNameUnique = (category: BudgetCategory, newSubcatName: string) => {
@@ -84,11 +84,7 @@ const SubCategory = (props: SubCategoryProps) => {
                       >
                         Add transaction
                       </MenuItem>
-                      <MenuItem
-                        onClick={() => {
-                          removeSubCategory(category.name, subcategory.name);
-                        }}
-                      >
+                      <MenuItem onClick={() => setItemToRemove([category.name, subcategory.name])}>
                         Delete subcategory
                       </MenuItem>
                     </MenuList>

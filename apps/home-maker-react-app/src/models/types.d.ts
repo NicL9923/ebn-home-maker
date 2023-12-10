@@ -118,10 +118,9 @@ export interface BudgetContextValue {
   moveCategory: (srcIdx: number, destIdx: number) => void;
   moveSubCategory: (srcCat: string, destCat: string, srcIdx: number, destIdx: number) => void;
   setSubCatProperty: (newValue: string | undefined, oldName: string, catName: string, propName: string) => void;
-  removeSubCategory: (catName: string, subCatName: string) => void;
   setAddingTransaction: (newIs: boolean) => void;
   setCatSubcatKey: (newCatSubcatKey: string) => void;
   setCategoryName: (newName: string | undefined, curCatName: string) => void;
   addNewSubCategory: (catName: string) => void;
-  removeCategory: (catName: string) => void;
+  setItemToRemove: (item: [string, string | undefined]) => void; // [catName, subcatName]
 }

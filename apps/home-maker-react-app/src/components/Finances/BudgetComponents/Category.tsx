@@ -28,7 +28,7 @@ interface CategoryProps {
 }
 
 const Category = (props: CategoryProps) => {
-  const { budget, setCategoryName, removeCategory, addNewSubCategory } = useContext(BudgetContext);
+  const { budget, setCategoryName, setItemToRemove, addNewSubCategory } = useContext(BudgetContext);
   const { idx, category, isLastCat } = props;
 
   const isCategoryNameUnique = (newCatName: string) => {
@@ -66,7 +66,7 @@ const Category = (props: CategoryProps) => {
 
                     <MenuList>
                       <MenuItem onClick={() => addNewSubCategory(category.name)}>Add sub-category</MenuItem>
-                      <MenuItem onClick={() => removeCategory(category.name)}>Delete category</MenuItem>
+                      <MenuItem onClick={() => setItemToRemove([category.name, undefined])}>Delete category</MenuItem>
                     </MenuList>
                   </Menu>
                 </Stack>

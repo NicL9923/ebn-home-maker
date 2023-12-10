@@ -1,5 +1,12 @@
 import {
+  AlertDialog,
+  AlertDialogBody,
+  AlertDialogContent,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogOverlay,
   Box,
+  Button,
   Grid,
   GridItem,
   Heading,
@@ -12,7 +19,7 @@ import {
   useToken,
 } from '@chakra-ui/react';
 import { doc, updateDoc } from 'firebase/firestore';
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import Chart from 'react-google-charts';
 import { MdAdd, MdSubdirectoryArrowRight } from 'react-icons/md';
 import { FsCol, db } from '../../firebase';
@@ -46,6 +53,8 @@ const Budget = (props: BudgetProps) => {
 
   const [addingTransaction, setAddingTransaction] = useState(false);
   const [catSubcatKey, setCatSubcatKey] = useState('');
+  const [itemToRemove, setItemToRemove] = useState<[string, string | undefined]>(); // [catName, subCatName]
+  const cancelRef = useRef(null);
 
   const saveUpdatedCategories = (categories: BudgetCategory[], transactions?: Transaction[]) => {
     if (!family?.budgetId) return;
@@ -135,8 +144,6 @@ const Budget = (props: BudgetProps) => {
   const removeCategory = (catName: string) => {
     if (!family?.budgetId) return;
 
-    if (!window.confirm(`Are you sure you want to delete category ${catName}?`)) return;
-
     const updArr = [...budget.categories];
     const updTransactions = [...budget.transactions];
 
@@ -183,8 +190,6 @@ const Budget = (props: BudgetProps) => {
 
   const removeSubCategory = (catName: string, subCatName: string) => {
     if (!family?.budgetId) return;
-
-    if (!window.confirm(`Are you sure you want to delete subcategory ${subCatName} in category ${catName}?`)) return;
 
     const updArr = [...budget.categories];
     const updTransactions = [...budget.transactions];
@@ -427,9 +432,8 @@ const Budget = (props: BudgetProps) => {
             moveSubCategory,
             setCategoryName,
             addNewSubCategory,
-            removeCategory,
             setSubCatProperty,
-            removeSubCategory,
+            setItemToRemove,
             setAddingTransaction,
             setCatSubcatKey,
           }}
@@ -458,6 +462,43 @@ const Budget = (props: BudgetProps) => {
         budget={budget}
         initialCatSubcat={catSubcatKey}
       />
+
+      <AlertDialog isOpen={!!itemToRemove} leastDestructiveRef={cancelRef} onClose={() => setItemToRemove(undefined)}>
+        <AlertDialogOverlay>
+          <AlertDialogContent>
+            <AlertDialogHeader fontSize='lg' fontWeight='bold'>
+              Delete {itemToRemove && itemToRemove[1] !== undefined ? 'subcategory' : 'category'}
+            </AlertDialogHeader>
+
+            <AlertDialogBody>{`Are you sure you want to delete${
+              itemToRemove && itemToRemove[1] !== undefined ? ` subcategory ${itemToRemove[1]} in` : ''
+            } category ${itemToRemove && itemToRemove[0]}?`}</AlertDialogBody>
+
+            <AlertDialogFooter>
+              <Button ref={cancelRef} onClick={() => setItemToRemove(undefined)}>
+                Cancel
+              </Button>
+              <Button
+                colorScheme='red'
+                onClick={() => {
+                  if (itemToRemove) {
+                    if (itemToRemove[1] === undefined) {
+                      removeCategory(itemToRemove[0]);
+                    } else {
+                      removeSubCategory(itemToRemove[0], itemToRemove[1]);
+                    }
+                  }
+
+                  setItemToRemove(undefined);
+                }}
+                ml={3}
+              >
+                Remove
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialogOverlay>
+      </AlertDialog>
     </Box>
   );
 };

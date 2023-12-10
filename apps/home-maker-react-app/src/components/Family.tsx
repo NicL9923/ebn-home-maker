@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import EditableLabel from './Inputs/EditableLabel';
 import { MdAdd, MdArticle, MdClose, MdContentCopy, MdLogout } from 'react-icons/md';
 import { Profile, Pet, FamilySettings } from '../models/types';
@@ -10,6 +10,12 @@ import { useUserStore } from '../state/UserStore';
 import { doc, getDoc, updateDoc, writeBatch } from 'firebase/firestore';
 import { db, FsCol } from '../firebase';
 import {
+  AlertDialog,
+  AlertDialogBody,
+  AlertDialogContent,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogOverlay,
   Avatar,
   Box,
   Button,
@@ -29,6 +35,8 @@ import {
   WrapItem,
 } from '@chakra-ui/react';
 
+const isProfile = (obj: Profile | Pet): obj is Profile => (obj as Profile).firstName !== undefined;
+
 const Family = () => {
   const toast = useToast();
 
@@ -40,6 +48,8 @@ const Family = () => {
   const [addingPet, setAddingPet] = useState(false);
   const [deletingFamily, setDeletingFamily] = useState(false);
   const [leavingFamily, setLeavingFamily] = useState(false);
+  const [memberGettingRemoved, setMemberGettingRemoved] = useState<Profile | Pet>();
+  const cancelRef = useRef(null);
 
   const batch = writeBatch(db);
 
@@ -139,36 +149,32 @@ const Family = () => {
   const removeFamilyMember = (memberProfile: Profile) => {
     if (!profile || !family) return;
 
-    if (window.confirm(`Are you sure you want to remove ${memberProfile.firstName} from the family?`)) {
-      const newMembersArr = [...family.members];
-      newMembersArr.splice(
-        newMembersArr.findIndex((memberId) => memberId === memberProfile.uid),
-        1
-      );
+    const newMembersArr = [...family.members];
+    newMembersArr.splice(
+      newMembersArr.findIndex((memberId) => memberId === memberProfile.uid),
+      1
+    );
 
-      // TODO: Need to batch update this and that users profile.familyId
-      updateDoc(doc(db, FsCol.Families, profile.familyId), { members: newMembersArr });
-    }
+    // TODO: Need to batch update this and that users profile.familyId
+    updateDoc(doc(db, FsCol.Families, profile.familyId), { members: newMembersArr });
   };
 
   const removePet = (pet: Pet) => {
     if (!profile || !family) return;
 
-    if (window.confirm(`Are you sure you want to remove ${pet.name} from the family?`)) {
-      const newPetsArr = [...family.pets];
-      newPetsArr.splice(
-        newPetsArr.findIndex((petInArr) => petInArr.uid === pet.uid),
-        1
-      );
+    const newPetsArr = [...family.pets];
+    newPetsArr.splice(
+      newPetsArr.findIndex((petInArr) => petInArr.uid === pet.uid),
+      1
+    );
 
-      if (pet.imgLink) {
-        const storage = getStorage();
-        const oldImgRef = ref(storage, pet.imgLink);
-        deleteObject(oldImgRef);
-      }
-
-      updateDoc(doc(db, FsCol.Families, profile.familyId), { pets: newPetsArr });
+    if (pet.imgLink) {
+      const storage = getStorage();
+      const oldImgRef = ref(storage, pet.imgLink);
+      deleteObject(oldImgRef);
     }
+
+    updateDoc(doc(db, FsCol.Families, profile.familyId), { pets: newPetsArr });
   };
 
   const exportFamilyDataJSON = () => {
@@ -392,6 +398,48 @@ const Family = () => {
           </ModalFooter>
         </ModalContent>
       </Modal>
+
+      <AlertDialog
+        isOpen={!!memberGettingRemoved}
+        leastDestructiveRef={cancelRef}
+        onClose={() => setMemberGettingRemoved(undefined)}
+      >
+        <AlertDialogOverlay>
+          <AlertDialogContent>
+            <AlertDialogHeader fontSize='lg' fontWeight='bold'>
+              Remove from family
+            </AlertDialogHeader>
+
+            <AlertDialogBody>{`Are you sure you want to remove ${
+              memberGettingRemoved &&
+              (isProfile(memberGettingRemoved) ? memberGettingRemoved.firstName : memberGettingRemoved.name)
+            } from the family?`}</AlertDialogBody>
+
+            <AlertDialogFooter>
+              <Button ref={cancelRef} onClick={() => setMemberGettingRemoved(undefined)}>
+                Cancel
+              </Button>
+              <Button
+                colorScheme='red'
+                onClick={() => {
+                  if (memberGettingRemoved) {
+                    if (isProfile(memberGettingRemoved)) {
+                      removeFamilyMember(memberGettingRemoved);
+                    } else {
+                      removePet(memberGettingRemoved);
+                    }
+                  }
+
+                  setMemberGettingRemoved(undefined);
+                }}
+                ml={3}
+              >
+                Remove
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialogOverlay>
+      </AlertDialog>
     </Box>
   );
 };
