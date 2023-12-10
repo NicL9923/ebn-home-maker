@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import EditableLabel from './Inputs/EditableLabel';
-import { MdAdd, MdArticle, MdClose, MdContentCopy, MdLogout } from 'react-icons/md';
+import { MdAdd, MdArticle, MdClose, MdContentCopy, MdLogout, MdMoreVert } from 'react-icons/md';
 import { Profile, Pet, FamilySettings } from '../models/types';
 import copy from 'clipboard-copy';
 import NoFamily from './NoFamily';
@@ -19,9 +19,16 @@ import {
   Avatar,
   Box,
   Button,
+  Card,
+  CardBody,
   Checkbox,
   Divider,
   Heading,
+  IconButton,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
   Modal,
   ModalBody,
   ModalContent,
@@ -243,21 +250,33 @@ const Family = () => {
           {familyMemberProfiles &&
             familyMemberProfiles.map((memberProfile) => (
               <WrapItem key={memberProfile.uid}>
-                <Stack alignItems='center' justifyContent='center'>
-                  <Text>{memberProfile.firstName}</Text>
-                  <Avatar name={memberProfile.firstName} src={memberProfile.imgLink} size='2xl' />
-                  {userId === family.headOfFamily && (
-                    <Button
-                      leftIcon={<MdClose />}
-                      mt='2'
-                      size='sm'
-                      onClick={() => removeFamilyMember(memberProfile)}
-                      colorScheme='red'
-                    >
-                      Remove
-                    </Button>
-                  )}
-                </Stack>
+                <Card variant='elevated' size='sm'>
+                  <CardBody>
+                    <Stack align='center'>
+                      <Stack direction='row' justifyContent='space-between' align='center' mb={3}>
+                        <Text fontSize={16}>{memberProfile.firstName}</Text>
+
+                        {userId === family.headOfFamily && (
+                          <Menu>
+                            <MenuButton
+                              as={IconButton}
+                              aria-label='Options'
+                              icon={<MdMoreVert />}
+                              variant='ghost'
+                              size='sm'
+                              fontSize={18}
+                            />
+                            <MenuList>
+                              <MenuItem onClick={() => removeFamilyMember(memberProfile)}>Remove from family</MenuItem>
+                            </MenuList>
+                          </Menu>
+                        )}
+                      </Stack>
+
+                      <Avatar name={memberProfile.firstName} src={memberProfile.imgLink} size='xl' />
+                    </Stack>
+                  </CardBody>
+                </Card>
               </WrapItem>
             ))}
         </Wrap>
@@ -277,15 +296,33 @@ const Family = () => {
           {family.pets &&
             family.pets.map((pet: Pet) => (
               <WrapItem key={pet.uid}>
-                <Stack alignItems='center' justifyContent='center'>
-                  <Text>{pet.name}</Text>
-                  <Avatar name={pet.name} src={pet.imgLink} size='xl' />
-                  {userId === family.headOfFamily && (
-                    <Button leftIcon={<MdClose />} size='sm' onClick={() => removePet(pet)} mt='2' colorScheme='red'>
-                      Remove
-                    </Button>
-                  )}
-                </Stack>
+                <Card variant='elevated' size='sm'>
+                  <CardBody>
+                    <Stack align='center'>
+                      <Stack direction='row' justifyContent='space-between' align='center' mb={3}>
+                        <Text fontSize={16}>{pet.name}</Text>
+
+                        {userId === family.headOfFamily && (
+                          <Menu>
+                            <MenuButton
+                              as={IconButton}
+                              aria-label='Options'
+                              icon={<MdMoreVert />}
+                              variant='ghost'
+                              size='sm'
+                              fontSize={18}
+                            />
+                            <MenuList>
+                              <MenuItem onClick={() => removePet(pet)}>Remove from family</MenuItem>
+                            </MenuList>
+                          </Menu>
+                        )}
+                      </Stack>
+
+                      <Avatar name={pet.name} src={pet.imgLink} size='xl' />
+                    </Stack>
+                  </CardBody>
+                </Card>
               </WrapItem>
             ))}
         </Wrap>
@@ -350,9 +387,16 @@ const Family = () => {
         <Stack spacing={5} mt={6}>
           {/* TODO: Need a method to regen familyId (in case accidentally released - to stop unwanted family joins) */}
 
-          <Button leftIcon={<MdArticle />} onClick={exportFamilyDataJSON}>
-            Export family data
-          </Button>
+          <Box>
+            <Button leftIcon={<MdArticle />} onClick={exportFamilyDataJSON}>
+              Export family data
+            </Button>
+
+            <Text>
+              Export a copy of your current family data as JSON (still pretty readable to non-programmers!), currently
+              including the name, members and pets, city/state, and your Family Board
+            </Text>
+          </Box>
 
           <Button colorScheme='red' leftIcon={<MdClose />} onClick={() => setDeletingFamily(true)}>
             Delete Family

@@ -56,7 +56,7 @@ const ProfilePage = () => {
   );
 
   return (
-    <Container>
+    <Container maxWidth={{ base: 'full', md: '2xl' }}>
       {!profile ? (
         <NoProfile />
       ) : (
