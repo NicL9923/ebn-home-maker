@@ -15,13 +15,21 @@ import { MdHome, MdList, MdMenu, MdOutlineEventNote, MdOutlinePayments, MdOutlin
 import { useUserStore } from '../state/UserStore';
 import ProfileIcon from './ProfileIcon';
 
-// TODO: May be able to move this/ProfileIcon/Signup/Login back to inline on the MenuItems (component={Link} to='/grocerylist')}) (...or that may lose type-safety or just not work)
+export const PrimaryElementColor = 'green.700';
 
 const Navbar = () => {
   const userId = useUserStore((state) => state.userId);
 
   return (
-    <Stack position='sticky' top='0' direction='row' alignItems='center' p={2} bgColor='green.700' zIndex={10}>
+    <Stack
+      position='sticky'
+      top='0'
+      direction='row'
+      alignItems='center'
+      p={2}
+      bgColor={PrimaryElementColor}
+      zIndex={10}
+    >
       <Menu>
         <MenuButton
           as={IconButton}
@@ -62,7 +70,7 @@ const Navbar = () => {
       </Menu>
 
       <Link to='/'>
-        <IconButton icon={<MdHome />} variant='ghost' fontSize='2xl' aria-label='Homepage' color='white' />
+        <IconButton icon={<MdHome />} ml={-1} variant='ghost' fontSize='2xl' aria-label='Homepage' color='white' />
       </Link>
 
       <Heading sx={{ flexGrow: 1 }} size='md' color='white'>

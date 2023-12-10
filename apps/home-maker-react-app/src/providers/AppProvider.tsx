@@ -11,6 +11,7 @@ import { Family, Profile } from '../models/types';
 import { useUserStore } from '../state/UserStore';
 import ThemeProvider from './ThemeProvider';
 import { ProviderProps } from './providerTypes';
+import Footer from '../components/Footer';
 
 // TODO: See about handling the routes a little less weirdly when not signed in, etc.
 
@@ -119,9 +120,13 @@ const AppProvider = ({ children }: ProviderProps) => {
 
   return (
     <ThemeProvider>
-      <Navbar />
+      <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
+        <Navbar />
 
-      {getPageContent()}
+        <div style={{ flex: '1 0 50%' }}>{getPageContent()}</div>
+
+        <Footer />
+      </div>
     </ThemeProvider>
   );
 };
