@@ -3,6 +3,10 @@ import {
   Button,
   Heading,
   IconButton,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
   Stack,
   Stat,
   StatLabel,
@@ -14,7 +18,7 @@ import {
 } from '@chakra-ui/react';
 import { doc, updateDoc } from 'firebase/firestore';
 import Chart from 'react-google-charts';
-import { MdAdd, MdClear } from 'react-icons/md';
+import { MdAdd, MdMoreVert } from 'react-icons/md';
 import { FsCol, db } from '../../firebase';
 import { IBudget, SavingsBlob } from '../../models/types';
 import { useUserStore } from '../../state/UserStore';
@@ -133,14 +137,20 @@ const Savings = ({ budget }: SavingsProps) => {
                     isValUnique={isBlobNameUnique}
                     onSubmitValue={(newValue) => updateSavingsBlobName(blob.name, newValue)}
                   />
-                  <IconButton
-                    icon={<MdClear />}
-                    variant='ghost'
-                    fontSize={18}
-                    onClick={() => deleteSavingsBlob(blob.name)}
-                    size='sm'
-                    aria-label='Delete savings blob'
-                  />
+
+                  <Menu>
+                    <MenuButton
+                      as={IconButton}
+                      aria-label='Options'
+                      icon={<MdMoreVert />}
+                      variant='ghost'
+                      size='sm'
+                      fontSize={18}
+                    />
+                    <MenuList>
+                      <MenuItem onClick={() => deleteSavingsBlob(blob.name)}>Delete</MenuItem>
+                    </MenuList>
+                  </Menu>
                 </Stack>
               </StatLabel>
               <StatNumber>
@@ -160,15 +170,19 @@ const Savings = ({ budget }: SavingsProps) => {
         ))}
       </Wrap>
 
-      <Box mb={4} height={['100vw', '75vw', '50vw', '25vw']}>
-        <Chart
-          chartType='PieChart'
-          width='100%'
-          height='100%'
-          data={formatChartData(budget.savingsBlobs)}
-          options={{ title: 'Savings Breakdown', pieHole: 0.5, is3D: false, ...getCommonChartOptions(isLightMode) }}
-        />
-      </Box>
+      {budget.savingsBlobs.length > 0 ? (
+        <Box mb={4} height={['100vw', '75vw', '50vw', '25vw']}>
+          <Chart
+            chartType='PieChart'
+            width='100%'
+            height='100%'
+            data={formatChartData(budget.savingsBlobs)}
+            options={{ title: 'Savings Breakdown', pieHole: 0.5, is3D: false, ...getCommonChartOptions(isLightMode) }}
+          />
+        </Box>
+      ) : (
+        <div>Add blobs and assign them money to see additional data!</div>
+      )}
     </Box>
   );
 };
