@@ -39,7 +39,7 @@ const Category = (props: CategoryProps) => {
     <Draggable draggableId={category.uid} index={idx}>
       {(provided) => (
         <div {...provided.draggableProps} {...provided.dragHandleProps} ref={provided.innerRef}>
-          <Box mb={1}>
+          <Box mb={2}>
             <Grid templateColumns={budgetRowsGridTemplateColumns} alignItems='center' gridColumnGap={1}>
               <GridItem>
                 <Stack direction='row' alignItems='center' w='100%'>
@@ -56,9 +56,11 @@ const Category = (props: CategoryProps) => {
                     <MenuButton>
                       <IconButton
                         icon={<MdKeyboardArrowDown />}
-                        fontSize={24}
                         variant='ghost'
+                        fontSize={24}
+                        size='sm'
                         aria-label='Category menu'
+                        ml={-1}
                       />
                     </MenuButton>
 
@@ -102,7 +104,7 @@ const Category = (props: CategoryProps) => {
               )}
             </Droppable>
 
-            {!isLastCat && <Divider />}
+            {!isLastCat && <Divider mt={4} />}
           </Box>
         </div>
       )}

@@ -67,9 +67,11 @@ const SubCategory = (props: SubCategoryProps) => {
                     <MenuButton>
                       <IconButton
                         icon={<MdKeyboardArrowDown />}
-                        fontSize={24}
                         variant='ghost'
-                        aria-label='Category menu'
+                        fontSize={24}
+                        size='sm'
+                        aria-label='Subcategory menu'
+                        ml={-1}
                       />
                     </MenuButton>
 

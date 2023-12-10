@@ -167,10 +167,8 @@ const Finances = () => {
 
   return (
     <Box>
-      <Stack direction='row' justifyContent='center' alignItems='center'>
-        <Heading textAlign='center' mt={2}>
-          Finance Dashboard
-        </Heading>
+      <Stack direction='row' justifyContent='center' mt={2}>
+        <Heading textAlign='center'>Finance Dashboard</Heading>
 
         <Menu>
           <MenuButton>
