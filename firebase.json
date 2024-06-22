@@ -4,26 +4,14 @@
     "indexes": "firestore.indexes.json"
   },
   "hosting": {
-    "public": "dist/apps/home-maker-react-app",
-    "ignore": [
-      "firebase.json",
-      "**/.*",
-      "**/node_modules/**"
-    ],
+    "public": "dist",
+    "ignore": [],
     "headers": [
       { "source":"/service-worker.js", "headers": [{"key": "Cache-Control", "value": "max-age=600"}] }
     ],
     "rewrites": [{
-      "regex":"^/maintenance/residences/([^/]+?)(?:/)?$",
-      "destination": "/maintenance/residences/[residenceId].html"
-    },
-    {
-      "regex":"^/maintenance/vehicles/([^/]+?)(?:/)?$",
-      "destination": "/maintenance/vehicles/[vehicleId].html"
-    },
-    {
-      "regex":"^/joinfamily/([^/]+?)(?:/)?$",
-      "destination": "/joinfamily/[familyId].html"
+      "source": "**",
+      "destination": "/index.html"
     }]
   },
   "storage": {

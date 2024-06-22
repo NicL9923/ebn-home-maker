@@ -1,10 +1,12 @@
 {
   "root": true,
   "ignorePatterns": ["**/*"],
-  "plugins": ["@nx", "@typescript-eslint"],
+  "plugins": ["react-refresh"],
+  "parser": "@typescript-eslint/parser",
   "extends": [
     "eslint:recommended",
     "plugin:@typescript-eslint/recommended",
+    "plugin:react-hooks/recommended",
     "plugin:prettier/recommended",
     "prettier"
   ],
@@ -13,6 +15,10 @@
       "files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
       "rules": {
         "@typescript-eslint/no-var-requires": 0,
+        "react-refresh/only-export-components": [
+          "warn",
+          { "allowConstantExport": true }
+        ],
         "prettier/prettier": [
           "error",
           {
@@ -21,31 +27,8 @@
               "jsxSingleQuote": true,
               "printWidth": 120
           }
-        ],
-        "@nx/enforce-module-boundaries": [
-          "error",
-          {
-            "enforceBuildableLibDependency": true,
-            "allow": [],
-            "depConstraints": [
-              {
-                "sourceTag": "*",
-                "onlyDependOnLibsWithTags": ["*"]
-              }
-            ]
-          }
         ]
       }
-    },
-    {
-      "files": ["*.ts", "*.tsx"],
-      "extends": ["plugin:@nx/typescript"],
-      "rules": {}
-    },
-    {
-      "files": ["*.js", "*.jsx"],
-      "extends": ["plugin:@nx/javascript"],
-      "rules": {}
     }
   ]
 }
