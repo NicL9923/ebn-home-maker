@@ -32,32 +32,32 @@ const CreateAccount = () => {
 
   const [isCreatingAccount, setIsCreatingAccount] = useState(false);
 
-  const createEmailPassAccount = (createAccountData: CreateAccountSchema, event?: BaseSyntheticEvent) => {
+  const createEmailPassAccount = async (createAccountData: CreateAccountSchema, event?: BaseSyntheticEvent) => {
     event?.preventDefault();
     setIsCreatingAccount(true);
 
-    createUserWithEmailAndPassword(auth, createAccountData.email, createAccountData.password)
-      .then(() => {
-        // Successfully created & signed in
-        toast({
-          title: 'Successfully created account!',
-          status: 'success',
-          isClosable: true,
-        });
-        setIsCreatingAccount(false);
+    try {
+      await createUserWithEmailAndPassword(auth, createAccountData.email, createAccountData.password);
 
-        navigate({ to: '/' });
-      })
-      .catch((error) => {
-        // Error creating account
-        toast({
-          title: `Error creating email/password account`,
-          description: error.message,
-          status: 'error',
-          isClosable: true,
-        });
-        setIsCreatingAccount(false);
+      // Successfully created & signed in
+      toast({
+        title: 'Successfully created account!',
+        status: 'success',
+        isClosable: true,
       });
+      setIsCreatingAccount(false);
+
+      navigate({ to: '/' });
+    } catch (error: any) {
+      // Error creating account
+      toast({
+        title: `Error creating email/password account`,
+        description: error.message,
+        status: 'error',
+        isClosable: true,
+      });
+      setIsCreatingAccount(false);
+    }
   };
 
   return (

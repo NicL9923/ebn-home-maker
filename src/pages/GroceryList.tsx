@@ -36,7 +36,7 @@ const GroceryList = () => {
   const [isConfirmingRemove, setIsConfirmingRemove] = useState(false);
   const cancelRef = useRef(null);
 
-  const addOrEditGroceryItem = (newItemName?: string) => {
+  const addOrEditGroceryItem = async (newItemName?: string) => {
     if (!newItemName || !family || !profile) return;
 
     const isEditing = !!itemToEdit;
@@ -49,12 +49,12 @@ const GroceryList = () => {
       newList.push({ uid: genUuid(), name: newItemName, isBought: false });
     }
 
-    updateDoc(doc(db, FsCol.Families, profile.familyId), { groceryList: newList }).then(() => {
-      toast({
-        title: `Successfully ${isEditing ? 'edited' : 'added'} item!`,
-        status: 'success',
-        isClosable: true,
-      });
+    await updateDoc(doc(db, FsCol.Families, profile.familyId), { groceryList: newList });
+
+    toast({
+      title: `Successfully ${isEditing ? 'edited' : 'added'} item!`,
+      status: 'success',
+      isClosable: true,
     });
   };
 

@@ -37,7 +37,7 @@ const addVehicleSchema = yup
     licensePlate: yup.string().defined(),
     miles: yup.number().required(`You must provide your vehicle's mileage`),
     photo: yup.mixed<File>().nullable().defined(),
-  });;
+  });
 
 type AddVehicleFormSchema = yup.InferType<typeof addVehicleSchema>;
 
@@ -87,7 +87,8 @@ const AddVehicle = ({ isOpen, setIsOpen }: AddVehicleProps) => {
     };
 
     if (newVehicleData.photo) {
-      newVehicle.img = await getDownloadURL((await uploadBytes(ref(storage, genUuid()), newVehicleData.photo)).ref);
+      const storageObj = await uploadBytes(ref(storage, genUuid()), newVehicleData.photo);
+      newVehicle.img = await getDownloadURL(storageObj.ref);
     }
 
     batch.set(doc(db, FsCol.Vehicles, newVehId), newVehicle);
@@ -95,17 +96,17 @@ const AddVehicle = ({ isOpen, setIsOpen }: AddVehicleProps) => {
       vehicles: newVehIdArr,
     });
 
-    batch.commit().then(() => {
-      toast({
-        title: 'Successfully added vehicle!',
-        status: 'success',
-        isClosable: true,
-      });
+    await batch.commit();
 
-      setIsOpen(false);
-      setIsAddingVehicle(false);
-      reset();
+    toast({
+      title: 'Successfully added vehicle!',
+      status: 'success',
+      isClosable: true,
     });
+
+    setIsOpen(false);
+    setIsAddingVehicle(false);
+    reset();
   };
 
   return (

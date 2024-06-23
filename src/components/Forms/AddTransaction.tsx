@@ -114,7 +114,7 @@ const AddTransaction = ({ isOpen, setIsOpen, initialCatSubcat, budget }: AddTran
     return newInitialOption;
   }, [categoryOptions, initialCatSubcat, setValue]);
 
-  const submitNewTransaction = (newTransactionData: AddTransactionFormSchema, event?: BaseSyntheticEvent) => {
+  const submitNewTransaction = async (newTransactionData: AddTransactionFormSchema, event?: BaseSyntheticEvent) => {
     event?.preventDefault();
     if (!family?.budgetId) return;
 
@@ -133,18 +133,18 @@ const AddTransaction = ({ isOpen, setIsOpen, initialCatSubcat, budget }: AddTran
 
     const updArr = [...budget.transactions, formattedTransaction];
 
-    updateDoc(doc(db, FsCol.Budgets, family.budgetId), { transactions: updArr }).then(() => {
-      toast({
-        title: 'Successfully added transaction!',
-        status: 'success',
-        isClosable: true,
-      });
+    await updateDoc(doc(db, FsCol.Budgets, family.budgetId), { transactions: updArr });
 
-      setIsOpen(false);
-      setIsAddingTransaction(false);
-      reset();
-      setAmtStr('');
+    toast({
+      title: 'Successfully added transaction!',
+      status: 'success',
+      isClosable: true,
     });
+
+    setIsOpen(false);
+    setIsAddingTransaction(false);
+    reset();
+    setAmtStr('');
   };
 
   const calculateMoneyValue = () => {

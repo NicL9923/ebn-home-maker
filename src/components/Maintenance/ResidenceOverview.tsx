@@ -26,25 +26,25 @@ export const ResidenceOverview = () => {
   const [isFetchingResidences, setIsFetchingResidences] = useState(false);
   const [addingResidence, setAddingResidence] = useState(false);
 
-  const getResidences = useCallback(() => {
+  const getResidences = useCallback(async () => {
     if (!family?.residences) return;
 
     setIsFetchingResidences(true);
     const residencesArr: Residence[] = [];
 
-    family.residences.forEach((residence) => {
-      getDoc(doc(db, FsCol.Residences, residence)).then((resDoc) => {
-        if (resDoc.exists()) {
-          const docData = resDoc.data();
-          docData.serviceLogEntries.forEach((entry: ServiceLogEntry) => {
-            entry.date = new Date(entry.date).toLocaleDateString();
-          });
-          residencesArr.push(docData as Residence);
-          setResidences(residencesArr);
-        }
-      });
+    const residenceDocs = await Promise.all(family.residences.map((residence) => getDoc(doc(db, FsCol.Residences, residence))));
+
+    residenceDocs.forEach((resDoc) => {
+      if (resDoc.exists()) {
+        const docData = resDoc.data();
+        docData.serviceLogEntries.forEach((entry: ServiceLogEntry) => {
+          entry.date = new Date(entry.date).toLocaleDateString();
+        });
+        residencesArr.push(docData as Residence);
+      }
     });
 
+    setResidences(residencesArr);
     setIsFetchingResidences(false);
   }, [family?.residences]);
 

@@ -28,27 +28,27 @@ const ProfilePage = () => {
     updateDoc(doc(db, FsCol.Profiles, userId), { imgLink: newImgLink });
   };
 
-  const handlePasswordReset = () => {
+  const handlePasswordReset = async () => {
     if (!userEmail) {
       alert('There is no email tied to this account!');
       return;
     }
 
-    sendPasswordResetEmail(auth, userEmail)
-      .then(() => {
-        toast({
-          title: `Password reset email sent to ${userEmail}`,
-          status: 'info',
-          isClosable: true,
-        });
-      })
-      .catch((error) => {
-        toast({
-          title: `Error sending password reset email: ${error.message}`,
-          status: 'error',
-          isClosable: true,
-        });
+    try {
+      await sendPasswordResetEmail(auth, userEmail);
+
+      toast({
+        title: `Password reset email sent to ${userEmail}`,
+        status: 'info',
+        isClosable: true,
       });
+    } catch (error: any) {
+      toast({
+        title: `Error sending password reset email: ${error.message}`,
+        status: 'error',
+        isClosable: true,
+      });
+    }
   };
 
   const userUsesEmailPasswordAuth = auth.currentUser?.providerData.some(

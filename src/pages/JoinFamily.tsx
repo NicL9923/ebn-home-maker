@@ -25,7 +25,7 @@ const JoinFamily = () => {
 
   const batch = writeBatch(db);
 
-  const addUserToFamily = useCallback(() => {
+  const addUserToFamily = useCallback(async () => {
     if (!familyId || !userId) {
       return;
     }
@@ -42,12 +42,12 @@ const JoinFamily = () => {
     batch.update(doc(db, FsCol.Families, familyId), { members: arrayUnion(userId) });
     batch.update(doc(db, FsCol.Profiles, userId), { familyId });
 
-    batch.commit().then(() => {
-      toast({
-        title: `You've successfully joined the ${family?.name} family! (${familyId})`,
-        status: 'success',
-        isClosable: true,
-      });
+    await batch.commit();
+
+    toast({
+      title: `You've successfully joined the ${family?.name} family! (${familyId})`,
+      status: 'success',
+      isClosable: true,
     });
   }, [batch, familyId, family, profile?.familyId, userId, toast]);
 

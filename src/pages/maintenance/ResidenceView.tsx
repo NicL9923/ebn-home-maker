@@ -18,18 +18,18 @@ const ResidenceView = () => {
 
   const [residence, setResidence] = useState<Residence | undefined>(undefined);
 
-  const getResidence = useCallback(() => {
+  const getResidence = useCallback(async () => {
     if (family && family.residences.includes(residenceId)) {
-      getDoc(doc(db, FsCol.Residences, residenceId)).then((vehDoc) => {
-        if (vehDoc.exists()) {
-          const docData = vehDoc.data();
-          docData.serviceLogEntries.forEach((entry: ServiceLogEntry) => {
-            entry.date = new Date(entry.date).toLocaleDateString();
-          });
+      const residenceDoc = await getDoc(doc(db, FsCol.Residences, residenceId));
 
-          setResidence(docData as Residence);
-        }
-      });
+      if (residenceDoc.exists()) {
+        const docData = residenceDoc.data();
+        docData.serviceLogEntries.forEach((entry: ServiceLogEntry) => {
+          entry.date = new Date(entry.date).toLocaleDateString();
+        });
+
+        setResidence(docData as Residence);
+      }
     }
   }, [family, residenceId]);
 

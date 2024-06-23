@@ -26,25 +26,25 @@ export const VehicleOverview = () => {
   const [isFetchingVehicles, setIsFetchingVehicles] = useState(false);
   const [addingVehicle, setAddingVehicle] = useState(false);
 
-  const getVehicles = useCallback(() => {
+  const getVehicles = useCallback(async () => {
     if (!family?.vehicles) return;
 
     setIsFetchingVehicles(true);
     const vehiclesArr: Vehicle[] = [];
 
-    family.vehicles.forEach((vehicle) => {
-      getDoc(doc(db, FsCol.Vehicles, vehicle)).then((vehDoc) => {
-        if (vehDoc.exists()) {
-          const docData = vehDoc.data();
-          docData.serviceLogEntries.forEach((entry: ServiceLogEntry) => {
-            entry.date = new Date(entry.date).toLocaleDateString();
-          });
-          vehiclesArr.push(docData as Vehicle);
-          setVehicles(vehiclesArr);
-        }
-      });
+    const vehicleDocs = await Promise.all(family.vehicles.map((vehicle) => getDoc(doc(db, FsCol.Vehicles, vehicle))));
+
+    vehicleDocs.forEach((vehDoc) => {
+      if (vehDoc.exists()) {
+        const docData = vehDoc.data();
+        docData.serviceLogEntries.forEach((entry: ServiceLogEntry) => {
+          entry.date = new Date(entry.date).toLocaleDateString();
+        });
+        vehiclesArr.push(docData as Vehicle);
+      }
     });
 
+    setVehicles(vehiclesArr);
     setIsFetchingVehicles(false);
   }, [family?.vehicles]);
 

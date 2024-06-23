@@ -18,18 +18,18 @@ const VehicleView = () => {
 
   const [vehicle, setVehicle] = useState<Vehicle | undefined>(undefined);
 
-  const getVehicle = useCallback(() => {
+  const getVehicle = useCallback(async () => {
     if (family && family.vehicles.includes(vehicleId)) {
-      getDoc(doc(db, FsCol.Vehicles, vehicleId)).then((vehDoc) => {
-        if (vehDoc.exists()) {
-          const docData = vehDoc.data();
-          docData.serviceLogEntries.forEach((entry: ServiceLogEntry) => {
-            entry.date = new Date(entry.date).toLocaleDateString();
-          });
+      const vehDoc = await getDoc(doc(db, FsCol.Vehicles, vehicleId));
 
-          setVehicle(docData as Vehicle);
-        }
-      });
+      if (vehDoc.exists()) {
+        const docData = vehDoc.data();
+        docData.serviceLogEntries.forEach((entry: ServiceLogEntry) => {
+          entry.date = new Date(entry.date).toLocaleDateString();
+        });
+
+        setVehicle(docData as Vehicle);
+      }
     }
   }, [family, vehicleId]);
 

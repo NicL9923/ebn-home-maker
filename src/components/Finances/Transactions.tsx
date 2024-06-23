@@ -142,16 +142,16 @@ const Transactions = ({ budget }: TransactionsProps) => {
     getPaginationRowModel: getPaginationRowModel(),
   });
 
-  const removeTransactions = () => {
+  const removeTransactions = async () => {
     if (!family?.budgetId) return;
 
     let updArr = [...budget.transactions];
 
     updArr = updArr.filter((_val, idx) => !rowSelection[idx]);
 
-    updateDoc(doc(db, FsCol.Budgets, family.budgetId), { transactions: updArr }).then(() => {
-      setRowSelection({});
-    });
+    await updateDoc(doc(db, FsCol.Budgets, family.budgetId), { transactions: updArr });
+
+    setRowSelection({});
   };
 
   /* TODO: Hook this back up

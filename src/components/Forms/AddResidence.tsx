@@ -89,17 +89,17 @@ const AddResidence = ({ isOpen, setIsOpen }: AddResidenceProps) => {
       residences: newResIdArr,
     });
 
-    batch.commit().then(() => {
-      toast({
-        title: 'Successfully added residence!',
-        status: 'success',
-        isClosable: true,
-      });
+    await batch.commit();
 
-      setIsOpen(false);
-      setIsAddingResidence(false);
-      reset();
+    toast({
+      title: 'Successfully added residence!',
+      status: 'success',
+      isClosable: true,
     });
+
+    setIsOpen(false);
+    setIsAddingResidence(false);
+    reset();
   };
 
   return (

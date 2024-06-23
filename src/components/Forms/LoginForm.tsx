@@ -31,54 +31,57 @@ const LoginForm = () => {
 
   const [isLoggingIn, setIsLoggingIn] = useState(false);
 
-  const emailPassSignIn = (loginData: LoginSchema, event?: BaseSyntheticEvent) => {
+  const emailPassSignIn = async (loginData: LoginSchema, event?: BaseSyntheticEvent) => {
     event?.preventDefault();
     setIsLoggingIn(true);
 
-    signInWithEmailAndPassword(auth, loginData.email, loginData.password)
-      .then(() => {
-        toast({
-          title: 'Successfully signed in with email/password!',
-          status: 'success',
-          isClosable: true,
-        });
-        setIsLoggingIn(false);
+    try {
+      await signInWithEmailAndPassword(auth, loginData.email, loginData.password);
 
-        navigate({ to: '/' });
-      })
-      .catch((error) => {
-        toast({
-          title: `Error signing in with email/password`,
-          description: error.message,
-          status: 'error',
-          isClosable: true,
-        });
-        setIsLoggingIn(false);
+      toast({
+        title: 'Successfully signed in with email/password!',
+        status: 'success',
+        isClosable: true,
       });
+
+      setIsLoggingIn(false);
+      navigate({ to: '/' });
+    } catch (error: any) {
+      toast({
+        title: `Error signing in with email/password`,
+        description: error.message,
+        status: 'error',
+        isClosable: true,
+      });
+
+      setIsLoggingIn(false);
+    }
   };
 
-  const googleSignIn = () => {
+  const googleSignIn = async () => {
     setIsLoggingIn(true);
-    signInWithPopup(auth, provider)
-      .then(() => {
-        toast({
-          title: 'Successfully signed in with Google!',
-          status: 'success',
-          isClosable: true,
-        });
-        setIsLoggingIn(false);
 
-        navigate({ to: '/' });
-      })
-      .catch((error) => {
-        toast({
-          title: `Error signing in with Google`,
-          description: error.message,
-          status: 'error',
-          isClosable: true,
-        });
-        setIsLoggingIn(false);
+    try {
+      await signInWithPopup(auth, provider);
+
+      toast({
+        title: 'Successfully signed in with Google!',
+        status: 'success',
+        isClosable: true,
       });
+
+      setIsLoggingIn(false);
+      navigate({ to: '/' });
+    } catch (error: any) {
+      toast({
+        title: `Error signing in with Google`,
+        description: error.message,
+        status: 'error',
+        isClosable: true,
+      });
+
+      setIsLoggingIn(false);
+    }
   };
 
   return (

@@ -51,7 +51,7 @@ const CreateFamily = ({ isOpen, setIsOpen }: CreateFamilyProps) => {
 
   const [isCreatingFamily, setIsCreatingFamily] = useState(false);
 
-  const createFamily = (createFamilyData: CreateFamilyFormSchema, event?: BaseSyntheticEvent) => {
+  const createFamily = async (createFamilyData: CreateFamilyFormSchema, event?: BaseSyntheticEvent) => {
     event?.preventDefault();
     if (!userId) return;
 
@@ -77,17 +77,17 @@ const CreateFamily = ({ isOpen, setIsOpen }: CreateFamilyProps) => {
     batch.set(doc(db, FsCol.Families, newFamId), newFamObj);
     batch.update(doc(db, FsCol.Profiles, userId), { familyId: newFamId });
 
-    batch.commit().then(() => {
-      toast({
-        title: 'Successfully created family!',
-        status: 'success',
-        isClosable: true,
-      });
+    await batch.commit();
 
-      setIsOpen(false);
-      setIsCreatingFamily(false);
-      reset();
+    toast({
+      title: 'Successfully created family!',
+      status: 'success',
+      isClosable: true,
     });
+
+    setIsOpen(false);
+    setIsCreatingFamily(false);
+    reset();
   };
 
   return (

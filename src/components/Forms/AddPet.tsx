@@ -67,22 +67,23 @@ const AddPet = ({ isOpen, setIsOpen }: AddPetProps) => {
     };
 
     if (newPetData.photo) {
-      newPet.imgLink = await getDownloadURL((await uploadBytes(ref(storage, genUuid()), newPetData.photo)).ref);
+      const storageObj = await uploadBytes(ref(storage, genUuid()), newPetData.photo);
+      newPet.imgLink = await getDownloadURL(storageObj.ref);
     }
 
     newPetsArr.push(newPet);
 
-    updateDoc(doc(db, FsCol.Families, profile.familyId), { pets: newPetsArr }).then(() => {
-      toast({
-        title: 'Successfully added pet!',
-        status: 'success',
-        isClosable: true,
-      });
+    await updateDoc(doc(db, FsCol.Families, profile.familyId), { pets: newPetsArr });
 
-      setIsOpen(false);
-      setIsAddingPet(false);
-      reset();
+    toast({
+      title: 'Successfully added pet!',
+      status: 'success',
+      isClosable: true,
     });
+
+    setIsOpen(false);
+    setIsAddingPet(false);
+    reset();
   };
 
   return (

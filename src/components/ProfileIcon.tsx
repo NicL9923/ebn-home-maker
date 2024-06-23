@@ -21,22 +21,22 @@ const ProfileIcon = () => {
   const { colorMode, toggleColorMode } = useColorMode();
   const profile = useUserStore((state) => state.profile);
 
-  const handleSignOut = () =>
-    signOut(auth)
-      .then(() => {
-        toast({
-          title: 'Successfully signed out!',
-          status: 'success',
-          isClosable: true,
-        });
-      })
-      .catch((error) => {
-        toast({
-          title: `Error signing out: ${error}`,
-          status: 'error',
-          isClosable: true,
-        });
+  const handleSignOut = async () => {
+    try {
+      await signOut(auth);
+      toast({
+        title: 'Successfully signed out!',
+        status: 'success',
+        isClosable: true,
       });
+    } catch (error: any) {
+      toast({
+        title: `Error signing out: ${error}`,
+        status: 'error',
+        isClosable: true,
+      });
+    }
+  }
 
   return (
     <Box>

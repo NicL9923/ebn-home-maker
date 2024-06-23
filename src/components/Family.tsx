@@ -60,21 +60,20 @@ const Family = () => {
 
   const batch = writeBatch(db);
 
-  const getFamilyMemberProfiles = useCallback(() => {
+  const getFamilyMemberProfiles = useCallback(async () => {
     if (!family?.members) return;
 
     const famMemProfs: Profile[] = [];
 
-    family.members.forEach((memberId) => {
-      if (memberId !== userId) {
-        getDoc(doc(db, FsCol.Profiles, memberId)).then((doc) => {
-          if (doc.exists()) {
-            famMemProfs.push(doc.data() as Profile);
-            setFamilyMemberProfiles(famMemProfs);
-          }
-        });
+    const famMemDocs = await Promise.all(family.members.flatMap((memberId) => memberId !== userId ? [getDoc(doc(db, FsCol.Profiles, memberId))] : []));
+
+    famMemDocs.forEach((famMemDoc) => {
+      if (famMemDoc.exists()) {
+        famMemProfs.push(famMemDoc.data() as Profile);
       }
     });
+
+    setFamilyMemberProfiles(famMemProfs);
   }, [userId, family?.members]);
 
   const updateFamilyName = (newFamName?: string) => {
@@ -141,15 +140,15 @@ const Family = () => {
     batch.commit();
   };
 
-  const copyInviteLink = () => {
+  const copyInviteLink = async () => {
     if (!profile) return;
 
-    copy(`https://explorersbynature.com/joinFamily/${profile.familyId}`).then(() => {
-      toast({
-        title: `Copied invite link`,
-        status: 'info',
-        isClosable: true,
-      });
+    await copy(`https://explorersbynature.com/joinFamily/${profile.familyId}`);
+
+    toast({
+      title: `Copied invite link`,
+      status: 'info',
+      isClosable: true,
     });
   };
 

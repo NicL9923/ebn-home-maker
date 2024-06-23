@@ -64,26 +64,23 @@ const CreateProfile = ({ isOpen, setIsOpen }: CreateProfileProps) => {
     const newProfileObj: Profile = { uid: userId, firstName: createProfileData.name, familyId: '' };
 
     if (createProfileData.photo) {
-      newProfileObj.imgLink = await getDownloadURL(
-        (
-          await uploadBytes(ref(storage, genUuid()), createProfileData.photo)
-        ).ref
-      );
+      const storageObj = await uploadBytes(ref(storage, genUuid()), createProfileData.photo);
+      newProfileObj.imgLink = await getDownloadURL(storageObj.ref);
     }
 
     batch.set(doc(db, FsCol.Profiles, userId), newProfileObj);
 
-    batch.commit().then(() => {
-      toast({
-        title: 'Successfully created profile!',
-        status: 'success',
-        isClosable: true,
-      });
+    await batch.commit();
 
-      setIsOpen(false);
-      setIsCreatingProfile(false);
-      reset();
+    toast({
+      title: 'Successfully created profile!',
+      status: 'success',
+      isClosable: true,
     });
+
+    setIsOpen(false);
+    setIsCreatingProfile(false);
+    reset();
   };
 
   return (
