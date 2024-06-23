@@ -1,4 +1,4 @@
-import { Box, Button, Flex, Heading, Icon, Stack, Text, useBreakpointValue, VStack } from '@chakra-ui/react';
+import { Box, Button, Flex, Heading, Icon, ListItem, Stack, Text, UnorderedList, useBreakpointValue, VStack } from '@chakra-ui/react';
 import { Link } from '@tanstack/react-router';
 import { FaWrench } from 'react-icons/fa';
 import { MdAccountBalance, MdChecklist } from 'react-icons/md';
@@ -61,7 +61,11 @@ const LandingPage = () => {
             <Heading size='md' mt={4}>
               Manage your finances
             </Heading>
-            <Text>(budget / savings / transactions)</Text>
+
+            <UnorderedList maxWidth='165px'>
+              <ListItem>Zero-based budget with transactions</ListItem>
+              <ListItem>Savings blobs</ListItem>
+            </UnorderedList>
           </Stack>
         </Box>
         <Box>
@@ -70,7 +74,11 @@ const LandingPage = () => {
             <Heading size='md' mt={4}>
               Manage your household
             </Heading>
-            <Text>(grocery list / family info board)</Text>
+
+            <UnorderedList maxWidth='165px'>
+              <ListItem>Collaborative grocery list</ListItem>
+              <ListItem>Customizable family informational/bulletin board</ListItem>
+            </UnorderedList>
           </Stack>
         </Box>
         <Box>
@@ -79,7 +87,12 @@ const LandingPage = () => {
             <Heading size='md' mt={4}>
               Keep up on maintenance
             </Heading>
-            <Text>(home / auto)</Text>
+
+            <UnorderedList maxWidth='165px'>
+              <ListItem>Residences</ListItem>
+              <ListItem>Vehicles</ListItem>
+              <ListItem>Maintenance and service logs</ListItem>
+            </UnorderedList>
           </Stack>
         </Box>
       </Stack>
