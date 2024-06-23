@@ -120,7 +120,7 @@ const Savings = ({ budget }: SavingsProps) => {
       </Stat>
 
       <Button leftIcon={<MdAdd />} onClick={createSavingsBlob} m={4}>
-        Create New Blob
+        Create new Blob
       </Button>
 
       <Wrap mb={4}>

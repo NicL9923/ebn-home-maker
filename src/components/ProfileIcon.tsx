@@ -49,7 +49,7 @@ const ProfileIcon = () => {
           <MenuList zIndex={15}>
             {profile && (
               <Link to='/profile'>
-                <MenuItem>My Profile</MenuItem>
+                <MenuItem>My profile</MenuItem>
               </Link>
             )}
 
@@ -59,7 +59,7 @@ const ProfileIcon = () => {
 
             <MenuDivider />
 
-            <MenuItem onClick={handleSignOut}>Logout</MenuItem>
+            <MenuItem onClick={handleSignOut}>Log out</MenuItem>
           </MenuList>
         </Portal>
       </Menu>

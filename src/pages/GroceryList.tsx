@@ -103,7 +103,7 @@ const GroceryList = () => {
 
   return (
     <Box mt={2} p={2}>
-      <Heading mb={2}>Grocery List</Heading>
+      <Heading mb={2}>Grocery list</Heading>
 
       <Stack direction='row' mt={2}>
         <Button size='sm' leftIcon={<MdAdd />} onClick={() => setIsAdding(true)}>

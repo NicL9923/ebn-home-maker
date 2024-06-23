@@ -42,27 +42,27 @@ const Navbar = () => {
 
         <Portal>
           <MenuList zIndex={15}>
-            <Link to='/grocerylist'>
-              <MenuItem icon={<MdList />}>
-                <Text>Grocery List</Text>
-              </MenuItem>
-            </Link>
-
             <Link to='/finances'>
               <MenuItem icon={<MdOutlinePayments />}>
                 <Text>Finances</Text>
               </MenuItem>
             </Link>
 
+            <Link to='/grocerylist'>
+              <MenuItem icon={<MdList />}>
+                <Text>Grocery list</Text>
+              </MenuItem>
+            </Link>
+
             <Link to='/familyboard'>
               <MenuItem icon={<MdOutlineEventNote />}>
-                <Text>Family Board</Text>
+                <Text>Family board</Text>
               </MenuItem>
             </Link>
 
             <Link to='/maintenance'>
               <MenuItem icon={<MdOutlineSettings />}>
-                <Text>Home/Auto Maintenance</Text>
+                <Text>Home/Auto maintenance</Text>
               </MenuItem>
             </Link>
           </MenuList>

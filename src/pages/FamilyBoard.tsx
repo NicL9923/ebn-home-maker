@@ -4,8 +4,8 @@ import '@uiw/react-markdown-preview/markdown.css';
 import { useUserStore } from '../state/UserStore';
 import { doc, updateDoc } from 'firebase/firestore';
 import { db, FsCol } from '../firebase';
-import { Box, Button, Heading, useColorMode } from '@chakra-ui/react';
-import { MdEdit, MdSave } from 'react-icons/md';
+import { Box, Button, Heading, Stack, useColorMode } from '@chakra-ui/react';
+import { MdClose, MdEdit, MdSave } from 'react-icons/md';
 import MDEditor from '@uiw/react-md-editor';
 
 const FamilyBoard = () => {
@@ -26,11 +26,10 @@ const FamilyBoard = () => {
     setIsEditingMd(true);
   };
 
-  const endEditingBoard = () => {
-    if (profile && editedMd !== family.boardMarkdown) {
-      updateDoc(doc(db, FsCol.Families, profile.familyId), { boardMarkdown: editedMd }).then(() => {
-        setEditedMd(undefined);
-      });
+  const endEditingBoard = async (cancelled: boolean) => {
+    if (profile && !cancelled) {
+      await updateDoc(doc(db, FsCol.Families, profile.familyId), { boardMarkdown: editedMd });
+      setEditedMd(undefined);
     }
 
     setIsEditingMd(false);
@@ -40,18 +39,25 @@ const FamilyBoard = () => {
     <Box p={2} mt={2}>
       <Heading mb={2}>Family Board</Heading>
 
-      <Box mb={3}>
+      <Stack direction='row' mb={3}>
         {userId === family.headOfFamily && !isEditingMd && (
           <Button size='sm' leftIcon={<MdEdit />} onClick={beginEditingBoard}>
-            Edit Board
+            Edit board
           </Button>
         )}
+
         {userId === family.headOfFamily && isEditingMd && (
-          <Button size='sm' leftIcon={<MdSave />} colorScheme='green' onClick={endEditingBoard}>
-            Save Changes
+          <Button size='sm' leftIcon={<MdSave />} colorScheme='green' onClick={() => endEditingBoard(false)} disabled={editedMd === family.boardMarkdown}>
+            Save changes
           </Button>
         )}
-      </Box>
+
+        {isEditingMd &&
+          <Button size='sm' leftIcon={<MdClose />} onClick={() => endEditingBoard(true)}>
+            Cancel
+          </Button>
+        }
+      </Stack>
 
       <Box data-color-mode={colorMode} height='80vh'>
         {isEditingMd ? (
