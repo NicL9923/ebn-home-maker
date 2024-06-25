@@ -18,7 +18,6 @@ import {
   useToast,
 } from '@chakra-ui/react';
 import { doc, onSnapshot } from 'firebase/firestore';
-import 'jspdf-autotable';
 import { useCallback, useEffect, useState } from 'react';
 import { MdAccountBalance, MdArticle, MdAttachMoney, MdCreditCard, MdKeyboardArrowDown } from 'react-icons/md';
 import Budget from '../components/Finances/Budget';
