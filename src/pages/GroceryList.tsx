@@ -1,9 +1,3 @@
-import { useMemo, useRef, useState } from 'react';
-import { doc, updateDoc } from 'firebase/firestore';
-import SingleFieldDialog from '../components/Inputs/SingleFieldDialog';
-import { DragDropContext, Draggable, Droppable, DropResult } from 'react-beautiful-dnd';
-import { useUserStore } from '../state/UserStore';
-import { db, FsCol } from '../firebase';
 import {
   AlertDialog,
   AlertDialogBody,
@@ -15,15 +9,27 @@ import {
   Button,
   Checkbox,
   Heading,
+  IconButton,
   List,
   ListItem,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
   Stack,
   useColorModeValue,
   useToast,
 } from '@chakra-ui/react';
-import { MdAdd, MdDelete, MdEdit } from 'react-icons/md';
+import { doc, updateDoc } from 'firebase/firestore';
+import { useMemo, useRef, useState } from 'react';
+import { DragDropContext, Draggable, DropResult, Droppable } from 'react-beautiful-dnd';
+import { MdAdd, MdDelete, MdEdit, MdKeyboardArrowDown } from 'react-icons/md';
+import AddGroceryItem from '../components/Forms/AddGroceryItem';
+import { catSubcatKeySeparator } from '../components/Forms/AddTransaction';
+import SingleFieldDialog from '../components/Inputs/SingleFieldDialog';
+import { FsCol, db } from '../firebase';
 import { GroceryItem } from '../models/types';
-import { genUuid } from '../utils/utils';
+import { useUserStore } from '../state/UserStore';
 
 const GroceryList = () => {
   const toast = useToast();
@@ -36,36 +42,26 @@ const GroceryList = () => {
   const [isConfirmingRemove, setIsConfirmingRemove] = useState(false);
   const cancelRef = useRef(null);
 
-  const addOrEditGroceryItem = async (newItemName?: string) => {
-    if (!newItemName || !family || !profile) return;
+  const editGroceryItem = async (newItemName?: string) => {
+    if (!itemToEdit || !newItemName || !family || !profile) return;
 
-    const isEditing = !!itemToEdit;
     const newList = [...family.groceryList];
-
-    if (isEditing) {
-      const idx = newList.findIndex((item) => item.uid === itemToEdit.uid);
-      newList[idx].name = newItemName;
-    } else {
-      newList.push({ uid: genUuid(), name: newItemName, isBought: false });
-    }
+    const idx = newList.findIndex((item) => item.uid === itemToEdit.uid);
+    newList[idx].name = newItemName;
 
     await updateDoc(doc(db, FsCol.Families, profile.familyId), { groceryList: newList });
 
     toast({
-      title: `Successfully ${isEditing ? 'edited' : 'added'} item!`,
+      title: `Successfully edited item!`,
       status: 'success',
       isClosable: true,
     });
   };
 
-  const editGroceryItem = (idx: number, newName: string | undefined, isBought: boolean) => {
+  const toggleGroceryItem = (idx: number, isBought: boolean) => {
     if (!family || !profile) return;
 
     const updGroceryList = [...family.groceryList];
-
-    if (newName) {
-      updGroceryList[idx].name = newName;
-    }
 
     updGroceryList[idx].isBought = isBought;
 
@@ -79,6 +75,14 @@ const GroceryList = () => {
 
     updateDoc(doc(db, FsCol.Families, profile.familyId), { groceryList: updGroceryList });
   };
+
+  const removeGroceryItemByUid = (uid: string) => {
+    if (!family || !profile) return;
+
+    const updGroceryList = family.groceryList.filter((val) => val.uid !== uid);
+
+    updateDoc(doc(db, FsCol.Families, profile.familyId), { groceryList: updGroceryList });
+  }
 
   const onDragEnd = ({ type, source, destination }: DropResult) => {
     if (!family || !profile) return;
@@ -148,15 +152,36 @@ const GroceryList = () => {
                 <Draggable draggableId={`${groceryItem.uid}`} index={idx} key={`${groceryItem.uid}`}>
                   {(provided) => (
                     <ListItem {...provided.draggableProps} {...provided.dragHandleProps} ref={provided.innerRef}>
+                      {groceryItem.uid.startsWith(catSubcatKeySeparator)
+                      ? <Stack direction='row' align='center' spacing={0.5}>
+                          <Heading size='md' fontWeight='bold'>{groceryItem.name}</Heading>
+                          <Menu>
+                            <MenuButton>
+                              <IconButton
+                                icon={<MdKeyboardArrowDown />}
+                                variant='ghost'
+                                size='sm'
+                                aria-label='Category menu'
+                                ml={-1}
+                              />
+                            </MenuButton>
+
+                            <MenuList>
+                              <MenuItem icon={<MdDelete />} onClick={() => removeGroceryItemByUid(groceryItem.uid)}>Delete header</MenuItem>
+                            </MenuList>
+                          </Menu>
+                        </Stack>
+                      :
                       <Checkbox
                         size='lg'
                         colorScheme='green'
                         checked={groceryItem.isBought}
-                        onChange={(e) => editGroceryItem(idx, undefined, e.target.checked)}
+                        onChange={(e) => toggleGroceryItem(idx, e.target.checked)}
                         m='2'
                       >
                         {groceryItem.name}
                       </Checkbox>
+                    }
                     </ListItem>
                   )}
                 </Draggable>
@@ -167,17 +192,21 @@ const GroceryList = () => {
         </Droppable>
       </DragDropContext>
 
+      <AddGroceryItem
+        isOpen={isAdding}
+        setIsOpen={(isOpen) => setIsAdding(isOpen)}
+      />
+
       <SingleFieldDialog
         initialValue={itemToEdit?.name}
-        titleVerb={itemToEdit ? 'Edit' : 'Add'}
-        fieldName={'Grocery item'}
+        titleVerb={'Edit'}
+        fieldName={'grocery item'}
         fieldType={'EntityName'}
-        isOpen={isAdding || !!itemToEdit}
+        isOpen={!!itemToEdit}
         onClosed={() => {
-          setIsAdding(false);
           setItemToEdit(undefined);
         }}
-        onSubmitValue={addOrEditGroceryItem}
+        onSubmitValue={editGroceryItem}
       />
 
       <AlertDialog
