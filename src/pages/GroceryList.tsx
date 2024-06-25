@@ -153,7 +153,7 @@ const GroceryList = () => {
                   {(provided) => (
                     <ListItem {...provided.draggableProps} {...provided.dragHandleProps} ref={provided.innerRef}>
                       {groceryItem.uid.startsWith(catSubcatKeySeparator)
-                      ? <Stack direction='row' align='center' spacing={0.5}>
+                      ? <Stack direction='row' align='center' spacing={0.5} m={2}>
                           <Heading size='md' fontWeight='bold'>{groceryItem.name}</Heading>
                           <Menu>
                             <MenuButton>
