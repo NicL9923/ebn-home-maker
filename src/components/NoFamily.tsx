@@ -10,7 +10,7 @@ const NoFamily = () => {
   if (!profile) return null;
 
   return (
-    <Box maxWidth='sm' mx='auto' mt={3} p={2} textAlign='center'>
+    <Box maxWidth='sm' mx='auto' p={2} textAlign='center'>
       <Heading size='md' mb={2}>
         {`Hey ${profile.firstName}!`}
       </Heading>

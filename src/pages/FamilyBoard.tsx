@@ -36,7 +36,7 @@ const FamilyBoard = () => {
   };
 
   return (
-    <Box p={2} mt={2}>
+    <Box p={2}>
       <Heading mb={2}>Family Board</Heading>
 
       <Stack direction='row' mb={3}>
@@ -59,7 +59,7 @@ const FamilyBoard = () => {
         }
       </Stack>
 
-      <Box data-color-mode={colorMode} height='80vh'>
+      <Box data-color-mode={colorMode} height='calc(100vh - 250px)'>
         {isEditingMd ? (
           <MDEditor value={editedMd} onChange={setEditedMd} height='100%' />
         ) : (

@@ -6,7 +6,7 @@ const NoProfile = () => {
   const [creatingProfile, setCreatingProfile] = useState(false);
 
   return (
-    <Container centerContent maxWidth='md' mx='auto' mt={2} p={2} textAlign='center'>
+    <Container centerContent maxWidth='md' mx='auto' p={2} textAlign='center'>
       <Heading size='lg' mb={2}>
         Welcome to Home Maker!
       </Heading>

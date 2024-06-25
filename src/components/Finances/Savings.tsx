@@ -11,10 +11,9 @@ import {
   Stat,
   StatLabel,
   StatNumber,
-  Text,
   Wrap,
   WrapItem,
-  useColorMode,
+  useColorMode
 } from '@chakra-ui/react';
 import { doc, updateDoc } from 'firebase/firestore';
 import Chart from 'react-google-charts';
@@ -22,7 +21,7 @@ import { MdAdd, MdMoreVert } from 'react-icons/md';
 import { FsCol, db } from '../../firebase';
 import { IBudget, SavingsBlob } from '../../models/types';
 import { useUserStore } from '../../state/UserStore';
-import { genUuid } from '../../utils/utils';
+import { genUuid, getCurrencyString } from '../../utils/utils';
 import EditableLabel from '../Inputs/EditableLabel';
 import { getCommonChartOptions } from './Budget';
 
@@ -104,18 +103,10 @@ const Savings = ({ budget }: SavingsProps) => {
     <Box mt={2} ml={1} mr={1}>
       <Heading mb={4}>Savings Blobs</Heading>
 
-      <Text mb={4}>Keep track of what your savings and investments are for</Text>
-
       <Stat w='50%' p={3} bgColor='green.400' borderRadius='md'>
         <StatLabel>Total Saved</StatLabel>
         <StatNumber>
-          $
-          {budget.savingsBlobs
-            .reduce((sum, { currentAmt }) => sum + currentAmt, 0)
-            .toLocaleString(undefined, {
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 2,
-            })}
+          {getCurrencyString(budget.savingsBlobs.reduce((sum, { currentAmt }) => sum + currentAmt, 0))}
         </StatNumber>
       </Stat>
 
@@ -157,10 +148,7 @@ const Savings = ({ budget }: SavingsProps) => {
                 <EditableLabel
                   fieldName='Amount'
                   fieldType='DecimalNum'
-                  text={blob.currentAmt.toLocaleString(undefined, {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  })}
+                  text={getCurrencyString(blob.currentAmt, false)}
                   isMonetaryValue
                   onSubmitValue={(newValue) => updateSavingsBlobAmt(blob.name, newValue)}
                 />

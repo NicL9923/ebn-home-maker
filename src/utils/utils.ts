@@ -39,13 +39,15 @@ export const compareMonetaryValues = (a: number, b: number): ComparisonStringTyp
   return comparisonString;
 };
 
+export const getCurrencyString = (amount: number, withDollarSignPrefix = true) => `${withDollarSignPrefix ? '$' : ''}${amount.toLocaleString(undefined, {
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
+})}`;
+
 export const getAbsDiffAndComparisonOfMonetaryValues = (a: number, b: number): [ComparisonStringType, string] => {
   const differenceResult = calcMonetaryDifference(a, b);
   const comparisonString = compareMonetaryValues(differenceResult, 0);
-  const differenceString = Math.abs(differenceResult).toLocaleString(undefined, {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
+  const differenceString = getCurrencyString(Math.abs(differenceResult), false);
 
   return [comparisonString, differenceString];
 };

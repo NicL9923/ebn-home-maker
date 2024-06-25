@@ -15,6 +15,7 @@ import { useContext } from 'react';
 import { Draggable, Droppable } from 'react-beautiful-dnd';
 import { MdKeyboardArrowDown } from 'react-icons/md';
 import { BudgetCategory, IBudget } from '../../../models/types';
+import { getCurrencyString } from '../../../utils/utils';
 import EditableLabel from '../../Inputs/EditableLabel';
 import { BudgetContext, budgetRowsGridTemplateColumns } from '../Budget';
 import { subcatPrefix } from './BudgetCategories';
@@ -74,21 +75,13 @@ const Category = (props: CategoryProps) => {
 
               <GridItem w='100%'>
                 <Text ml={1} sx={{ fontWeight: 'bold' }}>
-                  $
-                  {category.totalAllotted?.toLocaleString(undefined, {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  })}
+                  {getCurrencyString(category.totalAllotted ?? 0)}
                 </Text>
               </GridItem>
 
               <GridItem w='100%'>
                 <Text ml={1} sx={{ fontWeight: 'bold' }}>
-                  $
-                  {category.currentSpent?.toLocaleString(undefined, {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  })}
+                  {getCurrencyString(category.currentSpent ?? 0)}
                 </Text>
               </GridItem>
             </Grid>

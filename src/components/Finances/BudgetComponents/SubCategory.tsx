@@ -15,10 +15,10 @@ import { useContext } from 'react';
 import { Draggable } from 'react-beautiful-dnd';
 import { MdKeyboardArrowDown } from 'react-icons/md';
 import { BudgetCategory, BudgetSubcategory } from '../../../models/types';
+import { calcMonetaryValuesRatioAsPercentInt, compareMonetaryValues, getCurrencyString } from '../../../utils/utils';
 import { catSubcatKeySeparator } from '../../Forms/AddTransaction';
 import EditableLabel from '../../Inputs/EditableLabel';
 import { BudgetContext, budgetRowsGridTemplateColumns } from '../Budget';
-import { calcMonetaryValuesRatioAsPercentInt, compareMonetaryValues } from '../../../utils/utils';
 
 interface SubCategoryProps {
   subidx: number;
@@ -104,20 +104,13 @@ const SubCategory = (props: SubCategoryProps) => {
                   fieldName='Total allotted'
                   fieldType='DecimalNum'
                   isMonetaryValue
-                  text={subcategory.totalAllotted.toLocaleString(undefined, {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  })}
+                  text={getCurrencyString(subcategory.totalAllotted, false)}
                   onSubmitValue={(newValue) => setSubCatProperty(newValue, subcategory.name, category.name, 'allotted')}
                 />
               </GridItem>
               <GridItem>
                 <Text>
-                  $
-                  {subcategory.currentSpent.toLocaleString(undefined, {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  })}
+                  {getCurrencyString(subcategory.currentSpent)}
                 </Text>
               </GridItem>
             </Grid>

@@ -1,4 +1,4 @@
-import { Box, CircularProgress, Text, useToast } from '@chakra-ui/react';
+import { Box, CircularProgress, Flex, Text, useToast } from '@chakra-ui/react';
 import { getAuth } from 'firebase/auth';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { useEffect } from 'react';
@@ -120,13 +120,13 @@ const AppProvider = ({ children }: ProviderProps) => {
 
   return (
     <ThemeProvider>
-      <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
+      <Flex direction='column' minHeight='100vh' height='fit-content'>
         <Navbar />
 
-        <div style={{ flex: '1 0 50%' }}>{getPageContent()}</div>
+        <div style={{ flex: '1 0 50%', marginTop: 2, marginBottom: 8 }}>{getPageContent()}</div>
 
         <Footer />
-      </div>
+      </Flex>
     </ThemeProvider>
   );
 };

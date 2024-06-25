@@ -102,7 +102,7 @@ const GroceryList = () => {
   }
 
   return (
-    <Box mt={2} p={2}>
+    <Box p={2}>
       <Heading mb={2}>Grocery list</Heading>
 
       <Stack direction='row' mt={2}>
@@ -137,7 +137,7 @@ const GroceryList = () => {
               {...provided.droppableProps}
               ref={provided.innerRef}
               mt='2'
-              height='75vh'
+              height='calc(100vh - 265px)'
               width='85vw'
               overflow='auto'
               bgColor={listBgColor}

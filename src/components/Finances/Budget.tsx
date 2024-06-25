@@ -25,7 +25,7 @@ import { MdAdd, MdSubdirectoryArrowRight } from 'react-icons/md';
 import { FsCol, db } from '../../firebase';
 import { BudgetCategory, BudgetContextValue, BudgetSubcategory, IBudget, Transaction } from '../../models/types';
 import { useUserStore } from '../../state/UserStore';
-import { genUuid, getAbsDiffAndComparisonOfMonetaryValues, moveMonth } from '../../utils/utils';
+import { genUuid, getAbsDiffAndComparisonOfMonetaryValues, getCurrencyString, moveMonth } from '../../utils/utils';
 import AddTransaction from '../Forms/AddTransaction';
 import EditableLabel from '../Inputs/EditableLabel';
 import BudgetCategories from './BudgetComponents/BudgetCategories';
@@ -352,35 +352,20 @@ const Budget = (props: BudgetProps) => {
               fieldType='DecimalNum'
               textSize='xl'
               isMonetaryValue
-              text={budget.monthlyNetIncome.toLocaleString(undefined, {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              })}
+              text={getCurrencyString(budget.monthlyNetIncome, false)}
               onSubmitValue={setMonthlyNetIncome}
             />
           </Stack>
 
           <Stack direction='row' alignContent='center' spacing={2}>
             <Text>Total Allotted</Text>
-            <Text>
-              $
-              {budget.totalAllotted?.toLocaleString(undefined, {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              })}
-            </Text>
+            <Text>{getCurrencyString(budget.totalAllotted ?? 0)}</Text>
           </Stack>
           {allottedRemainder}
 
           <Stack direction='row' alignContent='center' spacing={2} mt={1}>
             <Text>Total Spent</Text>
-            <Text>
-              $
-              {budget.totalSpent?.toLocaleString(undefined, {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              })}
-            </Text>
+            <Text>{getCurrencyString(budget.totalSpent ?? 0)}</Text>
           </Stack>
           <Stack direction='row' alignContent='center' alignItems='center' justifyContent='center' spacing={1}>
             {spendingRemainder}

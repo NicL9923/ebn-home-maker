@@ -6,6 +6,7 @@ import {
   evaluateExprAndRoundTo2Decimals,
   genUuid,
   getAbsDiffAndComparisonOfMonetaryValues,
+  getCurrencyString,
   getMonetaryValue2DecimalString,
   roundTo2Decimals,
 } from '../utils';
@@ -98,6 +99,14 @@ describe('utils', () => {
 
     it('Correctly calculates when the first value is equal to the second MONETARILY-SPEAKING', () => {
       expect(compareMonetaryValues(3.3314, 3.332222)).toBe('equal');
+    });
+  });
+
+  describe('getCurrencyString', () => {
+    it('correctly formats an amount as a currency string', () => {
+      expect(getCurrencyString(1.2345)).toBe('$1.23');
+      expect(getCurrencyString(1.32, true)).toBe('$1.32');
+      expect(getCurrencyString(1.2, false)).toBe('1.20');
     });
   });
 

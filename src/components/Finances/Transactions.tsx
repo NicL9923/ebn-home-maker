@@ -8,8 +8,6 @@ import {
   Box,
   Button,
   Checkbox,
-  FormControl,
-  FormLabel,
   Heading,
   IconButton,
   Select,
@@ -20,7 +18,8 @@ import {
   Text,
   Th,
   Thead,
-  Tr,
+  Tooltip,
+  Tr
 } from '@chakra-ui/react';
 import {
   ColumnDef,
@@ -31,20 +30,18 @@ import {
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table';
+import { format } from 'date-fns';
 import { doc, updateDoc } from 'firebase/firestore';
 import { useMemo, useRef, useState } from 'react';
-import { HiChevronDoubleLeft, HiChevronDoubleRight, HiChevronLeft, HiChevronRight } from 'react-icons/hi';
+import { HiChevronLeft, HiChevronRight } from 'react-icons/hi';
 import { MdAdd, MdDelete } from 'react-icons/md';
 import { FsCol, db } from '../../firebase';
 import { IBudget, Transaction } from '../../models/types';
 import { useUserStore } from '../../state/UserStore';
 import AddTransaction from '../Forms/AddTransaction';
+import { getCurrencyString } from '../../utils/utils';
 
 const rowsPerPageOptions = [10, 25, 50, 100];
-
-interface TableTransaction extends Omit<Transaction, 'timestamp'> {
-  timestamp: Date;
-}
 
 interface TransactionsProps {
   budget: IBudget;
@@ -59,7 +56,7 @@ const Transactions = ({ budget }: TransactionsProps) => {
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
   const cancelRef = useRef(null);
 
-  const transactionColumns = useMemo<ColumnDef<TableTransaction>[]>(
+  const transactionColumns = useMemo<ColumnDef<Transaction>[]>(
     () => [
       {
         id: 'select',
@@ -87,11 +84,7 @@ const Transactions = ({ budget }: TransactionsProps) => {
       {
         accessorKey: 'amt',
         header: 'Amount',
-        cell: (info) =>
-          `$${info.getValue<number>().toLocaleString(undefined, {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-          })}`,
+        cell: (info) => getCurrencyString(info.getValue<number>()),
       },
       {
         accessorKey: 'name',
@@ -108,18 +101,14 @@ const Transactions = ({ budget }: TransactionsProps) => {
         accessorKey: 'timestamp',
         header: 'Date',
         cell: (info) =>
-          info.getValue<Date>().toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-          }),
+          info.getValue<string>(),
       },
     ],
     []
   );
 
-  const transactionData = useMemo<TableTransaction[]>(
-    () => budget.transactions.map((t) => ({ ...t, timestamp: new Date(t.timestamp) })),
+  const transactionData = useMemo<Transaction[]>(
+    () => budget.transactions.map((t) => ({ ...t, timestamp: format(new Date(t.timestamp), 'h:mm a') })),
     [budget.transactions]
   );
 
@@ -169,7 +158,7 @@ const Transactions = ({ budget }: TransactionsProps) => {
   */
 
   return (
-    <Box mt={2} ml={1} mr={1}>
+    <Box mx={1}>
       <Heading mb={2}>Transactions</Heading>
 
       <Stack direction='row' mb={2} justifyContent='center'>
@@ -188,7 +177,7 @@ const Transactions = ({ budget }: TransactionsProps) => {
       </Stack>
 
       <Stack mt={3} mb={2}>
-        <TableContainer maxHeight='70vh' overflowX='auto' overflowY='auto'>
+        <TableContainer maxHeight='calc(100vh - 420px)' overflowX='auto' overflowY='auto'>
           <Table variant='striped'>
             <Thead position='sticky' top={0} bgColor='green.400' zIndex={1}>
               {table.getHeaderGroups().map((headerGroup) => (
@@ -225,31 +214,21 @@ const Transactions = ({ budget }: TransactionsProps) => {
           </Table>
         </TableContainer>
 
-        <Box>
-          <Text mt={2}>Total transactions: {transactionData.length}</Text>
+        <Stack direction='row' justifyContent='space-between'>
+          <Text fontSize='small' mt={2}>{transactionData.length} total</Text>
 
-          <Stack direction='row' justifyContent='center' alignItems='center' m={2}>
-            <IconButton
-              icon={<HiChevronDoubleLeft />}
-              aria-label='First page'
-              onClick={() => table.setPageIndex(0)}
-              isDisabled={!table.getCanPreviousPage()}
-              fontSize={20}
-            />
-
+          <Stack direction='row' align='center'>
             <IconButton
               icon={<HiChevronLeft />}
               aria-label='Previous page'
               onClick={table.previousPage}
               isDisabled={!table.getCanPreviousPage()}
-              fontSize={20}
+              fontSize='large'
+              size='xs'
             />
 
-            <Text>
-              Page{' '}
-              <Text fontWeight='bold' display='inline'>
-                {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
-              </Text>
+            <Text fontSize='small'>
+              {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
             </Text>
 
             <IconButton
@@ -257,25 +236,20 @@ const Transactions = ({ budget }: TransactionsProps) => {
               aria-label='Next page'
               onClick={table.nextPage}
               isDisabled={!table.getCanNextPage()}
-              fontSize={20}
-            />
-
-            <IconButton
-              icon={<HiChevronDoubleRight />}
-              aria-label='Last page'
-              onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-              isDisabled={!table.getCanNextPage()}
-              fontSize={20}
+              fontSize='large'
+              size='xs'
             />
           </Stack>
 
-          <FormControl width='200px'>
-            <FormLabel>Rows per page</FormLabel>
+          <Tooltip label='Rows per page'>
             <Select
               value={table.getState().pagination.pageSize}
               onChange={(e) => {
                 table.setPageSize(Number(e.target.value));
               }}
+              variant='flushed'
+              width='55px'
+              size='xs'
             >
               {rowsPerPageOptions.map((pageSize) => (
                 <option key={pageSize} value={pageSize}>
@@ -283,8 +257,8 @@ const Transactions = ({ budget }: TransactionsProps) => {
                 </option>
               ))}
             </Select>
-          </FormControl>
-        </Box>
+          </Tooltip>
+        </Stack>
       </Stack>
 
       <AddTransaction isOpen={addingTransaction} setIsOpen={setAddingTransaction} budget={budget} />
