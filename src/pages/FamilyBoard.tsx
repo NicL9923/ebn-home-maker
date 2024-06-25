@@ -1,12 +1,12 @@
-import { useState } from 'react';
-import '@uiw/react-md-editor/markdown-editor.css';
-import '@uiw/react-markdown-preview/markdown.css';
-import { useUserStore } from '../state/UserStore';
-import { doc, updateDoc } from 'firebase/firestore';
-import { db, FsCol } from '../firebase';
 import { Box, Button, Heading, Stack, useColorMode } from '@chakra-ui/react';
-import { MdClose, MdEdit, MdSave } from 'react-icons/md';
+import '@uiw/react-markdown-preview/markdown.css';
 import MDEditor from '@uiw/react-md-editor';
+import '@uiw/react-md-editor/markdown-editor.css';
+import { doc, updateDoc } from 'firebase/firestore';
+import { useState } from 'react';
+import { MdClose, MdEdit, MdSave } from 'react-icons/md';
+import { FsCol, db } from '../firebase';
+import { useUserStore } from '../state/UserStore';
 
 const FamilyBoard = () => {
   const { colorMode } = useColorMode();

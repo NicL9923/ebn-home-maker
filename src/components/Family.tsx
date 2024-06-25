@@ -1,14 +1,3 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import EditableLabel from './Inputs/EditableLabel';
-import { MdAdd, MdArticle, MdClose, MdContentCopy, MdLogout, MdMoreVert } from 'react-icons/md';
-import { Profile, Pet, FamilySettings } from '../models/types';
-import copy from 'clipboard-copy';
-import NoFamily from './NoFamily';
-import AddPet from './Forms/AddPet';
-import { deleteObject, getStorage, ref } from 'firebase/storage';
-import { useUserStore } from '../state/UserStore';
-import { doc, getDoc, updateDoc, writeBatch } from 'firebase/firestore';
-import { db, FsCol } from '../firebase';
 import {
   AlertDialog,
   AlertDialogBody,
@@ -37,10 +26,21 @@ import {
   ModalOverlay,
   Stack,
   Text,
-  useToast,
   Wrap,
   WrapItem,
+  useToast,
 } from '@chakra-ui/react';
+import copy from 'clipboard-copy';
+import { doc, getDoc, updateDoc, writeBatch } from 'firebase/firestore';
+import { deleteObject, getStorage, ref } from 'firebase/storage';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { MdAdd, MdArticle, MdClose, MdContentCopy, MdLogout, MdMoreVert } from 'react-icons/md';
+import { FsCol, db } from '../firebase';
+import { FamilySettings, Pet, Profile } from '../models/types';
+import { useUserStore } from '../state/UserStore';
+import AddPet from './Forms/AddPet';
+import EditableLabel from './Inputs/EditableLabel';
+import NoFamily from './NoFamily';
 
 const isProfile = (obj: Profile | Pet): obj is Profile => (obj as Profile).firstName !== undefined;
 
@@ -82,14 +82,14 @@ const Family = () => {
     }
   };
 
-  const updateFamilyLocation = (newCity = '', newState = '') => {
+  /*const updateFamilyLocation = (newCity = '', newState = '') => {
     if (!family || !profile) return;
 
     const curLoc = family.cityState.split(',');
     const newLoc = `${newCity ? newCity : curLoc[0]},${newState ? newState : curLoc[1]}`;
 
     updateDoc(doc(db, FsCol.Families, profile.familyId), { cityState: newLoc });
-  };
+  };*/
 
   const updateFamilySettings = (newFamilySettings?: FamilySettings) => {
     if (family && newFamilySettings && profile) {
@@ -333,7 +333,7 @@ const Family = () => {
         )}
       </Box>
 
-      {userId === family.headOfFamily && (
+      {/*userId === family.headOfFamily && (
         <Box mt={4}>
           <Divider />
 
@@ -357,7 +357,7 @@ const Family = () => {
             onSubmitValue={(newState?: string) => updateFamilyLocation('', newState)}
           />
         </Box>
-      )}
+      )*/}
 
       {userId === family.headOfFamily && (
         <Box mt={4}>
@@ -374,10 +374,9 @@ const Family = () => {
           >
             Show all transactions on current month
           </Checkbox>
-          <Text>
+          <Text fontSize='xs'>
             Include all transactions in the current month&apos;s budget calculations even if they occurred outside the
-            current month (disabling this will allow scrolling to past and future months to see their transactions, but
-            note that your current income/allotted values and categories will apply to all months)
+            current month. Disabling this will allow scrolling to past and future months to see their transactions (note that your current income/allotted values and categories will be the same across all months)
           </Text>
         </Box>
       )}
@@ -391,14 +390,14 @@ const Family = () => {
               Export family data
             </Button>
 
-            <Text>
-              Export a copy of your current family data as JSON (still pretty readable to non-programmers!), currently
-              including the name, members and pets, city/state, and your Family Board
+            <Text fontSize='xs'>
+              Export a copy of your current family data as JSON (still pretty readable to non-programmers!), not including
+              finance data which can be exported separately on that page
             </Text>
           </Box>
 
           <Button colorScheme='red' leftIcon={<MdClose />} onClick={() => setDeletingFamily(true)}>
-            Delete Family
+            Delete family
           </Button>
         </Stack>
       ) : (

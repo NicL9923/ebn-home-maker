@@ -2,6 +2,7 @@ import { Box, CircularProgress, Flex, Text, useToast } from '@chakra-ui/react';
 import { getAuth } from 'firebase/auth';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { useEffect } from 'react';
+import Footer from '../components/Footer';
 import LandingPage from '../components/LandingPage';
 import Navbar from '../components/Navbar';
 import NoFamily from '../components/NoFamily';
@@ -11,7 +12,6 @@ import { Family, Profile } from '../models/types';
 import { useUserStore } from '../state/UserStore';
 import ThemeProvider from './ThemeProvider';
 import { ProviderProps } from './providerTypes';
-import Footer from '../components/Footer';
 
 // TODO: See about handling the routes a little less weirdly when not signed in, etc.
 
