@@ -29,9 +29,9 @@
     "react-datepicker": "^4.8.0",
     "react-dom": "^18.3.1",
     "react-dropzone": "^14.2.3",
-    "react-google-charts": "^4.0.0",
     "react-hook-form": "^7.52.0",
     "react-icons": "^4.6.0",
+    "recharts": "^2.12.7",
     "uuid": "^10.0.0",
     "yup": "^0.32.11",
     "zustand": "^4.1.3"

@@ -1,6 +1,8 @@
 import {
   Box,
   Button,
+  Card,
+  CardBody,
   Heading,
   IconButton,
   Menu,
@@ -13,27 +15,16 @@ import {
   StatNumber,
   Wrap,
   WrapItem,
-  useColorMode
 } from '@chakra-ui/react';
 import { doc, updateDoc } from 'firebase/firestore';
-import Chart from 'react-google-charts';
+import { useMemo } from 'react';
 import { MdAdd, MdMoreVert } from 'react-icons/md';
+import { Legend, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
 import { FsCol, db } from '../../firebase';
 import { IBudget, SavingsBlob } from '../../models/types';
 import { useUserStore } from '../../state/UserStore';
-import { genUuid, getCurrencyString } from '../../utils/utils';
+import { genUuid, getCurrencyString, getHashedHexColor } from '../../utils/utils';
 import EditableLabel from '../Inputs/EditableLabel';
-import { getCommonChartOptions } from './Budget';
-
-const formatChartData = (blobsData: SavingsBlob[]) => {
-  const formattedDataArr: (string | number)[][] = [['Name', 'Amount']];
-
-  blobsData.forEach((blob) => {
-    formattedDataArr.push([blob.name, blob.currentAmt]);
-  });
-
-  return formattedDataArr;
-};
 
 interface SavingsProps {
   budget: IBudget;
@@ -41,7 +32,8 @@ interface SavingsProps {
 
 const Savings = ({ budget }: SavingsProps) => {
   const family = useUserStore((state) => state.family);
-  const isLightMode = useColorMode().colorMode === 'light';
+
+  const savingsBreakdownChartData = useMemo(() => budget.savingsBlobs.map(blob => ({ name: blob.name, value: blob.currentAmt, fill: getHashedHexColor(blob.name) })), []);
 
   const isBlobNameUnique = (newBlobName: string) => {
     return !budget.savingsBlobs.some((blob) => blob.name === newBlobName);
@@ -159,15 +151,33 @@ const Savings = ({ budget }: SavingsProps) => {
       </Wrap>
 
       {budget.savingsBlobs.length > 0 ? (
-        <Box mb={4} height={['100vw', '75vw', '50vw', '25vw']}>
-          <Chart
-            chartType='PieChart'
-            width='100%'
-            height='100%'
-            data={formatChartData(budget.savingsBlobs)}
-            options={{ title: 'Savings Breakdown', pieHole: 0.5, is3D: false, ...getCommonChartOptions(isLightMode) }}
-          />
-        </Box>
+        <Card mt={8}>
+          <CardBody>
+            <Wrap align='center' justify='center'>
+              <WrapItem>
+                <div style={{ height: '400px', width: '400px', margin: 4 }}>
+                  <Heading size='md' textAlign='center'>
+                    Savings breakdown
+                  </Heading>
+
+                  <ResponsiveContainer width='85%'>
+                    <PieChart>
+                      <Pie
+                        data={savingsBreakdownChartData}
+                        dataKey="value"
+                        outerRadius={100}
+                        innerRadius={60}
+                        label
+                      />
+                      <Tooltip />
+                      <Legend />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+              </WrapItem>
+            </Wrap>
+          </CardBody>
+        </Card>
       ) : (
         <div>Add blobs and assign them money to see additional data!</div>
       )}

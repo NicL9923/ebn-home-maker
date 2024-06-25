@@ -1,3 +1,4 @@
+import { InfoOutlineIcon } from '@chakra-ui/icons';
 import {
   AlertDialog,
   AlertDialogBody,
@@ -7,6 +8,8 @@ import {
   AlertDialogOverlay,
   Box,
   Button,
+  Card,
+  CardBody,
   Grid,
   GridItem,
   Heading,
@@ -14,23 +17,22 @@ import {
   Stack,
   Text,
   Tooltip,
-  useColorMode,
-  useColorModeValue,
-  useToken,
+  Wrap,
+  WrapItem,
+  useToken
 } from '@chakra-ui/react';
 import { doc, updateDoc } from 'firebase/firestore';
 import React, { useMemo, useRef, useState } from 'react';
-import Chart from 'react-google-charts';
+import { HiChevronLeft, HiChevronRight } from 'react-icons/hi';
 import { MdAdd, MdSubdirectoryArrowRight } from 'react-icons/md';
+import { Legend, Pie, PieChart, Tooltip as RechartsTooltip, ResponsiveContainer } from 'recharts';
 import { FsCol, db } from '../../firebase';
 import { BudgetCategory, BudgetContextValue, BudgetSubcategory, IBudget, Transaction } from '../../models/types';
 import { useUserStore } from '../../state/UserStore';
-import { genUuid, getAbsDiffAndComparisonOfMonetaryValues, getCurrencyString, moveMonth } from '../../utils/utils';
+import { genUuid, getAbsDiffAndComparisonOfMonetaryValues, getCurrencyString, getHashedHexColor, moveMonth, roundTo2Decimals } from '../../utils/utils';
 import AddTransaction from '../Forms/AddTransaction';
 import EditableLabel from '../Inputs/EditableLabel';
 import BudgetCategories from './BudgetComponents/BudgetCategories';
-import { InfoOutlineIcon } from '@chakra-ui/icons';
-import { HiChevronLeft, HiChevronRight } from 'react-icons/hi';
 
 export const BudgetContext = React.createContext({} as BudgetContextValue);
 
@@ -45,8 +47,6 @@ interface BudgetProps {
 
 const Budget = (props: BudgetProps) => {
   const { budget, setBudget, curBudgetMonthAndYear, setBudgetCurMonthAndYear } = props;
-  const isLightMode = useColorMode().colorMode === 'light';
-  const pieChartBgColor = useColorModeValue('gray.200', 'gray.600');
   const [red500, green400, yellow300] = useToken('colors', ['red.500', 'green.400', 'yellow.300']);
 
   const family = useUserStore((state) => state.family);
@@ -296,17 +296,14 @@ const Budget = (props: BudgetProps) => {
     );
   }, [budget.totalAllotted, budget.totalSpent, green400, red500]);
 
-  const formatChartData = (budgetCats: BudgetCategory[]) => {
-    const formattedDataArr: (string | number)[][] = [['Category', 'Percent']];
+  const allottedPercentChartData = useMemo(() => budget.categories.flatMap(category => {
+    if (category.totalAllotted && budget.totalAllotted) {
+      const percentOfBudget = (category.totalAllotted / budget.totalAllotted) * 100
+      return [{ name: category.name, value: roundTo2Decimals(percentOfBudget), fill: getHashedHexColor(category.name) }];
+    }
 
-    budgetCats.forEach((cat) => {
-      if (cat.totalAllotted && budget.totalAllotted) {
-        formattedDataArr.push([cat.name, (cat.totalAllotted / budget.totalAllotted) * 100]);
-      }
-    });
-
-    return formattedDataArr;
-  };
+    return [];
+  }), []);
 
   if (!family?.budgetId) {
     return null;
@@ -427,19 +424,33 @@ const Budget = (props: BudgetProps) => {
         </BudgetContext.Provider>
       </Box>
 
-      <Box mt={4} height={['100vw', '30vw']} bgColor={pieChartBgColor}>
-        <Chart
-          chartType='PieChart'
-          width='100%'
-          height='100%'
-          data={formatChartData(budget.categories)}
-          options={{
-            title: 'Percent of Allotted Budget',
-            is3D: false,
-            ...getCommonChartOptions(isLightMode),
-          }}
-        />
-      </Box>
+      <Card mt={8}>
+        <CardBody>
+          <Wrap align='center' justify='center'>
+            <WrapItem>
+              <div style={{ height: '400px', width: '400px', margin: 4 }}>
+                <Heading size='md' textAlign='center'>
+                  Percent of allotted budget
+                </Heading>
+
+                <ResponsiveContainer width='85%'>
+                  <PieChart>
+                    <Pie
+                      data={allottedPercentChartData}
+                      dataKey="value"
+                      outerRadius={100}
+                      //innerRadius={60}
+                      label
+                    />
+                    <RechartsTooltip />
+                    <Legend />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+            </WrapItem>
+          </Wrap>
+        </CardBody>
+      </Card>
 
       <AddTransaction
         isOpen={addingTransaction}
@@ -487,27 +498,5 @@ const Budget = (props: BudgetProps) => {
     </Box>
   );
 };
-
-export const getCommonChartOptions = (isLightMode: boolean) => ({
-  backgroundColor: 'transparent',
-  hAxis: {
-    textStyle: {
-      color: isLightMode ? 'black' : 'white',
-    },
-  },
-  vAxis: {
-    textStyle: {
-      color: isLightMode ? 'black' : 'white',
-    },
-  },
-  legend: {
-    textStyle: {
-      color: isLightMode ? 'black' : 'white',
-    },
-  },
-  titleTextStyle: {
-    color: isLightMode ? 'black' : 'white',
-  },
-});
 
 export default Budget;
