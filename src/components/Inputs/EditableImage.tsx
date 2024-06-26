@@ -45,7 +45,8 @@ const EditableImage = ({ curImgLink, updateCurImgLink, height, width }: Editable
 
       if (newImgFile) {
         const imgRef = ref(storage, genUuid());
-        updateCurImgLink(await getDownloadURL((await uploadBytes(imgRef, newImgFile)).ref));
+        const storageObj = await uploadBytes(imgRef, newImgFile);
+        updateCurImgLink(await getDownloadURL(storageObj.ref));
       } else {
         updateCurImgLink('');
       }
@@ -61,7 +62,7 @@ const EditableImage = ({ curImgLink, updateCurImgLink, height, width }: Editable
   return (
     <Box>
       <Avatar
-        src={curImgLink}
+        src={curImgLink} // TODO: Fix this!?
         cursor='pointer'
         sx={{ height, width, position: 'relative' }}
         onMouseEnter={() => setIsHoveringImg(true)}

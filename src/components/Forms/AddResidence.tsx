@@ -30,7 +30,7 @@ const addResidenceSchema = yup
     name: yup.string().required(`You must give your residence a name`),
     yearBuilt: yup.string().required('You must provide the year your residence was built'),
     yearPurchased: yup.string().required('You must provide the year your residence was purchased'),
-    photo: yup.mixed<File>().nullable().defined(),
+    photo: yup.mixed<File>(),
   });
 
 type AddResidenceFormSchema = yup.InferType<typeof addResidenceSchema>;
@@ -75,13 +75,16 @@ const AddResidence = ({ isOpen, setIsOpen }: AddResidenceProps) => {
 
     const newResidence: Residence = {
       uid: newResId,
+      name: newResidenceData.name,
+      yearBuilt: newResidenceData.yearBuilt,
+      yearPurchased: newResidenceData.yearPurchased,
       maintenanceMarkers: [],
       serviceLogEntries: [],
-      ...newResidenceData,
     };
 
     if (newResidenceData.photo) {
-      newResidence.img = await getDownloadURL((await uploadBytes(ref(storage, genUuid()), newResidenceData.photo)).ref);
+      const storageObject = await uploadBytes(ref(storage, genUuid()), newResidenceData.photo);
+      newResidence.img = await getDownloadURL(storageObject.ref);
     }
 
     batch.set(doc(db, FsCol.Residences, newResId), newResidence);
@@ -138,7 +141,7 @@ const AddResidence = ({ isOpen, setIsOpen }: AddResidenceProps) => {
                 render={({ field }) => (
                   <FileDropzone
                     accept={{ 'image/png': ['.png'], 'image/jpeg': ['.jpg', '.jpeg'] }}
-                    onDrop={(acceptedFiles) => field.onChange(acceptedFiles[0])}
+                    onDrop={(acceptedFiles) => field.onChange(acceptedFiles[0])} // TODO: FileWITHPREVIEW
                   />
                 )}
               />

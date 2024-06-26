@@ -1,4 +1,5 @@
 import {
+  AspectRatio,
   Box,
   Button,
   CircularProgress,
@@ -71,13 +72,15 @@ export const ResidenceOverview = () => {
                 <LinkOverlay as={Link} to={`/maintenance/residences/${residence.uid}`} />
 
                 <Box p={2} maxW='sm' borderWidth='1px' borderRadius='lg' overflow='hidden'>
-                  {residence.img ? (
-                    <Image height='250' src={residence.img} />
-                  ) : (
-                    <Box>
-                      <MdHouse fontSize={96} />
-                    </Box>
-                  )}
+                  <AspectRatio width='250px' ratio={4 / 3}>
+                    {residence.img ? (
+                      <Image height='250' src={residence.img} />
+                    ) : (
+                      <Box>
+                        <MdHouse fontSize={96} />
+                      </Box>
+                    )}
+                  </AspectRatio>
 
                   <Text>{residence.name}</Text>
                   <Text>Built: {residence.yearBuilt}</Text>

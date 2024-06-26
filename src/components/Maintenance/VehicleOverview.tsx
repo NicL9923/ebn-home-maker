@@ -1,4 +1,5 @@
 import {
+  AspectRatio,
   Box,
   Button,
   CircularProgress,
@@ -71,13 +72,15 @@ export const VehicleOverview = () => {
                 <LinkOverlay as={Link} to={`/maintenance/vehicles/${vehicle.uid}`} />
 
                 <Box p={2} maxW='sm' borderWidth='1px' borderRadius='lg' overflow='hidden'>
-                  {vehicle.img ? (
-                    <Image height='250' src={vehicle.img} />
-                  ) : (
-                    <Box>
-                      <MdDirectionsCar fontSize={96} />
-                    </Box>
-                  )}
+                  <AspectRatio width='250px' ratio={4 / 3}>
+                    {vehicle.img ? (
+                      <Image height='250' src={vehicle.img} />
+                    ) : (
+                      <Box>
+                        <MdDirectionsCar fontSize={96} />
+                      </Box>
+                    )}
+                  </AspectRatio>
 
                   <Text>
                     {vehicle.year} {vehicle.make} {vehicle.model} {vehicle.trim}

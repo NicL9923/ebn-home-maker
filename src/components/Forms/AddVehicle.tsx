@@ -36,7 +36,7 @@ const addVehicleSchema = yup
     vin: yup.string().defined(),
     licensePlate: yup.string().defined(),
     miles: yup.number().required(`You must provide your vehicle's mileage`),
-    photo: yup.mixed<File>().nullable().defined(),
+    photo: yup.mixed<File>(),
   });
 
 type AddVehicleFormSchema = yup.InferType<typeof addVehicleSchema>;
@@ -81,9 +81,16 @@ const AddVehicle = ({ isOpen, setIsOpen }: AddVehicleProps) => {
 
     const newVehicle: Vehicle = {
       uid: newVehId,
+      year: newVehicleData.year,
+      make: newVehicleData.make,
+      model: newVehicleData.model,
+      trim: newVehicleData.trim,
+      engine: newVehicleData.engine,
+      vin: newVehicleData.vin,
+      licensePlate: newVehicleData.licensePlate,
+      miles: newVehicleData.miles,
       maintenanceMarkers: [],
       serviceLogEntries: [],
-      ...newVehicleData,
     };
 
     if (newVehicleData.photo) {
@@ -180,7 +187,7 @@ const AddVehicle = ({ isOpen, setIsOpen }: AddVehicleProps) => {
                 render={({ field }) => (
                   <FileDropzone
                     accept={{ 'image/png': ['.png'], 'image/jpeg': ['.jpg', '.jpeg'] }}
-                    onDrop={(acceptedFiles) => field.onChange(acceptedFiles[0])}
+                    onDrop={(acceptedFiles) => field.onChange(acceptedFiles[0])}  // TODO: FileWITHPREVIEW
                   />
                 )}
               />

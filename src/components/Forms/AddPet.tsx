@@ -27,7 +27,7 @@ import FileDropzone from '../Inputs/FileDropzone';
 const addPetSchema = yup
   .object({
     name: yup.string().required(`Your pet's name is required`),
-    photo: yup.mixed<File>().nullable().defined(),
+    photo: yup.mixed<File>(),
   });
 
 type AddPetFormSchema = yup.InferType<typeof addPetSchema>;

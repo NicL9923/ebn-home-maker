@@ -1,12 +1,12 @@
 import { Box, Button, CircularProgress, Container, Heading, Image, Stack, Text } from '@chakra-ui/react';
+import { Link, useParams } from '@tanstack/react-router';
 import { doc, getDoc, writeBatch } from 'firebase/firestore';
 import { useCallback, useEffect, useState } from 'react';
 import { MdArrowBack } from 'react-icons/md';
 import { FsCol, db } from '../../firebase';
+import { residenceRoute } from '../../main';
 import { Residence, ServiceLogEntry } from '../../models/types';
 import { useUserStore } from '../../state/UserStore';
-import { Link, useParams } from '@tanstack/react-router';
-import { residenceRoute } from '../../main';
 
 const ResidenceView = () => {
   const { residenceId } = useParams({ from: residenceRoute.id });

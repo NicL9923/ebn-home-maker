@@ -27,7 +27,7 @@ import FileDropzone from '../Inputs/FileDropzone';
 const createProfileSchema = yup
   .object({
     name: yup.string().required(`You must provide your first name`),
-    photo: yup.mixed<File>().nullable().defined(),
+    photo: yup.mixed<File>(),
   });
 
 type CreateProfileFormSchema = yup.InferType<typeof createProfileSchema>;
