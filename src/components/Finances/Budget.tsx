@@ -29,7 +29,7 @@ import { Legend, Pie, PieChart, Tooltip as RechartsTooltip, ResponsiveContainer 
 import { FsCol, db } from '../../firebase';
 import { BudgetCategory, BudgetContextValue, BudgetSubcategory, IBudget, Transaction } from '../../models/types';
 import { useUserStore } from '../../state/UserStore';
-import { genUuid, getAbsDiffAndComparisonOfMonetaryValues, getCurrencyString, getHashedHexColor, moveMonth, roundTo2Decimals } from '../../utils/utils';
+import { genUuid, getAbsDiffAndComparisonOfMonetaryValues, getCurrencyString, getNiceChartColor, moveMonth, roundTo2Decimals } from '../../utils/utils';
 import AddTransaction from '../Forms/AddTransaction';
 import EditableLabel from '../Inputs/EditableLabel';
 import BudgetCategories from './BudgetComponents/BudgetCategories';
@@ -296,10 +296,10 @@ const Budget = (props: BudgetProps) => {
     );
   }, [budget.totalAllotted, budget.totalSpent, green400, red500]);
 
-  const allottedPercentChartData = useMemo(() => budget.categories.flatMap(category => {
+  const allottedPercentChartData = useMemo(() => budget.categories.flatMap((category, idx) => {
     if (category.totalAllotted && budget.totalAllotted) {
       const percentOfBudget = (category.totalAllotted / budget.totalAllotted) * 100
-      return [{ name: category.name, value: roundTo2Decimals(percentOfBudget), fill: getHashedHexColor(category.name) }];
+      return [{ name: category.name, value: roundTo2Decimals(percentOfBudget), fill: getNiceChartColor(idx) }];
     }
 
     return [];

@@ -108,7 +108,7 @@ const Transactions = ({ budget }: TransactionsProps) => {
   );
 
   const transactionData = useMemo<Transaction[]>(
-    () => budget.transactions.map((t) => ({ ...t, timestamp: format(new Date(t.timestamp), 'h:mm a') })),
+    () => budget.transactions.map((t) => ({ ...t, timestamp: format(new Date(t.timestamp), 'MM-dd-yy') })),
     [budget.transactions]
   );
 

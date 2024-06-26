@@ -23,7 +23,7 @@ import { Legend, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
 import { FsCol, db } from '../../firebase';
 import { IBudget, SavingsBlob } from '../../models/types';
 import { useUserStore } from '../../state/UserStore';
-import { genUuid, getCurrencyString, getHashedHexColor } from '../../utils/utils';
+import { genUuid, getCurrencyString, getNiceChartColor } from '../../utils/utils';
 import EditableLabel from '../Inputs/EditableLabel';
 
 interface SavingsProps {
@@ -33,7 +33,7 @@ interface SavingsProps {
 const Savings = ({ budget }: SavingsProps) => {
   const family = useUserStore((state) => state.family);
 
-  const savingsBreakdownChartData = useMemo(() => budget.savingsBlobs.map(blob => ({ name: blob.name, value: blob.currentAmt, fill: getHashedHexColor(blob.name) })), []);
+  const savingsBreakdownChartData = useMemo(() => budget.savingsBlobs.map((blob, idx) => ({ name: blob.name, value: blob.currentAmt, fill: getNiceChartColor(idx) })), []);
 
   const isBlobNameUnique = (newBlobName: string) => {
     return !budget.savingsBlobs.some((blob) => blob.name === newBlobName);
