@@ -24,12 +24,13 @@ import { deleteObject, getStorage, ref } from 'firebase/storage';
 import { useCallback, useEffect, useState } from 'react';
 import { MdAdd, MdArticle, MdClose, MdContentCopy, MdLogout, MdMoreVert } from 'react-icons/md';
 import { FsCol, db } from '../firebase';
-import { FamilySettings, Pet, Profile } from '../models/types';
+import { FamilySettings, Pet, Profile, Residence, ServiceLogEntry, Vehicle } from '../models/types';
 import { useUserStore } from '../state/UserStore';
 import ConfirmDialog from './ConfirmDialog';
 import AddPet from './Forms/AddPet';
 import EditableLabel from './Inputs/EditableLabel';
 import NoFamily from './NoFamily';
+import { format } from 'date-fns';
 
 const isProfile = (obj: Profile | Pet): obj is Profile => (obj as Profile).firstName !== undefined;
 
@@ -171,18 +172,48 @@ const Family = () => {
     updateDoc(doc(db, FsCol.Families, profile.familyId), { pets: newPetsArr });
   };
 
-  const exportFamilyDataJSON = () => {
-    if (!family) return;
+  const exportFamilyDataJSON = async () => {
+    if (!family || !profile) return;
 
-    const fileName = 'FamilyData';
+    const fileName = `HomeMakerFamilyData-${format(Date.now(), 'MM-dd-yyyy')}`;
+
+    // Compile data
+    const residences: Residence[] = [];
+    const residenceDocs = await Promise.all(family.residences.map((residence) => getDoc(doc(db, FsCol.Residences, residence))));
+    residenceDocs.forEach((resDoc) => {
+      if (resDoc.exists()) {
+        const docData = resDoc.data();
+        docData.serviceLogEntries.forEach((entry: ServiceLogEntry) => {
+          entry.date = new Date(entry.date).toLocaleDateString();
+        });
+        residences.push(docData as Residence);
+      }
+    });
+
+    const vehicles: Vehicle[] = [];
+    const vehicleDocs = await Promise.all(family.vehicles.map((vehicle) => getDoc(doc(db, FsCol.Vehicles, vehicle))));
+    vehicleDocs.forEach((vehDoc) => {
+      if (vehDoc.exists()) {
+        const docData = vehDoc.data();
+        docData.serviceLogEntries.forEach((entry: ServiceLogEntry) => {
+          entry.date = new Date(entry.date).toLocaleDateString();
+        });
+        vehicles.push(docData as Vehicle);
+      }
+    });
+
     const familyData = {
       name: family.name,
-      members: family.members,
+      members: [profile, ...familyMemberProfiles],
       pets: family.pets,
+      groceryList: family.groceryList.map(item => item.name),
       boardMarkdown: family.boardMarkdown,
-      cityState: family.cityState,
+      residences,
+      vehicles,
+      settings: family.settings,
     };
 
+    // Compile file
     const json = JSON.stringify(familyData, null, 2);
     const blob = new Blob([json], { type: 'application/json' });
     const href = URL.createObjectURL(blob);
