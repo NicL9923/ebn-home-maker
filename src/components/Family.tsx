@@ -31,6 +31,7 @@ import AddPet from './Forms/AddPet';
 import EditableLabel from './Inputs/EditableLabel';
 import NoFamily from './NoFamily';
 import { format } from 'date-fns';
+import { catSubcatKeySeparator } from './Forms/AddTransaction';
 
 const isProfile = (obj: Profile | Pet): obj is Profile => (obj as Profile).firstName !== undefined;
 
@@ -206,7 +207,7 @@ const Family = () => {
       name: family.name,
       members: [profile, ...familyMemberProfiles],
       pets: family.pets,
-      groceryList: family.groceryList.map(item => item.name),
+      groceryListSections: family.groceryList.filter(item => item.uid.startsWith(catSubcatKeySeparator)).map(item => item.name),
       boardMarkdown: family.boardMarkdown,
       residences,
       vehicles,
