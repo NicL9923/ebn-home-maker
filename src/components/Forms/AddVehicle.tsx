@@ -36,6 +36,7 @@ const addVehicleSchema = yup
     vin: yup.string().defined(),
     licensePlate: yup.string().defined(),
     miles: yup.number().required(`You must provide your vehicle's mileage`),
+    fuelCapacity: yup.string().defined(),
     photo: yup.mixed<File>(),
   });
 
@@ -89,6 +90,7 @@ const AddVehicle = ({ isOpen, setIsOpen }: AddVehicleProps) => {
       vin: newVehicleData.vin,
       licensePlate: newVehicleData.licensePlate,
       miles: newVehicleData.miles,
+      fuelCapacity: newVehicleData.fuelCapacity,
       maintenanceMarkers: [],
       serviceLogEntries: [],
     };
@@ -157,6 +159,12 @@ const AddVehicle = ({ isOpen, setIsOpen }: AddVehicleProps) => {
                 <FormErrorMessage>{errors.engine?.message}</FormErrorMessage>
               </FormControl>
             </Stack>
+
+            <FormControl isInvalid={!!errors.fuelCapacity?.message}>
+                <FormLabel>Fuel capacity</FormLabel>
+                <Input type='text' placeholder='12 gals' {...register('fuelCapacity')} />
+                <FormErrorMessage>{errors.fuelCapacity?.message}</FormErrorMessage>
+              </FormControl>
 
             <FormControl isInvalid={!!errors.vin?.message}>
               <FormLabel>VIN</FormLabel>

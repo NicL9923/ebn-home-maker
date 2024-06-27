@@ -1,24 +1,26 @@
 import {
   AspectRatio,
   Box,
-  Button,
+  Card,
+  CardBody,
   CircularProgress,
   Heading,
   Image,
   LinkBox,
   LinkOverlay,
+  Stack,
   Text,
   Wrap,
-  WrapItem,
+  WrapItem
 } from '@chakra-ui/react';
+import { Link } from '@tanstack/react-router';
 import { doc, getDoc } from 'firebase/firestore';
 import { useCallback, useEffect, useState } from 'react';
-import { MdHouse } from 'react-icons/md';
-import AddResidence from '../Forms/AddResidence';
+import { MdAdd, MdHouse } from 'react-icons/md';
 import { FsCol, db } from '../../firebase';
 import type { Residence, ServiceLogEntry } from '../../models/types';
 import { useUserStore } from '../../state/UserStore';
-import { Link } from '@tanstack/react-router';
+import AddResidence from '../Forms/AddResidence';
 
 export const ResidenceOverview = () => {
   const family = useUserStore((state) => state.family);
@@ -69,31 +71,44 @@ export const ResidenceOverview = () => {
           {residences.map((residence) => (
             <WrapItem key={residence.name}>
               <LinkBox>
-                <LinkOverlay as={Link} to={`/maintenance/residences/${residence.uid}`} />
+                <Card height='320px'width='240px' overflow='hidden'>
+                  <CardBody p={3}>
+                    <AspectRatio ratio={4 / 3}>
+                      {residence.img ? (
+                        <Image src={residence.img} borderRadius='lg' />
+                      ) : (
+                        <Box>
+                          <MdHouse fontSize={120} />
+                        </Box>
+                      )}
+                    </AspectRatio>
 
-                <Box p={2} maxW='sm' borderWidth='1px' borderRadius='lg' overflow='hidden'>
-                  <AspectRatio width='250px' ratio={4 / 3}>
-                    {residence.img ? (
-                      <Image height='250' src={residence.img} />
-                    ) : (
-                      <Box>
-                        <MdHouse fontSize={96} />
-                      </Box>
-                    )}
-                  </AspectRatio>
-
-                  <Text>{residence.name}</Text>
-                  <Text>Built: {residence.yearBuilt}</Text>
-                  <Text>Purchased: {residence.yearPurchased}</Text>
-                </Box>
+                    <Stack direction='column' align='center' textAlign='center' mt={4}>
+                      <LinkOverlay as={Link} to={`/maintenance/residences/${residence.uid}`}>
+                        <Heading size='md'>{residence.name}</Heading>
+                      </LinkOverlay>
+                      <Text fontSize='sm'>Moved-in {residence.yearPurchased}</Text>
+                      <Text fontSize='xs'>Built {residence.yearBuilt}</Text>
+                    </Stack>
+                  </CardBody>
+                </Card>
               </LinkBox>
             </WrapItem>
           ))}
+
+          <WrapItem>
+            <Card height='320px'width='240px' variant='outline' onClick={() => setAddingResidence(true)} borderStyle='dashed' cursor='pointer'>
+              <CardBody alignContent='center'>
+                <Stack direction='column' align='center'>
+                  <MdAdd fontSize={120} />
+
+                  <Text>Add residence</Text>
+                </Stack>
+              </CardBody>
+            </Card>
+          </WrapItem>
         </Wrap>
       )}
-      <Button colorScheme='green' onClick={() => setAddingResidence(true)} mt={2}>
-        Add new residence
-      </Button>
 
       <AddResidence isOpen={addingResidence} setIsOpen={setAddingResidence} />
     </Box>

@@ -1,13 +1,6 @@
 import { InfoOutlineIcon } from '@chakra-ui/icons';
 import {
-  AlertDialog,
-  AlertDialogBody,
-  AlertDialogContent,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogOverlay,
   Box,
-  Button,
   Card,
   CardBody,
   Grid,
@@ -22,7 +15,7 @@ import {
   useToken
 } from '@chakra-ui/react';
 import { doc, updateDoc } from 'firebase/firestore';
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { HiChevronLeft, HiChevronRight } from 'react-icons/hi';
 import { MdAdd, MdSubdirectoryArrowRight } from 'react-icons/md';
 import { Legend, Pie, PieChart, Tooltip as RechartsTooltip, ResponsiveContainer } from 'recharts';
@@ -30,6 +23,7 @@ import { FsCol, db } from '../../firebase';
 import { BudgetCategory, BudgetContextValue, BudgetSubcategory, IBudget, Transaction } from '../../models/types';
 import { useUserStore } from '../../state/UserStore';
 import { genUuid, getAbsDiffAndComparisonOfMonetaryValues, getCurrencyString, getNiceChartColor, moveMonth, roundTo2Decimals } from '../../utils/utils';
+import ConfirmDialog from '../ConfirmDialog';
 import AddTransaction from '../Forms/AddTransaction';
 import EditableLabel from '../Inputs/EditableLabel';
 import BudgetCategories from './BudgetComponents/BudgetCategories';
@@ -54,7 +48,6 @@ const Budget = (props: BudgetProps) => {
   const [addingTransaction, setAddingTransaction] = useState(false);
   const [catSubcatKey, setCatSubcatKey] = useState('');
   const [itemToRemove, setItemToRemove] = useState<[string, string | undefined]>(); // [catName, subCatName]
-  const cancelRef = useRef(null);
 
   const saveUpdatedCategories = (categories: BudgetCategory[], transactions?: Transaction[]) => {
     if (!family?.budgetId) return;
@@ -459,42 +452,25 @@ const Budget = (props: BudgetProps) => {
         initialCatSubcat={catSubcatKey}
       />
 
-      <AlertDialog isOpen={!!itemToRemove} leastDestructiveRef={cancelRef} onClose={() => setItemToRemove(undefined)}>
-        <AlertDialogOverlay>
-          <AlertDialogContent>
-            <AlertDialogHeader fontSize='lg' fontWeight='bold'>
-              Delete {itemToRemove && itemToRemove[1] !== undefined ? 'subcategory' : 'category'}
-            </AlertDialogHeader>
+      <ConfirmDialog
+        title={`Delete ${itemToRemove && itemToRemove[1] !== undefined ? 'subcategory' : 'category'}`}
+        text={`Are you sure you want to delete${
+          itemToRemove && itemToRemove[1] !== undefined ? ` subcategory ${itemToRemove[1]} in` : ''
+        } category ${itemToRemove && itemToRemove[0]}?`}
+        primaryActionText='Remove'
+        isOpen={!!itemToRemove}
+        onClose={(confirmed) => {
+          if (confirmed && itemToRemove) {
+            if (itemToRemove[1] === undefined) {
+              removeCategory(itemToRemove[0]);
+            } else {
+              removeSubCategory(itemToRemove[0], itemToRemove[1]);
+            }
+          }
 
-            <AlertDialogBody>{`Are you sure you want to delete${
-              itemToRemove && itemToRemove[1] !== undefined ? ` subcategory ${itemToRemove[1]} in` : ''
-            } category ${itemToRemove && itemToRemove[0]}?`}</AlertDialogBody>
-
-            <AlertDialogFooter>
-              <Button ref={cancelRef} onClick={() => setItemToRemove(undefined)}>
-                Cancel
-              </Button>
-              <Button
-                colorScheme='red'
-                onClick={() => {
-                  if (itemToRemove) {
-                    if (itemToRemove[1] === undefined) {
-                      removeCategory(itemToRemove[0]);
-                    } else {
-                      removeSubCategory(itemToRemove[0], itemToRemove[1]);
-                    }
-                  }
-
-                  setItemToRemove(undefined);
-                }}
-                ml={3}
-              >
-                Remove
-              </Button>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialogOverlay>
-      </AlertDialog>
+          setItemToRemove(undefined);
+        }}
+      />
     </Box>
   );
 };

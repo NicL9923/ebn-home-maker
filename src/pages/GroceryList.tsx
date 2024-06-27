@@ -1,10 +1,4 @@
 import {
-  AlertDialog,
-  AlertDialogBody,
-  AlertDialogContent,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogOverlay,
   Box,
   Button,
   Checkbox,
@@ -18,12 +12,13 @@ import {
   MenuList,
   Stack,
   useColorModeValue,
-  useToast,
+  useToast
 } from '@chakra-ui/react';
 import { doc, updateDoc } from 'firebase/firestore';
-import { useMemo, useRef, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { DragDropContext, Draggable, DropResult, Droppable } from 'react-beautiful-dnd';
 import { MdAdd, MdDelete, MdEdit, MdKeyboardArrowDown } from 'react-icons/md';
+import ConfirmDialog from '../components/ConfirmDialog';
 import AddGroceryItem from '../components/Forms/AddGroceryItem';
 import { catSubcatKeySeparator } from '../components/Forms/AddTransaction';
 import SingleFieldDialog from '../components/Inputs/SingleFieldDialog';
@@ -40,7 +35,6 @@ const GroceryList = () => {
   const [isAdding, setIsAdding] = useState(false);
   const [itemToEdit, setItemToEdit] = useState<GroceryItem>();
   const [isConfirmingRemove, setIsConfirmingRemove] = useState(false);
-  const cancelRef = useRef(null);
 
   const editGroceryItem = async (newItemName?: string) => {
     if (!itemToEdit || !newItemName || !family || !profile) return;
@@ -209,37 +203,19 @@ const GroceryList = () => {
         onSubmitValue={editGroceryItem}
       />
 
-      <AlertDialog
+      <ConfirmDialog
+        title='Remove items'
+        text='Are you sure you want to remove all checked items?'
+        primaryActionText='Remove'
         isOpen={isConfirmingRemove}
-        leastDestructiveRef={cancelRef}
-        onClose={() => setIsConfirmingRemove(false)}
-      >
-        <AlertDialogOverlay>
-          <AlertDialogContent>
-            <AlertDialogHeader fontSize='lg' fontWeight='bold'>
-              Remove items
-            </AlertDialogHeader>
+        onClose={(confirmed) => {
+          if (confirmed) {
+            removeGroceryItems();
+          }
 
-            <AlertDialogBody>Are you sure you want to remove all checked items?</AlertDialogBody>
-
-            <AlertDialogFooter>
-              <Button ref={cancelRef} onClick={() => setIsConfirmingRemove(false)}>
-                Cancel
-              </Button>
-              <Button
-                colorScheme='red'
-                onClick={() => {
-                  setIsConfirmingRemove(false);
-                  removeGroceryItems();
-                }}
-                ml={3}
-              >
-                Remove
-              </Button>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialogOverlay>
-      </AlertDialog>
+          setIsConfirmingRemove(false);
+        }}
+      />
     </Box>
   );
 };

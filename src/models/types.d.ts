@@ -51,6 +51,7 @@ export interface Vehicle {
   vin: string;
   licensePlate: string;
   miles: number;
+  fuelCapacity: string;
   serviceLogEntries: ServiceLogEntry[];
   maintenanceMarkers: { mileage: string; maintenanceReq: string }[];
 }

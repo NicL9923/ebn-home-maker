@@ -1,8 +1,9 @@
-import { Box, Button, CircularProgress, Container, Heading, Image, Stack, Text } from '@chakra-ui/react';
-import { Link, useParams } from '@tanstack/react-router';
+import { AspectRatio, Button, ButtonGroup, CircularProgress, Container, Heading, Image, Stack, Text } from '@chakra-ui/react';
+import { Link, useNavigate, useParams } from '@tanstack/react-router';
 import { doc, getDoc, writeBatch } from 'firebase/firestore';
 import { useCallback, useEffect, useState } from 'react';
 import { MdArrowBack } from 'react-icons/md';
+import ConfirmDialog from '../../components/ConfirmDialog';
 import { FsCol, db } from '../../firebase';
 import { residenceRoute } from '../../main';
 import { Residence, ServiceLogEntry } from '../../models/types';
@@ -10,6 +11,7 @@ import { useUserStore } from '../../state/UserStore';
 
 const ResidenceView = () => {
   const { residenceId } = useParams({ from: residenceRoute.id });
+  const navigate = useNavigate();
 
   const profile = useUserStore((state) => state.profile);
   const family = useUserStore((state) => state.family);
@@ -17,6 +19,7 @@ const ResidenceView = () => {
   const batch = writeBatch(db);
 
   const [residence, setResidence] = useState<Residence | undefined>(undefined);
+  const [isDeletingResidence, setIsDeletingResidence] = useState(false);
 
   const getResidence = useCallback(async () => {
     if (family && family.residences.includes(residenceId)) {
@@ -36,12 +39,14 @@ const ResidenceView = () => {
   const deleteResidence = () => {
     if (!family || !profile) return;
 
-    const newVehIdArr = family.residences.filter((res) => res !== residenceId);
+    const newResIdArr = family.residences.filter((res) => res !== residenceId);
 
-    batch.update(doc(db, FsCol.Families, profile.familyId), { residences: newVehIdArr });
+    batch.update(doc(db, FsCol.Families, profile.familyId), { residences: newResIdArr });
     batch.delete(doc(db, FsCol.Residences, residenceId));
 
     batch.commit();
+
+    navigate({ to: '/maintenance'});
   };
 
   // const addLogEntry = () => {};
@@ -51,34 +56,52 @@ const ResidenceView = () => {
   }, [getResidence]);
 
   return (
-    <Container centerContent mt={6}>
-      <Link to='/maintenance'>
-        <Button leftIcon={<MdArrowBack />} variant='link' colorScheme='blue'>
-          Go back
-        </Button>
-      </Link>
+    <>
+      <Container>
+        <Link to='/maintenance'>
+          <Button leftIcon={<MdArrowBack />} variant='link' colorScheme='blue'>
+            Go back
+          </Button>
+        </Link>
 
-      {residence ? (
-        <Container centerContent>
-          <Heading>{residence.name}</Heading>
+        {residence ? (
+          <Stack align='center' spacing={4}>
+            <Heading>{residence.name}</Heading>
 
-          {residence.img && <Image src={residence.img} alt={residence.name} />}
+            {residence.img && <AspectRatio height='250px' width='300px' ratio={4 / 3}><Image src={residence.img} borderRadius='lg' /></AspectRatio>}
 
-          <Box mt={4}>
-            <Text fontSize='lg'>Built: {residence.yearBuilt}</Text>
-            <Text fontSize='lg'>Purchased: {residence.yearPurchased}</Text>
-          </Box>
+            <Text fontSize='lg'>Moved-in {residence.yearPurchased}</Text>
+            <Text fontSize='md'>Built in {residence.yearBuilt}</Text>
 
-          <Stack direction='row' justifyContent='right' spacing={1} mt={3}>
-            <Button size='sm' colorScheme='red' onClick={deleteResidence}>
-              Delete
-            </Button>
+            <ButtonGroup>
+              <Button size='sm' onClick={() => undefined}>
+                Edit
+              </Button>
+
+              <Button size='sm' colorScheme='red' onClick={() => setIsDeletingResidence(true)}>
+                Delete
+              </Button>
+            </ButtonGroup>
           </Stack>
-        </Container>
-      ) : (
-        <CircularProgress isIndeterminate size={32} />
-      )}
-    </Container>
+        ) : (
+          <CircularProgress isIndeterminate size={32} />
+        )}
+      </Container>
+
+      <ConfirmDialog
+        title='Delete residence'
+        text='Are you sure you want to delete this residence?'
+        primaryActionText='Delete'
+        isOpen={isDeletingResidence}
+        onClose={(confirmed) => {
+          if (confirmed) {
+            deleteResidence();
+          }
+
+          setIsDeletingResidence(false);
+        }}
+      />
+    </>
   );
 };
 

@@ -1,10 +1,4 @@
 import {
-  AlertDialog,
-  AlertDialogBody,
-  AlertDialogContent,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogOverlay,
   Avatar,
   Box,
   Button,
@@ -18,26 +12,21 @@ import {
   MenuButton,
   MenuItem,
   MenuList,
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalOverlay,
   Stack,
   Text,
   Wrap,
   WrapItem,
-  useToast,
+  useToast
 } from '@chakra-ui/react';
 import copy from 'clipboard-copy';
 import { doc, getDoc, updateDoc, writeBatch } from 'firebase/firestore';
 import { deleteObject, getStorage, ref } from 'firebase/storage';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { MdAdd, MdArticle, MdClose, MdContentCopy, MdLogout, MdMoreVert } from 'react-icons/md';
 import { FsCol, db } from '../firebase';
 import { FamilySettings, Pet, Profile } from '../models/types';
 import { useUserStore } from '../state/UserStore';
+import ConfirmDialog from './ConfirmDialog';
 import AddPet from './Forms/AddPet';
 import EditableLabel from './Inputs/EditableLabel';
 import NoFamily from './NoFamily';
@@ -56,7 +45,6 @@ const Family = () => {
   const [deletingFamily, setDeletingFamily] = useState(false);
   const [leavingFamily, setLeavingFamily] = useState(false);
   const [memberGettingRemoved, setMemberGettingRemoved] = useState<Profile | Pet>();
-  const cancelRef = useRef(null);
 
   const batch = writeBatch(db);
 
@@ -408,80 +396,54 @@ const Family = () => {
 
       <AddPet isOpen={addingPet} setIsOpen={setAddingPet} />
 
-      <Modal isOpen={deletingFamily} onClose={() => setDeletingFamily(false)}>
-        <ModalOverlay />
+      <ConfirmDialog
+        title='Delete family'
+        text={`Are you sure you want to delete the ${family.name} family?`}
+        primaryActionText='Delete'
+        isOpen={deletingFamily}
+        onClose={(confirmed) => {
+          if (confirmed) {
+            deleteFamily();
+          }
 
-        <ModalContent>
-          <ModalHeader>Delete family?</ModalHeader>
-          <ModalBody>
-            <Text>Are you sure you want to delete the {family.name} family?</Text>
-          </ModalBody>
+          setDeletingFamily(false);
+        }}
+      />
 
-          <ModalFooter>
-            <Button onClick={() => setDeletingFamily(false)}>Cancel</Button>
-            <Button onClick={deleteFamily}>Delete</Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
+      <ConfirmDialog
+        title='Leave family'
+        text={`Are you sure you want to leave the ${family.name} family?`}
+        primaryActionText='Leave'
+        isOpen={leavingFamily}
+        onClose={(confirmed) => {
+          if (confirmed) {
+            leaveFamily();
+          }
 
-      <Modal isOpen={leavingFamily} onClose={() => setLeavingFamily(false)}>
-        <ModalOverlay />
+          setLeavingFamily(false);
+        }}
+      />
 
-        <ModalContent>
-          <ModalHeader>Leave family?</ModalHeader>
-
-          <ModalBody>
-            <Text>Are you sure you want to leave the {family.name} family?</Text>
-          </ModalBody>
-
-          <ModalFooter>
-            <Button onClick={() => setLeavingFamily(false)}>Cancel</Button>
-            <Button onClick={leaveFamily}>Leave</Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
-
-      <AlertDialog
+      <ConfirmDialog
+        title='Remove from family'
+        text={`Are you sure you want to remove ${
+          memberGettingRemoved &&
+          (isProfile(memberGettingRemoved) ? memberGettingRemoved.firstName : memberGettingRemoved.name)
+        } from the family?`}
+        primaryActionText='Remove'
         isOpen={!!memberGettingRemoved}
-        leastDestructiveRef={cancelRef}
-        onClose={() => setMemberGettingRemoved(undefined)}
-      >
-        <AlertDialogOverlay>
-          <AlertDialogContent>
-            <AlertDialogHeader fontSize='lg' fontWeight='bold'>
-              Remove from family
-            </AlertDialogHeader>
+        onClose={(confirmed) => {
+          if (confirmed && memberGettingRemoved) {
+            if (isProfile(memberGettingRemoved)) {
+              removeFamilyMember(memberGettingRemoved);
+            } else {
+              removePet(memberGettingRemoved);
+            }
+          }
 
-            <AlertDialogBody>{`Are you sure you want to remove ${
-              memberGettingRemoved &&
-              (isProfile(memberGettingRemoved) ? memberGettingRemoved.firstName : memberGettingRemoved.name)
-            } from the family?`}</AlertDialogBody>
-
-            <AlertDialogFooter>
-              <Button ref={cancelRef} onClick={() => setMemberGettingRemoved(undefined)}>
-                Cancel
-              </Button>
-              <Button
-                colorScheme='red'
-                onClick={() => {
-                  if (memberGettingRemoved) {
-                    if (isProfile(memberGettingRemoved)) {
-                      removeFamilyMember(memberGettingRemoved);
-                    } else {
-                      removePet(memberGettingRemoved);
-                    }
-                  }
-
-                  setMemberGettingRemoved(undefined);
-                }}
-                ml={3}
-              >
-                Remove
-              </Button>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialogOverlay>
-      </AlertDialog>
+          setMemberGettingRemoved(undefined);
+        }}
+      />
     </Box>
   );
 };

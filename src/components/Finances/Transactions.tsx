@@ -1,10 +1,4 @@
 import {
-  AlertDialog,
-  AlertDialogBody,
-  AlertDialogContent,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogOverlay,
   Box,
   Button,
   Checkbox,
@@ -32,14 +26,15 @@ import {
 } from '@tanstack/react-table';
 import { format } from 'date-fns';
 import { doc, updateDoc } from 'firebase/firestore';
-import { useMemo, useRef, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { HiChevronLeft, HiChevronRight } from 'react-icons/hi';
 import { MdAdd, MdDelete } from 'react-icons/md';
 import { FsCol, db } from '../../firebase';
 import { IBudget, Transaction } from '../../models/types';
 import { useUserStore } from '../../state/UserStore';
-import AddTransaction from '../Forms/AddTransaction';
 import { getCurrencyString } from '../../utils/utils';
+import ConfirmDialog from '../ConfirmDialog';
+import AddTransaction from '../Forms/AddTransaction';
 
 const rowsPerPageOptions = [10, 25, 50, 100];
 
@@ -54,7 +49,6 @@ const Transactions = ({ budget }: TransactionsProps) => {
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
   // TODO: editable fields
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
-  const cancelRef = useRef(null);
 
   const transactionColumns = useMemo<ColumnDef<Transaction>[]>(
     () => [
@@ -263,37 +257,19 @@ const Transactions = ({ budget }: TransactionsProps) => {
 
       <AddTransaction isOpen={addingTransaction} setIsOpen={setAddingTransaction} budget={budget} />
 
-      <AlertDialog
+      <ConfirmDialog
+        title='Delete transactions'
+        text='Are you sure you want to delete the selected transactions?'
+        primaryActionText='Delete'
         isOpen={isConfirmingDelete}
-        leastDestructiveRef={cancelRef}
-        onClose={() => setIsConfirmingDelete(false)}
-      >
-        <AlertDialogOverlay>
-          <AlertDialogContent>
-            <AlertDialogHeader fontSize='lg' fontWeight='bold'>
-              Delete transactions
-            </AlertDialogHeader>
+        onClose={(confirmed) => {
+          if (confirmed) {
+            removeTransactions();
+          }
 
-            <AlertDialogBody>Are you sure you want to delete the selected transactions?</AlertDialogBody>
-
-            <AlertDialogFooter>
-              <Button ref={cancelRef} onClick={() => setIsConfirmingDelete(false)}>
-                Cancel
-              </Button>
-              <Button
-                colorScheme='red'
-                onClick={() => {
-                  setIsConfirmingDelete(false);
-                  removeTransactions();
-                }}
-                ml={3}
-              >
-                Delete
-              </Button>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialogOverlay>
-      </AlertDialog>
+          setIsConfirmingDelete(false);
+        }}
+      />
     </Box>
   );
 };

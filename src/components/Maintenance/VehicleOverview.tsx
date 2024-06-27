@@ -1,24 +1,26 @@
 import {
   AspectRatio,
   Box,
-  Button,
+  Card,
+  CardBody,
   CircularProgress,
   Heading,
   Image,
   LinkBox,
   LinkOverlay,
+  Stack,
   Text,
   Wrap,
-  WrapItem,
+  WrapItem
 } from '@chakra-ui/react';
+import { Link } from '@tanstack/react-router';
 import { doc, getDoc } from 'firebase/firestore';
 import { useCallback, useEffect, useState } from 'react';
-import { MdDirectionsCar } from 'react-icons/md';
-import AddVehicle from '../Forms/AddVehicle';
+import { MdAdd, MdDirectionsCar } from 'react-icons/md';
 import { FsCol, db } from '../../firebase';
 import type { ServiceLogEntry, Vehicle } from '../../models/types';
 import { useUserStore } from '../../state/UserStore';
-import { Link } from '@tanstack/react-router';
+import AddVehicle from '../Forms/AddVehicle';
 
 export const VehicleOverview = () => {
   const family = useUserStore((state) => state.family);
@@ -69,35 +71,44 @@ export const VehicleOverview = () => {
           {vehicles.map((vehicle) => (
             <WrapItem key={vehicle.vin}>
               <LinkBox>
-                <LinkOverlay as={Link} to={`/maintenance/vehicles/${vehicle.uid}`} />
+                <Card height='320px'width='240px' overflow='hidden'>
+                  <CardBody p={3}>
+                    <AspectRatio ratio={4 / 3}>
+                      {vehicle.img ? (
+                        <Image src={vehicle.img} borderRadius='lg' />
+                      ) : (
+                        <Box>
+                          <MdDirectionsCar fontSize={120} />
+                        </Box>
+                      )}
+                    </AspectRatio>
 
-                <Box p={2} maxW='sm' borderWidth='1px' borderRadius='lg' overflow='hidden'>
-                  <AspectRatio width='250px' ratio={4 / 3}>
-                    {vehicle.img ? (
-                      <Image height='250' src={vehicle.img} />
-                    ) : (
-                      <Box>
-                        <MdDirectionsCar fontSize={96} />
-                      </Box>
-                    )}
-                  </AspectRatio>
+                    <Stack direction='column' align='center' textAlign='center' mt={4}>
+                      <LinkOverlay as={Link} to={`/maintenance/vehicles/${vehicle.uid}`}>
+                        <Heading size='md'>{vehicle.year} {vehicle.make} {vehicle.model}</Heading>
+                      </LinkOverlay>
 
-                  <Text>
-                    {vehicle.year} {vehicle.make} {vehicle.model} {vehicle.trim}
-                  </Text>
-                  <Text>Engine: {vehicle.engine}</Text>
-                  <Text>Odometer: {vehicle.miles} mi</Text>
-                  <Text>VIN: {vehicle.vin}</Text>
-                  <Text>License Plate: {vehicle.licensePlate}</Text>
-                </Box>
+                      <Text fontSize='sm'>{vehicle.miles} miles</Text>
+                    </Stack>
+                  </CardBody>
+                </Card>
               </LinkBox>
             </WrapItem>
           ))}
+
+          <WrapItem>
+            <Card height='320px'width='240px' variant='outline' onClick={() => setAddingVehicle(true)} borderStyle='dashed' cursor='pointer'>
+              <CardBody alignContent='center'>
+                <Stack direction='column' align='center'>
+                  <MdAdd fontSize={120} />
+
+                  <Text>Add vehicle</Text>
+                </Stack>
+              </CardBody>
+            </Card>
+          </WrapItem>
         </Wrap>
       )}
-      <Button colorScheme='green' onClick={() => setAddingVehicle(true)} mt={2}>
-        Add new vehicle
-      </Button>
 
       <AddVehicle isOpen={addingVehicle} setIsOpen={setAddingVehicle} />
     </Box>
