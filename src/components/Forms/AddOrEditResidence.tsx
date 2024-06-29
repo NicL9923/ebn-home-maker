@@ -21,8 +21,9 @@ import Client from '../../Client';
 import { getNewResidenceTemplate } from '../../constants';
 import { useUserStore } from '../../state/UserStore';
 import FileDropzone from '../Inputs/FileDropzone';
+import { Residence } from '../../models/types';
 
-const addResidenceSchema = yup
+const addOrEditResidenceSchema = yup
   .object({
     name: yup.string().required(`You must give your residence a name`),
     yearBuilt: yup.string().required('You must provide the year your residence was built'),
@@ -30,14 +31,17 @@ const addResidenceSchema = yup
     photo: yup.mixed<File>(),
   });
 
-type AddResidenceFormSchema = yup.InferType<typeof addResidenceSchema>;
+type AddOrEditResidenceFormSchema = yup.InferType<typeof addOrEditResidenceSchema>;
 
-interface AddResidenceProps {
+interface AddOrEditResidenceProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
+  existingResidence?: Residence;
 }
 
-const AddResidence = ({ isOpen, setIsOpen }: AddResidenceProps) => {
+const AddOrEditResidence = (props: AddOrEditResidenceProps) => {
+  const { isOpen, setIsOpen, existingResidence } = props;
+
   const toast = useToast();
   const profile = useUserStore((state) => state.profile);
   const family = useUserStore((state) => state.family);
@@ -49,20 +53,24 @@ const AddResidence = ({ isOpen, setIsOpen }: AddResidenceProps) => {
     reset,
     formState: { errors },
   } = useForm({
-    resolver: yupResolver(addResidenceSchema),
+    resolver: yupResolver(addOrEditResidenceSchema),
   });
 
-  const [isAddingResidence, setIsAddingResidence] = useState(false);
+  const [isAddingOrEditingResidence, setIsAddingOrEditingResidence] = useState(false);
 
-  const addNewResidence = async (newResidenceData: AddResidenceFormSchema, event?: BaseSyntheticEvent) => {
+  const addNewResidence = async (newResidenceData: AddOrEditResidenceFormSchema, event?: BaseSyntheticEvent) => {
     event?.preventDefault();
     if (!family || !profile) return;
 
-    setIsAddingResidence(true);
+    setIsAddingOrEditingResidence(true);
 
     const { name, yearBuilt, yearPurchased, photo } = newResidenceData;
     const imgLink = photo ? await Client.uploadImageAndGetUrl(photo) : undefined;
-    const newResidenceTemplate = getNewResidenceTemplate(name, yearBuilt, yearPurchased, imgLink);
+    const newResidenceTemplate = getNewResidenceTemplate(name, yearBuilt, yearPurchased);
+
+    if (imgLink) {
+      newResidenceTemplate.img = imgLink;
+    }
 
     await Client.createNewResidence(profile.familyId, family, newResidenceTemplate);
 
@@ -73,7 +81,7 @@ const AddResidence = ({ isOpen, setIsOpen }: AddResidenceProps) => {
     });
 
     setIsOpen(false);
-    setIsAddingResidence(false);
+    setIsAddingOrEditingResidence(false);
     reset();
   };
 
@@ -81,7 +89,7 @@ const AddResidence = ({ isOpen, setIsOpen }: AddResidenceProps) => {
     <Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>Add Residence</ModalHeader>
+        <ModalHeader>{!!existingResidence ? 'Edit' : 'Add'} residence</ModalHeader>
 
         <form onSubmit={handleSubmit(addNewResidence)} method='post'>
           <ModalBody>
@@ -122,8 +130,8 @@ const AddResidence = ({ isOpen, setIsOpen }: AddResidenceProps) => {
             <Button type='button' onClick={() => setIsOpen(false)}>
               Cancel
             </Button>
-            <Button type='submit' ml={3} colorScheme='green' isLoading={isAddingResidence}>
-              Add
+            <Button type='submit' ml={3} colorScheme='green' isLoading={isAddingOrEditingResidence}>
+              Save
             </Button>
           </ModalFooter>
         </form>
@@ -132,4 +140,4 @@ const AddResidence = ({ isOpen, setIsOpen }: AddResidenceProps) => {
   );
 };
 
-export default AddResidence;
+export default AddOrEditResidence;

@@ -90,19 +90,17 @@ export const getNewBudgetTemplate = (userId: string): IBudget => ({
   ],
 });
 
-export const getNewResidenceTemplate = (name: string, yearBuilt: string, yearPurchased: string, imgLink?: string): Residence => ({
+export const getNewResidenceTemplate = (name: string, yearBuilt: string, yearPurchased: string): Residence => ({
   uid: genUuid(),
   name,
-  img: imgLink,
   yearBuilt,
   yearPurchased,
   maintenanceMarkers: [],
   serviceLogEntries: [],
 });
 
-export const getNewVehicleTemplate = (year: string, make: string, model: string, trim: string, engine: string, vin: string, licensePlate: string, miles: number, fuelCapacity: string, imgLink?: string): Vehicle => ({
+export const getNewVehicleTemplate = (year: string, make: string, model: string, trim: string, engine: string, vin: string, licensePlate: string, miles: number, fuelCapacity: string): Vehicle => ({
   uid: genUuid(),
-  img: imgLink,
   year,
   make,
   model,
@@ -132,4 +130,4 @@ export const getNewFamilyTemplate = (name: string, userId: string): Family => ({
   },
 });
 
-export const getNewProfileTemplate = (userId: string, name: string, imgLink?: string): Profile => ({ uid: userId, firstName: name, familyId: '', imgLink });
+export const getNewProfileTemplate = (userId: string, name: string): Profile => ({ uid: userId, firstName: name, familyId: '' });

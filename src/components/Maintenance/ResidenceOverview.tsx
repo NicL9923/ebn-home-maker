@@ -20,7 +20,7 @@ import { MdAdd, MdHouse } from 'react-icons/md';
 import { FsCol, db } from '../../firebase';
 import type { Residence, ServiceLogEntry } from '../../models/types';
 import { useUserStore } from '../../state/UserStore';
-import AddResidence from '../Forms/AddResidence';
+import AddOrEditResidence from '../Forms/AddOrEditResidence';
 
 export const ResidenceOverview = () => {
   const family = useUserStore((state) => state.family);
@@ -110,7 +110,7 @@ export const ResidenceOverview = () => {
         </Wrap>
       )}
 
-      <AddResidence isOpen={addingResidence} setIsOpen={setAddingResidence} />
+      <AddOrEditResidence isOpen={addingResidence} setIsOpen={setAddingResidence} />
     </Box>
   );
 };

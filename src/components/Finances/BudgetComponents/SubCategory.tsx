@@ -16,7 +16,7 @@ import { Draggable } from 'react-beautiful-dnd';
 import { MdKeyboardArrowDown } from 'react-icons/md';
 import { BudgetCategory, BudgetSubcategory } from '../../../models/types';
 import { calcMonetaryValuesRatioAsPercentInt, compareMonetaryValues, getCurrencyString } from '../../../utils/utils';
-import { catSubcatKeySeparator } from '../../Forms/AddTransaction';
+import { catSubcatKeySeparator } from '../../Forms/AddOrEditTransaction';
 import EditableLabel from '../../Inputs/EditableLabel';
 import { BudgetContext, budgetRowsGridTemplateColumns } from '../Budget';
 

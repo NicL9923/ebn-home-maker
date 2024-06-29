@@ -23,7 +23,7 @@ import { BudgetCategory, BudgetContextValue, BudgetSubcategory, IBudget, Transac
 import { useUserStore } from '../../state/UserStore';
 import { genUuid, getAbsDiffAndComparisonOfMonetaryValues, getCurrencyString, getNiceChartColor, moveMonth, roundTo2Decimals } from '../../utils/utils';
 import ConfirmDialog from '../ConfirmDialog';
-import AddTransaction from '../Forms/AddTransaction';
+import AddOrEditTransaction from '../Forms/AddOrEditTransaction';
 import EditableLabel from '../Inputs/EditableLabel';
 import BudgetCategories from './BudgetComponents/BudgetCategories';
 
@@ -444,7 +444,7 @@ const Budget = (props: BudgetProps) => {
         </CardBody>
       </Card>
 
-      <AddTransaction
+      <AddOrEditTransaction
         isOpen={addingTransaction}
         setIsOpen={setAddingTransaction}
         budget={budget}

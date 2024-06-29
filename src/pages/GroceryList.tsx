@@ -20,7 +20,7 @@ import { MdAdd, MdDelete, MdEdit, MdKeyboardArrowDown } from 'react-icons/md';
 import Client from '../Client';
 import ConfirmDialog from '../components/ConfirmDialog';
 import AddGroceryItem from '../components/Forms/AddGroceryItem';
-import { catSubcatKeySeparator } from '../components/Forms/AddTransaction';
+import { catSubcatKeySeparator } from '../components/Forms/AddOrEditTransaction';
 import SingleFieldDialog from '../components/Inputs/SingleFieldDialog';
 import { GroceryItem } from '../models/types';
 import { useUserStore } from '../state/UserStore';

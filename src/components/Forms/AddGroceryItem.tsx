@@ -20,7 +20,7 @@ import * as yup from 'yup';
 import Client from '../../Client';
 import { useUserStore } from '../../state/UserStore';
 import { genUuid } from '../../utils/utils';
-import { catSubcatKeySeparator } from './AddTransaction';
+import { catSubcatKeySeparator } from './AddOrEditTransaction';
 
 const addGroceryItemSchema = yup
   .object({
@@ -99,7 +99,7 @@ const AddGroceryItem = ({ isOpen, setIsOpen }: AddGroceryItemProps) => {
               Cancel
             </Button>
             <Button type='submit' ml={3} colorScheme='green' isLoading={isAddingItem}>
-              Add
+              Save
             </Button>
           </ModalFooter>
         </form>

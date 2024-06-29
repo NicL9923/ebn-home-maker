@@ -58,7 +58,11 @@ const CreateProfile = ({ isOpen, setIsOpen }: CreateProfileProps) => {
 
     const { name, photo } = createProfileData;
     const imgLink = photo ? await Client.uploadImageAndGetUrl(photo) : undefined;
-    const newProfile = getNewProfileTemplate(userId, name, imgLink);
+    const newProfile = getNewProfileTemplate(userId, name);
+
+    if (imgLink) {
+      newProfile.imgLink = imgLink;
+    }
 
     await Client.createNewProfile(newProfile);
 

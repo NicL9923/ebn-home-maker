@@ -22,8 +22,9 @@ import Client from '../../Client';
 import { getNewVehicleTemplate } from '../../constants';
 import { useUserStore } from '../../state/UserStore';
 import FileDropzone from '../Inputs/FileDropzone';
+import { Vehicle } from '../../models/types';
 
-const addVehicleSchema = yup
+const addOrEditVehicleSchema = yup
   .object({
     year: yup.string().required(`You must give your vehicle a name`),
     make: yup.string().required(`You must provide your vehicle's make`),
@@ -37,14 +38,17 @@ const addVehicleSchema = yup
     photo: yup.mixed<File>(),
   });
 
-type AddVehicleFormSchema = yup.InferType<typeof addVehicleSchema>;
+type AddOrEditVehicleFormSchema = yup.InferType<typeof addOrEditVehicleSchema>;
 
-interface AddVehicleProps {
+interface AddOrEditVehicleProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
+  existingVehicle?: Vehicle;
 }
 
-const AddVehicle = ({ isOpen, setIsOpen }: AddVehicleProps) => {
+const AddOrEditVehicle = (props: AddOrEditVehicleProps) => {
+  const { isOpen, setIsOpen, existingVehicle } = props;
+
   const toast = useToast();
   const profile = useUserStore((state) => state.profile);
   const family = useUserStore((state) => state.family);
@@ -56,20 +60,24 @@ const AddVehicle = ({ isOpen, setIsOpen }: AddVehicleProps) => {
     reset,
     formState: { errors },
   } = useForm({
-    resolver: yupResolver(addVehicleSchema),
+    resolver: yupResolver(addOrEditVehicleSchema),
   });
 
-  const [isAddingVehicle, setIsAddingVehicle] = useState(false);
+  const [isAddingOrEditingVehicle, setIsAddingOrEditingVehicle] = useState(false);
 
-  const addNewVehicle = async (newVehicleData: AddVehicleFormSchema, event?: BaseSyntheticEvent) => {
+  const addNewVehicle = async (newVehicleData: AddOrEditVehicleFormSchema, event?: BaseSyntheticEvent) => {
     event?.preventDefault();
     if (!family || !profile) return;
 
-    setIsAddingVehicle(true);
+    setIsAddingOrEditingVehicle(true);
 
     const { year, make, model, trim, engine, vin, licensePlate, miles, fuelCapacity, photo } = newVehicleData;
     const imgLink = photo ? await Client.uploadImageAndGetUrl(photo) : undefined;
-    const newVehicleTemplate = getNewVehicleTemplate(year, make, model, trim, engine, vin, licensePlate, miles, fuelCapacity, imgLink);
+    const newVehicleTemplate = getNewVehicleTemplate(year, make, model, trim, engine, vin, licensePlate, miles, fuelCapacity);
+
+    if (imgLink) {
+      newVehicleTemplate.img = imgLink;
+    }
 
     await Client.createNewVehicle(profile.familyId, family, newVehicleTemplate);
 
@@ -80,7 +88,7 @@ const AddVehicle = ({ isOpen, setIsOpen }: AddVehicleProps) => {
     });
 
     setIsOpen(false);
-    setIsAddingVehicle(false);
+    setIsAddingOrEditingVehicle(false);
     reset();
   };
 
@@ -88,7 +96,7 @@ const AddVehicle = ({ isOpen, setIsOpen }: AddVehicleProps) => {
     <Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>Add Vehicle</ModalHeader>
+        <ModalHeader>{!!existingVehicle ? 'Edit' : 'Add'} vehicle</ModalHeader>
 
         <form onSubmit={handleSubmit(addNewVehicle)} method='post'>
           <ModalBody>
@@ -170,8 +178,8 @@ const AddVehicle = ({ isOpen, setIsOpen }: AddVehicleProps) => {
             <Button type='button' onClick={() => setIsOpen(false)}>
               Cancel
             </Button>
-            <Button type='submit' ml={3} colorScheme='green' isLoading={isAddingVehicle}>
-              Add
+            <Button type='submit' ml={3} colorScheme='green' isLoading={isAddingOrEditingVehicle}>
+              Save
             </Button>
           </ModalFooter>
         </form>
@@ -180,4 +188,4 @@ const AddVehicle = ({ isOpen, setIsOpen }: AddVehicleProps) => {
   );
 };
 
-export default AddVehicle;
+export default AddOrEditVehicle;

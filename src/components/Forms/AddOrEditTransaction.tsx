@@ -34,8 +34,6 @@ import {
 } from '../../utils/utils';
 import DatePicker from '../Inputs/DatePicker';
 
-// TODO: Disable form buttons while submitting
-
 export const catSubcatKeySeparator = '&%&';
 
 interface IGroupOpt extends GroupBase<ICatOpt> {
@@ -48,7 +46,7 @@ interface ICatOpt extends OptionBase {
   value: string; // category-subcategory
 }
 
-const addTransactionSchema = yup
+const addOrEditTransactionSchema = yup
   .object({
     amount: yup.number().required('The transaction amount is required'),
     description: yup.string().required('A description of the transaction is required'),
@@ -56,16 +54,19 @@ const addTransactionSchema = yup
     date: yup.date().required('The date of the transaction is required'),
   });
 
-type AddTransactionFormSchema = yup.InferType<typeof addTransactionSchema>;
+type AddOrEditTransactionFormSchema = yup.InferType<typeof addOrEditTransactionSchema>;
 
-interface AddTransactionProps {
+interface AddOrEditTransactionProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
   initialCatSubcat?: string;
   budget: IBudget;
+  existingTransaction?: Transaction;
 }
 
-const AddTransaction = ({ isOpen, setIsOpen, initialCatSubcat, budget }: AddTransactionProps) => {
+const AddOrEditTransaction = (props: AddOrEditTransactionProps) => {
+  const { isOpen, setIsOpen, initialCatSubcat, budget, existingTransaction } = props;
+
   const toast = useToast();
   const family = useUserStore((state) => state.family);
 
@@ -76,12 +77,12 @@ const AddTransaction = ({ isOpen, setIsOpen, initialCatSubcat, budget }: AddTran
     reset,
     setValue,
     formState: { errors },
-  } = useForm<AddTransactionFormSchema>({
-    resolver: yupResolver(addTransactionSchema),
+  } = useForm<AddOrEditTransactionFormSchema>({
+    resolver: yupResolver(addOrEditTransactionSchema),
   });
 
   const [amtStr, setAmtStr] = useState('');
-  const [isAddingTransaction, setIsAddingTransaction] = useState(false);
+  const [isAddingOrEditingTransaction, setIsAddingOrEditingTransaction] = useState(false);
 
   const categoryOptions = useMemo(() => {
     const catOptions: IGroupOpt[] = budget.categories.map((category) => ({
@@ -113,11 +114,11 @@ const AddTransaction = ({ isOpen, setIsOpen, initialCatSubcat, budget }: AddTran
     return newInitialOption;
   }, [categoryOptions, initialCatSubcat, setValue]);
 
-  const submitNewTransaction = async (newTransactionData: AddTransactionFormSchema, event?: BaseSyntheticEvent) => {
+  const submitNewTransaction = async (newTransactionData: AddOrEditTransactionFormSchema, event?: BaseSyntheticEvent) => {
     event?.preventDefault();
     if (!family?.budgetId) return;
 
-    setIsAddingTransaction(true);
+    setIsAddingOrEditingTransaction(true);
 
     const splitCatSubcat = newTransactionData.catSubcat.value.split(catSubcatKeySeparator);
 
@@ -141,7 +142,7 @@ const AddTransaction = ({ isOpen, setIsOpen, initialCatSubcat, budget }: AddTran
     });
 
     setIsOpen(false);
-    setIsAddingTransaction(false);
+    setIsAddingOrEditingTransaction(false);
     reset();
     setAmtStr('');
   };
@@ -156,7 +157,7 @@ const AddTransaction = ({ isOpen, setIsOpen, initialCatSubcat, budget }: AddTran
     <Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>Add Transaction</ModalHeader>
+        <ModalHeader>{!!existingTransaction ? 'Edit' : 'Add'} transaction</ModalHeader>
 
         <form onSubmit={handleSubmit(submitNewTransaction)} method='post'>
           <ModalBody>
@@ -237,7 +238,7 @@ const AddTransaction = ({ isOpen, setIsOpen, initialCatSubcat, budget }: AddTran
             <Button type='button' onClick={() => setIsOpen(false)}>
               Cancel
             </Button>
-            <Button type='submit' colorScheme='green' ml={3} isLoading={isAddingTransaction}>
+            <Button type='submit' colorScheme='green' ml={3} isLoading={isAddingOrEditingTransaction}>
               Save
             </Button>
           </ModalFooter>
@@ -247,4 +248,4 @@ const AddTransaction = ({ isOpen, setIsOpen, initialCatSubcat, budget }: AddTran
   );
 };
 
-export default AddTransaction;
+export default AddOrEditTransaction;

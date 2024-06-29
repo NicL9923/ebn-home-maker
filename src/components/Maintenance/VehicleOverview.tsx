@@ -20,7 +20,7 @@ import { MdAdd, MdDirectionsCar } from 'react-icons/md';
 import { FsCol, db } from '../../firebase';
 import type { ServiceLogEntry, Vehicle } from '../../models/types';
 import { useUserStore } from '../../state/UserStore';
-import AddVehicle from '../Forms/AddVehicle';
+import AddOrEditVehicle from '../Forms/AddOrEditVehicle';
 
 export const VehicleOverview = () => {
   const family = useUserStore((state) => state.family);
@@ -110,7 +110,7 @@ export const VehicleOverview = () => {
         </Wrap>
       )}
 
-      <AddVehicle isOpen={addingVehicle} setIsOpen={setAddingVehicle} />
+      <AddOrEditVehicle isOpen={addingVehicle} setIsOpen={setAddingVehicle} />
     </Box>
   );
 };

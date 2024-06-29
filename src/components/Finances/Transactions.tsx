@@ -33,7 +33,7 @@ import { IBudget, Transaction } from '../../models/types';
 import { useUserStore } from '../../state/UserStore';
 import { getCurrencyString } from '../../utils/utils';
 import ConfirmDialog from '../ConfirmDialog';
-import AddTransaction from '../Forms/AddTransaction';
+import AddOrEditTransaction from '../Forms/AddOrEditTransaction';
 
 const rowsPerPageOptions = [10, 25, 50, 100];
 
@@ -127,11 +127,9 @@ const Transactions = ({ budget }: TransactionsProps) => {
   const removeTransactions = async () => {
     if (!family?.budgetId) return;
 
-    let updArr = [...budget.transactions];
+    const updatedTransactions = budget.transactions.filter((_val, idx) => !rowSelection[idx]);
 
-    updArr = updArr.filter((_val, idx) => !rowSelection[idx]);
-
-    await Client.updateBudget(family.budgetId, { transactions: updArr });
+    await Client.updateBudget(family.budgetId, { transactions: updatedTransactions });
 
     setRowSelection({});
   };
@@ -254,7 +252,7 @@ const Transactions = ({ budget }: TransactionsProps) => {
         </Stack>
       </Stack>
 
-      <AddTransaction isOpen={addingTransaction} setIsOpen={setAddingTransaction} budget={budget} />
+      <AddOrEditTransaction isOpen={addingTransaction} setIsOpen={setAddingTransaction} budget={budget} />
 
       <ConfirmDialog
         title='Delete transactions'

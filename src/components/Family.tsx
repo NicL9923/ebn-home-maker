@@ -29,8 +29,8 @@ import { FsCol, db } from '../firebase';
 import { FamilySettings, Pet, Profile, Residence, ServiceLogEntry, Vehicle } from '../models/types';
 import { useUserStore } from '../state/UserStore';
 import ConfirmDialog from './ConfirmDialog';
-import AddPet from './Forms/AddPet';
-import { catSubcatKeySeparator } from './Forms/AddTransaction';
+import AddOrEditPet from './Forms/AddOrEditPet';
+import { catSubcatKeySeparator } from './Forms/AddOrEditTransaction';
 import EditableLabel from './Inputs/EditableLabel';
 import NoFamily from './NoFamily';
 
@@ -44,7 +44,8 @@ const Family = () => {
   const family = useUserStore((state) => state.family);
 
   const [familyMemberProfiles, setFamilyMemberProfiles] = useState<Profile[]>([]);
-  const [addingPet, setAddingPet] = useState(false);
+  const [addingOrEditingPet, setAddingOrEditingPet] = useState(false);
+  const [petToEdit, setPetToEdit] = useState<Pet>();
   const [deletingFamily, setDeletingFamily] = useState(false);
   const [leavingFamily, setLeavingFamily] = useState(false);
   const [memberGettingRemoved, setMemberGettingRemoved] = useState<Profile | Pet>();
@@ -273,42 +274,49 @@ const Family = () => {
           Pets
         </Heading>
         <Wrap>
-          {family.pets &&
-            family.pets.map((pet: Pet) => (
-              <WrapItem key={pet.uid}>
-                <Card variant='elevated' size='sm'>
-                  <CardBody>
-                    <Stack align='center'>
-                      <Stack direction='row' justifyContent='space-between' align='center' mb={3}>
-                        <Text fontSize={16}>{pet.name}</Text>
+          {family.pets?.map((pet: Pet) => (
+            <WrapItem key={pet.uid}>
+              <Card variant='elevated' size='sm'>
+                <CardBody>
+                  <Stack align='center'>
+                    <Stack direction='row' justifyContent='space-between' align='center' mb={3}>
+                      <Text fontSize={16}>{pet.name}</Text>
 
-                        {userId === family.headOfFamily && (
-                          <Menu>
-                            <MenuButton
-                              as={IconButton}
-                              aria-label='Options'
-                              icon={<MdMoreVert />}
-                              variant='ghost'
-                              size='sm'
-                              fontSize={18}
-                            />
-                            <MenuList>
-                              <MenuItem onClick={() => removePet(pet)}>Remove from family</MenuItem>
-                            </MenuList>
-                          </Menu>
-                        )}
-                      </Stack>
-
-                      <Avatar name={pet.name} src={pet.imgLink} size='xl' />
+                      {userId === family.headOfFamily && (
+                        <Menu>
+                          <MenuButton
+                            as={IconButton}
+                            aria-label='Options'
+                            icon={<MdMoreVert />}
+                            variant='ghost'
+                            size='sm'
+                            fontSize={18}
+                          />
+                          <MenuList>
+                            <MenuItem
+                              onClick={() => {
+                                setPetToEdit({...pet });
+                                setAddingOrEditingPet(true);
+                              }}
+                            >
+                              Edit
+                            </MenuItem>
+                            <MenuItem onClick={() => removePet(pet)}>Remove from family</MenuItem>
+                          </MenuList>
+                        </Menu>
+                      )}
                     </Stack>
-                  </CardBody>
-                </Card>
-              </WrapItem>
-            ))}
+
+                    <Avatar name={pet.name} src={pet.imgLink} size='xl' />
+                  </Stack>
+                </CardBody>
+              </Card>
+            </WrapItem>
+          ))}
         </Wrap>
 
         {userId === family.headOfFamily && (
-          <Button leftIcon={<MdAdd />} onClick={() => setAddingPet(true)} mt={3}>
+          <Button leftIcon={<MdAdd />} onClick={() => setAddingOrEditingPet(true)} mt={3}>
             Add a pet
           </Button>
         )}
@@ -387,7 +395,7 @@ const Family = () => {
         </Button>
       )}
 
-      <AddPet isOpen={addingPet} setIsOpen={setAddingPet} />
+      <AddOrEditPet isOpen={addingOrEditingPet} setIsOpen={setAddingOrEditingPet} existingPet={petToEdit} />
 
       <ConfirmDialog
         title='Delete family'
