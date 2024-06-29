@@ -11,10 +11,10 @@ import {
   ModalHeader,
   ModalOverlay,
 } from '@chakra-ui/react';
-import { deleteObject, getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
+import { deleteObject, getStorage, ref } from 'firebase/storage';
 import { useEffect, useState } from 'react';
 import { MdEdit } from 'react-icons/md';
-import { genUuid } from '../../utils/utils';
+import Client from '../../Client';
 import FileDropzone from './FileDropzone';
 
 type FileWithPreview = File & { preview: string };
@@ -44,9 +44,8 @@ const EditableImage = ({ curImgLink, updateCurImgLink, height, width }: Editable
       }
 
       if (newImgFile) {
-        const imgRef = ref(storage, genUuid());
-        const storageObj = await uploadBytes(imgRef, newImgFile);
-        updateCurImgLink(await getDownloadURL(storageObj.ref));
+        const newImgLink = await Client.uploadImageAndGetUrl(newImgFile);
+        updateCurImgLink(newImgLink);
       } else {
         updateCurImgLink('');
       }

@@ -13,12 +13,10 @@ import {
   useToast,
 } from '@chakra-ui/react';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import { BaseSyntheticEvent, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import Client from '../../Client';
-import { storage } from '../../firebase';
 import { Pet } from '../../models/types';
 import { useUserStore } from '../../state/UserStore';
 import { genUuid } from '../../utils/utils';
@@ -61,15 +59,14 @@ const AddPet = ({ isOpen, setIsOpen }: AddPetProps) => {
     setIsAddingPet(true);
 
     const newPetsArr = family.pets ? [...family.pets] : [];
+
+    const { name, photo } = newPetData;
+    const imgLink = photo ? await Client.uploadImageAndGetUrl(photo) : undefined;
     const newPet: Pet = {
       uid: genUuid(),
-      name: newPetData.name,
+      name,
+      imgLink,
     };
-
-    if (newPetData.photo) {
-      const storageObj = await uploadBytes(ref(storage, genUuid()), newPetData.photo);
-      newPet.imgLink = await getDownloadURL(storageObj.ref);
-    }
 
     newPetsArr.push(newPet);
 
