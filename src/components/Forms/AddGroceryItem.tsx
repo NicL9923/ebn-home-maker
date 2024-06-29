@@ -14,11 +14,10 @@ import {
   useToast,
 } from '@chakra-ui/react';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { doc, updateDoc } from 'firebase/firestore';
 import { BaseSyntheticEvent, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as yup from 'yup';
-import { FsCol, db } from '../../firebase';
+import Client from '../../Client';
 import { useUserStore } from '../../state/UserStore';
 import { genUuid } from '../../utils/utils';
 import { catSubcatKeySeparator } from './AddTransaction';
@@ -61,7 +60,7 @@ const AddGroceryItem = ({ isOpen, setIsOpen }: AddGroceryItemProps) => {
     // Reuse, reduce, recycle (catSubcatKeySeparator because...why not?)
     newList.push({ uid: `${addGroceryItemData.isSectionHeader ? catSubcatKeySeparator : ''}${genUuid()}`, name: addGroceryItemData.name, isBought: false });
 
-    await updateDoc(doc(db, FsCol.Families, profile.familyId), { groceryList: newList });
+    await Client.updateFamily(profile.familyId, { groceryList: newList });
 
     toast({
       title: `Successfully added ${addGroceryItemData.isSectionHeader ? 'section header' : 'item'}!`,

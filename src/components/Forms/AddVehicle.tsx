@@ -15,15 +15,12 @@ import {
   useToast,
 } from '@chakra-ui/react';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { doc, writeBatch } from 'firebase/firestore';
-import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import { BaseSyntheticEvent, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import * as yup from 'yup';
-import { FsCol, db, storage } from '../../firebase';
-import { Vehicle } from '../../models/types';
+import Client from '../../Client';
+import { getNewVehicleTemplate } from '../../constants';
 import { useUserStore } from '../../state/UserStore';
-import { genUuid } from '../../utils/utils';
 import FileDropzone from '../Inputs/FileDropzone';
 
 const addVehicleSchema = yup
@@ -62,8 +59,6 @@ const AddVehicle = ({ isOpen, setIsOpen }: AddVehicleProps) => {
     resolver: yupResolver(addVehicleSchema),
   });
 
-  const batch = writeBatch(db);
-
   const [isAddingVehicle, setIsAddingVehicle] = useState(false);
 
   const addNewVehicle = async (newVehicleData: AddVehicleFormSchema, event?: BaseSyntheticEvent) => {
@@ -72,40 +67,11 @@ const AddVehicle = ({ isOpen, setIsOpen }: AddVehicleProps) => {
 
     setIsAddingVehicle(true);
 
-    const newVehId = genUuid();
+    const { year, make, model, trim, engine, vin, licensePlate, miles, fuelCapacity, photo } = newVehicleData;
+    const imgLink = photo ? await Client.uploadImageAndGetUrl(photo) : undefined;
+    const newVehicleTemplate = getNewVehicleTemplate(year, make, model, trim, engine, vin, licensePlate, miles, fuelCapacity, imgLink);
 
-    let newVehIdArr: string[] = [];
-    if (family.vehicles) {
-      newVehIdArr = [...family.vehicles];
-    }
-    newVehIdArr.push(newVehId);
-
-    const newVehicle: Vehicle = {
-      uid: newVehId,
-      year: newVehicleData.year,
-      make: newVehicleData.make,
-      model: newVehicleData.model,
-      trim: newVehicleData.trim,
-      engine: newVehicleData.engine,
-      vin: newVehicleData.vin,
-      licensePlate: newVehicleData.licensePlate,
-      miles: newVehicleData.miles,
-      fuelCapacity: newVehicleData.fuelCapacity,
-      maintenanceMarkers: [],
-      serviceLogEntries: [],
-    };
-
-    if (newVehicleData.photo) {
-      const storageObj = await uploadBytes(ref(storage, genUuid()), newVehicleData.photo);
-      newVehicle.img = await getDownloadURL(storageObj.ref);
-    }
-
-    batch.set(doc(db, FsCol.Vehicles, newVehId), newVehicle);
-    batch.update(doc(db, FsCol.Families, profile.familyId), {
-      vehicles: newVehIdArr,
-    });
-
-    await batch.commit();
+    await Client.createNewVehicle(profile.familyId, family, newVehicleTemplate);
 
     toast({
       title: 'Successfully added vehicle!',

@@ -1,8 +1,9 @@
 import { AspectRatio, Button, ButtonGroup, CircularProgress, Container, Heading, Image, Stack, Text } from '@chakra-ui/react';
 import { Link, useNavigate, useParams } from '@tanstack/react-router';
-import { doc, getDoc, writeBatch } from 'firebase/firestore';
+import { doc, getDoc } from 'firebase/firestore';
 import { useCallback, useEffect, useState } from 'react';
 import { MdArrowBack } from 'react-icons/md';
+import Client from '../../Client';
 import ConfirmDialog from '../../components/ConfirmDialog';
 import { FsCol, db } from '../../firebase';
 import { vehicleRoute } from '../../main';
@@ -15,8 +16,6 @@ const VehicleView = () => {
 
   const profile = useUserStore((state) => state.profile);
   const family = useUserStore((state) => state.family);
-
-  const batch = writeBatch(db);
 
   const [vehicle, setVehicle] = useState<Vehicle | undefined>(undefined);
   const [isDeletingVehicle, setIsDeletingVehicle] = useState(false);
@@ -36,15 +35,10 @@ const VehicleView = () => {
     }
   }, [family, vehicleId]);
 
-  const deleteVehicle = () => {
+  const deleteVehicle = async () => {
     if (!family || !profile) return;
 
-    const newVehIdArr = family.vehicles.filter((vehicle) => vehicle !== vehicleId);
-
-    batch.update(doc(db, FsCol.Families, profile.familyId), { vehicles: newVehIdArr });
-    batch.delete(doc(db, FsCol.Vehicles, vehicleId));
-
-    batch.commit();
+    await Client.deleteVehicle(family, vehicleId);
 
     navigate({ to: '/maintenance'});
   };

@@ -8,12 +8,11 @@ import {
   Text,
   useToast,
 } from '@chakra-ui/react';
-import { arrayUnion, doc, writeBatch } from 'firebase/firestore';
-import { useCallback, useEffect } from 'react';
-import { FsCol, db } from '../firebase';
-import { useUserStore } from '../state/UserStore';
 import { Link, useParams } from '@tanstack/react-router';
+import { useCallback, useEffect } from 'react';
+import Client from '../Client';
 import { joinFamilyRoute } from '../main';
+import { useUserStore } from '../state/UserStore';
 
 const JoinFamily = () => {
   const { familyId } = useParams({ from: joinFamilyRoute.id });
@@ -22,8 +21,6 @@ const JoinFamily = () => {
   const userId = useUserStore((state) => state.userId);
   const profile = useUserStore((state) => state.profile);
   const family = useUserStore((state) => state.family);
-
-  const batch = writeBatch(db);
 
   const addUserToFamily = useCallback(async () => {
     if (!familyId || !userId) {
@@ -36,20 +33,18 @@ const JoinFamily = () => {
         status: 'info',
         isClosable: true,
       });
+
       return;
     }
 
-    batch.update(doc(db, FsCol.Families, familyId), { members: arrayUnion(userId) });
-    batch.update(doc(db, FsCol.Profiles, userId), { familyId });
-
-    await batch.commit();
+    await Client.addUserToFamily(userId, familyId);
 
     toast({
       title: `You've successfully joined the ${family?.name} family! (${familyId})`,
       status: 'success',
       isClosable: true,
     });
-  }, [batch, familyId, family, profile?.familyId, userId, toast]);
+  }, [familyId, family, profile?.familyId, userId, toast]);
 
   useEffect(() => {
     addUserToFamily();

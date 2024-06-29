@@ -2,10 +2,9 @@ import { Box, Button, Heading, Stack, useColorMode } from '@chakra-ui/react';
 import '@uiw/react-markdown-preview/markdown.css';
 import MDEditor from '@uiw/react-md-editor';
 import '@uiw/react-md-editor/markdown-editor.css';
-import { doc, updateDoc } from 'firebase/firestore';
 import { useState } from 'react';
 import { MdClose, MdEdit, MdSave } from 'react-icons/md';
-import { FsCol, db } from '../firebase';
+import Client from '../Client';
 import { useUserStore } from '../state/UserStore';
 
 const FamilyBoard = () => {
@@ -28,7 +27,8 @@ const FamilyBoard = () => {
 
   const endEditingBoard = async (cancelled: boolean) => {
     if (profile && !cancelled) {
-      await updateDoc(doc(db, FsCol.Families, profile.familyId), { boardMarkdown: editedMd });
+      await Client.updateFamily(profile.familyId, { boardMarkdown: editedMd });
+
       setEditedMd(undefined);
     }
 

@@ -25,11 +25,10 @@ import {
   useReactTable,
 } from '@tanstack/react-table';
 import { format } from 'date-fns';
-import { doc, updateDoc } from 'firebase/firestore';
 import { useMemo, useState } from 'react';
 import { HiChevronLeft, HiChevronRight } from 'react-icons/hi';
 import { MdAdd, MdDelete } from 'react-icons/md';
-import { FsCol, db } from '../../firebase';
+import Client from '../../Client';
 import { IBudget, Transaction } from '../../models/types';
 import { useUserStore } from '../../state/UserStore';
 import { getCurrencyString } from '../../utils/utils';
@@ -132,7 +131,7 @@ const Transactions = ({ budget }: TransactionsProps) => {
 
     updArr = updArr.filter((_val, idx) => !rowSelection[idx]);
 
-    await updateDoc(doc(db, FsCol.Budgets, family.budgetId), { transactions: updArr });
+    await Client.updateBudget(family.budgetId, { transactions: updArr });
 
     setRowSelection({});
   };
@@ -145,7 +144,7 @@ const Transactions = ({ budget }: TransactionsProps) => {
     const updArr = [...budget.transactions];
     updArr[updArr.findIndex((transaction) => transaction.uid === oldRow.id)] = newRow;
 
-    updateDoc(doc(db, FsCol.Budgets, family.budgetId), { transactions: updArr })
+    Client.updateBudget(family.budgetId, { transactions: updArr });
 
     return newRow;
   };

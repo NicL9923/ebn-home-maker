@@ -19,12 +19,11 @@ import {
 } from '@chakra-ui/react';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { GroupBase, OptionBase, Select } from 'chakra-react-select';
-import { doc, updateDoc } from 'firebase/firestore';
 import { BaseSyntheticEvent, useMemo, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { MdCalculate } from 'react-icons/md';
 import * as yup from 'yup';
-import { FsCol, db } from '../../firebase';
+import Client from '../../Client';
 import { IBudget, Transaction } from '../../models/types';
 import { useUserStore } from '../../state/UserStore';
 import {
@@ -133,7 +132,7 @@ const AddTransaction = ({ isOpen, setIsOpen, initialCatSubcat, budget }: AddTran
 
     const updArr = [...budget.transactions, formattedTransaction];
 
-    await updateDoc(doc(db, FsCol.Budgets, family.budgetId), { transactions: updArr });
+    await Client.updateBudget(family.budgetId, { transactions: updArr })
 
     toast({
       title: 'Successfully added transaction!',

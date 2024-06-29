@@ -1,11 +1,11 @@
 import { Box, Button, Container, Heading, Stack, useToast } from '@chakra-ui/react';
 import { sendPasswordResetEmail } from 'firebase/auth';
-import { doc, updateDoc } from 'firebase/firestore';
+import Client from '../Client';
 import Family from '../components/Family';
 import EditableImage from '../components/Inputs/EditableImage';
 import EditableLabel from '../components/Inputs/EditableLabel';
 import NoProfile from '../components/NoProfile';
-import { FsCol, auth, db } from '../firebase';
+import { auth } from '../firebase';
 import { useUserStore } from '../state/UserStore';
 
 const ProfilePage = () => {
@@ -20,12 +20,12 @@ const ProfilePage = () => {
 
   const updateProfileName = (newName?: string) => {
     if (newName) {
-      updateDoc(doc(db, FsCol.Profiles, userId), { firstName: newName });
+      Client.updateProfile(userId, { firstName: newName });
     }
   };
 
   const updateProfileImgLink = (newImgLink: string) => {
-    updateDoc(doc(db, FsCol.Profiles, userId), { imgLink: newImgLink });
+    Client.updateProfile(userId, { imgLink: newImgLink });
   };
 
   const handlePasswordReset = async () => {

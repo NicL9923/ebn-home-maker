@@ -14,12 +14,11 @@ import {
   WrapItem,
   useToken
 } from '@chakra-ui/react';
-import { doc, updateDoc } from 'firebase/firestore';
 import React, { useMemo, useState } from 'react';
 import { HiChevronLeft, HiChevronRight } from 'react-icons/hi';
 import { MdAdd, MdSubdirectoryArrowRight } from 'react-icons/md';
 import { Legend, Pie, PieChart, Tooltip as RechartsTooltip, ResponsiveContainer } from 'recharts';
-import { FsCol, db } from '../../firebase';
+import Client from '../../Client';
 import { BudgetCategory, BudgetContextValue, BudgetSubcategory, IBudget, Transaction } from '../../models/types';
 import { useUserStore } from '../../state/UserStore';
 import { genUuid, getAbsDiffAndComparisonOfMonetaryValues, getCurrencyString, getNiceChartColor, moveMonth, roundTo2Decimals } from '../../utils/utils';
@@ -60,13 +59,13 @@ const Budget = (props: BudgetProps) => {
       budgetMergeObj.transactions = transactions;
     }
 
-    updateDoc(doc(db, FsCol.Budgets, family.budgetId), budgetMergeObj);
+    Client.updateBudget(family.budgetId, budgetMergeObj);
   };
 
   const setMonthlyNetIncome = (newValue?: string) => {
     if (!family?.budgetId || !newValue) return;
 
-    updateDoc(doc(db, FsCol.Budgets, family.budgetId), {
+    Client.updateBudget(family.budgetId, {
       monthlyNetIncome: parseFloat(newValue),
     });
   };

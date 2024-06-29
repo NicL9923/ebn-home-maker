@@ -1,3 +1,6 @@
+import { Family, IBudget, Profile, Residence, Vehicle } from "./models/types";
+import { genUuid } from "./utils/utils";
+
 export const FieldTypes = {
   Email: {
     name: 'email',
@@ -37,3 +40,96 @@ export const openWeatherMapOneCallApiBaseUrl = `https://api.openweathermap.org/d
 const openWeatherMapGeocodeApiVersion = '1.0';
 export const openWeatherMapGeocodeApiBaseUrl = `https://api.openweathermap.org/geo/${openWeatherMapGeocodeApiVersion}/direct`;
 export const daysOfTheWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+export const getNewBudgetTemplate = (userId: string): IBudget => ({
+  uid: genUuid(),
+  editors: [userId],
+  monthlyNetIncome: 3000,
+  categories: [
+    {
+      uid: genUuid(),
+      name: 'Essentials',
+      subcategories: [
+        {
+          uid: genUuid(),
+          name: 'Rent',
+          totalAllotted: 1250,
+          currentSpent: 0,
+        },
+        {
+          uid: genUuid(),
+          name: 'Utilities',
+          totalAllotted: 300,
+          currentSpent: 0,
+        },
+      ],
+    },
+    {
+      uid: genUuid(),
+      name: 'Lifestyle',
+      subcategories: [
+        {
+          uid: genUuid(),
+          name: 'Spending',
+          totalAllotted: 300,
+          currentSpent: 0,
+        },
+      ],
+    },
+  ],
+  savingsBlobs: [{ uid: genUuid(), name: 'Default Blob', currentAmt: 1000 }],
+  transactions: [
+    {
+      uid: genUuid(),
+      name: 'Default transaction',
+      amt: 10,
+      category: 'Essentials',
+      subcategory: 'Rent',
+      timestamp: Date.now().toString(),
+    },
+  ],
+});
+
+export const getNewResidenceTemplate = (name: string, yearBuilt: string, yearPurchased: string, imgLink?: string): Residence => ({
+  uid: genUuid(),
+  name,
+  img: imgLink,
+  yearBuilt,
+  yearPurchased,
+  maintenanceMarkers: [],
+  serviceLogEntries: [],
+});
+
+export const getNewVehicleTemplate = (year: string, make: string, model: string, trim: string, engine: string, vin: string, licensePlate: string, miles: number, fuelCapacity: string, imgLink?: string): Vehicle => ({
+  uid: genUuid(),
+  img: imgLink,
+  year,
+  make,
+  model,
+  trim,
+  engine,
+  vin,
+  licensePlate,
+  miles,
+  fuelCapacity,
+  maintenanceMarkers: [],
+  serviceLogEntries: [],
+});
+
+export const getNewFamilyTemplate = (name: string, userId: string): Family => ({
+  uid: genUuid(),
+  name,
+  headOfFamily: userId,
+  members: [userId],
+  boardMarkdown: 'This is the family board!',
+  pets: [],
+  vehicles: [],
+  residences: [],
+  groceryList: [],
+  cityState: 'Seattle,WA', // This'll be the default, because why not!
+  settings: {
+    showAllTransactionsOnCurrentMonth: false,
+  },
+});
+
+export const getNewProfileTemplate = (userId: string, name: string, imgLink?: string): Profile => ({ uid: userId, firstName: name, familyId: '', imgLink });

@@ -13,12 +13,12 @@ import {
   useToast,
 } from '@chakra-ui/react';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { doc, updateDoc } from 'firebase/firestore';
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import { BaseSyntheticEvent, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import * as yup from 'yup';
-import { FsCol, db, storage } from '../../firebase';
+import Client from '../../Client';
+import { storage } from '../../firebase';
 import { Pet } from '../../models/types';
 import { useUserStore } from '../../state/UserStore';
 import { genUuid } from '../../utils/utils';
@@ -73,7 +73,7 @@ const AddPet = ({ isOpen, setIsOpen }: AddPetProps) => {
 
     newPetsArr.push(newPet);
 
-    await updateDoc(doc(db, FsCol.Families, profile.familyId), { pets: newPetsArr });
+    await Client.updateFamily(profile.familyId, { pets: newPetsArr });
 
     toast({
       title: 'Successfully added pet!',

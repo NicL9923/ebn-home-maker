@@ -16,11 +16,10 @@ import {
   Wrap,
   WrapItem,
 } from '@chakra-ui/react';
-import { doc, updateDoc } from 'firebase/firestore';
 import { useMemo } from 'react';
 import { MdAdd, MdMoreVert } from 'react-icons/md';
 import { Legend, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
-import { FsCol, db } from '../../firebase';
+import Client from '../../Client';
 import { IBudget, SavingsBlob } from '../../models/types';
 import { useUserStore } from '../../state/UserStore';
 import { genUuid, getCurrencyString, getNiceChartColor } from '../../utils/utils';
@@ -42,9 +41,7 @@ const Savings = ({ budget }: SavingsProps) => {
   const saveUpdBlobsArr = (newArr: SavingsBlob[]) => {
     if (!family?.budgetId) return;
 
-    updateDoc(doc(db, FsCol.Budgets, family.budgetId), {
-      savingsBlobs: newArr,
-    });
+    Client.updateBudget(family.budgetId, { savingsBlobs: newArr });
   };
 
   const createSavingsBlob = () => {

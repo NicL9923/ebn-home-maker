@@ -13,15 +13,12 @@ import {
   useToast,
 } from '@chakra-ui/react';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { doc, writeBatch } from 'firebase/firestore';
-import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import { BaseSyntheticEvent, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import * as yup from 'yup';
-import { FsCol, db, storage } from '../../firebase';
-import { Profile } from '../../models/types';
+import Client from '../../Client';
+import { getNewProfileTemplate } from '../../constants';
 import { useUserStore } from '../../state/UserStore';
-import { genUuid } from '../../utils/utils';
 import FileDropzone from '../Inputs/FileDropzone';
 
 const createProfileSchema = yup
@@ -51,8 +48,6 @@ const CreateProfile = ({ isOpen, setIsOpen }: CreateProfileProps) => {
     resolver: yupResolver(createProfileSchema),
   });
 
-  const batch = writeBatch(db);
-
   const [isCreatingProfile, setIsCreatingProfile] = useState(false);
 
   const createProfile = async (createProfileData: CreateProfileFormSchema, event?: BaseSyntheticEvent) => {
@@ -61,16 +56,11 @@ const CreateProfile = ({ isOpen, setIsOpen }: CreateProfileProps) => {
 
     setIsCreatingProfile(true);
 
-    const newProfileObj: Profile = { uid: userId, firstName: createProfileData.name, familyId: '' };
+    const { name, photo } = createProfileData;
+    const imgLink = photo ? await Client.uploadImageAndGetUrl(photo) : undefined;
+    const newProfile = getNewProfileTemplate(userId, name, imgLink);
 
-    if (createProfileData.photo) {
-      const storageObj = await uploadBytes(ref(storage, genUuid()), createProfileData.photo);
-      newProfileObj.imgLink = await getDownloadURL(storageObj.ref);
-    }
-
-    batch.set(doc(db, FsCol.Profiles, userId), newProfileObj);
-
-    await batch.commit();
+    await Client.createNewProfile(newProfile);
 
     toast({
       title: 'Successfully created profile!',

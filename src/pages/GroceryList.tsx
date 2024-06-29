@@ -14,15 +14,14 @@ import {
   useColorModeValue,
   useToast
 } from '@chakra-ui/react';
-import { doc, updateDoc } from 'firebase/firestore';
 import { useMemo, useState } from 'react';
 import { DragDropContext, Draggable, DropResult, Droppable } from 'react-beautiful-dnd';
 import { MdAdd, MdDelete, MdEdit, MdKeyboardArrowDown } from 'react-icons/md';
+import Client from '../Client';
 import ConfirmDialog from '../components/ConfirmDialog';
 import AddGroceryItem from '../components/Forms/AddGroceryItem';
 import { catSubcatKeySeparator } from '../components/Forms/AddTransaction';
 import SingleFieldDialog from '../components/Inputs/SingleFieldDialog';
-import { FsCol, db } from '../firebase';
 import { GroceryItem } from '../models/types';
 import { useUserStore } from '../state/UserStore';
 
@@ -36,6 +35,12 @@ const GroceryList = () => {
   const [itemToEdit, setItemToEdit] = useState<GroceryItem>();
   const [isConfirmingRemove, setIsConfirmingRemove] = useState(false);
 
+  const updateGroceryList = async (newList: GroceryItem[]) => {
+    if (!profile) return;
+
+    return Client.updateFamily(profile.familyId, { groceryList: newList });
+  }
+
   const editGroceryItem = async (newItemName?: string) => {
     if (!itemToEdit || !newItemName || !family || !profile) return;
 
@@ -43,7 +48,7 @@ const GroceryList = () => {
     const idx = newList.findIndex((item) => item.uid === itemToEdit.uid);
     newList[idx].name = newItemName;
 
-    await updateDoc(doc(db, FsCol.Families, profile.familyId), { groceryList: newList });
+    await updateGroceryList(newList);
 
     toast({
       title: `Successfully edited item!`,
@@ -59,7 +64,7 @@ const GroceryList = () => {
 
     updGroceryList[idx].isBought = isBought;
 
-    updateDoc(doc(db, FsCol.Families, profile.familyId), { groceryList: updGroceryList });
+    updateGroceryList(updGroceryList);
   };
 
   const removeGroceryItems = () => {
@@ -67,7 +72,7 @@ const GroceryList = () => {
 
     const updGroceryList = family.groceryList.filter((val) => val.isBought === false);
 
-    updateDoc(doc(db, FsCol.Families, profile.familyId), { groceryList: updGroceryList });
+    updateGroceryList(updGroceryList);
   };
 
   const removeGroceryItemByUid = (uid: string) => {
@@ -75,7 +80,7 @@ const GroceryList = () => {
 
     const updGroceryList = family.groceryList.filter((val) => val.uid !== uid);
 
-    updateDoc(doc(db, FsCol.Families, profile.familyId), { groceryList: updGroceryList });
+    updateGroceryList(updGroceryList);
   }
 
   const onDragEnd = ({ type, source, destination }: DropResult) => {
@@ -89,7 +94,7 @@ const GroceryList = () => {
       newGList.splice(source.index, 1);
       newGList.splice(destination.index, 0, listItem);
 
-      updateDoc(doc(db, FsCol.Families, profile.familyId), { groceryList: newGList });
+      updateGroceryList(newGList);
     }
   };
 

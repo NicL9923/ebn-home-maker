@@ -1,8 +1,9 @@
 import { AspectRatio, Button, ButtonGroup, CircularProgress, Container, Heading, Image, Stack, Text } from '@chakra-ui/react';
 import { Link, useNavigate, useParams } from '@tanstack/react-router';
-import { doc, getDoc, writeBatch } from 'firebase/firestore';
+import { doc, getDoc } from 'firebase/firestore';
 import { useCallback, useEffect, useState } from 'react';
 import { MdArrowBack } from 'react-icons/md';
+import Client from '../../Client';
 import ConfirmDialog from '../../components/ConfirmDialog';
 import { FsCol, db } from '../../firebase';
 import { residenceRoute } from '../../main';
@@ -13,10 +14,7 @@ const ResidenceView = () => {
   const { residenceId } = useParams({ from: residenceRoute.id });
   const navigate = useNavigate();
 
-  const profile = useUserStore((state) => state.profile);
   const family = useUserStore((state) => state.family);
-
-  const batch = writeBatch(db);
 
   const [residence, setResidence] = useState<Residence | undefined>(undefined);
   const [isDeletingResidence, setIsDeletingResidence] = useState(false);
@@ -36,15 +34,10 @@ const ResidenceView = () => {
     }
   }, [family, residenceId]);
 
-  const deleteResidence = () => {
-    if (!family || !profile) return;
+  const deleteResidence = async () => {
+    if (!family) return;
 
-    const newResIdArr = family.residences.filter((res) => res !== residenceId);
-
-    batch.update(doc(db, FsCol.Families, profile.familyId), { residences: newResIdArr });
-    batch.delete(doc(db, FsCol.Residences, residenceId));
-
-    batch.commit();
+    await Client.deleteResidence(family, residenceId);
 
     navigate({ to: '/maintenance'});
   };

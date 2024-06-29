@@ -19,19 +19,20 @@ import {
   useToast
 } from '@chakra-ui/react';
 import copy from 'clipboard-copy';
-import { doc, getDoc, updateDoc, writeBatch } from 'firebase/firestore';
+import { format } from 'date-fns';
+import { doc, getDoc } from 'firebase/firestore';
 import { deleteObject, getStorage, ref } from 'firebase/storage';
 import { useCallback, useEffect, useState } from 'react';
 import { MdAdd, MdArticle, MdClose, MdContentCopy, MdLogout, MdMoreVert } from 'react-icons/md';
+import Client from '../Client';
 import { FsCol, db } from '../firebase';
 import { FamilySettings, Pet, Profile, Residence, ServiceLogEntry, Vehicle } from '../models/types';
 import { useUserStore } from '../state/UserStore';
 import ConfirmDialog from './ConfirmDialog';
 import AddPet from './Forms/AddPet';
+import { catSubcatKeySeparator } from './Forms/AddTransaction';
 import EditableLabel from './Inputs/EditableLabel';
 import NoFamily from './NoFamily';
-import { format } from 'date-fns';
-import { catSubcatKeySeparator } from './Forms/AddTransaction';
 
 const isProfile = (obj: Profile | Pet): obj is Profile => (obj as Profile).firstName !== undefined;
 
@@ -47,8 +48,6 @@ const Family = () => {
   const [deletingFamily, setDeletingFamily] = useState(false);
   const [leavingFamily, setLeavingFamily] = useState(false);
   const [memberGettingRemoved, setMemberGettingRemoved] = useState<Profile | Pet>();
-
-  const batch = writeBatch(db);
 
   const getFamilyMemberProfiles = useCallback(async () => {
     if (!family?.members) return;
@@ -68,7 +67,7 @@ const Family = () => {
 
   const updateFamilyName = (newFamName?: string) => {
     if (profile && newFamName) {
-      updateDoc(doc(db, FsCol.Families, profile.familyId), { name: newFamName });
+      Client.updateFamily(profile.familyId, { name: newFamName });
     }
   };
 
@@ -78,56 +77,25 @@ const Family = () => {
     const curLoc = family.cityState.split(',');
     const newLoc = `${newCity ? newCity : curLoc[0]},${newState ? newState : curLoc[1]}`;
 
-    updateDoc(doc(db, FsCol.Families, profile.familyId), { cityState: newLoc });
+    Client.updateFamily(profile.familyId, { cityState: newLoc });
   };*/
 
   const updateFamilySettings = (newFamilySettings?: FamilySettings) => {
     if (family && newFamilySettings && profile) {
-      updateDoc(doc(db, FsCol.Families, profile.familyId), { settings: { ...family.settings, ...newFamilySettings } });
+      Client.updateFamily(profile.familyId, { settings: { ...family.settings, ...newFamilySettings } });
     }
   };
 
   const deleteFamily = () => {
     if (!userId || !profile || !family) return;
 
-    // Set each profile in family.members familyId property to ''
-    family.members.forEach((member) => {
-      batch.update(doc(db, FsCol.Profiles, member), { familyId: '' });
-    });
-
-    // Delete residences and vehicles
-    family.residences.forEach((resId) => {
-      batch.delete(doc(db, FsCol.Residences, resId));
-    });
-
-    family.vehicles.forEach((vehId) => {
-      batch.delete(doc(db, FsCol.Vehicles, vehId));
-    });
-
-    // Delete family doc
-    batch.delete(doc(db, FsCol.Families, profile.familyId));
-    batch.update(doc(db, FsCol.Profiles, userId), { familyId: '' });
-
-    batch.commit();
+    Client.deleteFamily(userId, profile.familyId, family);
   };
 
   const leaveFamily = () => {
     if (!userId || !profile || !family) return;
 
-    const newMembers = [...family.members];
-    const curUserIdx = newMembers.findIndex((mem) => mem === userId);
-    newMembers.splice(curUserIdx, 1);
-
-    // Make first member in family new headOfFamily (if curUser is hoF)
-    const mergeFam = { members: newMembers, headOfFamily: family.headOfFamily };
-    if (family.headOfFamily === userId) {
-      mergeFam.headOfFamily = newMembers[0];
-    }
-
-    batch.update(doc(db, FsCol.Families, profile.familyId), mergeFam);
-    batch.update(doc(db, FsCol.Profiles, userId), { familyId: '' });
-
-    batch.commit();
+    Client.leaveFamily(userId, profile.familyId, family);
   };
 
   const copyInviteLink = async () => {
@@ -145,14 +113,7 @@ const Family = () => {
   const removeFamilyMember = (memberProfile: Profile) => {
     if (!profile || !family) return;
 
-    const newMembersArr = [...family.members];
-    newMembersArr.splice(
-      newMembersArr.findIndex((memberId) => memberId === memberProfile.uid),
-      1
-    );
-
-    // TODO: Need to batch update this and that users profile.familyId
-    updateDoc(doc(db, FsCol.Families, profile.familyId), { members: newMembersArr });
+    Client.leaveFamily(memberProfile.uid, profile.familyId, family);
   };
 
   const removePet = (pet: Pet) => {
@@ -170,7 +131,7 @@ const Family = () => {
       deleteObject(oldImgRef);
     }
 
-    updateDoc(doc(db, FsCol.Families, profile.familyId), { pets: newPetsArr });
+    Client.updateFamily(profile.familyId, { pets: newPetsArr });
   };
 
   const exportFamilyDataJSON = async () => {

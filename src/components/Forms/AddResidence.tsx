@@ -14,15 +14,12 @@ import {
   useToast,
 } from '@chakra-ui/react';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { doc, writeBatch } from 'firebase/firestore';
-import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import { BaseSyntheticEvent, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import * as yup from 'yup';
-import { FsCol, db, storage } from '../../firebase';
-import { Residence } from '../../models/types';
+import Client from '../../Client';
+import { getNewResidenceTemplate } from '../../constants';
 import { useUserStore } from '../../state/UserStore';
-import { genUuid } from '../../utils/utils';
 import FileDropzone from '../Inputs/FileDropzone';
 
 const addResidenceSchema = yup
@@ -55,8 +52,6 @@ const AddResidence = ({ isOpen, setIsOpen }: AddResidenceProps) => {
     resolver: yupResolver(addResidenceSchema),
   });
 
-  const batch = writeBatch(db);
-
   const [isAddingResidence, setIsAddingResidence] = useState(false);
 
   const addNewResidence = async (newResidenceData: AddResidenceFormSchema, event?: BaseSyntheticEvent) => {
@@ -65,34 +60,11 @@ const AddResidence = ({ isOpen, setIsOpen }: AddResidenceProps) => {
 
     setIsAddingResidence(true);
 
-    const newResId = genUuid();
+    const { name, yearBuilt, yearPurchased, photo } = newResidenceData;
+    const imgLink = photo ? await Client.uploadImageAndGetUrl(photo) : undefined;
+    const newResidenceTemplate = getNewResidenceTemplate(name, yearBuilt, yearPurchased, imgLink);
 
-    let newResIdArr: string[] = [];
-    if (family.residences) {
-      newResIdArr = [...family.residences];
-    }
-    newResIdArr.push(newResId);
-
-    const newResidence: Residence = {
-      uid: newResId,
-      name: newResidenceData.name,
-      yearBuilt: newResidenceData.yearBuilt,
-      yearPurchased: newResidenceData.yearPurchased,
-      maintenanceMarkers: [],
-      serviceLogEntries: [],
-    };
-
-    if (newResidenceData.photo) {
-      const storageObject = await uploadBytes(ref(storage, genUuid()), newResidenceData.photo);
-      newResidence.img = await getDownloadURL(storageObject.ref);
-    }
-
-    batch.set(doc(db, FsCol.Residences, newResId), newResidence);
-    batch.update(doc(db, FsCol.Families, profile.familyId), {
-      residences: newResIdArr,
-    });
-
-    await batch.commit();
+    await Client.createNewResidence(profile.familyId, family, newResidenceTemplate);
 
     toast({
       title: 'Successfully added residence!',
