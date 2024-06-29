@@ -27,11 +27,14 @@ const EditableImage = ({ curImgLink, updateCurImgLink, height, width }: Editable
   const [isHoveringImg, setIsHoveringImg] = useState(false);
 
   const [isEditingPhoto, setIsEditingPhoto] = useState(false);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [newImgFile, setNewImgFile] = useState<File>();
   const [deleteExistingPhoto, setDeleteExistingPhoto] = useState(false);
 
   const updateImg = async () => {
     if (deleteExistingPhoto || newImgFile) {
+      setIsUploadingImage(true);
+
       if (curImgLink) {
         Client.deleteImage(curImgLink);
       }
@@ -44,7 +47,10 @@ const EditableImage = ({ curImgLink, updateCurImgLink, height, width }: Editable
       }
     }
 
+    setIsUploadingImage(false);
     setIsEditingPhoto(false);
+    setDeleteExistingPhoto(false);
+    setNewImgFile(undefined);
   };
 
   return (
@@ -95,7 +101,7 @@ const EditableImage = ({ curImgLink, updateCurImgLink, height, width }: Editable
 
           <ModalFooter>
             <Button onClick={() => setIsEditingPhoto(false)}>Cancel</Button>
-            <Button onClick={updateImg} isDisabled={!newImgFile && !deleteExistingPhoto} ml={3} colorScheme='green'>
+            <Button onClick={updateImg} isDisabled={!newImgFile && !deleteExistingPhoto} ml={3} colorScheme='green' isLoading={isUploadingImage}>
               Save
             </Button>
           </ModalFooter>
