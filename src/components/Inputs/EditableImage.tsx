@@ -11,13 +11,10 @@ import {
   ModalHeader,
   ModalOverlay,
 } from '@chakra-ui/react';
-import { deleteObject, getStorage, ref } from 'firebase/storage';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { MdEdit } from 'react-icons/md';
 import Client from '../../Client';
 import FileDropzone from './FileDropzone';
-
-type FileWithPreview = File & { preview: string };
 
 interface EditableImageProps {
   curImgLink?: string;
@@ -30,17 +27,13 @@ const EditableImage = ({ curImgLink, updateCurImgLink, height, width }: Editable
   const [isHoveringImg, setIsHoveringImg] = useState(false);
 
   const [isEditingPhoto, setIsEditingPhoto] = useState(false);
-  const [newImgFile, setNewImgFile] = useState<FileWithPreview | null>(null);
+  const [newImgFile, setNewImgFile] = useState<File>();
   const [deleteExistingPhoto, setDeleteExistingPhoto] = useState(false);
 
   const updateImg = async () => {
     if (deleteExistingPhoto || newImgFile) {
-      const storage = getStorage();
-
-      // Submit new picture to Storage -> get/save link -> remove old one
       if (curImgLink) {
-        const oldImgRef = ref(storage, curImgLink);
-        deleteObject(oldImgRef);
+        Client.deleteImage(curImgLink);
       }
 
       if (newImgFile) {
@@ -54,14 +47,10 @@ const EditableImage = ({ curImgLink, updateCurImgLink, height, width }: Editable
     setIsEditingPhoto(false);
   };
 
-  useEffect(() => {
-    return () => URL.revokeObjectURL(newImgFile?.preview ?? '');
-  }, [newImgFile?.preview]);
-
   return (
     <Box>
       <Avatar
-        src={curImgLink} // TODO: Fix this!?
+        src={curImgLink}
         cursor='pointer'
         sx={{ height, width, position: 'relative' }}
         onMouseEnter={() => setIsHoveringImg(true)}
@@ -94,24 +83,7 @@ const EditableImage = ({ curImgLink, updateCurImgLink, height, width }: Editable
 
           <ModalBody p={2}>
             {!deleteExistingPhoto && (
-              <FileDropzone
-                accept={{ 'image/png': ['.png'], 'image/jpeg': ['.jpg', '.jpeg'] }}
-                onDrop={(acceptedFiles) =>
-                  setNewImgFile({ ...acceptedFiles[0], preview: URL.createObjectURL(acceptedFiles[0]) })
-                }
-                previewChildren={
-                  newImgFile ? (
-                    <Avatar
-                      src={newImgFile.preview}
-                      onLoad={() => {
-                        URL.revokeObjectURL(newImgFile.preview);
-                      }}
-                      mt={3}
-                      size='xl'
-                    />
-                  ) : null
-                }
-              />
+              <FileDropzone file={newImgFile} setFile={setNewImgFile} />
             )}
 
             {curImgLink && (

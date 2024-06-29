@@ -159,10 +159,7 @@ const AddVehicle = ({ isOpen, setIsOpen }: AddVehicleProps) => {
                 name='photo'
                 control={control}
                 render={({ field }) => (
-                  <FileDropzone
-                    accept={{ 'image/png': ['.png'], 'image/jpeg': ['.jpg', '.jpeg'] }}
-                    onDrop={(acceptedFiles) => field.onChange(acceptedFiles[0])}  // TODO: FileWITHPREVIEW
-                  />
+                  <FileDropzone file={field.value} setFile={field.onChange} />
                 )}
               />
               <FormErrorMessage>{errors.photo?.message}</FormErrorMessage>

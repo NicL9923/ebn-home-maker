@@ -1,5 +1,5 @@
 import { arrayUnion, doc, setDoc, updateDoc, writeBatch } from "firebase/firestore";
-import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { deleteObject, getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { getNewBudgetTemplate } from "./constants";
 import { FsCol, db, storage } from "./firebase";
 import { Family, IBudget, Profile, Residence, Vehicle } from "./models/types";
@@ -94,6 +94,11 @@ class Client {
     batch.delete(doc(db, FsCol.Vehicles, vehicleId));
 
     return batch.commit();
+  }
+
+  static async deleteImage(imgLink: string) {
+    const imgRef = ref(storage, imgLink);
+    return deleteObject(imgRef);
   }
 
   static async createNewBudget(userId: string, familyId: string) {
