@@ -19,13 +19,12 @@ import {
 } from '@chakra-ui/react';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { GroupBase, OptionBase, Select } from 'chakra-react-select';
-import { BaseSyntheticEvent, useMemo, useState } from 'react';
+import { BaseSyntheticEvent, useEffect, useMemo, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { MdCalculate } from 'react-icons/md';
 import * as yup from 'yup';
 import Client from '../../Client';
 import { IBudget, Transaction } from '../../models/types';
-import { useUserStore } from '../../state/UserStore';
 import {
   evaluateExprAndRoundTo2Decimals,
   genUuid,
@@ -42,8 +41,10 @@ interface IGroupOpt extends GroupBase<ICatOpt> {
 }
 
 interface ICatOpt extends OptionBase {
-  label: string; // Subcategory
-  value: string; // category-subcategory
+  /** Subcategory */
+  label: string;
+  /** category<separator>subcategory */
+  value: string;
 }
 
 const addOrEditTransactionSchema = yup
@@ -68,7 +69,6 @@ const AddOrEditTransaction = (props: AddOrEditTransactionProps) => {
   const { isOpen, setIsOpen, initialCatSubcat, budget, existingTransaction } = props;
 
   const toast = useToast();
-  const family = useUserStore((state) => state.family);
 
   const {
     register,
@@ -79,6 +79,12 @@ const AddOrEditTransaction = (props: AddOrEditTransactionProps) => {
     formState: { errors },
   } = useForm<AddOrEditTransactionFormSchema>({
     resolver: yupResolver(addOrEditTransactionSchema),
+    defaultValues: {
+      amount: 0,
+      description: '',
+      catSubcat: undefined,
+      date: new Date(),
+    },
   });
 
   const [amtStr, setAmtStr] = useState('');
@@ -114,26 +120,32 @@ const AddOrEditTransaction = (props: AddOrEditTransactionProps) => {
     return newInitialOption;
   }, [categoryOptions, initialCatSubcat, setValue]);
 
-  const submitNewTransaction = async (newTransactionData: AddOrEditTransactionFormSchema, event?: BaseSyntheticEvent) => {
+  const submitNewTransaction = async (transactionData: AddOrEditTransactionFormSchema, event?: BaseSyntheticEvent) => {
     event?.preventDefault();
-    if (!family?.budgetId) return;
 
     setIsAddingOrEditingTransaction(true);
 
-    const splitCatSubcat = newTransactionData.catSubcat.value.split(catSubcatKeySeparator);
+    const splitCatSubcat = transactionData.catSubcat.value.split(catSubcatKeySeparator);
 
     const formattedTransaction: Transaction = {
-      uid: genUuid(),
-      amt: newTransactionData.amount,
-      name: newTransactionData.description,
-      timestamp: newTransactionData.date.toString(),
+      uid: existingTransaction?.uid ?? genUuid(),
+      amt: transactionData.amount,
+      name: transactionData.description,
+      timestamp: transactionData.date.toString(),
       category: splitCatSubcat[0],
       subcategory: splitCatSubcat[1],
     };
 
-    const updArr = [...budget.transactions, formattedTransaction];
+    const updArr = [...budget.transactions];
 
-    await Client.updateBudget(family.budgetId, { transactions: updArr })
+    if (existingTransaction) {
+      const existingTransactionIndex = updArr.findIndex((transaction) => transaction.uid === existingTransaction.uid);
+      updArr[existingTransactionIndex] = formattedTransaction;
+    } else {
+      updArr.push(formattedTransaction);
+    }
+
+    await Client.updateBudget(budget.uid, { transactions: updArr })
 
     toast({
       title: 'Successfully added transaction!',
@@ -152,6 +164,29 @@ const AddOrEditTransaction = (props: AddOrEditTransactionProps) => {
     setValue('amount', newVal);
     setAmtStr(getMonetaryValue2DecimalString(newVal));
   };
+
+  useEffect(() => {
+    if (existingTransaction) {
+      reset({
+        amount: existingTransaction.amt,
+        description: existingTransaction.name,
+        catSubcat: {
+          label: existingTransaction.subcategory,
+          value: `${existingTransaction.category}${catSubcatKeySeparator}${existingTransaction.subcategory}`,
+        },
+        date: new Date(existingTransaction.timestamp),
+      });
+      setAmtStr(getMonetaryValue2DecimalString(existingTransaction.amt));
+    } else {
+      reset({
+        amount: 0,
+        description: '',
+        catSubcat: initialCatSubcatOption ?? {},
+        date: new Date(),
+      });
+      setAmtStr('');
+    }
+  }, [existingTransaction]);
 
   return (
     <Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>
@@ -207,7 +242,6 @@ const AddOrEditTransaction = (props: AddOrEditTransactionProps) => {
               <Controller
                 name='catSubcat'
                 control={control}
-                defaultValue={initialCatSubcatOption}
                 render={({ field }) => (
                   <Select
                     value={field.value}
@@ -227,7 +261,6 @@ const AddOrEditTransaction = (props: AddOrEditTransactionProps) => {
               <Controller
                 name='date'
                 control={control}
-                defaultValue={new Date()}
                 render={({ field }) => <DatePicker selected={field.value} onChange={field.onChange} />}
               />
               <FormErrorMessage>{errors.date?.message}</FormErrorMessage>

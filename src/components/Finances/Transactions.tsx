@@ -1,6 +1,7 @@
 import {
   Box,
   Button,
+  ButtonGroup,
   Checkbox,
   Heading,
   IconButton,
@@ -27,7 +28,7 @@ import {
 import { format } from 'date-fns';
 import { useMemo, useState } from 'react';
 import { HiChevronLeft, HiChevronRight } from 'react-icons/hi';
-import { MdAdd, MdDelete } from 'react-icons/md';
+import { MdAdd, MdDelete, MdEdit } from 'react-icons/md';
 import Client from '../../Client';
 import { IBudget, Transaction } from '../../models/types';
 import { useUserStore } from '../../state/UserStore';
@@ -44,10 +45,12 @@ interface TransactionsProps {
 const Transactions = ({ budget }: TransactionsProps) => {
   const family = useUserStore((state) => state.family);
 
-  const [addingTransaction, setAddingTransaction] = useState(false);
+  const [addingOrEditingTransaction, setAddingOrEditingTransaction] = useState(false);
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
-  // TODO: editable fields
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
+  const [transactionToEdit, setTransactionToEdit] = useState<Transaction>();
+
+  const rowsSelectedCount = useMemo(() => Object.keys(rowSelection).length, [rowSelection]);
 
   const transactionColumns = useMemo<ColumnDef<Transaction>[]>(
     () => [
@@ -152,20 +155,31 @@ const Transactions = ({ budget }: TransactionsProps) => {
     <Box mx={1}>
       <Heading mb={2}>Transactions</Heading>
 
-      <Stack direction='row' mb={2} justifyContent='center'>
-        <Button leftIcon={<MdAdd />} onClick={() => setAddingTransaction(true)}>
-          Add transaction
+      <ButtonGroup mb={2}>
+        <Button leftIcon={<MdAdd />} onClick={() => setAddingOrEditingTransaction(true)}>
+          Add
+        </Button>
+
+        <Button
+          leftIcon={<MdEdit />}
+          onClick={() => {
+            setAddingOrEditingTransaction(true);
+            setTransactionToEdit(budget.transactions.find((_val, idx) => rowSelection[idx]));
+          }}
+          isDisabled={rowsSelectedCount !== 1}
+        >
+          Edit selected
         </Button>
 
         <Button
           leftIcon={<MdDelete />}
           onClick={() => setIsConfirmingDelete(true)}
           colorScheme='red'
-          display={Object.keys(rowSelection).length > 0 ? undefined : 'none'}
+          isDisabled={rowsSelectedCount === 0}
         >
-          Remove transaction{Object.keys(rowSelection).length > 1 && 's'}
+          Remove selected
         </Button>
-      </Stack>
+      </ButtonGroup>
 
       <Stack mt={3} mb={2}>
         <TableContainer maxHeight='calc(100vh - 420px)' overflowX='auto' overflowY='auto'>
@@ -206,7 +220,7 @@ const Transactions = ({ budget }: TransactionsProps) => {
         </TableContainer>
 
         <Stack direction='row' justifyContent='space-between'>
-          <Text fontSize='small' mt={2}>{transactionData.length} total</Text>
+          <Text fontSize='small' mt={2}>{transactionData.length} total{rowsSelectedCount > 0 ? ` (${rowsSelectedCount} selected)` : ''}</Text>
 
           <Stack direction='row' align='center'>
             <IconButton
@@ -252,7 +266,18 @@ const Transactions = ({ budget }: TransactionsProps) => {
         </Stack>
       </Stack>
 
-      <AddOrEditTransaction isOpen={addingTransaction} setIsOpen={setAddingTransaction} budget={budget} />
+      <AddOrEditTransaction
+        isOpen={addingOrEditingTransaction}
+        setIsOpen={(isOpen) => {
+          setAddingOrEditingTransaction(isOpen);
+
+          if (!isOpen) {
+            setTransactionToEdit(undefined);
+          }
+        }}
+        budget={budget}
+        existingTransaction={transactionToEdit}
+      />
 
       <ConfirmDialog
         title='Delete transactions'

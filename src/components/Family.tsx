@@ -395,7 +395,17 @@ const Family = () => {
         </Button>
       )}
 
-      <AddOrEditPet isOpen={addingOrEditingPet} setIsOpen={setAddingOrEditingPet} existingPet={petToEdit} />
+      <AddOrEditPet
+        isOpen={addingOrEditingPet}
+        setIsOpen={(isOpen) => {
+          setAddingOrEditingPet(isOpen);
+
+          if (!isOpen) {
+            setPetToEdit(undefined);
+          }
+        }}
+        existingPet={petToEdit}
+      />
 
       <ConfirmDialog
         title='Delete family'
