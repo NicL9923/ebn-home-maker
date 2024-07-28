@@ -168,7 +168,7 @@ const Transactions = ({ budget }: TransactionsProps) => {
           }}
           isDisabled={rowsSelectedCount !== 1}
         >
-          Edit selected
+          Edit
         </Button>
 
         <Button
@@ -177,7 +177,7 @@ const Transactions = ({ budget }: TransactionsProps) => {
           colorScheme='red'
           isDisabled={rowsSelectedCount === 0}
         >
-          Remove selected
+          Remove
         </Button>
       </ButtonGroup>
 
