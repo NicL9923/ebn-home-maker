@@ -174,7 +174,7 @@ const GroceryList = () => {
                       <Checkbox
                         size='lg'
                         colorScheme='green'
-                        checked={groceryItem.isBought}
+                        isChecked={groceryItem.isBought}
                         onChange={(e) => toggleGroceryItem(idx, e.target.checked)}
                         m='2'
                       >

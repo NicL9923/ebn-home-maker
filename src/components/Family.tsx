@@ -357,7 +357,7 @@ const Family = () => {
           </Heading>
 
           <Checkbox
-            defaultChecked={!!family.settings?.showAllTransactionsOnCurrentMonth}
+            isChecked={!!family.settings?.showAllTransactionsOnCurrentMonth}
             onChange={(event) => updateFamilySettings({ showAllTransactionsOnCurrentMonth: event.target.checked })}
             size='lg'
           >

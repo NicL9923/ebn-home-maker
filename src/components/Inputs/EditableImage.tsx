@@ -93,7 +93,7 @@ const EditableImage = ({ curImgLink, updateCurImgLink, height, width }: Editable
             )}
 
             {curImgLink && (
-              <Checkbox checked={deleteExistingPhoto} onChange={() => setDeleteExistingPhoto(!deleteExistingPhoto)}>
+              <Checkbox isChecked={deleteExistingPhoto} onChange={() => setDeleteExistingPhoto(!deleteExistingPhoto)}>
                 Only delete existing photo
               </Checkbox>
             )}
