@@ -19,7 +19,7 @@ import {
 } from '@chakra-ui/react';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { GroupBase, OptionBase, Select } from 'chakra-react-select';
-import { BaseSyntheticEvent, useEffect, useMemo, useState } from 'react';
+import { BaseSyntheticEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { MdCalculate } from 'react-icons/md';
 import * as yup from 'yup';
@@ -28,6 +28,7 @@ import { IBudget, Transaction } from '../../models/types';
 import {
   evaluateExprAndRoundTo2Decimals,
   genUuid,
+  getCombinedCategoryString,
   getMonetaryValue2DecimalString,
   roundTo2Decimals,
 } from '../../utils/utils';
@@ -95,7 +96,7 @@ const AddOrEditTransaction = (props: AddOrEditTransactionProps) => {
       label: category.name,
       options: category.subcategories.map((subcategory) => ({
         label: subcategory.name,
-        value: `${category.name}${catSubcatKeySeparator}${subcategory.name}`,
+        value: getCombinedCategoryString(category.name, subcategory.name),
       })),
     }));
 
@@ -119,6 +120,15 @@ const AddOrEditTransaction = (props: AddOrEditTransactionProps) => {
 
     return newInitialOption;
   }, [categoryOptions, initialCatSubcat, setValue]);
+
+  const resetToDefaultEmptyForm = useCallback(() => {
+    reset({
+      amount: 0,
+      description: '',
+      catSubcat: initialCatSubcatOption ?? {},
+      date: new Date(),
+    });
+  }, [reset, initialCatSubcatOption]);
 
   const submitNewTransaction = async (transactionData: AddOrEditTransactionFormSchema, event?: BaseSyntheticEvent) => {
     event?.preventDefault();
@@ -155,7 +165,7 @@ const AddOrEditTransaction = (props: AddOrEditTransactionProps) => {
 
     setIsOpen(false);
     setIsAddingOrEditingTransaction(false);
-    reset();
+    resetToDefaultEmptyForm();
     setAmtStr('');
   };
 
@@ -172,21 +182,16 @@ const AddOrEditTransaction = (props: AddOrEditTransactionProps) => {
         description: existingTransaction.name,
         catSubcat: {
           label: existingTransaction.subcategory,
-          value: `${existingTransaction.category}${catSubcatKeySeparator}${existingTransaction.subcategory}`,
+          value: getCombinedCategoryString(existingTransaction.category, existingTransaction.subcategory),
         },
         date: new Date(existingTransaction.timestamp),
       });
       setAmtStr(getMonetaryValue2DecimalString(existingTransaction.amt));
     } else {
-      reset({
-        amount: 0,
-        description: '',
-        catSubcat: initialCatSubcatOption ?? {},
-        date: new Date(),
-      });
+      resetToDefaultEmptyForm();
       setAmtStr('');
     }
-  }, [existingTransaction]);
+  }, [existingTransaction, resetToDefaultEmptyForm, reset]);
 
   return (
     <Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>

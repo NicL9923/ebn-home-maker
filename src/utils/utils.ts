@@ -1,5 +1,6 @@
 import { evaluate, round, subtract, compare, divide, multiply } from 'mathjs';
 import { v7 as uuidv7 } from 'uuid';
+import { catSubcatKeySeparator } from '../components/Forms/AddOrEditTransaction';
 
 // NOTE: Yes these are a little pointless, but it's to keep this important logic centralized and testable
 
@@ -101,3 +102,5 @@ const niceChartColors = ['#3366cc','#dc3912','#ff9900','#109618',
   '#bea413','#0c5922','#743411'];
 
 export const getNiceChartColor = (index: number) => niceChartColors[index % niceChartColors.length];
+
+export const getCombinedCategoryString = (categoryName: string, subcategoryName: string) => `${categoryName}${catSubcatKeySeparator}${subcategoryName}`;

@@ -15,8 +15,7 @@ import { useContext } from 'react';
 import { Draggable } from 'react-beautiful-dnd';
 import { MdKeyboardArrowDown } from 'react-icons/md';
 import { BudgetCategory, BudgetSubcategory } from '../../../models/types';
-import { calcMonetaryValuesRatioAsPercentInt, compareMonetaryValues, getCurrencyString } from '../../../utils/utils';
-import { catSubcatKeySeparator } from '../../Forms/AddOrEditTransaction';
+import { calcMonetaryValuesRatioAsPercentInt, compareMonetaryValues, getCombinedCategoryString, getCurrencyString } from '../../../utils/utils';
 import EditableLabel from '../../Inputs/EditableLabel';
 import { BudgetContext, budgetRowsGridTemplateColumns } from '../Budget';
 
@@ -78,7 +77,7 @@ const SubCategory = (props: SubCategoryProps) => {
                     <MenuList>
                       <MenuItem
                         onClick={() => {
-                          setCatSubcatKey(`${category.name}${catSubcatKeySeparator}${subcategory.name}`);
+                          setCatSubcatKey(getCombinedCategoryString(category.name, subcategory.name));
                           setAddingTransaction(true);
                         }}
                       >
