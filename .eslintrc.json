@@ -1,34 +1,22 @@
 {
-  "root": true,
-  "ignorePatterns": ["**/*"],
-  "plugins": ["react-refresh"],
-  "parser": "@typescript-eslint/parser",
-  "extends": [
-    "eslint:recommended",
-    "plugin:@typescript-eslint/recommended",
-    "plugin:react-hooks/recommended",
-    "plugin:prettier/recommended",
-    "prettier"
-  ],
-  "overrides": [
-    {
-      "files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
-      "rules": {
-        "@typescript-eslint/no-var-requires": 0,
-        "react-refresh/only-export-components": [
-          "warn",
-          { "allowConstantExport": true }
-        ],
-        "prettier/prettier": [
-          "error",
-          {
-              "singleQuote": true,
-              "endOfLine": "auto",
-              "jsxSingleQuote": true,
-              "printWidth": 120
-          }
-        ]
-      }
-    }
-  ]
+    "root": true,
+    "ignorePatterns": ["**/*"],
+    "plugins": ["react-refresh"],
+    "parser": "@typescript-eslint/parser",
+    "extends": [
+        "eslint:recommended",
+        "plugin:@typescript-eslint/recommended",
+        "plugin:react-hooks/recommended",
+        "plugin:prettier/recommended",
+        "prettier"
+    ],
+    "overrides": [
+        {
+            "files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
+            "rules": {
+                "@typescript-eslint/no-var-requires": 0,
+                "react-refresh/only-export-components": ["warn", { "allowConstantExport": true }]
+            }
+        }
+    ]
 }
