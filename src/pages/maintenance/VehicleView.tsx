@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { MdArrowBack } from 'react-icons/md';
 import Client from '../../Client';
 import ConfirmDialog from '../../components/ConfirmDialog';
+import AddOrEditVehicle from '../../components/Forms/AddOrEditVehicle';
 import { FsCol, db } from '../../firebase';
 import { vehicleRoute } from '../../main';
 import { ServiceLogEntry, Vehicle } from '../../models/types';
@@ -16,9 +17,9 @@ const VehicleView = () => {
 
   const profile = useUserStore((state) => state.profile);
   const family = useUserStore((state) => state.family);
-
   const [vehicle, setVehicle] = useState<Vehicle | undefined>(undefined);
   const [isDeletingVehicle, setIsDeletingVehicle] = useState(false);
+  const [isEditingVehicle, setIsEditingVehicle] = useState(false);
 
   const getVehicle = useCallback(async () => {
     if (family && family.vehicles.includes(vehicleId)) {
@@ -68,10 +69,8 @@ const VehicleView = () => {
             <Text fontSize='lg'>{`License plate: ${vehicle.licensePlate}`}</Text>
             <Text fontSize='lg'>{`Odometer: ${vehicle.miles} miles`}</Text>
             <Text fontSize='lg'>{`Engine: ${vehicle.engine}`}</Text>
-            <Text fontSize='lg'>{`Fuel capacity: ${vehicle.fuelCapacity}`}</Text>
-
-            <ButtonGroup>
-              <Button size='sm' onClick={() => undefined}>
+            <Text fontSize='lg'>{`Fuel capacity: ${vehicle.fuelCapacity}`}</Text>            <ButtonGroup>
+              <Button size='sm' onClick={() => setIsEditingVehicle(true)}>
                 Edit
               </Button>
 
@@ -93,10 +92,15 @@ const VehicleView = () => {
         onClose={(confirmed) => {
           if (confirmed) {
             deleteVehicle();
-          }
-
-          setIsDeletingVehicle(false);
+          }          setIsDeletingVehicle(false);
         }}
+      />
+
+      <AddOrEditVehicle
+        isOpen={isEditingVehicle}
+        setIsOpen={setIsEditingVehicle}
+        existingVehicle={vehicle}
+        onSuccess={getVehicle}
       />
     </>
   );

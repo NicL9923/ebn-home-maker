@@ -14,7 +14,7 @@ import {
   useToast,
 } from '@chakra-ui/react';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { BaseSyntheticEvent, useState } from 'react';
+import { BaseSyntheticEvent, useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import Client from '../../Client';
@@ -37,15 +37,15 @@ interface AddOrEditResidenceProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
   existingResidence?: Residence;
+  onSuccess?: () => void;
 }
 
 const AddOrEditResidence = (props: AddOrEditResidenceProps) => {
-  const { isOpen, setIsOpen, existingResidence } = props;
+  const { isOpen, setIsOpen, existingResidence, onSuccess } = props;
 
   const toast = useToast();
   const profile = useUserStore((state) => state.profile);
   const family = useUserStore((state) => state.family);
-
   const {
     register,
     handleSubmit,
@@ -54,35 +54,82 @@ const AddOrEditResidence = (props: AddOrEditResidenceProps) => {
     formState: { errors },
   } = useForm({
     resolver: yupResolver(addOrEditResidenceSchema),
+    defaultValues: existingResidence ? {
+      name: existingResidence.name,
+      yearBuilt: existingResidence.yearBuilt,
+      yearPurchased: existingResidence.yearPurchased,
+    } : undefined,
   });
 
   const [isAddingOrEditingResidence, setIsAddingOrEditingResidence] = useState(false);
 
-  const addNewResidence = async (newResidenceData: AddOrEditResidenceFormSchema, event?: BaseSyntheticEvent) => {
+  // Reset form with existing residence data when it changes
+  useEffect(() => {
+    if (existingResidence) {
+      reset({
+        name: existingResidence.name,
+        yearBuilt: existingResidence.yearBuilt,
+        yearPurchased: existingResidence.yearPurchased,
+      });
+    } else {
+      reset({
+        name: '',
+        yearBuilt: '',
+        yearPurchased: '',
+      });
+    }
+  }, [existingResidence, reset]);
+
+  const addOrEditResidence = async (residenceData: AddOrEditResidenceFormSchema, event?: BaseSyntheticEvent) => {
     event?.preventDefault();
     if (!family || !profile) return;
 
     setIsAddingOrEditingResidence(true);
 
-    const { name, yearBuilt, yearPurchased, photo } = newResidenceData;
-    const imgLink = photo ? await Client.uploadImageAndGetUrl(photo) : undefined;
-    const newResidenceTemplate = getNewResidenceTemplate(name, yearBuilt, yearPurchased);
+    const { name, yearBuilt, yearPurchased, photo } = residenceData;
 
-    if (imgLink) {
-      newResidenceTemplate.img = imgLink;
+    if (existingResidence) {
+      // Edit existing residence
+      const updateData: Partial<Residence> = {
+        name,
+        yearBuilt,
+        yearPurchased,
+      };
+
+      if (photo) {
+        const imgLink = await Client.uploadImageAndGetUrl(photo);
+        updateData.img = imgLink;
+      }
+
+      await Client.updateResidence(existingResidence.uid, updateData);
+
+      toast({
+        title: 'Successfully updated residence!',
+        status: 'success',
+        isClosable: true,
+      });
+    } else {
+      // Add new residence
+      const imgLink = photo ? await Client.uploadImageAndGetUrl(photo) : undefined;
+      const newResidenceTemplate = getNewResidenceTemplate(name, yearBuilt, yearPurchased);
+
+      if (imgLink) {
+        newResidenceTemplate.img = imgLink;
+      }      await Client.createNewResidence(profile.familyId, family, newResidenceTemplate);
+
+      toast({
+        title: 'Successfully added residence!',
+        status: 'success',
+        isClosable: true,
+      });
     }
-
-    await Client.createNewResidence(profile.familyId, family, newResidenceTemplate);
-
-    toast({
-      title: 'Successfully added residence!',
-      status: 'success',
-      isClosable: true,
-    });
 
     setIsOpen(false);
     setIsAddingOrEditingResidence(false);
     reset();
+    if (onSuccess) {
+      onSuccess();
+    }
   };
 
   return (
@@ -91,7 +138,7 @@ const AddOrEditResidence = (props: AddOrEditResidenceProps) => {
       <ModalContent>
         <ModalHeader>{!!existingResidence ? 'Edit' : 'Add'} residence</ModalHeader>
 
-        <form onSubmit={handleSubmit(addNewResidence)} method='post'>
+        <form onSubmit={handleSubmit(addOrEditResidence)} method='post'>
           <ModalBody>
             <FormControl isInvalid={!!errors.name?.message}>
               <FormLabel>Name</FormLabel>

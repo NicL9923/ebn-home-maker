@@ -15,7 +15,7 @@ import {
   useToast,
 } from '@chakra-ui/react';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { BaseSyntheticEvent, useState } from 'react';
+import { BaseSyntheticEvent, useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import Client from '../../Client';
@@ -44,15 +44,15 @@ interface AddOrEditVehicleProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
   existingVehicle?: Vehicle;
+  onSuccess?: () => void;
 }
 
 const AddOrEditVehicle = (props: AddOrEditVehicleProps) => {
-  const { isOpen, setIsOpen, existingVehicle } = props;
+  const { isOpen, setIsOpen, existingVehicle, onSuccess } = props;
 
   const toast = useToast();
   const profile = useUserStore((state) => state.profile);
   const family = useUserStore((state) => state.family);
-
   const {
     register,
     handleSubmit,
@@ -61,35 +61,106 @@ const AddOrEditVehicle = (props: AddOrEditVehicleProps) => {
     formState: { errors },
   } = useForm({
     resolver: yupResolver(addOrEditVehicleSchema),
+    defaultValues: existingVehicle ? {
+      year: existingVehicle.year,
+      make: existingVehicle.make,
+      model: existingVehicle.model,
+      trim: existingVehicle.trim,
+      engine: existingVehicle.engine,
+      vin: existingVehicle.vin,
+      licensePlate: existingVehicle.licensePlate,
+      miles: existingVehicle.miles,
+      fuelCapacity: existingVehicle.fuelCapacity,
+    } : undefined,
   });
 
   const [isAddingOrEditingVehicle, setIsAddingOrEditingVehicle] = useState(false);
 
-  const addNewVehicle = async (newVehicleData: AddOrEditVehicleFormSchema, event?: BaseSyntheticEvent) => {
+  // Reset form with existing vehicle data when it changes
+  useEffect(() => {
+    if (existingVehicle) {
+      reset({
+        year: existingVehicle.year,
+        make: existingVehicle.make,
+        model: existingVehicle.model,
+        trim: existingVehicle.trim,
+        engine: existingVehicle.engine,
+        vin: existingVehicle.vin,
+        licensePlate: existingVehicle.licensePlate,
+        miles: existingVehicle.miles,
+        fuelCapacity: existingVehicle.fuelCapacity,
+      });
+    } else {
+      reset({
+        year: '',
+        make: '',
+        model: '',
+        trim: '',
+        engine: '',
+        vin: '',
+        licensePlate: '',
+        miles: 0,
+        fuelCapacity: '',
+      });
+    }
+  }, [existingVehicle, reset]);
+
+  const addOrEditVehicle = async (vehicleData: AddOrEditVehicleFormSchema, event?: BaseSyntheticEvent) => {
     event?.preventDefault();
     if (!family || !profile) return;
 
     setIsAddingOrEditingVehicle(true);
 
-    const { year, make, model, trim, engine, vin, licensePlate, miles, fuelCapacity, photo } = newVehicleData;
-    const imgLink = photo ? await Client.uploadImageAndGetUrl(photo) : undefined;
-    const newVehicleTemplate = getNewVehicleTemplate(year, make, model, trim, engine, vin, licensePlate, miles, fuelCapacity);
+    const { year, make, model, trim, engine, vin, licensePlate, miles, fuelCapacity, photo } = vehicleData;
 
-    if (imgLink) {
-      newVehicleTemplate.img = imgLink;
+    if (existingVehicle) {
+      // Edit existing vehicle
+      const updateData: Partial<Vehicle> = {
+        year,
+        make,
+        model,
+        trim,
+        engine,
+        vin,
+        licensePlate,
+        miles,
+        fuelCapacity,
+      };
+
+      if (photo) {
+        const imgLink = await Client.uploadImageAndGetUrl(photo);
+        updateData.img = imgLink;
+      }
+
+      await Client.updateVehicle(existingVehicle.uid, updateData);
+
+      toast({
+        title: 'Successfully updated vehicle!',
+        status: 'success',
+        isClosable: true,
+      });
+    } else {
+      // Add new vehicle
+      const imgLink = photo ? await Client.uploadImageAndGetUrl(photo) : undefined;
+      const newVehicleTemplate = getNewVehicleTemplate(year, make, model, trim, engine, vin, licensePlate, miles, fuelCapacity);
+
+      if (imgLink) {
+        newVehicleTemplate.img = imgLink;
+      }
+
+      await Client.createNewVehicle(profile.familyId, family, newVehicleTemplate);      toast({
+        title: 'Successfully added vehicle!',
+        status: 'success',
+        isClosable: true,
+      });
     }
-
-    await Client.createNewVehicle(profile.familyId, family, newVehicleTemplate);
-
-    toast({
-      title: 'Successfully added vehicle!',
-      status: 'success',
-      isClosable: true,
-    });
 
     setIsOpen(false);
     setIsAddingOrEditingVehicle(false);
     reset();
+    if (onSuccess) {
+      onSuccess();
+    }
   };
 
   return (
@@ -98,7 +169,7 @@ const AddOrEditVehicle = (props: AddOrEditVehicleProps) => {
       <ModalContent>
         <ModalHeader>{!!existingVehicle ? 'Edit' : 'Add'} vehicle</ModalHeader>
 
-        <form onSubmit={handleSubmit(addNewVehicle)} method='post'>
+        <form onSubmit={handleSubmit(addOrEditVehicle)} method='post'>
           <ModalBody>
             <FormControl isInvalid={!!errors.year?.message}>
               <FormLabel>Model Year</FormLabel>

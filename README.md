@@ -12,3 +12,7 @@ Stack:
 - TypeScript
 - Vite
 - Firebase
+
+Deployment:
+
+

@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { MdArrowBack } from 'react-icons/md';
 import Client from '../../Client';
 import ConfirmDialog from '../../components/ConfirmDialog';
+import AddOrEditResidence from '../../components/Forms/AddOrEditResidence';
 import { FsCol, db } from '../../firebase';
 import { residenceRoute } from '../../main';
 import { Residence, ServiceLogEntry } from '../../models/types';
@@ -15,9 +16,9 @@ const ResidenceView = () => {
   const navigate = useNavigate();
 
   const family = useUserStore((state) => state.family);
-
   const [residence, setResidence] = useState<Residence | undefined>(undefined);
   const [isDeletingResidence, setIsDeletingResidence] = useState(false);
+  const [isEditingResidence, setIsEditingResidence] = useState(false);
 
   const getResidence = useCallback(async () => {
     if (family && family.residences.includes(residenceId)) {
@@ -64,10 +65,8 @@ const ResidenceView = () => {
             {residence.img && <AspectRatio height='250px' width='300px' ratio={4 / 3}><Image src={residence.img} borderRadius='lg' /></AspectRatio>}
 
             <Text fontSize='lg'>Moved-in {residence.yearPurchased}</Text>
-            <Text fontSize='md'>Built in {residence.yearBuilt}</Text>
-
-            <ButtonGroup>
-              <Button size='sm' onClick={() => undefined}>
+            <Text fontSize='md'>Built in {residence.yearBuilt}</Text>            <ButtonGroup>
+              <Button size='sm' onClick={() => setIsEditingResidence(true)}>
                 Edit
               </Button>
 
@@ -89,10 +88,15 @@ const ResidenceView = () => {
         onClose={(confirmed) => {
           if (confirmed) {
             deleteResidence();
-          }
-
-          setIsDeletingResidence(false);
+          }          setIsDeletingResidence(false);
         }}
+      />
+
+      <AddOrEditResidence
+        isOpen={isEditingResidence}
+        setIsOpen={setIsEditingResidence}
+        existingResidence={residence}
+        onSuccess={getResidence}
       />
     </>
   );
