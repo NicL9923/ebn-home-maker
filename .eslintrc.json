@@ -1,6 +1,5 @@
 {
     "root": true,
-    "ignorePatterns": ["**/*"],
     "plugins": ["react-refresh"],
     "parser": "@typescript-eslint/parser",
     "extends": [

@@ -1,18 +1,18 @@
 import {
-  Button,
-  FormControl,
-  FormErrorMessage,
-  FormHelperText,
-  FormLabel,
-  Input,
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalOverlay,
-  Stack,
-  useToast,
+    Button,
+    FormControl,
+    FormErrorMessage,
+    FormHelperText,
+    FormLabel,
+    Input,
+    Modal,
+    ModalBody,
+    ModalContent,
+    ModalFooter,
+    ModalHeader,
+    ModalOverlay,
+    Stack,
+    useToast,
 } from '@chakra-ui/react';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { BaseSyntheticEvent, useEffect, useState } from 'react';
@@ -24,8 +24,7 @@ import { useUserStore } from '../../state/UserStore';
 import FileDropzone from '../Inputs/FileDropzone';
 import { Vehicle } from '../../models/types';
 
-const addOrEditVehicleSchema = yup
-  .object({
+const addOrEditVehicleSchema = yup.object({
     year: yup.string().required(`You must give your vehicle a name`),
     make: yup.string().required(`You must provide your vehicle's make`),
     model: yup.string().required(`You must provide your vehicle's model`),
@@ -36,227 +35,242 @@ const addOrEditVehicleSchema = yup
     miles: yup.number().required(`You must provide your vehicle's mileage`),
     fuelCapacity: yup.string().defined(),
     photo: yup.mixed<File>(),
-  });
+});
 
 type AddOrEditVehicleFormSchema = yup.InferType<typeof addOrEditVehicleSchema>;
 
 interface AddOrEditVehicleProps {
-  isOpen: boolean;
-  setIsOpen: (isOpen: boolean) => void;
-  existingVehicle?: Vehicle;
-  onSuccess?: () => void;
+    isOpen: boolean;
+    setIsOpen: (isOpen: boolean) => void;
+    existingVehicle?: Vehicle;
+    onSuccess?: () => void;
 }
 
 const AddOrEditVehicle = (props: AddOrEditVehicleProps) => {
-  const { isOpen, setIsOpen, existingVehicle, onSuccess } = props;
+    const { isOpen, setIsOpen, existingVehicle, onSuccess } = props;
 
-  const toast = useToast();
-  const profile = useUserStore((state) => state.profile);
-  const family = useUserStore((state) => state.family);
-  const {
-    register,
-    handleSubmit,
-    control,
-    reset,
-    formState: { errors },
-  } = useForm({
-    resolver: yupResolver(addOrEditVehicleSchema),
-    defaultValues: existingVehicle ? {
-      year: existingVehicle.year,
-      make: existingVehicle.make,
-      model: existingVehicle.model,
-      trim: existingVehicle.trim,
-      engine: existingVehicle.engine,
-      vin: existingVehicle.vin,
-      licensePlate: existingVehicle.licensePlate,
-      miles: existingVehicle.miles,
-      fuelCapacity: existingVehicle.fuelCapacity,
-    } : undefined,
-  });
+    const toast = useToast();
+    const profile = useUserStore((state) => state.profile);
+    const family = useUserStore((state) => state.family);
+    const {
+        register,
+        handleSubmit,
+        control,
+        reset,
+        formState: { errors },
+    } = useForm({
+        resolver: yupResolver(addOrEditVehicleSchema),
+        defaultValues: existingVehicle
+            ? {
+                  year: existingVehicle.year,
+                  make: existingVehicle.make,
+                  model: existingVehicle.model,
+                  trim: existingVehicle.trim,
+                  engine: existingVehicle.engine,
+                  vin: existingVehicle.vin,
+                  licensePlate: existingVehicle.licensePlate,
+                  miles: existingVehicle.miles,
+                  fuelCapacity: existingVehicle.fuelCapacity,
+              }
+            : undefined,
+    });
 
-  const [isAddingOrEditingVehicle, setIsAddingOrEditingVehicle] = useState(false);
+    const [isAddingOrEditingVehicle, setIsAddingOrEditingVehicle] = useState(false);
 
-  // Reset form with existing vehicle data when it changes
-  useEffect(() => {
-    if (existingVehicle) {
-      reset({
-        year: existingVehicle.year,
-        make: existingVehicle.make,
-        model: existingVehicle.model,
-        trim: existingVehicle.trim,
-        engine: existingVehicle.engine,
-        vin: existingVehicle.vin,
-        licensePlate: existingVehicle.licensePlate,
-        miles: existingVehicle.miles,
-        fuelCapacity: existingVehicle.fuelCapacity,
-      });
-    } else {
-      reset({
-        year: '',
-        make: '',
-        model: '',
-        trim: '',
-        engine: '',
-        vin: '',
-        licensePlate: '',
-        miles: 0,
-        fuelCapacity: '',
-      });
-    }
-  }, [existingVehicle, reset]);
+    // Reset form with existing vehicle data when it changes
+    useEffect(() => {
+        if (existingVehicle) {
+            reset({
+                year: existingVehicle.year,
+                make: existingVehicle.make,
+                model: existingVehicle.model,
+                trim: existingVehicle.trim,
+                engine: existingVehicle.engine,
+                vin: existingVehicle.vin,
+                licensePlate: existingVehicle.licensePlate,
+                miles: existingVehicle.miles,
+                fuelCapacity: existingVehicle.fuelCapacity,
+            });
+        } else {
+            reset({
+                year: '',
+                make: '',
+                model: '',
+                trim: '',
+                engine: '',
+                vin: '',
+                licensePlate: '',
+                miles: 0,
+                fuelCapacity: '',
+            });
+        }
+    }, [existingVehicle, reset]);
 
-  const addOrEditVehicle = async (vehicleData: AddOrEditVehicleFormSchema, event?: BaseSyntheticEvent) => {
-    event?.preventDefault();
-    if (!family || !profile) return;
+    const addOrEditVehicle = async (vehicleData: AddOrEditVehicleFormSchema, event?: BaseSyntheticEvent) => {
+        event?.preventDefault();
+        if (!family || !profile) return;
 
-    setIsAddingOrEditingVehicle(true);
+        setIsAddingOrEditingVehicle(true);
 
-    const { year, make, model, trim, engine, vin, licensePlate, miles, fuelCapacity, photo } = vehicleData;
+        const { year, make, model, trim, engine, vin, licensePlate, miles, fuelCapacity, photo } = vehicleData;
 
-    if (existingVehicle) {
-      // Edit existing vehicle
-      const updateData: Partial<Vehicle> = {
-        year,
-        make,
-        model,
-        trim,
-        engine,
-        vin,
-        licensePlate,
-        miles,
-        fuelCapacity,
-      };
+        if (existingVehicle) {
+            // Edit existing vehicle
+            const updateData: Partial<Vehicle> = {
+                year,
+                make,
+                model,
+                trim,
+                engine,
+                vin,
+                licensePlate,
+                miles,
+                fuelCapacity,
+            };
 
-      if (photo) {
-        const imgLink = await Client.uploadImageAndGetUrl(photo);
-        updateData.img = imgLink;
-      }
+            if (photo) {
+                const imgLink = await Client.uploadImageAndGetUrl(photo);
+                updateData.img = imgLink;
+            }
 
-      await Client.updateVehicle(existingVehicle.uid, updateData);
+            await Client.updateVehicle(existingVehicle.uid, updateData);
 
-      toast({
-        title: 'Successfully updated vehicle!',
-        status: 'success',
-        isClosable: true,
-      });
-    } else {
-      // Add new vehicle
-      const imgLink = photo ? await Client.uploadImageAndGetUrl(photo) : undefined;
-      const newVehicleTemplate = getNewVehicleTemplate(year, make, model, trim, engine, vin, licensePlate, miles, fuelCapacity);
+            toast({
+                title: 'Successfully updated vehicle!',
+                status: 'success',
+                isClosable: true,
+            });
+        } else {
+            // Add new vehicle
+            const imgLink = photo ? await Client.uploadImageAndGetUrl(photo) : undefined;
+            const newVehicleTemplate = getNewVehicleTemplate(
+                year,
+                make,
+                model,
+                trim,
+                engine,
+                vin,
+                licensePlate,
+                miles,
+                fuelCapacity
+            );
 
-      if (imgLink) {
-        newVehicleTemplate.img = imgLink;
-      }
+            if (imgLink) {
+                newVehicleTemplate.img = imgLink;
+            }
 
-      await Client.createNewVehicle(profile.familyId, family, newVehicleTemplate);      toast({
-        title: 'Successfully added vehicle!',
-        status: 'success',
-        isClosable: true,
-      });
-    }
+            await Client.createNewVehicle(profile.familyId, family, newVehicleTemplate);
+            toast({
+                title: 'Successfully added vehicle!',
+                status: 'success',
+                isClosable: true,
+            });
+        }
 
-    setIsOpen(false);
-    setIsAddingOrEditingVehicle(false);
-    reset();
-    if (onSuccess) {
-      onSuccess();
-    }
-  };
+        setIsOpen(false);
+        setIsAddingOrEditingVehicle(false);
+        reset();
+        if (onSuccess) {
+            onSuccess();
+        }
+    };
 
-  return (
-    <Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>
-      <ModalOverlay />
-      <ModalContent>
-        <ModalHeader>{!!existingVehicle ? 'Edit' : 'Add'} vehicle</ModalHeader>
+    return (
+        <Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>
+            <ModalOverlay />
+            <ModalContent>
+                <ModalHeader>{existingVehicle ? 'Edit' : 'Add'} vehicle</ModalHeader>
 
-        <form onSubmit={handleSubmit(addOrEditVehicle)} method='post'>
-          <ModalBody>
-            <FormControl isInvalid={!!errors.year?.message}>
-              <FormLabel>Model Year</FormLabel>
-              <Input type='text' placeholder='2016' {...register('year')} />
-              <FormErrorMessage>{errors.year?.message}</FormErrorMessage>
-            </FormControl>
+                <form onSubmit={handleSubmit(addOrEditVehicle)} method='post'>
+                    <ModalBody>
+                        <FormControl isInvalid={!!errors.year?.message}>
+                            <FormLabel>Model Year</FormLabel>
+                            <Input type='text' placeholder='2016' {...register('year')} />
+                            <FormErrorMessage>{errors.year?.message}</FormErrorMessage>
+                        </FormControl>
 
-            <Stack direction='row' alignItems='center' spacing={1}>
-              <FormControl isInvalid={!!errors.make?.message}>
-                <FormLabel>Make</FormLabel>
-                <Input type='text' placeholder='Chevrolet, Ford, Dodge, Toyota...' {...register('make')} />
-                <FormErrorMessage>{errors.make?.message}</FormErrorMessage>
-              </FormControl>
+                        <Stack direction='row' alignItems='center' spacing={1}>
+                            <FormControl isInvalid={!!errors.make?.message}>
+                                <FormLabel>Make</FormLabel>
+                                <Input
+                                    type='text'
+                                    placeholder='Chevrolet, Ford, Dodge, Toyota...'
+                                    {...register('make')}
+                                />
+                                <FormErrorMessage>{errors.make?.message}</FormErrorMessage>
+                            </FormControl>
 
-              <FormControl isInvalid={!!errors.model?.message}>
-                <FormLabel>Model</FormLabel>
-                <Input type='text' placeholder='F150, Corolla, Tahoe...' {...register('model')} />
-                <FormErrorMessage>{errors.model?.message}</FormErrorMessage>
-              </FormControl>
-            </Stack>
+                            <FormControl isInvalid={!!errors.model?.message}>
+                                <FormLabel>Model</FormLabel>
+                                <Input type='text' placeholder='F150, Corolla, Tahoe...' {...register('model')} />
+                                <FormErrorMessage>{errors.model?.message}</FormErrorMessage>
+                            </FormControl>
+                        </Stack>
 
-            <Stack direction='row' alignItems='center' spacing={1}>
-              <FormControl isInvalid={!!errors.trim?.message}>
-                <FormLabel>Trim</FormLabel>
-                <Input type='text' placeholder='SE, Limited, Lariat...' {...register('trim')} />
-                <FormErrorMessage>{errors.trim?.message}</FormErrorMessage>
-              </FormControl>
+                        <Stack direction='row' alignItems='center' spacing={1}>
+                            <FormControl isInvalid={!!errors.trim?.message}>
+                                <FormLabel>Trim</FormLabel>
+                                <Input type='text' placeholder='SE, Limited, Lariat...' {...register('trim')} />
+                                <FormErrorMessage>{errors.trim?.message}</FormErrorMessage>
+                            </FormControl>
 
-              <FormControl isInvalid={!!errors.engine?.message}>
-                <FormLabel>Engine</FormLabel>
-                <Input type='text' placeholder='2.5L 4-Cyl, 3.5L V6...' {...register('engine')} />
-                <FormErrorMessage>{errors.engine?.message}</FormErrorMessage>
-              </FormControl>
-            </Stack>
+                            <FormControl isInvalid={!!errors.engine?.message}>
+                                <FormLabel>Engine</FormLabel>
+                                <Input type='text' placeholder='2.5L 4-Cyl, 3.5L V6...' {...register('engine')} />
+                                <FormErrorMessage>{errors.engine?.message}</FormErrorMessage>
+                            </FormControl>
+                        </Stack>
 
-            <FormControl isInvalid={!!errors.fuelCapacity?.message}>
-                <FormLabel>Fuel capacity</FormLabel>
-                <Input type='text' placeholder='12 gals' {...register('fuelCapacity')} />
-                <FormErrorMessage>{errors.fuelCapacity?.message}</FormErrorMessage>
-              </FormControl>
+                        <FormControl isInvalid={!!errors.fuelCapacity?.message}>
+                            <FormLabel>Fuel capacity</FormLabel>
+                            <Input type='text' placeholder='12 gals' {...register('fuelCapacity')} />
+                            <FormErrorMessage>{errors.fuelCapacity?.message}</FormErrorMessage>
+                        </FormControl>
 
-            <FormControl isInvalid={!!errors.vin?.message}>
-              <FormLabel>VIN</FormLabel>
-              <Input type='text' placeholder='Vehicle Identification Number' {...register('vin')} />
-              <FormErrorMessage>{errors.vin?.message}</FormErrorMessage>
-              <FormHelperText>Just for your own reference!</FormHelperText>
-            </FormControl>
+                        <FormControl isInvalid={!!errors.vin?.message}>
+                            <FormLabel>VIN</FormLabel>
+                            <Input type='text' placeholder='Vehicle Identification Number' {...register('vin')} />
+                            <FormErrorMessage>{errors.vin?.message}</FormErrorMessage>
+                            <FormHelperText>Just for your own reference!</FormHelperText>
+                        </FormControl>
 
-            <Stack direction='row' alignItems='center' spacing={1}>
-              <FormControl isInvalid={!!errors.licensePlate?.message}>
-                <FormLabel>License Plate</FormLabel>
-                <Input type='text' {...register('licensePlate')} />
-                <FormErrorMessage>{errors.licensePlate?.message}</FormErrorMessage>
-              </FormControl>
+                        <Stack direction='row' alignItems='center' spacing={1}>
+                            <FormControl isInvalid={!!errors.licensePlate?.message}>
+                                <FormLabel>License Plate</FormLabel>
+                                <Input type='text' {...register('licensePlate')} />
+                                <FormErrorMessage>{errors.licensePlate?.message}</FormErrorMessage>
+                            </FormControl>
 
-              <FormControl isInvalid={!!errors.miles?.message}>
-                <FormLabel>Odometer</FormLabel>
-                <Input type='number' {...register('miles')} />
-                <FormErrorMessage>{errors.miles?.message}</FormErrorMessage>
-              </FormControl>
-            </Stack>
+                            <FormControl isInvalid={!!errors.miles?.message}>
+                                <FormLabel>Odometer</FormLabel>
+                                <Input type='number' {...register('miles')} />
+                                <FormErrorMessage>{errors.miles?.message}</FormErrorMessage>
+                            </FormControl>
+                        </Stack>
 
-            <FormControl isInvalid={!!errors.photo?.message}>
-              <FormLabel>Photo</FormLabel>
-              <Controller
-                name='photo'
-                control={control}
-                render={({ field }) => (
-                  <FileDropzone file={field.value} setFile={field.onChange} />
-                )}
-              />
-              <FormErrorMessage>{errors.photo?.message}</FormErrorMessage>
-            </FormControl>
-          </ModalBody>
+                        <FormControl isInvalid={!!errors.photo?.message}>
+                            <FormLabel>Photo</FormLabel>
+                            <Controller
+                                name='photo'
+                                control={control}
+                                render={({ field }) => <FileDropzone file={field.value} setFile={field.onChange} />}
+                            />
+                            <FormErrorMessage>{errors.photo?.message}</FormErrorMessage>
+                        </FormControl>
+                    </ModalBody>
 
-          <ModalFooter>
-            <Button type='button' onClick={() => setIsOpen(false)}>
-              Cancel
-            </Button>
-            <Button type='submit' ml={3} colorScheme='green' isLoading={isAddingOrEditingVehicle}>
-              Save
-            </Button>
-          </ModalFooter>
-        </form>
-      </ModalContent>
-    </Modal>
-  );
+                    <ModalFooter>
+                        <Button type='button' onClick={() => setIsOpen(false)}>
+                            Cancel
+                        </Button>
+                        <Button type='submit' ml={3} colorScheme='green' isLoading={isAddingOrEditingVehicle}>
+                            Save
+                        </Button>
+                    </ModalFooter>
+                </form>
+            </ModalContent>
+        </Modal>
+    );
 };
 
 export default AddOrEditVehicle;

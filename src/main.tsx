@@ -14,101 +14,101 @@ import ResidenceView from './pages/maintenance/ResidenceView';
 import VehicleView from './pages/maintenance/VehicleView';
 
 const rootRoute = new RootRoute({
-  component: App,
+    component: App,
 });
 
 export const rootIndexRoute = new Route({
-  getParentRoute: () => rootRoute,
-  path: '/',
-  component: Home,
+    getParentRoute: () => rootRoute,
+    path: '/',
+    component: Home,
 });
 
 export const loginRoute = new Route({
-  getParentRoute: () => rootRoute,
-  path: '/login',
-  component: Login,
+    getParentRoute: () => rootRoute,
+    path: '/login',
+    component: Login,
 });
 
 export const signupRoute = new Route({
-  getParentRoute: () => rootRoute,
-  path: '/signup',
-  component: SignUp,
+    getParentRoute: () => rootRoute,
+    path: '/signup',
+    component: SignUp,
 });
 
 export const profileRoute = new Route({
-  getParentRoute: () => rootRoute,
-  path: '/profile',
-  component: ProfilePage,
+    getParentRoute: () => rootRoute,
+    path: '/profile',
+    component: ProfilePage,
 });
 
 export const financesRoute = new Route({
-  getParentRoute: () => rootRoute,
-  path: '/finances',
-  component: Finances,
+    getParentRoute: () => rootRoute,
+    path: '/finances',
+    component: Finances,
 });
 
 export const familyBoardRoute = new Route({
-  getParentRoute: () => rootRoute,
-  path: '/familyboard',
-  component: FamilyBoard,
+    getParentRoute: () => rootRoute,
+    path: '/familyboard',
+    component: FamilyBoard,
 });
 
 export const maintenanceRoute = new Route({
-  getParentRoute: () => rootRoute,
-  path: '/maintenance',
-  component: Maintenance,
+    getParentRoute: () => rootRoute,
+    path: '/maintenance',
+    component: Maintenance,
 });
 
 export const vehicleRoute = new Route({
-  getParentRoute: () => rootRoute,
-  path: '/maintenance/vehicles/$vehicleId',
-  component: VehicleView,
+    getParentRoute: () => rootRoute,
+    path: '/maintenance/vehicles/$vehicleId',
+    component: VehicleView,
 });
 
 export const residenceRoute = new Route({
-  getParentRoute: () => rootRoute,
-  path: '/maintenance/residences/$residenceId',
-  component: ResidenceView,
+    getParentRoute: () => rootRoute,
+    path: '/maintenance/residences/$residenceId',
+    component: ResidenceView,
 });
 
 export const groceryListRoute = new Route({
-  getParentRoute: () => rootRoute,
-  path: '/grocerylist',
-  component: GroceryList,
+    getParentRoute: () => rootRoute,
+    path: '/grocerylist',
+    component: GroceryList,
 });
 
 export const joinFamilyRoute = new Route({
-  getParentRoute: () => rootRoute,
-  path: '/joinfamily/$familyId',
-  component: JoinFamily,
+    getParentRoute: () => rootRoute,
+    path: '/joinfamily/$familyId',
+    component: JoinFamily,
 });
 
 const catchAllRoute = new Route({
-  getParentRoute: () => rootRoute,
-  path: '*',
-  component: () => <div>404 Not Found</div>,
+    getParentRoute: () => rootRoute,
+    path: '*',
+    component: () => <div>404 Not Found</div>,
 });
 
 const routeTree = rootRoute.addChildren([
-  rootIndexRoute,
-  loginRoute,
-  signupRoute,
-  profileRoute,
-  financesRoute,
-  familyBoardRoute,
-  maintenanceRoute,
-  vehicleRoute,
-  residenceRoute,
-  groceryListRoute,
-  joinFamilyRoute,
-  catchAllRoute,
+    rootIndexRoute,
+    loginRoute,
+    signupRoute,
+    profileRoute,
+    financesRoute,
+    familyBoardRoute,
+    maintenanceRoute,
+    vehicleRoute,
+    residenceRoute,
+    groceryListRoute,
+    joinFamilyRoute,
+    catchAllRoute,
 ]);
 const router = new Router({ routeTree });
 
 declare module '@tanstack/react-router' {
-  interface Register {
-    router: typeof router;
-  }
+    interface Register {
+        router: typeof router;
+    }
 }
 
 const rootElement = document.getElementById('root') as HTMLElement;

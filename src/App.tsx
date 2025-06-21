@@ -7,16 +7,16 @@ import { Outlet } from '@tanstack/react-router';
 const queryClient = new QueryClient();
 
 const App = (): JSX.Element => {
-  return (
-    <>
-      <ColorModeScript initialColorMode={theme.config.initialColorMode} />
-      <QueryClientProvider client={queryClient}>
-        <AppProvider>
-          <Outlet />
-        </AppProvider>
-      </QueryClientProvider>
-    </>
-  );
+    return (
+        <>
+            <ColorModeScript initialColorMode={theme.config.initialColorMode} />
+            <QueryClientProvider client={queryClient}>
+                <AppProvider>
+                    <Outlet />
+                </AppProvider>
+            </QueryClientProvider>
+        </>
+    );
 };
 
 export default App;

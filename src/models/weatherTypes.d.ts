@@ -1,68 +1,68 @@
 interface WeatherCondition {
-  id: number;
-  main: string;
+    id: number;
+    main: string;
 }
 
 export interface IGeocodeResponse {
-  name: string;
-  state?: string;
-  country: string;
-  lat: number;
-  lon: number;
+    name: string;
+    state?: string;
+    country: string;
+    lat: number;
+    lon: number;
 }
 
 // Only included the ones I currently utilize - there's a few other good ones not captured here
 export interface ICurrentWeatherResponse {
-  dt: number;
-  weather: WeatherCondition[];
-  temp: number;
-  feels_like: number;
-  humidity: number;
-  wind_speed: number;
+    dt: number;
+    weather: WeatherCondition[];
+    temp: number;
+    feels_like: number;
+    humidity: number;
+    wind_speed: number;
 }
 
 export interface IHourlyWeatherResponse extends ICurrentWeatherResponse {
-  pop: number;
+    pop: number;
 }
 
 export interface IDailyWeatherResponse extends Omit<IHourlyWeatherResponse, 'temp'> {
-  temp: {
-    min: number;
-    max: number;
-  };
+    temp: {
+        min: number;
+        max: number;
+    };
 }
 
 export interface IWeatherAlertResponse {
-  sender_name: string;
-  event: string;
-  description: string;
+    sender_name: string;
+    event: string;
+    description: string;
 }
 
 export interface IParsedCurrentWeather {
-  condition: string;
-  iconCode: number;
-  temp: number;
-  feelsLike: number;
-  humidity: number;
-  wind: number;
+    condition: string;
+    iconCode: number;
+    temp: number;
+    feelsLike: number;
+    humidity: number;
+    wind: number;
 }
 
 export interface IParsedHourlyWeather extends Omit<IParsedCurrentWeather, 'wind'> {
-  hour: number;
-  rainChance: number;
+    hour: number;
+    rainChance: number;
 }
 
 export interface IParsedDailyWeather {
-  day: string;
-  iconCode: number;
-  condition: string;
-  tempHigh: number;
-  tempLow: number;
+    day: string;
+    iconCode: number;
+    condition: string;
+    tempHigh: number;
+    tempLow: number;
 }
 
 export interface IWeatherResponse {
-  current: ICurrentWeatherResponse;
-  alerts: IWeatherAlertResponse[];
-  daily: IDailyWeatherResponse[];
-  hourly: IHourlyWeatherResponse[];
+    current: ICurrentWeatherResponse;
+    alerts: IWeatherAlertResponse[];
+    daily: IDailyWeatherResponse[];
+    hourly: IHourlyWeatherResponse[];
 }
