@@ -32,6 +32,7 @@
         "react-dropzone": "^14.2.3",
         "react-hook-form": "^7.52.0",
         "react-icons": "^4.6.0",
+        "react-qr-barcode-scanner": "^2.1.7",
         "recharts": "^2.12.7",
         "uuid": "^10.0.0",
         "yup": "^0.32.11",

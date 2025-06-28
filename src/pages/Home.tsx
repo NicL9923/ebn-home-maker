@@ -50,11 +50,9 @@ const Home = () => {
                     <MajorLinkCard link='/familyboard' icon={<MdOutlineEventNote />} text='Family board' />
                 </Stack>
 
-                <Stack direction='row'>
-                    <MajorLinkCard link='/activities' icon={<MdLocalActivity />} text='Activities' />
+                <MajorLinkCard link='/maintenance' icon={<MdOutlineSettings />} text='Home & Auto maintenance' />
 
-                    <MajorLinkCard link='/maintenance' icon={<MdOutlineSettings />} text='Home & Auto maintenance' />
-                </Stack>
+                <MajorLinkCard link='/activities' icon={<MdLocalActivity />} text='Activities' />
             </Stack>
         </Container>
     );
