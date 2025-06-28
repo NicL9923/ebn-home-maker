@@ -12,6 +12,8 @@ import JoinFamily from './pages/JoinFamily';
 import Maintenance from './pages/maintenance/Maintenance';
 import ResidenceView from './pages/maintenance/ResidenceView';
 import VehicleView from './pages/maintenance/VehicleView';
+import Activities from './pages/Activities';
+import Checkout from './pages/activities/Checkout';
 
 const rootRoute = new RootRoute({
     component: App,
@@ -77,6 +79,18 @@ export const groceryListRoute = new Route({
     component: GroceryList,
 });
 
+export const activitiesRoute = new Route({
+    getParentRoute: () => rootRoute,
+    path: '/activities',
+    component: Activities,
+});
+
+export const checkoutRoute = new Route({
+    getParentRoute: () => rootRoute,
+    path: '/activities/checkout',
+    component: Checkout,
+});
+
 export const joinFamilyRoute = new Route({
     getParentRoute: () => rootRoute,
     path: '/joinfamily/$familyId',
@@ -100,6 +114,8 @@ const routeTree = rootRoute.addChildren([
     vehicleRoute,
     residenceRoute,
     groceryListRoute,
+    activitiesRoute,
+    checkoutRoute,
     joinFamilyRoute,
     catchAllRoute,
 ]);

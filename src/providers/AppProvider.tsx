@@ -13,7 +13,7 @@ import { useUserStore } from '../state/UserStore';
 import ThemeProvider from './ThemeProvider';
 import { ProviderProps } from './providerTypes';
 
-// TODO: See about handling the routes a little less weirdly when not signed in, etc.
+// TODO: Consider implementing a more robust route protection system that handles auth states more elegantly: See about handling the routes a little less weirdly when not signed in, etc.
 
 const AppProvider = ({ children }: ProviderProps) => {
     const toast = useToast();

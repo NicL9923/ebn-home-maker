@@ -11,7 +11,15 @@ import {
     Text,
 } from '@chakra-ui/react';
 import { Link } from '@tanstack/react-router';
-import { MdHome, MdList, MdMenu, MdOutlineEventNote, MdOutlinePayments, MdOutlineSettings } from 'react-icons/md';
+import {
+    MdHome,
+    MdList,
+    MdMenu,
+    MdOutlineEventNote,
+    MdOutlinePayments,
+    MdOutlineSettings,
+    MdLocalActivity,
+} from 'react-icons/md';
 import { useUserStore } from '../state/UserStore';
 import ProfileIcon from './ProfileIcon';
 
@@ -57,6 +65,12 @@ const Navbar = () => {
                         <Link to='/familyboard'>
                             <MenuItem icon={<MdOutlineEventNote />}>
                                 <Text>Family board</Text>
+                            </MenuItem>
+                        </Link>
+
+                        <Link to='/activities'>
+                            <MenuItem icon={<MdLocalActivity />}>
+                                <Text>Activities</Text>
                             </MenuItem>
                         </Link>
 

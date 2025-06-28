@@ -1,11 +1,11 @@
 import { Card, CardBody, Container, Heading, Stack, Text } from '@chakra-ui/react';
 import { Link } from '@tanstack/react-router';
-import { MdList, MdOutlineEventNote, MdOutlinePayments, MdOutlineSettings } from 'react-icons/md';
+import { MdList, MdOutlineEventNote, MdOutlinePayments, MdOutlineSettings, MdLocalActivity } from 'react-icons/md';
 import Clock from '../components/Clock';
 import { useUserStore } from '../state/UserStore';
 
 interface MajorLinkCardProps {
-    link: '/finances' | '/grocerylist' | '/familyboard' | '/maintenance';
+    link: '/finances' | '/grocerylist' | '/familyboard' | '/maintenance' | '/activities';
     icon: JSX.Element;
     text: string;
 }
@@ -50,7 +50,11 @@ const Home = () => {
                     <MajorLinkCard link='/familyboard' icon={<MdOutlineEventNote />} text='Family board' />
                 </Stack>
 
-                <MajorLinkCard link='/maintenance' icon={<MdOutlineSettings />} text='Home & Auto maintenance' />
+                <Stack direction='row'>
+                    <MajorLinkCard link='/activities' icon={<MdLocalActivity />} text='Activities' />
+
+                    <MajorLinkCard link='/maintenance' icon={<MdOutlineSettings />} text='Home & Auto maintenance' />
+                </Stack>
             </Stack>
         </Container>
     );
