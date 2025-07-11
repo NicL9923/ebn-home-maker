@@ -19,18 +19,27 @@ import { Link } from '@tanstack/react-router';
 import { useCallback, useState } from 'react';
 import { MdArrowBack, MdBarcodeReader, MdDelete, MdShoppingCart } from 'react-icons/md';
 import { BarcodeScannerModal } from '../../components/Activities/Checkout/BarcodeScannerModal';
+import { genUuid } from '../../utils/utils';
 
-const GROCERY_ITEMS = [
-    { id: 1, name: 'Apple', price: 1.99, image: '🍎', barcode: '123456789' },
-    { id: 2, name: 'Banana', price: 0.99, image: '🍌', barcode: '987654321' },
-    { id: 3, name: 'Milk', price: 3.49, image: '🥛', barcode: '456789123' },
-    { id: 4, name: 'Bread', price: 2.99, image: '🍞', barcode: '789123456' },
-    { id: 5, name: 'Cheese', price: 4.99, image: '🧀', barcode: '321654987' },
-    { id: 6, name: 'Eggs', price: 3.99, image: '🥚', barcode: '654987321' },
-    { id: 7, name: 'Orange', price: 2.49, image: '🍊', barcode: '147258369' },
-    { id: 8, name: 'Carrot', price: 1.79, image: '🥕', barcode: '369258147' },
-    { id: 9, name: 'Chicken', price: 8.99, image: '🍗', barcode: '258147369' },
-    { id: 10, name: 'Tomato', price: 2.99, image: '🍅', barcode: '741852963' },
+interface GroceryItem {
+    id: string;
+    name: string;
+    price: number;
+    image: string;
+    barcode: string;
+}
+
+const GROCERY_ITEMS: GroceryItem[] = [
+    { id: '1', name: 'Apple', price: 1.99, image: '🍎', barcode: '123456789' },
+    { id: '2', name: 'Banana', price: 0.99, image: '🍌', barcode: '987654321' },
+    { id: '3', name: 'Milk', price: 3.49, image: '🥛', barcode: '456789123' },
+    { id: '4', name: 'Bread', price: 2.99, image: '🍞', barcode: '789123456' },
+    { id: '5', name: 'Cheese', price: 4.99, image: '🧀', barcode: '321654987' },
+    { id: '6', name: 'Eggs', price: 3.99, image: '🥚', barcode: '654987321' },
+    { id: '7', name: 'Orange', price: 2.49, image: '🍊', barcode: '147258369' },
+    { id: '8', name: 'Carrot', price: 1.79, image: '🥕', barcode: '369258147' },
+    { id: '9', name: 'Chicken', price: 8.99, image: '🍗', barcode: '258147369' },
+    { id: '10', name: 'Tomato', price: 2.99, image: '🍅', barcode: '741852963' },
 ];
 
 const hashBarcodeToPrice = (barcode: string): number => {
@@ -40,15 +49,11 @@ const hashBarcodeToPrice = (barcode: string): number => {
         hash = (hash << 5) - hash + char;
         hash = hash & hash; // Convert to 32bit integer
     }
-    // Convert to price between $1.00 and $10.00
-    return ((Math.abs(hash) % 900) + 100) / 100;
+    // Convert to price between $1.00 and $20.00
+    return ((Math.abs(hash) % 1900) + 100) / 100;
 };
 
-interface CartItem {
-    id: number;
-    name: string;
-    price: number;
-    image: string;
+interface CartItem extends GroceryItem {
     quantity: number;
 }
 
@@ -86,7 +91,7 @@ const Checkout = () => {
         [toast],
     );
 
-    const removeFromCart = useCallback((itemId: number) => {
+    const removeFromCart = useCallback((itemId: string) => {
         setCart((prevCart) => {
             const item = prevCart.find((cartItem) => cartItem.id === itemId);
             if (!item) return prevCart;
@@ -112,11 +117,10 @@ const Checkout = () => {
             if (knownItem) {
                 addToCart(knownItem);
             } else {
-                // Generate price from barcode hash
                 const price = hashBarcodeToPrice(data);
-                const scannedItem = {
-                    id: Date.now(), // Use timestamp as unique ID
-                    name: `Scanned Item`,
+                const scannedItem: GroceryItem = {
+                    id: genUuid(),
+                    name: `Scanned item`,
                     price: price,
                     image: '📦',
                     barcode: data,
@@ -198,7 +202,7 @@ const Checkout = () => {
                                     onClick={openScanner}
                                     size='lg'
                                 >
-                                    Scan Barcode
+                                    Scan barcode
                                 </Button>
                                 <Button
                                     leftIcon={<MdShoppingCart />}
@@ -260,7 +264,7 @@ const Checkout = () => {
                     <Card>
                         <CardBody>
                             <Heading size='md' mb={4} textAlign='center' color='orange.600'>
-                                Shopping Cart
+                                Shopping cart
                             </Heading>
                             {cart.length === 0 ? (
                                 <Box textAlign='center' py={8} color='gray.500'>
