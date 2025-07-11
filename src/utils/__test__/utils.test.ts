@@ -8,6 +8,7 @@ import {
     getAbsDiffAndComparisonOfMonetaryValues,
     getCurrencyString,
     getMonetaryValue2DecimalString,
+    hashBarcodeToPrice,
     roundTo2Decimals,
 } from '../utils';
 
@@ -121,6 +122,50 @@ describe('utils', () => {
 
         it('correctly calculates an over difference', () => {
             expect(getAbsDiffAndComparisonOfMonetaryValues(13.47, 2.83)).toEqual(['over', '10.64']);
+        });
+    });
+
+    describe('hashBarcodeToPrice', () => {
+        it('should return consistent prices for the same barcode', () => {
+            const barcode = '123456789';
+            const price1 = hashBarcodeToPrice(barcode);
+            const price2 = hashBarcodeToPrice(barcode);
+
+            expect(price1).toBe(price2);
+            expect(price1).toBeTypeOf('number');
+            expect(price1).toBeGreaterThan(0);
+        });
+
+        it('should return different prices for different barcodes', () => {
+            const barcode1 = '123456789';
+            const barcode2 = '987654321';
+            const price1 = hashBarcodeToPrice(barcode1);
+            const price2 = hashBarcodeToPrice(barcode2);
+
+            expect(price1).not.toBe(price2);
+            expect(price1).toBeGreaterThan(0);
+            expect(price2).toBeGreaterThan(0);
+        });
+
+        it('should return prices within the expected ranges', () => {
+            // Test multiple barcodes to check range distribution
+            const testBarcodes = ['111111111', '222222222', '333333333', '444444444', '555555555'];
+
+            testBarcodes.forEach((barcode) => {
+                const price = hashBarcodeToPrice(barcode);
+
+                // Should be positive and properly rounded to 2 decimals
+                expect(price).toBeGreaterThan(0);
+                expect(price).toBeLessThanOrEqual(1000);
+                expect(Number((price * 100).toFixed(0)) / 100).toBe(price); // Check proper rounding
+
+                // Price should fall into one of our three tiers
+                const isInTier1 = price >= 0.01 && price <= 20.0;
+                const isInTier2 = price >= 20.01 && price <= 100.0;
+                const isInTier3 = price >= 100.01 && price <= 1000.0;
+
+                expect(isInTier1 || isInTier2 || isInTier3).toBe(true);
+            });
         });
     });
 });

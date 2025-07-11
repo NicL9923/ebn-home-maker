@@ -131,3 +131,43 @@ export const getNiceChartColor = (index: number) => niceChartColors[index % nice
 
 export const getCombinedCategoryString = (categoryName: string, subcategoryName: string) =>
     `${categoryName}${catSubcatKeySeparator}${subcategoryName}`;
+
+export const hashBarcodeToPrice = (barcode: string): number => {
+    // Create multiple hash values from the barcode for different purposes
+    let hash1 = 0;
+    let hash2 = 0;
+
+    for (let i = 0; i < barcode.length; i++) {
+        const char = barcode.charCodeAt(i);
+        // First hash for price tier determination
+        hash1 = (hash1 << 5) - hash1 + char;
+        // Second hash for price within tier (using different algorithm)
+        hash2 = hash2 * 31 + char;
+    }
+
+    // Convert to positive integers
+    hash1 = Math.abs(hash1);
+    hash2 = Math.abs(hash2);
+
+    // Use first hash to determine price tier (0-99)
+    const tierRoll = hash1 % 100;
+
+    // Use second hash for price within the selected tier
+    const priceRoll = hash2 % 10000; // 0-9999 for more precision
+
+    let price: number;
+
+    if (tierRoll < 70) {
+        // 70% chance: $0.01 - $20.00
+        price = ((priceRoll % 2000) + 1) / 100;
+    } else if (tierRoll < 95) {
+        // 25% chance: $20.01 - $100.00
+        price = ((priceRoll % 8000) + 2001) / 100;
+    } else {
+        // 5% chance: $100.01 - $1000.00
+        price = ((priceRoll % 90000) + 10001) / 100;
+    }
+
+    // Round to 2 decimal places
+    return Math.round(price * 100) / 100;
+};

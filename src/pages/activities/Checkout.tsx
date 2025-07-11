@@ -19,7 +19,7 @@ import { Link } from '@tanstack/react-router';
 import { useCallback, useState } from 'react';
 import { MdArrowBack, MdBarcodeReader, MdDelete, MdShoppingCart } from 'react-icons/md';
 import { BarcodeScannerModal } from '../../components/Activities/Checkout/BarcodeScannerModal';
-import { genUuid } from '../../utils/utils';
+import { genUuid, hashBarcodeToPrice } from '../../utils/utils';
 
 interface GroceryItem {
     id: string;
@@ -41,17 +41,6 @@ const GROCERY_ITEMS: GroceryItem[] = [
     { id: '9', name: 'Chicken', price: 8.99, image: '🍗', barcode: '258147369' },
     { id: '10', name: 'Tomato', price: 2.99, image: '🍅', barcode: '741852963' },
 ];
-
-const hashBarcodeToPrice = (barcode: string): number => {
-    let hash = 0;
-    for (let i = 0; i < barcode.length; i++) {
-        const char = barcode.charCodeAt(i);
-        hash = (hash << 5) - hash + char;
-        hash = hash & hash; // Convert to 32bit integer
-    }
-    // Convert to price between $1.00 and $20.00
-    return ((Math.abs(hash) % 1900) + 100) / 100;
-};
 
 interface CartItem extends GroceryItem {
     quantity: number;
