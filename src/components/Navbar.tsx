@@ -68,15 +68,15 @@ const Navbar = () => {
                             </MenuItem>
                         </Link>
 
-                        <Link to='/activities'>
-                            <MenuItem icon={<MdLocalActivity />}>
-                                <Text>Activities</Text>
-                            </MenuItem>
-                        </Link>
-
                         <Link to='/maintenance'>
                             <MenuItem icon={<MdOutlineSettings />}>
                                 <Text>Home/Auto maintenance</Text>
+                            </MenuItem>
+                        </Link>
+
+                        <Link to='/activities'>
+                            <MenuItem icon={<MdLocalActivity />}>
+                                <Text>Activities</Text>
                             </MenuItem>
                         </Link>
                     </MenuList>
