@@ -10,12 +10,6 @@ import {
     Heading,
     HStack,
     IconButton,
-    Modal,
-    ModalBody,
-    ModalCloseButton,
-    ModalContent,
-    ModalHeader,
-    ModalOverlay,
     Text,
     useDisclosure,
     useToast,
@@ -23,12 +17,9 @@ import {
 } from '@chakra-ui/react';
 import { Link } from '@tanstack/react-router';
 import { useCallback, useState } from 'react';
-import { MdArrowBack, MdCamera, MdDelete, MdShoppingCart } from 'react-icons/md';
-import BarcodeScannerComponent from 'react-qr-barcode-scanner';
+import { MdArrowBack, MdBarcodeReader, MdDelete, MdShoppingCart } from 'react-icons/md';
+import { BarcodeScannerModal } from '../../components/Activities/Checkout/BarcodeScannerModal';
 
-// TODO: Clean this up
-
-// Grocery item data with images
 const GROCERY_ITEMS = [
     { id: 1, name: 'Apple', price: 1.99, image: '🍎', barcode: '123456789' },
     { id: 2, name: 'Banana', price: 0.99, image: '🍌', barcode: '987654321' },
@@ -42,7 +33,6 @@ const GROCERY_ITEMS = [
     { id: 10, name: 'Tomato', price: 2.99, image: '🍅', barcode: '741852963' },
 ];
 
-// Hash function to convert barcode to price
 const hashBarcodeToPrice = (barcode: string): number => {
     let hash = 0;
     for (let i = 0; i < barcode.length; i++) {
@@ -68,7 +58,6 @@ const Checkout = () => {
     const [cart, setCart] = useState<CartItem[]>([]);
     const [total, setTotal] = useState(0);
 
-    // Add item to cart
     const addToCart = useCallback(
         (item: (typeof GROCERY_ITEMS)[0]) => {
             setCart((prevCart) => {
@@ -97,7 +86,6 @@ const Checkout = () => {
         [toast],
     );
 
-    // Remove item from cart
     const removeFromCart = useCallback((itemId: number) => {
         setCart((prevCart) => {
             const item = prevCart.find((cartItem) => cartItem.id === itemId);
@@ -115,12 +103,10 @@ const Checkout = () => {
         });
     }, []);
 
-    // Handle barcode scan
     const handleBarcodeScan = useCallback(
         (data: string) => {
             if (!data) return;
 
-            // Check if it's a known item
             const knownItem = GROCERY_ITEMS.find((item) => item.barcode === data);
 
             if (knownItem) {
@@ -143,7 +129,6 @@ const Checkout = () => {
         [addToCart, closeScanner],
     );
 
-    // Clear cart
     const clearCart = useCallback(() => {
         setCart([]);
         setTotal(0);
@@ -156,7 +141,6 @@ const Checkout = () => {
         });
     }, [toast]);
 
-    // Complete purchase
     const completePurchase = useCallback(() => {
         if (cart.length === 0) {
             toast({
@@ -191,15 +175,14 @@ const Checkout = () => {
             <VStack spacing={6} align='stretch'>
                 <Box textAlign='center'>
                     <Heading size='xl' mb={2} color='green.600'>
-                        🛒 Kid's Cash Register 🛒
+                        🛒 Checkout 🛒
                     </Heading>
                     <Text fontSize='lg' color='gray.600'>
                         Scan barcodes or click items to add them to your cart!
                     </Text>
                 </Box>
 
-                {/* Total Display */}
-                <Card bg='green.50' borderColor='green.200' borderWidth={2}>
+                <Card borderColor='green.200' borderWidth={2}>
                     <CardBody textAlign='center'>
                         <VStack spacing={2}>
                             <Text fontSize='sm' color='gray.600' fontWeight='bold'>
@@ -209,7 +192,12 @@ const Checkout = () => {
                                 ${total.toFixed(2)}
                             </Text>
                             <HStack spacing={4}>
-                                <Button leftIcon={<MdCamera />} colorScheme='blue' onClick={openScanner} size='lg'>
+                                <Button
+                                    leftIcon={<MdBarcodeReader />}
+                                    colorScheme='blue'
+                                    onClick={openScanner}
+                                    size='lg'
+                                >
                                     Scan Barcode
                                 </Button>
                                 <Button
@@ -237,11 +225,10 @@ const Checkout = () => {
                 </Card>
 
                 <Grid templateColumns={{ base: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)', lg: 'repeat(2, 1fr)' }} gap={6}>
-                    {/* Grocery Items */}
                     <Card>
                         <CardBody>
                             <Heading size='md' mb={4} textAlign='center' color='blue.600'>
-                                🥬 Grocery Items 🥬
+                                Groceries
                             </Heading>
                             <Grid templateColumns='repeat(3, 1fr)' gap={3}>
                                 {GROCERY_ITEMS.map((item) => (
@@ -251,7 +238,6 @@ const Checkout = () => {
                                         onClick={() => addToCart(item)}
                                         _hover={{ shadow: 'md', transform: 'scale(1.05)' }}
                                         transition='all 0.2s'
-                                        bg='white'
                                         borderWidth={1}
                                     >
                                         <CardBody p={3} textAlign='center'>
@@ -271,11 +257,10 @@ const Checkout = () => {
                         </CardBody>
                     </Card>
 
-                    {/* Shopping Cart */}
                     <Card>
                         <CardBody>
                             <Heading size='md' mb={4} textAlign='center' color='orange.600'>
-                                🛍️ Shopping Cart 🛍️
+                                Shopping Cart
                             </Heading>
                             {cart.length === 0 ? (
                                 <Box textAlign='center' py={8} color='gray.500'>
@@ -325,35 +310,11 @@ const Checkout = () => {
                 </Grid>
             </VStack>
 
-            {/* Barcode Scanner Modal */}
-            <Modal isOpen={isScannerOpen} onClose={closeScanner} size='lg'>
-                <ModalOverlay />
-                <ModalContent>
-                    <ModalHeader textAlign='center'>📱 Scan Barcode 📱</ModalHeader>
-                    <ModalCloseButton />
-                    <ModalBody pb={6}>
-                        <VStack spacing={4}>
-                            <Text textAlign='center' color='gray.600'>
-                                Point your camera at a barcode or QR code
-                            </Text>
-                            <Box borderRadius='lg' overflow='hidden' w='full' h='300px'>
-                                <BarcodeScannerComponent
-                                    width='100%'
-                                    height='100%'
-                                    onUpdate={(_err, result) => {
-                                        if (result) {
-                                            handleBarcodeScan(result.getText());
-                                        }
-                                    }}
-                                />
-                            </Box>
-                            <Text fontSize='sm' color='gray.500' textAlign='center'>
-                                Scanned barcodes will be converted to random prices between $1.00-$10.00
-                            </Text>
-                        </VStack>
-                    </ModalBody>
-                </ModalContent>
-            </Modal>
+            <BarcodeScannerModal
+                isOpen={isScannerOpen}
+                handleBarcodeScan={handleBarcodeScan}
+                closeScanner={closeScanner}
+            />
         </Container>
     );
 };
